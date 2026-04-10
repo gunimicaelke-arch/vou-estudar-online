@@ -15,22 +15,21 @@ dotenv.config();
 const app = express();
 const port = Number(process.env.PORT || 3000);
 const allowedOrigin = process.env.ALLOWED_ORIGIN || "*";
-const defaultModel = process.env.DEFAULT_MODEL || "gpt-5.4-nano";
+const defaultModel = process.env.DEFAULT_MODEL || "gpt-4.1-mini";
 const paymentLink = process.env.PAYMENT_LINK || "#";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const DATA_DIR = path.join(__dirname, "data");
-const BACKUP_DIR = path.join(__dirname, "backups");
 const DB_FILE = path.join(DATA_DIR, "db.json");
-const INDEX_FILE = path.join(__dirname, "vou-estudar-ia-real.html");
+const INDEX_FILE = path.join(__dirname, "index.html");
 
-const TRIAL_DAYS = 2;
-const WEEK_MS = 7 * 24 * 60 * 60 * 1000;
+const TRIAL_DAYS = 3;
 
-if (!fs.existsSync(DATA_DIR)) fs.mkdirSync(DATA_DIR, { recursive: true });
-if (!fs.existsSync(BACKUP_DIR)) fs.mkdirSync(BACKUP_DIR, { recursive: true });
+if (!fs.existsSync(DATA_DIR)) {
+  fs.mkdirSync(DATA_DIR, { recursive: true });
+}
 
 if (!fs.existsSync(DB_FILE)) {
   fs.writeFileSync(
@@ -39,8 +38,7 @@ if (!fs.existsSync(DB_FILE)) {
       {
         users: [],
         trabalhos: [],
-        conteudos: [],
-        backups: []
+        conteudos: []
       },
       null,
       2
@@ -53,7 +51,7 @@ function loadDB() {
   try {
     return JSON.parse(fs.readFileSync(DB_FILE, "utf-8"));
   } catch {
-    return { users: [], trabalhos: [], conteudos: [], backups: [] };
+    return { users: [], trabalhos: [], conteudos: [] };
   }
 }
 
@@ -67,6 +65,11 @@ function nowISO() {
 
 function makeId(prefix = "id") {
   return `${prefix}_${Date.now()}_${Math.floor(Math.random() * 100000)}`;
+}
+
+function cortarTexto(texto = "", limite = 3000) {
+  if (typeof texto !== "string") return "";
+  return texto.trim().slice(0, limite);
 }
 
 function daysBetween(startISO, endDate = new Date()) {
@@ -91,12 +94,14 @@ function getOrCreateUser(email, name = "Aluno") {
   const db = loadDB();
   const normalizedEmail = String(email).trim().toLowerCase();
 
-  let user = db.users.find(u => String(u.email).toLowerCase() === normalizedEmail);
+  let user = db.users.find(
+    (u) => String(u.email).trim().toLowerCase() === normalizedEmail
+  );
 
   if (!user) {
     user = {
       id: makeId("user"),
-      name,
+      name: name || "Aluno",
       email: normalizedEmail,
       createdAt: nowISO(),
       trialStartedAt: nowISO(),
@@ -113,7 +118,9 @@ function getOrCreateUser(email, name = "Aluno") {
 function updateUser(email, updater) {
   const db = loadDB();
   const normalizedEmail = String(email).trim().toLowerCase();
-  const index = db.users.findIndex(u => String(u.email).toLowerCase() === normalizedEmail);
+  const index = db.users.findIndex(
+    (u) => String(u.email).trim().toLowerCase() === normalizedEmail
+  );
 
   if (index === -1) return null;
 
@@ -122,64 +129,19 @@ function updateUser(email, updater) {
   return db.users[index];
 }
 
-function createBackup(reason = "weekly_auto") {
-  const db = loadDB();
-  const stamp = new Date().toISOString().replace(/[:.]/g, "-");
-  const filename = `backup-${reason}-${stamp}.json`;
-  const fullpath = path.join(BACKUP_DIR, filename);
-
-  const payload = {
-    createdAt: nowISO(),
-    reason,
-    snapshot: db
-  };
-
-  fs.writeFileSync(fullpath, JSON.stringify(payload, null, 2), "utf-8");
-
-  db.backups.push({
-    id: makeId("backup"),
-    filename,
-    createdAt: payload.createdAt,
-    reason
-  });
-
-  saveDB(db);
-
-  return {
-    filename,
-    createdAt: payload.createdAt
-  };
-}
-
-function scheduleWeeklyBackup() {
-  setInterval(() => {
-    try {
-      createBackup("weekly_auto");
-      console.log("Backup semanal criado com sucesso.");
-    } catch (error) {
-      console.error("Erro ao gerar backup semanal:", error);
-    }
-  }, WEEK_MS);
-}
-
-function cortarTexto(texto = "", limite = 3000) {
-  if (typeof texto !== "string") return "";
-  return texto.trim().slice(0, limite);
-}
-
 function extrairTextoDoResponse(response) {
   if (response?.output_text) return response.output_text;
 
   try {
-    const texts = [];
+    const textos = [];
     for (const item of response?.output || []) {
       for (const content of item?.content || []) {
         if (content?.type === "output_text" && content?.text) {
-          texts.push(content.text);
+          textos.push(content.text);
         }
       }
     }
-    return texts.join("\n").trim();
+    return textos.join("\n").trim();
   } catch {
     return "";
   }
@@ -217,7 +179,7 @@ async function extrairTextoArquivo(file) {
     workbook.SheetNames.forEach((sheetName) => {
       const ws = workbook.Sheets[sheetName];
       const rows = xlsx.utils.sheet_to_json(ws, { header: 1, defval: "" });
-      const text = rows.map(row => row.join(" | ")).join("\n");
+      const text = rows.map((row) => row.join(" | ")).join("\n");
       partes.push(`Planilha: ${sheetName}\n${text}`);
     });
 
@@ -240,9 +202,7 @@ function tratarErroOpenAI(err, res) {
 
   const status = err?.status || err?.code || 500;
   const detalhe =
-    err?.error?.message ||
-    err?.message ||
-    "Erro interno ao acessar o serviço.";
+    err?.error?.message || err?.message || "Erro interno ao acessar o serviço.";
 
   if (status === 429) {
     return res.status(429).json({
@@ -271,7 +231,10 @@ function tratarErroOpenAI(err, res) {
 }
 
 function requireAccess(req, res, next) {
-  const email = String(req.headers["x-user-email"] || req.body?.email || req.query?.email || "").trim();
+  const email = String(
+    req.headers["x-user-email"] || req.body?.email || req.query?.email || ""
+  ).trim();
+
   const name = String(req.body?.name || req.query?.name || "Aluno").trim();
 
   if (!email) {
@@ -305,7 +268,7 @@ const upload = multer({
 });
 
 app.use(cors({ origin: allowedOrigin === "*" ? true : allowedOrigin }));
-app.use(express.json({ limit: "4mb" }));
+app.use(express.json({ limit: "6mb" }));
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static(__dirname));
 
@@ -325,9 +288,9 @@ app.get("/api/health", (req, res) => {
     users: db.users.length,
     trabalhos: db.trabalhos.length,
     conteudos: db.conteudos.length,
-    backups: db.backups.length,
     hasOpenAIKey: Boolean(process.env.OPENAI_API_KEY),
-    paymentLinkConfigured: paymentLink !== "#"
+    paymentLinkConfigured: paymentLink !== "#",
+    model: defaultModel
   });
 });
 
@@ -423,88 +386,6 @@ app.post("/api/subscription/deactivate", (req, res) => {
   });
 });
 
-app.post("/api/trabalhos", requireAccess, (req, res) => {
-  const db = loadDB();
-
-  const trabalho = {
-    id: makeId("work"),
-    userEmail: req.user.email,
-    titulo: cortarTexto(req.body?.titulo || "", 160),
-    materia: cortarTexto(req.body?.materia || "", 100),
-    data: cortarTexto(req.body?.data || "", 30),
-    hora: cortarTexto(req.body?.hora || "", 20),
-    lembrete: cortarTexto(req.body?.lembrete || "Sem lembrete", 40),
-    status: cortarTexto(req.body?.status || "Pendente", 40),
-    anexoNome: cortarTexto(req.body?.anexoNome || "", 200),
-    createdAt: nowISO()
-  };
-
-  if (!trabalho.titulo) {
-    return res.status(400).json({
-      ok: false,
-      mensagem: "Título é obrigatório."
-    });
-  }
-
-  db.trabalhos.unshift(trabalho);
-  saveDB(db);
-
-  return res.json({
-    ok: true,
-    trabalho
-  });
-});
-
-app.get("/api/trabalhos", requireAccess, (req, res) => {
-  const db = loadDB();
-  const lista = db.trabalhos.filter(t => t.userEmail === req.user.email);
-  return res.json({
-    ok: true,
-    trabalhos: lista
-  });
-});
-
-app.delete("/api/trabalhos/:id", requireAccess, (req, res) => {
-  const db = loadDB();
-  const id = String(req.params.id);
-  const antes = db.trabalhos.length;
-
-  db.trabalhos = db.trabalhos.filter(
-    t => !(t.id === id && t.userEmail === req.user.email)
-  );
-
-  saveDB(db);
-
-  return res.json({
-    ok: true,
-    removido: antes !== db.trabalhos.length
-  });
-});
-
-app.patch("/api/trabalhos/:id/concluir", requireAccess, (req, res) => {
-  const db = loadDB();
-  const id = String(req.params.id);
-
-  const index = db.trabalhos.findIndex(
-    t => t.id === id && t.userEmail === req.user.email
-  );
-
-  if (index === -1) {
-    return res.status(404).json({
-      ok: false,
-      mensagem: "Trabalho não encontrado."
-    });
-  }
-
-  db.trabalhos[index].status = "Concluído";
-  saveDB(db);
-
-  return res.json({
-    ok: true,
-    trabalho: db.trabalhos[index]
-  });
-});
-
 app.post("/api/extract-file", requireAccess, upload.single("file"), async (req, res) => {
   try {
     if (!req.file) {
@@ -549,9 +430,9 @@ app.post("/api/study-ai", requireAccess, async (req, res) => {
       });
     }
 
-    const mode = String(req.body?.mode || "chat").toLowerCase();
+    const mode = String(req.body?.mode || "explain").toLowerCase();
     const materia = cortarTexto(req.body?.materia || "", 100);
-    const conteudo = cortarTexto(req.body?.conteudo || "", 3500);
+    const conteudo = cortarTexto(req.body?.conteudo || "", 12000);
     const dataProva = cortarTexto(req.body?.dataProva || "", 40);
     const diasPorSemana = cortarTexto(String(req.body?.diasPorSemana || ""), 20);
     const horasPorDia = cortarTexto(String(req.body?.horasPorDia || ""), 20);
@@ -564,44 +445,112 @@ app.post("/api/study-ai", requireAccess, async (req, res) => {
     }
 
     let input = "";
-    let max_output_tokens = 300;
+    let max_output_tokens = 900;
 
     if (mode === "test") {
       input = "Responda apenas: conexão ok";
       max_output_tokens = 20;
-    } else if (mode === "analyze") {
+    } else if (mode === "explain") {
       input = `
-Resuma o conteúdo abaixo em português do Brasil.
-Mostre os pontos principais e o foco de estudo.
+Você é um professor particular claro e didático.
+
+Sua função é explicar o conteúdo enviado de forma simples, organizada e útil para estudo.
+
+Objetivo:
+- explicar os pontos principais
+- mostrar os conceitos centrais
+- organizar a resposta em blocos curtos
+- evitar texto longo e bagunçado
+
+Quero a resposta neste formato:
+
+1. VISÃO GERAL
+2. PONTOS PRINCIPAIS
+3. O QUE O ALUNO PRECISA ENTENDER DE VERDADE
+4. EXPLICAÇÃO SIMPLES
+5. DICA DE FIXAÇÃO
+
+Regras:
+- usar português do Brasil
+- ser claro e objetivo
+- não fazer resumo genérico de livro
+- organizar o conteúdo em partes curtas
+- explicar como professor
 
 Matéria: ${materia || "Não informada"}
 
 Conteúdo:
 ${conteudo}
       `;
-      max_output_tokens = 350;
+      max_output_tokens = 850;
     } else if (mode === "plan") {
       input = `
-Monte um plano de estudo simples em português do Brasil.
+Você é um especialista em preparação para provas.
 
-Matéria: ${materia || "Não informada"}
-Data da prova: ${dataProva || "Não informada"}
-Dias por semana: ${diasPorSemana || "Não informado"}
-Horas por dia: ${horasPorDia || "Não informado"}
+Sua função NÃO é fazer resumo genérico.
+Sua função é analisar o conteúdo enviado e montar um cronograma de estudo estratégico.
+
+Objetivo:
+- identificar os pontos mais importantes do material
+- destacar os temas com maior chance de cair na prova
+- organizar um cronograma de estudo prático
+- mostrar o que estudar primeiro, depois e por último
+- sugerir o melhor método de estudo para cada etapa
+- considerar como mais prováveis os conceitos centrais, definições, classificações, etapas, exceções, comparações e tópicos repetidos no material
+
+Dados do aluno:
+- Matéria: ${materia || "Não informada"}
+- Data da prova: ${dataProva || "Não informada"}
+- Dias por semana disponíveis: ${diasPorSemana || "Não informado"}
+- Horas por dia: ${horasPorDia || "Não informado"}
+
+Quero a resposta neste formato exato:
+
+1. TEMAS PRIORITÁRIOS
+- liste os tópicos mais importantes
+
+2. CHANCE DE CAIR NA PROVA
+- Muito alta
+- Alta
+- Média
+
+3. CRONOGRAMA DE ESTUDO
+- dividir por dias ou etapas
+- organizar a sequência do estudo
+
+4. REVISÃO E FIXAÇÃO
+- quando revisar
+- como revisar
+
+5. MÉTODO MAIS EFICIENTE
+- dizer como estudar esse conteúdo de forma mais forte para prova
+
+6. ALERTA FINAL
+- o que o aluno não pode deixar de estudar
+
+Regras:
+- não fazer texto longo e misturado
+- ser objetivo e organizado
+- focar em prova
+- transformar o conteúdo em estratégia de estudo
+- se o conteúdo for grande, priorizar os pontos centrais
+- usar português do Brasil
+- deixar visualmente fácil de ler
 
 Conteúdo:
 ${conteudo}
       `;
-      max_output_tokens = 500;
+      max_output_tokens = 1100;
     } else {
       input = `
-Explique o conteúdo abaixo de forma clara e objetiva em português do Brasil.
+Explique o conteúdo abaixo de forma clara, objetiva e organizada em português do Brasil.
 
 Matéria: ${materia || "Não informada"}
 
 Conteúdo:
 ${conteudo}
       `;
+      max_output_tokens = 700;
     }
 
     const response = await openai.responses.create({
@@ -633,31 +582,88 @@ ${conteudo}
   }
 });
 
-app.post("/api/backup/manual", (req, res) => {
-  try {
-    const backup = createBackup("manual");
-    return res.json({
-      ok: true,
-      mensagem: "Backup criado com sucesso.",
-      backup
-    });
-  } catch (error) {
-    return res.status(500).json({
+app.post("/api/trabalhos", requireAccess, (req, res) => {
+  const db = loadDB();
+
+  const trabalho = {
+    id: makeId("work"),
+    userEmail: req.user.email,
+    titulo: cortarTexto(req.body?.titulo || "", 160),
+    materia: cortarTexto(req.body?.materia || "", 100),
+    data: cortarTexto(req.body?.data || "", 30),
+    hora: cortarTexto(req.body?.hora || "", 20),
+    lembrete: cortarTexto(req.body?.lembrete || "Sem lembrete", 40),
+    status: cortarTexto(req.body?.status || "Pendente", 40),
+    anexoNome: cortarTexto(req.body?.anexoNome || "", 200),
+    createdAt: nowISO()
+  };
+
+  if (!trabalho.titulo) {
+    return res.status(400).json({
       ok: false,
-      mensagem: "Erro ao criar backup."
+      mensagem: "Título é obrigatório."
     });
   }
-});
 
-app.get("/api/backups", (req, res) => {
-  const db = loadDB();
+  db.trabalhos.unshift(trabalho);
+  saveDB(db);
+
   return res.json({
     ok: true,
-    backups: db.backups
+    trabalho
   });
 });
 
-scheduleWeeklyBackup();
+app.get("/api/trabalhos", requireAccess, (req, res) => {
+  const db = loadDB();
+  const lista = db.trabalhos.filter((t) => t.userEmail === req.user.email);
+
+  return res.json({
+    ok: true,
+    trabalhos: lista
+  });
+});
+
+app.delete("/api/trabalhos/:id", requireAccess, (req, res) => {
+  const db = loadDB();
+  const id = String(req.params.id);
+  const antes = db.trabalhos.length;
+
+  db.trabalhos = db.trabalhos.filter(
+    (t) => !(t.id === id && t.userEmail === req.user.email)
+  );
+
+  saveDB(db);
+
+  return res.json({
+    ok: true,
+    removido: antes !== db.trabalhos.length
+  });
+});
+
+app.patch("/api/trabalhos/:id/concluir", requireAccess, (req, res) => {
+  const db = loadDB();
+  const id = String(req.params.id);
+
+  const index = db.trabalhos.findIndex(
+    (t) => t.id === id && t.userEmail === req.user.email
+  );
+
+  if (index === -1) {
+    return res.status(404).json({
+      ok: false,
+      mensagem: "Trabalho não encontrado."
+    });
+  }
+
+  db.trabalhos[index].status = "Concluído";
+  saveDB(db);
+
+  return res.json({
+    ok: true,
+    trabalho: db.trabalhos[index]
+  });
+});
 
 app.listen(port, () => {
   console.log(`Servidor rodando na porta ${port}`);
