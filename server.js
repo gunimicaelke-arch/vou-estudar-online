@@ -28,14 +28,17 @@ const upload = multer({
   limits: { fileSize: 15 * 1024 * 1024 }
 });
 
-const client = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
-
 function ensureApiKey() {
   if (!process.env.OPENAI_API_KEY) {
     const error = new Error("OPENAI_API_KEY não configurada no servidor.");
     error.statusCode = 500;
     throw error;
   }
+}
+
+function getOpenAIClient() {
+  ensureApiKey();
+  return new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 }
 
 function cleanText(text) {
@@ -122,7 +125,7 @@ function sheetToText(workbook) {
     const rows = xlsx.utils.sheet_to_json(sheet, { header: 1, defval: "" });
     parts.push(`--- Aba: ${sheetName} ---`);
     for (const row of rows) {
-      parts.push(row.map(cell => String(cell)).join(" | "));
+      parts.push(row.map((cell) => String(cell)).join(" | "));
     }
     parts.push("");
   }
@@ -201,7 +204,7 @@ app.post("/api/extract-file", upload.single("file"), async (req, res) => {
 
 app.post("/api/study-ai", async (req, res) => {
   try {
-    ensureApiKey();
+    const client = getOpenAIClient();
 
     const { action, content, subjects, examDate, hoursPerDay, model } = req.body || {};
     const normalizedContent = cleanText(content);
@@ -216,14 +219,15 @@ app.post("/api/study-ai", async (req, res) => {
     const normalizedAction = action === "plan" ? "plan" : "analyze";
     const selectedModel = cleanText(model) || defaultModel;
 
-    const prompt = normalizedAction === "plan"
-      ? buildPlanPrompt({
-          content: normalizedContent,
-          subjects: cleanText(subjects),
-          examDate: cleanText(examDate),
-          hoursPerDay: cleanText(hoursPerDay)
-        })
-      : buildAnalyzePrompt(normalizedContent);
+    const prompt =
+      normalizedAction === "plan"
+        ? buildPlanPrompt({
+            content: normalizedContent,
+            subjects: cleanText(subjects),
+            examDate: cleanText(examDate),
+            hoursPerDay: cleanText(hoursPerDay)
+          })
+        : buildAnalyzePrompt(normalizedContent);
 
     const response = await client.responses.create({
       model: selectedModel,
