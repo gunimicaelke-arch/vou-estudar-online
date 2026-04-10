@@ -1,664 +1,956 @@
-import express from "express";
-import cors from "cors";
-import dotenv from "dotenv";
-import fs from "fs";
-import path from "path";
-import { fileURLToPath } from "url";
-import multer from "multer";
-import OpenAI from "openai";
-import pdfParse from "pdf-parse";
-import mammoth from "mammoth";
-import xlsx from "xlsx";
 
-dotenv.config();
-
-const app = express();
-const port = Number(process.env.PORT || 3000);
-const allowedOrigin = process.env.ALLOWED_ORIGIN || "*";
-const defaultModel = process.env.DEFAULT_MODEL || "gpt-5.4-nano";
-const paymentLink = process.env.PAYMENT_LINK || "#";
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-
-const DATA_DIR = path.join(__dirname, "data");
-const BACKUP_DIR = path.join(__dirname, "backups");
-const DB_FILE = path.join(DATA_DIR, "db.json");
-const INDEX_FILE = path.join(__dirname, "index.html");
-
-const TRIAL_DAYS = 2;
-const WEEK_MS = 7 * 24 * 60 * 60 * 1000;
-
-if (!fs.existsSync(DATA_DIR)) fs.mkdirSync(DATA_DIR, { recursive: true });
-if (!fs.existsSync(BACKUP_DIR)) fs.mkdirSync(BACKUP_DIR, { recursive: true });
-
-if (!fs.existsSync(DB_FILE)) {
-  fs.writeFileSync(
-    DB_FILE,
-    JSON.stringify(
-      {
-        users: [],
-        trabalhos: [],
-        conteudos: [],
-        backups: []
-      },
-      null,
-      2
-    ),
-    "utf-8"
-  );
-}
-
-function loadDB() {
-  try {
-    return JSON.parse(fs.readFileSync(DB_FILE, "utf-8"));
-  } catch {
-    return { users: [], trabalhos: [], conteudos: [], backups: [] };
-  }
-}
-
-function saveDB(db) {
-  fs.writeFileSync(DB_FILE, JSON.stringify(db, null, 2), "utf-8");
-}
-
-function nowISO() {
-  return new Date().toISOString();
-}
-
-function makeId(prefix = "id") {
-  return `${prefix}_${Date.now()}_${Math.floor(Math.random() * 100000)}`;
-}
-
-function daysBetween(startISO, endDate = new Date()) {
-  const start = new Date(startISO);
-  const diff = endDate.getTime() - start.getTime();
-  return diff / (1000 * 60 * 60 * 24);
-}
-
-function isTrialExpired(user) {
-  if (!user?.trialStartedAt) return false;
-  if (user.subscriptionActive) return false;
-  return daysBetween(user.trialStartedAt) >= TRIAL_DAYS;
-}
-
-function remainingTrialDays(user) {
-  if (!user?.trialStartedAt) return TRIAL_DAYS;
-  const used = daysBetween(user.trialStartedAt);
-  return Math.max(0, Math.ceil(TRIAL_DAYS - used));
-}
-
-function getOrCreateUser(email, name = "Aluno") {
-  const db = loadDB();
-  const normalizedEmail = String(email).trim().toLowerCase();
-
-  let user = db.users.find(u => String(u.email).toLowerCase() === normalizedEmail);
-
-  if (!user) {
-    user = {
-      id: makeId("user"),
-      name,
-      email: normalizedEmail,
-      createdAt: nowISO(),
-      trialStartedAt: nowISO(),
-      subscriptionActive: false,
-      plan: "teste"
-    };
-    db.users.push(user);
-    saveDB(db);
-  }
-
-  return user;
-}
-
-function updateUser(email, updater) {
-  const db = loadDB();
-  const normalizedEmail = String(email).trim().toLowerCase();
-  const index = db.users.findIndex(u => String(u.email).toLowerCase() === normalizedEmail);
-
-  if (index === -1) return null;
-
-  db.users[index] = { ...db.users[index], ...updater };
-  saveDB(db);
-  return db.users[index];
-}
-
-function createBackup(reason = "weekly_auto") {
-  const db = loadDB();
-  const stamp = new Date().toISOString().replace(/[:.]/g, "-");
-  const filename = `backup-${reason}-${stamp}.json`;
-  const fullpath = path.join(BACKUP_DIR, filename);
-
-  const payload = {
-    createdAt: nowISO(),
-    reason,
-    snapshot: db
-  };
-
-  fs.writeFileSync(fullpath, JSON.stringify(payload, null, 2), "utf-8");
-
-  db.backups.push({
-    id: makeId("backup"),
-    filename,
-    createdAt: payload.createdAt,
-    reason
-  });
-
-  saveDB(db);
-
-  return {
-    filename,
-    createdAt: payload.createdAt
-  };
-}
-
-function scheduleWeeklyBackup() {
-  setInterval(() => {
-    try {
-      createBackup("weekly_auto");
-      console.log("Backup semanal criado com sucesso.");
-    } catch (error) {
-      console.error("Erro ao gerar backup semanal:", error);
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Vou Estudar+</title>
+  <style>
+    :root{
+      --bg:#07111f;
+      --bg2:#0d1b31;
+      --card:#10213d;
+      --line:rgba(255,255,255,.08);
+      --text:#eef6ff;
+      --muted:#a9bfdc;
+      --primary:#00d4ff;
+      --primary2:#6d7cff;
+      --success:#35d6a7;
+      --danger:#ff6b81;
+      --warn:#ffc857;
     }
-  }, WEEK_MS);
-}
 
-function cortarTexto(texto = "", limite = 3000) {
-  if (typeof texto !== "string") return "";
-  return texto.trim().slice(0, limite);
-}
+    *{
+      box-sizing:border-box;
+      margin:0;
+      padding:0;
+    }
 
-function extrairTextoDoResponse(response) {
-  if (response?.output_text) return response.output_text;
+    body{
+      font-family:Arial, Helvetica, sans-serif;
+      background:
+        radial-gradient(circle at top left, rgba(0,212,255,.10), transparent 30%),
+        radial-gradient(circle at top right, rgba(109,124,255,.12), transparent 28%),
+        linear-gradient(180deg, var(--bg), #091527 100%);
+      color:var(--text);
+      min-height:100vh;
+    }
 
-  try {
-    const texts = [];
-    for (const item of response?.output || []) {
-      for (const content of item?.content || []) {
-        if (content?.type === "output_text" && content?.text) {
-          texts.push(content.text);
-        }
+    .container{
+      width:min(1100px, calc(100% - 24px));
+      margin:0 auto;
+      padding:20px 0 40px;
+    }
+
+    .hero{
+      background:linear-gradient(145deg, rgba(15,28,52,.96), rgba(8,18,35,.98));
+      border:1px solid var(--line);
+      border-radius:24px;
+      padding:24px;
+      box-shadow:0 18px 40px rgba(0,0,0,.25);
+      margin-bottom:18px;
+    }
+
+    .hero-top{
+      display:flex;
+      justify-content:space-between;
+      gap:16px;
+      flex-wrap:wrap;
+      align-items:flex-start;
+    }
+
+    .badge{
+      display:inline-block;
+      padding:8px 14px;
+      border-radius:999px;
+      background:rgba(0,212,255,.10);
+      border:1px solid rgba(0,212,255,.18);
+      color:#8cecff;
+      font-size:12px;
+      font-weight:700;
+      letter-spacing:.8px;
+      margin-bottom:12px;
+    }
+
+    h1{
+      font-size:clamp(28px,5vw,42px);
+      line-height:1.08;
+      margin-bottom:12px;
+    }
+
+    .subtitle{
+      color:var(--muted);
+      max-width:700px;
+      line-height:1.6;
+      font-size:15px;
+    }
+
+    .trial-box{
+      background:rgba(255,255,255,.04);
+      border:1px solid var(--line);
+      border-radius:18px;
+      padding:16px;
+      min-width:260px;
+    }
+
+    .trial-box strong{
+      display:block;
+      margin-bottom:8px;
+      font-size:16px;
+    }
+
+    .trial-status{
+      color:#9ee9ff;
+      font-weight:700;
+      margin-bottom:8px;
+    }
+
+    .trial-note{
+      color:var(--muted);
+      font-size:13px;
+      line-height:1.5;
+    }
+
+    .section{
+      background:rgba(15,28,52,.96);
+      border:1px solid var(--line);
+      border-radius:22px;
+      padding:20px;
+      box-shadow:0 16px 36px rgba(0,0,0,.20);
+      margin-bottom:18px;
+    }
+
+    .section h2{
+      font-size:24px;
+      margin-bottom:6px;
+    }
+
+    .section p.head{
+      color:var(--muted);
+      margin-bottom:18px;
+      line-height:1.5;
+    }
+
+    .grid-2{
+      display:grid;
+      grid-template-columns:1.2fr .8fr;
+      gap:16px;
+    }
+
+    .card{
+      background:rgba(255,255,255,.03);
+      border:1px solid var(--line);
+      border-radius:18px;
+      padding:16px;
+    }
+
+    .card h3{
+      margin-bottom:14px;
+      font-size:18px;
+    }
+
+    .field{
+      margin-bottom:14px;
+    }
+
+    label{
+      display:block;
+      font-size:13px;
+      font-weight:700;
+      margin-bottom:7px;
+      color:#dcecff;
+    }
+
+    input, textarea, select{
+      width:100%;
+      border:none;
+      outline:none;
+      border-radius:14px;
+      padding:14px;
+      background:rgba(255,255,255,.05);
+      border:1px solid rgba(255,255,255,.08);
+      color:var(--text);
+      font-size:14px;
+    }
+
+    input::placeholder, textarea::placeholder{
+      color:#8ea6c5;
+    }
+
+    textarea{
+      min-height:180px;
+      resize:vertical;
+    }
+
+    .row{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:12px;
+    }
+
+    .actions{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      margin-top:6px;
+    }
+
+    button, .link-btn{
+      border:none;
+      cursor:pointer;
+      border-radius:14px;
+      padding:13px 16px;
+      font-weight:800;
+      text-decoration:none;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      transition:.18s ease;
+    }
+
+    .btn-primary{
+      background:linear-gradient(135deg, var(--primary), #66ecff);
+      color:#06111b;
+    }
+
+    .btn-success{
+      background:linear-gradient(135deg, var(--success), #7df0cc);
+      color:#062118;
+    }
+
+    .btn-secondary{
+      background:rgba(255,255,255,.05);
+      border:1px solid rgba(255,255,255,.08);
+      color:var(--text);
+    }
+
+    button:hover, .link-btn:hover{
+      transform:translateY(-1px);
+    }
+
+    .result{
+      min-height:180px;
+      white-space:pre-wrap;
+      line-height:1.6;
+      color:#eef6ff;
+    }
+
+    .status{
+      margin-top:10px;
+      font-size:13px;
+      color:var(--muted);
+    }
+
+    .price-box{
+      margin-top:18px;
+      background:linear-gradient(145deg, rgba(0,212,255,.10), rgba(109,124,255,.10));
+      border:1px solid rgba(0,212,255,.16);
+      border-radius:18px;
+      padding:18px;
+      text-align:center;
+    }
+
+    .price-box h3{
+      margin-bottom:8px;
+      font-size:24px;
+    }
+
+    .price{
+      font-size:38px;
+      font-weight:900;
+      margin-bottom:8px;
+    }
+
+    .price small{
+      font-size:18px;
+      color:#a8ddff;
+    }
+
+    .work-list{
+      display:grid;
+      gap:12px;
+      margin-top:14px;
+    }
+
+    .work-item{
+      background:rgba(255,255,255,.04);
+      border:1px solid var(--line);
+      border-radius:16px;
+      padding:14px;
+    }
+
+    .work-item strong{
+      display:block;
+      font-size:16px;
+      margin-bottom:6px;
+    }
+
+    .work-meta{
+      color:var(--muted);
+      font-size:13px;
+      line-height:1.6;
+      margin-bottom:10px;
+    }
+
+    .pill{
+      display:inline-block;
+      padding:6px 10px;
+      border-radius:999px;
+      font-size:12px;
+      font-weight:800;
+      background:rgba(53,214,167,.12);
+      border:1px solid rgba(53,214,167,.18);
+      color:#9df2d7;
+      margin-bottom:10px;
+    }
+
+    .overlay{
+      position:fixed;
+      inset:0;
+      background:rgba(5,10,18,.86);
+      backdrop-filter:blur(6px);
+      display:none;
+      align-items:center;
+      justify-content:center;
+      padding:18px;
+      z-index:9999;
+    }
+
+    .overlay.active{
+      display:flex;
+    }
+
+    .overlay-box{
+      width:min(520px,100%);
+      background:linear-gradient(145deg, rgba(15,28,52,.98), rgba(8,18,35,.99));
+      border:1px solid rgba(0,212,255,.18);
+      border-radius:22px;
+      padding:24px;
+      text-align:center;
+    }
+
+    .overlay-box h3{
+      font-size:26px;
+      margin-bottom:10px;
+    }
+
+    .overlay-box p{
+      color:var(--muted);
+      line-height:1.6;
+      margin-bottom:14px;
+    }
+
+    .overlay-days{
+      display:inline-block;
+      padding:10px 14px;
+      border-radius:14px;
+      background:rgba(255,255,255,.05);
+      margin-bottom:14px;
+      font-weight:800;
+    }
+
+    @media (max-width: 900px){
+      .grid-2{
+        grid-template-columns:1fr;
       }
     }
-    return texts.join("\n").trim();
-  } catch {
-    return "";
-  }
-}
 
-async function extrairTextoArquivo(file) {
-  const nome = (file.originalname || "").toLowerCase();
-  const mime = (file.mimetype || "").toLowerCase();
-  const buffer = file.buffer;
+    @media (max-width: 640px){
+      .container{
+        width:min(100% - 14px, 100%);
+      }
 
-  if (mime.includes("pdf") || nome.endsWith(".pdf")) {
-    const data = await pdfParse(buffer);
-    return data.text || "";
-  }
+      .row{
+        grid-template-columns:1fr;
+      }
 
-  if (
-    mime.includes("word") ||
-    mime.includes("officedocument.wordprocessingml") ||
-    nome.endsWith(".docx")
-  ) {
-    const result = await mammoth.extractRawText({ buffer });
-    return result.value || "";
-  }
+      .actions{
+        flex-direction:column;
+      }
 
-  if (
-    mime.includes("sheet") ||
-    mime.includes("excel") ||
-    nome.endsWith(".xlsx") ||
-    nome.endsWith(".xls") ||
-    nome.endsWith(".csv")
-  ) {
-    const workbook = xlsx.read(buffer, { type: "buffer" });
-    const partes = [];
+      button, .link-btn{
+        width:100%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <section class="hero">
+      <div class="hero-top">
+        <div>
+          <div class="badge">PLATAFORMA DE ESTUDO</div>
+          <h1>Estude com mais organização, foco e controle</h1>
+          <div class="subtitle">
+            Organize seu conteúdo, monte seu plano de estudo, acompanhe seus trabalhos
+            e mantenha sua rotina de aprendizagem em um só lugar.
+          </div>
+        </div>
 
-    workbook.SheetNames.forEach((sheetName) => {
-      const ws = workbook.Sheets[sheetName];
-      const rows = xlsx.utils.sheet_to_json(ws, { header: 1, defval: "" });
-      const text = rows.map(row => row.join(" | ")).join("\n");
-      partes.push(`Planilha: ${sheetName}\n${text}`);
-    });
+        <div class="trial-box">
+          <strong>Período de teste</strong>
+          <div id="trialStatus" class="trial-status">Carregando...</div>
+          <div class="trial-note">
+            Informe seu email para começar. Após o período de teste, o acesso passa a exigir assinatura.
+          </div>
+        </div>
+      </div>
+    </section>
 
-    return partes.join("\n\n");
-  }
+    <section class="section">
+      <h2>Acesso</h2>
+      <p class="head">Use seu email para entrar e acompanhar seu período de acesso.</p>
 
-  if (
-    mime.startsWith("text/") ||
-    nome.endsWith(".txt") ||
-    nome.endsWith(".md")
-  ) {
-    return buffer.toString("utf-8");
-  }
+      <div class="row">
+        <div class="field">
+          <label for="email">Email</label>
+          <input id="email" type="email" placeholder="Digite seu email">
+        </div>
+        <div class="field">
+          <label for="nome">Nome</label>
+          <input id="nome" type="text" placeholder="Digite seu nome">
+        </div>
+      </div>
 
-  throw new Error("Formato de arquivo não suportado.");
-}
+      <div class="actions">
+        <button class="btn-primary" onclick="iniciarAcesso()">Entrar no sistema</button>
+        <button class="btn-secondary" onclick="consultarStatus()">Verificar acesso</button>
+      </div>
 
-function tratarErroOpenAI(err, res) {
-  console.error("Erro OpenAI:", err);
+      <div class="status" id="loginStatus"></div>
+    </section>
 
-  const status = err?.status || err?.code || 500;
-  const detalhe =
-    err?.error?.message ||
-    err?.message ||
-    "Erro interno ao acessar o serviço.";
+    <section class="section">
+      <h2>Estudo inteligente</h2>
+      <p class="head">Cole um conteúdo, importe um arquivo e gere apoio para o seu estudo.</p>
 
-  if (status === 429) {
-    return res.status(429).json({
-      ok: false,
-      tipo: "quota",
-      mensagem: "Limite de uso atingido no momento.",
-      detalhe
-    });
-  }
+      <div class="grid-2">
+        <div class="card">
+          <h3>Conteúdo</h3>
 
-  if (status === 401) {
-    return res.status(401).json({
-      ok: false,
-      tipo: "auth",
-      mensagem: "Chave do serviço inválida ou ausente.",
-      detalhe
-    });
-  }
+          <div class="field">
+            <label for="materia">Matéria</label>
+            <input id="materia" type="text" placeholder="Ex.: Direito, História, Biologia">
+          </div>
 
-  return res.status(500).json({
-    ok: false,
-    tipo: "server",
-    mensagem: "Erro ao processar a solicitação.",
-    detalhe
-  });
-}
+          <div class="row">
+            <div class="field">
+              <label for="dataProva">Data da prova</label>
+              <input id="dataProva" type="text" placeholder="Ex.: 25/05/2026">
+            </div>
+            <div class="field">
+              <label for="diasPorSemana">Dias por semana</label>
+              <input id="diasPorSemana" type="number" placeholder="5">
+            </div>
+          </div>
 
-function requireAccess(req, res, next) {
-  const email = String(req.headers["x-user-email"] || req.body?.email || req.query?.email || "").trim();
-  const name = String(req.body?.name || req.query?.name || "Aluno").trim();
+          <div class="field">
+            <label for="horasPorDia">Horas por dia</label>
+            <input id="horasPorDia" type="number" placeholder="2">
+          </div>
 
-  if (!email) {
-    return res.status(400).json({
-      ok: false,
-      mensagem: "Email do usuário não enviado."
-    });
-  }
+          <div class="field">
+            <label for="conteudo">Conteúdo</label>
+            <textarea id="conteudo" placeholder="Cole aqui o conteúdo para resumir, explicar ou montar plano."></textarea>
+          </div>
 
-  const user = getOrCreateUser(email, name);
+          <div class="actions">
+            <button class="btn-primary" onclick="analisarConteudo()">Analisar conteúdo</button>
+            <button class="btn-success" onclick="gerarPlano()">Gerar plano</button>
+            <button class="btn-secondary" onclick="limparConteudo()">Limpar</button>
+          </div>
+        </div>
 
-  if (isTrialExpired(user)) {
-    return res.status(403).json({
-      ok: false,
-      blocked: true,
-      motivo: "trial_expired",
-      mensagem: "Seu período de teste terminou. Assine para continuar.",
-      trialRemainingDays: 0,
-      subscriptionActive: user.subscriptionActive,
-      paymentLink
-    });
-  }
+        <div class="card">
+          <h3>Importar arquivo</h3>
 
-  req.user = user;
-  next();
-}
+          <div class="field">
+            <label for="arquivoConteudo">Selecionar arquivo</label>
+            <input id="arquivoConteudo" type="file">
+          </div>
 
-const upload = multer({
-  storage: multer.memoryStorage(),
-  limits: { fileSize: 10 * 1024 * 1024 }
-});
+          <div class="actions">
+            <button class="btn-primary" onclick="importarArquivo()">Importar conteúdo</button>
+          </div>
 
-app.use(cors({ origin: allowedOrigin === "*" ? true : allowedOrigin }));
-app.use(express.json({ limit: "4mb" }));
-app.use(express.urlencoded({ extended: true }));
-app.use(express.static(__dirname));
+          <div class="price-box">
+            <h3>Assinatura mensal</h3>
+            <div class="price">R$ 15,00 <small>/mês</small></div>
+            <a id="paymentBtn" class="link-btn btn-success" href="#" target="_blank" rel="noopener noreferrer">
+              Assinar agora
+            </a>
+          </div>
+        </div>
+      </div>
 
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY
-});
+      <div class="card" style="margin-top:16px">
+        <h3>Resultado</h3>
+        <div id="resultado" class="result">Seu conteúdo aparecerá aqui.</div>
+      </div>
+    </section>
 
-app.get("/", (req, res) => {
-  res.sendFile(INDEX_FILE);
-});
+    <section class="section">
+      <h2>Gestão de trabalhos</h2>
+      <p class="head">Cadastre suas atividades e acompanhe tudo de forma organizada.</p>
 
-app.get("/api/health", (req, res) => {
-  const db = loadDB();
-  res.json({
-    ok: true,
-    status: "online",
-    users: db.users.length,
-    trabalhos: db.trabalhos.length,
-    conteudos: db.conteudos.length,
-    backups: db.backups.length,
-    hasOpenAIKey: Boolean(process.env.OPENAI_API_KEY),
-    paymentLinkConfigured: paymentLink !== "#"
-  });
-});
+      <div class="grid-2">
+        <div class="card">
+          <h3>Novo trabalho</h3>
 
-app.post("/api/trial/start", (req, res) => {
-  const email = String(req.body?.email || "").trim();
-  const name = String(req.body?.name || "Aluno").trim();
+          <div class="field">
+            <label for="trabalhoTitulo">Título</label>
+            <input id="trabalhoTitulo" type="text" placeholder="Título do trabalho">
+          </div>
 
-  if (!email) {
-    return res.status(400).json({
-      ok: false,
-      mensagem: "Email é obrigatório."
-    });
-  }
+          <div class="field">
+            <label for="trabalhoMateria">Matéria</label>
+            <input id="trabalhoMateria" type="text" placeholder="Matéria">
+          </div>
 
-  const user = getOrCreateUser(email, name);
+          <div class="row">
+            <div class="field">
+              <label for="trabalhoData">Data</label>
+              <input id="trabalhoData" type="date">
+            </div>
+            <div class="field">
+              <label for="trabalhoHora">Horário</label>
+              <input id="trabalhoHora" type="time">
+            </div>
+          </div>
 
-  return res.json({
-    ok: true,
-    user,
-    trialRemainingDays: remainingTrialDays(user),
-    subscriptionActive: user.subscriptionActive,
-    paymentLink
-  });
-});
+          <div class="row">
+            <div class="field">
+              <label for="trabalhoLembrete">Lembrete</label>
+              <select id="trabalhoLembrete">
+                <option>Sem lembrete</option>
+                <option>No horário</option>
+                <option>30 minutos antes</option>
+                <option>1 hora antes</option>
+                <option>1 dia antes</option>
+              </select>
+            </div>
 
-app.get("/api/access-status", (req, res) => {
-  const email = String(req.query?.email || "").trim();
+            <div class="field">
+              <label for="trabalhoStatus">Status</label>
+              <select id="trabalhoStatus">
+                <option>Pendente</option>
+                <option>Em andamento</option>
+                <option>Concluído</option>
+              </select>
+            </div>
+          </div>
 
-  if (!email) {
-    return res.status(400).json({
-      ok: false,
-      mensagem: "Email é obrigatório."
-    });
-  }
+          <div class="field">
+            <label for="trabalhoArquivo">Anexo</label>
+            <input id="trabalhoArquivo" type="file">
+          </div>
 
-  const user = getOrCreateUser(email);
+          <div class="actions">
+            <button class="btn-success" onclick="salvarTrabalho()">Salvar trabalho</button>
+            <button class="btn-secondary" onclick="carregarTrabalhos()">Atualizar lista</button>
+          </div>
+        </div>
 
-  return res.json({
-    ok: true,
-    email: user.email,
-    subscriptionActive: user.subscriptionActive,
-    plan: user.plan,
-    blocked: isTrialExpired(user),
-    trialRemainingDays: remainingTrialDays(user),
-    trialStartedAt: user.trialStartedAt,
-    paymentLink
-  });
-});
+        <div class="card">
+          <h3>Lista de trabalhos</h3>
+          <div id="listaTrabalhos" class="work-list"></div>
+        </div>
+      </div>
+    </section>
+  </div>
 
-app.post("/api/subscription/activate", (req, res) => {
-  const email = String(req.body?.email || "").trim();
-  const plan = String(req.body?.plan || "premium").trim();
+  <div id="overlay" class="overlay">
+    <div class="overlay-box">
+      <h3>Acesso bloqueado</h3>
+      <p>Seu período de teste terminou. Para continuar usando a plataforma, ative sua assinatura.</p>
+      <div id="overlayDays" class="overlay-days">Teste encerrado</div>
+      <div class="actions" style="justify-content:center;">
+        <a id="overlayPaymentBtn" class="link-btn btn-success" href="#" target="_blank" rel="noopener noreferrer">
+          Assinar por R$ 15,00/mês
+        </a>
+        <button class="btn-secondary" onclick="consultarStatus()">Atualizar status</button>
+      </div>
+    </div>
+  </div>
 
-  if (!email) {
-    return res.status(400).json({
-      ok: false,
-      mensagem: "Email é obrigatório."
-    });
-  }
+  <script>
+    let currentEmail = "";
+    let paymentLink = "#";
 
-  getOrCreateUser(email);
-  const updated = updateUser(email, {
-    subscriptionActive: true,
-    plan
-  });
-
-  return res.json({
-    ok: true,
-    mensagem: "Assinatura ativada com sucesso.",
-    user: updated
-  });
-});
-
-app.post("/api/subscription/deactivate", (req, res) => {
-  const email = String(req.body?.email || "").trim();
-
-  if (!email) {
-    return res.status(400).json({
-      ok: false,
-      mensagem: "Email é obrigatório."
-    });
-  }
-
-  const updated = updateUser(email, {
-    subscriptionActive: false,
-    plan: "teste"
-  });
-
-  return res.json({
-    ok: true,
-    mensagem: "Assinatura desativada.",
-    user: updated
-  });
-});
-
-app.post("/api/trabalhos", requireAccess, (req, res) => {
-  const db = loadDB();
-
-  const trabalho = {
-    id: makeId("work"),
-    userEmail: req.user.email,
-    titulo: cortarTexto(req.body?.titulo || "", 160),
-    materia: cortarTexto(req.body?.materia || "", 100),
-    data: cortarTexto(req.body?.data || "", 30),
-    hora: cortarTexto(req.body?.hora || "", 20),
-    lembrete: cortarTexto(req.body?.lembrete || "Sem lembrete", 40),
-    status: cortarTexto(req.body?.status || "Pendente", 40),
-    anexoNome: cortarTexto(req.body?.anexoNome || "", 200),
-    createdAt: nowISO()
-  };
-
-  if (!trabalho.titulo) {
-    return res.status(400).json({
-      ok: false,
-      mensagem: "Título é obrigatório."
-    });
-  }
-
-  db.trabalhos.unshift(trabalho);
-  saveDB(db);
-
-  return res.json({
-    ok: true,
-    trabalho
-  });
-});
-
-app.get("/api/trabalhos", requireAccess, (req, res) => {
-  const db = loadDB();
-  const lista = db.trabalhos.filter(t => t.userEmail === req.user.email);
-  return res.json({
-    ok: true,
-    trabalhos: lista
-  });
-});
-
-app.delete("/api/trabalhos/:id", requireAccess, (req, res) => {
-  const db = loadDB();
-  const id = String(req.params.id);
-  const antes = db.trabalhos.length;
-
-  db.trabalhos = db.trabalhos.filter(
-    t => !(t.id === id && t.userEmail === req.user.email)
-  );
-
-  saveDB(db);
-
-  return res.json({
-    ok: true,
-    removido: antes !== db.trabalhos.length
-  });
-});
-
-app.patch("/api/trabalhos/:id/concluir", requireAccess, (req, res) => {
-  const db = loadDB();
-  const id = String(req.params.id);
-
-  const index = db.trabalhos.findIndex(
-    t => t.id === id && t.userEmail === req.user.email
-  );
-
-  if (index === -1) {
-    return res.status(404).json({
-      ok: false,
-      mensagem: "Trabalho não encontrado."
-    });
-  }
-
-  db.trabalhos[index].status = "Concluído";
-  saveDB(db);
-
-  return res.json({
-    ok: true,
-    trabalho: db.trabalhos[index]
-  });
-});
-
-app.post("/api/extract-file", requireAccess, upload.single("file"), async (req, res) => {
-  try {
-    if (!req.file) {
-      return res.status(400).json({
-        ok: false,
-        mensagem: "Nenhum arquivo enviado."
-      });
+    function setStatus(message){
+      document.getElementById("loginStatus").textContent = message || "";
     }
 
-    const texto = await extrairTextoArquivo(req.file);
-    const textoLimpo = cortarTexto(texto, 12000);
-
-    const db = loadDB();
-    db.conteudos.unshift({
-      id: makeId("content"),
-      userEmail: req.user.email,
-      fileName: req.file.originalname,
-      extractedText: textoLimpo,
-      createdAt: nowISO()
-    });
-    saveDB(db);
-
-    return res.json({
-      ok: true,
-      fileName: req.file.originalname,
-      extractedText: textoLimpo
-    });
-  } catch (error) {
-    return res.status(400).json({
-      ok: false,
-      mensagem: error.message || "Erro ao extrair arquivo."
-    });
-  }
-});
-
-app.post("/api/study-ai", requireAccess, async (req, res) => {
-  try {
-    if (!process.env.OPENAI_API_KEY) {
-      return res.status(500).json({
-        ok: false,
-        mensagem: "OPENAI_API_KEY não configurada."
-      });
+    function setResultado(message){
+      document.getElementById("resultado").textContent = message || "";
     }
 
-    const mode = String(req.body?.mode || "chat").toLowerCase();
-    const materia = cortarTexto(req.body?.materia || "", 100);
-    const conteudo = cortarTexto(req.body?.conteudo || "", 3500);
-    const dataProva = cortarTexto(req.body?.dataProva || "", 40);
-    const diasPorSemana = cortarTexto(String(req.body?.diasPorSemana || ""), 20);
-    const horasPorDia = cortarTexto(String(req.body?.horasPorDia || ""), 20);
-
-    if (!conteudo && mode !== "test") {
-      return res.status(400).json({
-        ok: false,
-        mensagem: "Conteúdo é obrigatório."
-      });
+    function getEmail(){
+      return document.getElementById("email").value.trim().toLowerCase();
     }
 
-    let input = "";
-    let max_output_tokens = 300;
-
-    if (mode === "test") {
-      input = "Responda apenas: conexão ok";
-      max_output_tokens = 20;
-    } else if (mode === "analyze") {
-      input = `
-Resuma o conteúdo abaixo em português do Brasil.
-Mostre os pontos principais e o foco de estudo.
-
-Matéria: ${materia || "Não informada"}
-
-Conteúdo:
-${conteudo}
-      `;
-      max_output_tokens = 350;
-    } else if (mode === "plan") {
-      input = `
-Monte um plano de estudo simples em português do Brasil.
-
-Matéria: ${materia || "Não informada"}
-Data da prova: ${dataProva || "Não informada"}
-Dias por semana: ${diasPorSemana || "Não informado"}
-Horas por dia: ${horasPorDia || "Não informado"}
-
-Conteúdo:
-${conteudo}
-      `;
-      max_output_tokens = 500;
-    } else {
-      input = `
-Explique o conteúdo abaixo de forma clara e objetiva em português do Brasil.
-
-Matéria: ${materia || "Não informada"}
-
-Conteúdo:
-${conteudo}
-      `;
+    function getNome(){
+      return document.getElementById("nome").value.trim();
     }
 
-    const response = await openai.responses.create({
-      model: defaultModel,
-      input,
-      max_output_tokens
-    });
+    function updatePaymentButtons(){
+      document.getElementById("paymentBtn").href = paymentLink || "#";
+      document.getElementById("overlayPaymentBtn").href = paymentLink || "#";
+    }
 
-    const resultado = extrairTextoDoResponse(response);
+    function showBlocked(message){
+      document.getElementById("overlayDays").textContent = message || "Teste encerrado";
+      document.getElementById("overlay").classList.add("active");
+    }
 
-    const db = loadDB();
-    db.conteudos.unshift({
-      id: makeId("ai"),
-      userEmail: req.user.email,
-      mode,
-      materia,
-      conteudo,
-      resultado,
-      createdAt: nowISO()
-    });
-    saveDB(db);
+    function hideBlocked(){
+      document.getElementById("overlay").classList.remove("active");
+    }
 
-    return res.json({
-      ok: true,
-      resultado
-    });
-  } catch (err) {
-    return tratarErroOpenAI(err, res);
-  }
-});
+    async function iniciarAcesso(){
+      const email = getEmail();
+      const name = getNome();
 
-app.post("/api/backup/manual", (req, res) => {
-  try {
-    const backup = createBackup("manual");
-    return res.json({
-      ok: true,
-      mensagem: "Backup criado com sucesso.",
-      backup
-    });
-  } catch (error) {
-    return res.status(500).json({
-      ok: false,
-      mensagem: "Erro ao criar backup."
-    });
-  }
-});
+      if(!email){
+        setStatus("Digite seu email para entrar.");
+        return;
+      }
 
-app.get("/api/backups", (req, res) => {
-  const db = loadDB();
-  return res.json({
-    ok: true,
-    backups: db.backups
-  });
-});
+      try{
+        const response = await fetch("/api/trial/start", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email, name })
+        });
 
-scheduleWeeklyBackup();
+        const data = await response.json();
 
-app.listen(port, () => {
-  console.log(`Servidor rodando na porta ${port}`);
-});
+        if(!data.ok){
+          setStatus(data.mensagem || "Erro ao iniciar acesso.");
+          return;
+        }
+
+        currentEmail = email;
+        paymentLink = data.paymentLink || "#";
+        updatePaymentButtons();
+
+        const dias = data.trialRemainingDays ?? 0;
+        document.getElementById("trialStatus").textContent =
+          data.subscriptionActive ? "Assinatura ativa" : `Você tem ${dias} dia(s) de teste`;
+
+        hideBlocked();
+        setStatus("Acesso iniciado com sucesso.");
+        carregarTrabalhos();
+      }catch{
+        setStatus("Erro ao iniciar o acesso.");
+      }
+    }
+
+    async function consultarStatus(){
+      const email = getEmail();
+
+      if(!email){
+        setStatus("Digite seu email para verificar o acesso.");
+        return;
+      }
+
+      try{
+        const response = await fetch(`/api/access-status?email=${encodeURIComponent(email)}`);
+        const data = await response.json();
+
+        if(!data.ok){
+          setStatus(data.mensagem || "Erro ao consultar acesso.");
+          return;
+        }
+
+        currentEmail = email;
+        paymentLink = data.paymentLink || "#";
+        updatePaymentButtons();
+
+        if(data.subscriptionActive){
+          document.getElementById("trialStatus").textContent = "Assinatura ativa";
+          hideBlocked();
+          setStatus("Acesso liberado.");
+        } else if(data.blocked){
+          document.getElementById("trialStatus").textContent = "Teste encerrado";
+          showBlocked("Seu teste de 2 dias terminou");
+          setStatus("Seu período de teste terminou.");
+        } else {
+          document.getElementById("trialStatus").textContent = `Você tem ${data.trialRemainingDays} dia(s) de teste`;
+          hideBlocked();
+          setStatus("Acesso em teste liberado.");
+        }
+
+        carregarTrabalhos();
+      }catch{
+        setStatus("Erro ao consultar status.");
+      }
+    }
+
+    function getHeaders(){
+      return {
+        "Content-Type": "application/json",
+        "x-user-email": currentEmail
+      };
+    }
+
+    function validarEmailAntes(){
+      if(!currentEmail){
+        setResultado("Digite o email e clique em 'Entrar no sistema' primeiro.");
+        return false;
+      }
+      return true;
+    }
+
+    async function analisarConteudo(){
+      if(!validarEmailAntes()) return;
+
+      const conteudo = document.getElementById("conteudo").value.trim();
+      const materia = document.getElementById("materia").value.trim();
+
+      if(!conteudo){
+        setResultado("Cole um conteúdo para analisar.");
+        return;
+      }
+
+      setResultado("Processando conteúdo...");
+
+      try{
+        const response = await fetch("/api/study-ai", {
+          method: "POST",
+          headers: getHeaders(),
+          body: JSON.stringify({
+            email: currentEmail,
+            mode: "analyze",
+            materia,
+            conteudo
+          })
+        });
+
+        const data = await response.json();
+
+        if(response.status === 403 && data.blocked){
+          showBlocked("Seu teste de 2 dias terminou");
+          setResultado(data.mensagem || "Acesso bloqueado.");
+          return;
+        }
+
+        setResultado(data.resultado || data.mensagem || "Não foi possível analisar.");
+      }catch{
+        setResultado("Erro ao analisar conteúdo.");
+      }
+    }
+
+    async function gerarPlano(){
+      if(!validarEmailAntes()) return;
+
+      const conteudo = document.getElementById("conteudo").value.trim();
+      const materia = document.getElementById("materia").value.trim();
+      const dataProva = document.getElementById("dataProva").value.trim();
+      const diasPorSemana = document.getElementById("diasPorSemana").value.trim();
+      const horasPorDia = document.getElementById("horasPorDia").value.trim();
+
+      if(!conteudo){
+        setResultado("Cole um conteúdo para gerar o plano.");
+        return;
+      }
+
+      setResultado("Montando plano de estudo...");
+
+      try{
+        const response = await fetch("/api/study-ai", {
+          method: "POST",
+          headers: getHeaders(),
+          body: JSON.stringify({
+            email: currentEmail,
+            mode: "plan",
+            materia,
+            conteudo,
+            dataProva,
+            diasPorSemana,
+            horasPorDia
+          })
+        });
+
+        const data = await response.json();
+
+        if(response.status === 403 && data.blocked){
+          showBlocked("Seu teste de 2 dias terminou");
+          setResultado(data.mensagem || "Acesso bloqueado.");
+          return;
+        }
+
+        setResultado(data.resultado || data.mensagem || "Não foi possível gerar o plano.");
+      }catch{
+        setResultado("Erro ao gerar plano.");
+      }
+    }
+
+    function limparConteudo(){
+      document.getElementById("conteudo").value = "";
+      setResultado("Seu conteúdo aparecerá aqui.");
+    }
+
+    async function importarArquivo(){
+      if(!validarEmailAntes()) return;
+
+      const fileInput = document.getElementById("arquivoConteudo");
+      const file = fileInput.files[0];
+
+      if(!file){
+        setResultado("Selecione um arquivo para importar.");
+        return;
+      }
+
+      const formData = new FormData();
+      formData.append("file", file);
+      formData.append("email", currentEmail);
+
+      setResultado("Importando conteúdo...");
+
+      try{
+        const response = await fetch("/api/extract-file", {
+          method: "POST",
+          headers: {
+            "x-user-email": currentEmail
+          },
+          body: formData
+        });
+
+        const data = await response.json();
+
+        if(response.status === 403 && data.blocked){
+          showBlocked("Seu teste de 2 dias terminou");
+          setResultado(data.mensagem || "Acesso bloqueado.");
+          return;
+        }
+
+        if(data.extractedText){
+          document.getElementById("conteudo").value = data.extractedText;
+          setResultado("Conteúdo importado com sucesso.");
+        } else {
+          setResultado(data.mensagem || "Não foi possível importar o arquivo.");
+        }
+      }catch{
+        setResultado("Erro ao importar arquivo.");
+      }
+    }
+
+    async function salvarTrabalho(){
+      if(!validarEmailAntes()) return;
+
+      const titulo = document.getElementById("trabalhoTitulo").value.trim();
+      const materia = document.getElementById("trabalhoMateria").value.trim();
+      const data = document.getElementById("trabalhoData").value;
+      const hora = document.getElementById("trabalhoHora").value;
+      const lembrete = document.getElementById("trabalhoLembrete").value;
+      const status = document.getElementById("trabalhoStatus").value;
+      const anexo = document.getElementById("trabalhoArquivo").files[0];
+
+      if(!titulo){
+        alert("Digite o título do trabalho.");
+        return;
+      }
+
+      try{
+        const response = await fetch("/api/trabalhos", {
+          method: "POST",
+          headers: getHeaders(),
+          body: JSON.stringify({
+            email: currentEmail,
+            titulo,
+            materia,
+            data,
+            hora,
+            lembrete,
+            status,
+            anexoNome: anexo ? anexo.name : ""
+          })
+        });
+
+        const dataResp = await response.json();
+
+        if(response.status === 403 && dataResp.blocked){
+          showBlocked("Seu teste de 2 dias terminou");
+          return;
+        }
+
+        if(!dataResp.ok){
+          alert(dataResp.mensagem || "Erro ao salvar trabalho.");
+          return;
+        }
+
+        document.getElementById("trabalhoTitulo").value = "";
+        document.getElementById("trabalhoMateria").value = "";
+        document.getElementById("trabalhoData").value = "";
+        document.getElementById("trabalhoHora").value = "";
+        document.getElementById("trabalhoLembrete").value = "Sem lembrete";
+        document.getElementById("trabalhoStatus").value = "Pendente";
+        document.getElementById("trabalhoArquivo").value = "";
+
+        carregarTrabalhos();
+      }catch{
+        alert("Erro ao salvar trabalho.");
+      }
+    }
+
+    async function carregarTrabalhos(){
+      if(!currentEmail) return;
+
+      const box = document.getElementById("listaTrabalhos");
+      box.innerHTML = "<div class='status'>Carregando trabalhos...</div>";
+
+      try{
+        const response = await fetch(`/api/trabalhos?email=${encodeURIComponent(currentEmail)}`, {
+          headers: {
+            "x-user-email": currentEmail
+          }
+        });
+
+        const data = await response.json();
+
+        if(response.status === 403 && data.blocked){
+          showBlocked("Seu teste de 2 dias terminou");
+          box.innerHTML = "";
+          return;
+        }
+
+        if(!data.ok){
+          box.innerHTML = "<div class='status'>Não foi possível carregar.</div>";
+          return;
+        }
+
+        if(!data.trabalhos.length){
+          box.innerHTML = "<div class='status'>Nenhum trabalho cadastrado.</div>";
+          return;
+        }
+
+        box.innerHTML = data.trabalhos.map(item => `
+          <div class="work-item">
+            <div class="pill">${escapeHtml(item.status || "Pendente")}</div>
+            <strong>${escapeHtml(item.titulo)}</strong>
+            <div class="work-meta">
+              Matéria: ${escapeHtml(item.materia || "Não informada")}<br>
+              Data: ${escapeHtml(item.data || "-")}<br>
+              Horário: ${escapeHtml(item.hora || "-")}<br>
+              Lembrete: ${escapeHtml(item.lembrete || "-")}<br>
+              Anexo: ${escapeHtml(item.anexoNome || "Sem anexo")}
+            </div>
+          </div>
+        `).join("");
+      }catch{
+        box.innerHTML = "<div class='status'>Erro ao carregar trabalhos.</div>";
+      }
+    }
+
+    function escapeHtml(text){
+      return String(text ?? "")
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+    }
+  </script>
+</body>
+</html>  
