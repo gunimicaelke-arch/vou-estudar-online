@@ -1,0 +1,611 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Vou Estudar+ | IA real no sistema</title>
+  <style>
+    :root {
+      --bg-1: #030915;
+      --bg-2: #060d1f;
+      --bg-3: #0a1228;
+      --card: rgba(255,255,255,0.06);
+      --card-2: rgba(255,255,255,0.04);
+      --line: rgba(255,255,255,0.12);
+      --text: #f4f7fb;
+      --muted: #9fb0ca;
+      --cyan: #19c2ff;
+      --blue: #2b7fff;
+      --purple: #7b61ff;
+      --success: #19d38a;
+      --danger: #ff6c8f;
+      --shadow: 0 18px 45px rgba(0, 0, 0, 0.35);
+      --radius-xl: 26px;
+      --radius-lg: 18px;
+      --radius-md: 14px;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: Inter, Arial, sans-serif;
+      background:
+        radial-gradient(circle at top left, rgba(25,194,255,0.18), transparent 28%),
+        radial-gradient(circle at top right, rgba(123,97,255,0.22), transparent 32%),
+        linear-gradient(180deg, var(--bg-2), var(--bg-1));
+      color: var(--text);
+      min-height: 100vh;
+    }
+
+    .wrap {
+      width: min(1320px, calc(100% - 32px));
+      margin: 28px auto 44px;
+    }
+
+    .hero {
+      background: linear-gradient(135deg, rgba(10,25,55,0.92), rgba(9,8,40,0.92));
+      border: 1px solid var(--line);
+      border-radius: 32px;
+      box-shadow: var(--shadow);
+      padding: 28px;
+      display: grid;
+      grid-template-columns: 1.35fr 0.85fr;
+      gap: 18px;
+    }
+
+    .title {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 28px;
+      font-weight: 800;
+      margin-bottom: 10px;
+    }
+
+    .subtitle {
+      color: var(--muted);
+      font-size: 18px;
+      line-height: 1.5;
+      margin-bottom: 24px;
+    }
+
+    .status-card,
+    .panel,
+    .output,
+    .days {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: var(--radius-xl);
+      box-shadow: var(--shadow);
+    }
+
+    .status-card {
+      padding: 26px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      min-height: 180px;
+      background: linear-gradient(180deg, rgba(255,255,255,0.05), rgba(255,255,255,0.03));
+    }
+
+    .status-title {
+      font-size: 20px;
+      font-weight: 800;
+      margin-bottom: 10px;
+    }
+
+    .status-text {
+      color: var(--muted);
+      font-size: 17px;
+      line-height: 1.45;
+    }
+
+    .grid {
+      margin-top: 22px;
+      display: grid;
+      grid-template-columns: 1.1fr 0.9fr;
+      gap: 20px;
+    }
+
+    .panel {
+      padding: 24px;
+    }
+
+    .panel h2,
+    .output h2,
+    .days h2 {
+      margin: 0 0 18px;
+      font-size: 20px;
+      font-weight: 800;
+    }
+
+    .row,
+    .row-2,
+    .row-3 {
+      display: grid;
+      gap: 14px;
+      margin-bottom: 14px;
+    }
+
+    .row-2 { grid-template-columns: 1fr 220px; }
+    .row-3 { grid-template-columns: 1fr 190px 170px; }
+
+    label {
+      display: block;
+      font-size: 13px;
+      color: var(--muted);
+      margin-bottom: 8px;
+      font-weight: 700;
+      letter-spacing: .02em;
+      text-transform: uppercase;
+    }
+
+    input,
+    textarea,
+    select {
+      width: 100%;
+      border: 1px solid rgba(255,255,255,0.14);
+      background: linear-gradient(180deg, rgba(19,28,48,0.95), rgba(13,20,38,0.95));
+      color: var(--text);
+      border-radius: 18px;
+      padding: 16px 16px;
+      font-size: 16px;
+      outline: none;
+      transition: .2s ease;
+    }
+
+    textarea {
+      min-height: 230px;
+      resize: vertical;
+      line-height: 1.45;
+    }
+
+    input:focus,
+    textarea:focus,
+    select:focus {
+      border-color: rgba(25,194,255,0.7);
+      box-shadow: 0 0 0 4px rgba(25,194,255,0.12);
+    }
+
+    .hint {
+      color: var(--muted);
+      font-size: 13px;
+      margin-top: 8px;
+      line-height: 1.45;
+    }
+
+    .button-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-top: 18px;
+    }
+
+    button,
+    .file-button {
+      border: 0;
+      cursor: pointer;
+      border-radius: 18px;
+      padding: 15px 20px;
+      font-size: 16px;
+      font-weight: 800;
+      color: #071120;
+      background: linear-gradient(90deg, var(--cyan), var(--purple));
+      box-shadow: 0 10px 25px rgba(59, 123, 255, 0.25);
+      transition: transform .16s ease, opacity .16s ease;
+    }
+
+    button.secondary,
+    .file-button.secondary {
+      color: var(--text);
+      background: linear-gradient(180deg, rgba(255,255,255,0.08), rgba(255,255,255,0.05));
+      border: 1px solid rgba(255,255,255,0.12);
+      box-shadow: none;
+    }
+
+    button:hover,
+    .file-button:hover {
+      transform: translateY(-1px);
+    }
+
+    button:disabled {
+      opacity: 0.55;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .output,
+    .days {
+      padding: 24px;
+    }
+
+    .output-box {
+      min-height: 360px;
+      border-radius: 22px;
+      border: 1px solid rgba(255,255,255,0.08);
+      background: linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.02));
+      padding: 18px;
+      color: #e6edf7;
+      line-height: 1.6;
+      white-space: pre-wrap;
+      overflow-wrap: anywhere;
+    }
+
+    .days {
+      margin-top: 20px;
+    }
+
+    .cards {
+      display: grid;
+      gap: 14px;
+    }
+
+    .day-card {
+      padding: 18px;
+      border-radius: 18px;
+      border: 1px solid rgba(255,255,255,0.08);
+      background: linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.025));
+    }
+
+    .day-card h3 {
+      margin: 0 0 8px;
+      font-size: 18px;
+    }
+
+    .chip-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+
+    .chip {
+      background: rgba(25,194,255,0.11);
+      color: #bfefff;
+      border: 1px solid rgba(25,194,255,0.26);
+      padding: 8px 12px;
+      border-radius: 999px;
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    ul {
+      margin: 10px 0 0 18px;
+      padding: 0;
+      color: #dbe6f6;
+      line-height: 1.55;
+    }
+
+    .footer-note {
+      text-align: center;
+      margin-top: 18px;
+      color: var(--muted);
+      font-size: 15px;
+    }
+
+    .ok { color: #9ff0c9; }
+    .err { color: #ffb2c1; }
+
+    input[type="file"] {
+      display: none;
+    }
+
+    @media (max-width: 1100px) {
+      .hero,
+      .grid,
+      .row-2,
+      .row-3 {
+        grid-template-columns: 1fr;
+      }
+
+      .status-card {
+        min-height: auto;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <section class="hero">
+      <div>
+        <div class="title">🤖 IA real no sistema</div>
+        <div class="subtitle">
+          Conecte sua IA por endpoint, analise conteúdo colado ou importado e gere um plano de estudo realmente personalizado dentro do Vou Estudar+.
+        </div>
+
+        <div class="row-2">
+          <div>
+            <label for="aiEndpoint">Endpoint da IA</label>
+            <input id="aiEndpoint" type="text" value="/api/study-ai" placeholder="/api/study-ai" />
+          </div>
+          <div>
+            <label for="aiModel">Modelo</label>
+            <input id="aiModel" type="text" value="gpt-4.1-mini" placeholder="gpt-4.1-mini" />
+          </div>
+        </div>
+
+        <div class="hint">
+          Nesta versão online, o ideal é deixar o endpoint como <strong>/api/study-ai</strong> para usar o mesmo domínio do sistema.
+        </div>
+
+        <div class="button-row">
+          <button class="secondary" id="testButton">Testar conexão</button>
+          <button id="analyzeButton">Analisar conteúdo com IA</button>
+          <button id="planButton">Gerar plano com IA</button>
+        </div>
+      </div>
+
+      <div class="status-card">
+        <div class="status-title" id="statusTitle">Pronto para publicar online</div>
+        <div class="status-text" id="statusText">Depois do deploy, teste a conexão e use o sistema no mesmo link.</div>
+      </div>
+    </section>
+
+    <section class="grid">
+      <div class="panel">
+        <h2>Conteúdo e dados do estudo</h2>
+
+        <div class="row-3">
+          <div>
+            <label for="subjects">Matérias</label>
+            <input id="subjects" type="text" placeholder="Ex: Português, Matemática, História" />
+          </div>
+          <div>
+            <label for="examDate">Data da prova</label>
+            <input id="examDate" type="date" />
+          </div>
+          <div>
+            <label for="hoursPerDay">Horas por dia</label>
+            <input id="hoursPerDay" type="text" placeholder="Ex: 3 horas" />
+          </div>
+        </div>
+
+        <div>
+          <label for="content">Cole o conteúdo aqui</label>
+          <textarea id="content" placeholder="Cole matéria, resumo, edital, apostila, questões, roteiro ou qualquer conteúdo que a IA deve analisar."></textarea>
+          <div class="hint">Você pode colar texto direto ou importar arquivo. PDF, DOCX, XLSX e CSV vão para o backend para extrair o texto.</div>
+        </div>
+
+        <div class="button-row">
+          <label class="file-button secondary" for="fileInput">Importar arquivo</label>
+          <button class="secondary" id="clearButton">Limpar conteúdo</button>
+          <button class="secondary" id="copyButton">Copiar resultado</button>
+          <input id="fileInput" type="file" accept=".txt,.md,.html,.json,.csv,.pdf,.docx,.xlsx,.xls" />
+        </div>
+      </div>
+
+      <div>
+        <section class="output">
+          <h2>Resposta da IA</h2>
+          <div class="output-box" id="resultBox">A resposta da IA aparecerá aqui.</div>
+        </section>
+
+        <section class="days" id="daysSection" hidden>
+          <h2>Plano diário estruturado</h2>
+          <div class="cards" id="planCards"></div>
+        </section>
+      </div>
+    </section>
+
+    <div class="footer-note">Vou Estudar+ • plano automático • foco • recompensa • progresso visual</div>
+  </div>
+
+  <script>
+    const $ = (id) => document.getElementById(id);
+
+    const state = {
+      loading: false,
+      lastTextResult: ""
+    };
+
+    const els = {
+      aiEndpoint: $("aiEndpoint"),
+      aiModel: $("aiModel"),
+      subjects: $("subjects"),
+      examDate: $("examDate"),
+      hoursPerDay: $("hoursPerDay"),
+      content: $("content"),
+      fileInput: $("fileInput"),
+      statusTitle: $("statusTitle"),
+      statusText: $("statusText"),
+      resultBox: $("resultBox"),
+      planCards: $("planCards"),
+      daysSection: $("daysSection"),
+      analyzeButton: $("analyzeButton"),
+      planButton: $("planButton"),
+      testButton: $("testButton"),
+      clearButton: $("clearButton"),
+      copyButton: $("copyButton")
+    };
+
+    function setBusy(isBusy) {
+      state.loading = isBusy;
+      [els.analyzeButton, els.planButton, els.testButton].forEach(btn => btn.disabled = isBusy);
+    }
+
+    function setStatus(title, text, type = "normal") {
+      els.statusTitle.textContent = title;
+      els.statusText.textContent = text;
+      els.statusTitle.className = "status-title" + (type === "ok" ? " ok" : type === "err" ? " err" : "");
+    }
+
+    function setResult(text) {
+      state.lastTextResult = text || "";
+      els.resultBox.textContent = state.lastTextResult || "Sem resposta.";
+    }
+
+    function clearPlanCards() {
+      els.planCards.innerHTML = "";
+      els.daysSection.hidden = true;
+    }
+
+    function baseUrlFromEndpoint(endpoint) {
+      const clean = String(endpoint || "").trim();
+      return clean.replace(/\/api\/study-ai\/?$/i, "");
+    }
+
+    async function testConnection() {
+      const endpoint = els.aiEndpoint.value.trim() || "/api/study-ai";
+
+      try {
+        setBusy(true);
+        setStatus("Testando conexão...", "Verificando servidor e configuração da IA.");
+
+        const base = baseUrlFromEndpoint(endpoint);
+        const resp = await fetch(base + "/api/health");
+        const data = await resp.json();
+
+        if (!resp.ok || !data.ok) {
+          throw new Error(data.error || "Falha ao testar a conexão.");
+        }
+
+        if (data.openai_configured) {
+          setStatus("IA conectada", `Servidor ativo. Modelo padrão do backend: ${data.default_model || "não informado"}.`, "ok");
+        } else {
+          setStatus("Servidor ativo, mas sem chave", "O backend respondeu, porém a OPENAI_API_KEY ainda não foi configurada.", "err");
+        }
+      } catch (error) {
+        setStatus("Falha na conexão", error.message || "Não foi possível falar com o servidor.", "err");
+      } finally {
+        setBusy(false);
+      }
+    }
+
+    async function importFile(file) {
+      if (!file) return;
+
+      try {
+        setBusy(true);
+        setStatus("Importando arquivo...", `Lendo ${file.name} para transformar em texto.`);
+
+        const endpoint = els.aiEndpoint.value.trim() || "/api/study-ai";
+        const base = baseUrlFromEndpoint(endpoint);
+        const formData = new FormData();
+        formData.append("file", file);
+
+        const resp = await fetch(base + "/api/extract-file", {
+          method: "POST",
+          body: formData
+        });
+
+        const data = await resp.json();
+        if (!resp.ok || !data.ok) {
+          throw new Error(data.error || "Falha ao extrair texto do arquivo.");
+        }
+
+        els.content.value = data.text || "";
+        setStatus("Arquivo importado", `${file.name} foi convertido em texto e carregado no sistema.`, "ok");
+      } catch (error) {
+        setStatus("Erro ao importar", error.message || "Não consegui importar esse arquivo.", "err");
+      } finally {
+        setBusy(false);
+        els.fileInput.value = "";
+      }
+    }
+
+    function renderPlan(structured) {
+      clearPlanCards();
+      if (!structured || !Array.isArray(structured.plano_diario) || !structured.plano_diario.length) return;
+
+      els.daysSection.hidden = false;
+
+      structured.plano_diario.forEach((item, index) => {
+        const card = document.createElement("div");
+        card.className = "day-card";
+
+        const tasks = Array.isArray(item.tarefas)
+          ? `<ul>${item.tarefas.map(task => `<li>${task}</li>`).join("")}</ul>`
+          : "";
+
+        card.innerHTML = `
+          <h3>Dia ${item.dia ?? index + 1} • ${item.foco || "Foco do dia"}</h3>
+          <div class="chip-row">
+            <span class="chip">Tempo: ${item.tempo_estimado || "não informado"}</span>
+            <span class="chip">Revisão: ${item.revisao || "não informada"}</span>
+          </div>
+          <div><strong>Meta:</strong> ${item.meta || "não informada"}</div>
+          ${tasks}
+        `;
+
+        els.planCards.appendChild(card);
+      });
+    }
+
+    async function callStudyAI(action) {
+      const endpoint = els.aiEndpoint.value.trim() || "/api/study-ai";
+      const content = els.content.value.trim();
+      const model = els.aiModel.value.trim() || "gpt-4.1-mini";
+
+      if (!content) {
+        setStatus("Sem conteúdo", "Cole ou importe algum conteúdo antes de chamar a IA.", "err");
+        return;
+      }
+
+      try {
+        setBusy(true);
+        clearPlanCards();
+        setResult("Processando com IA...");
+        setStatus(
+          action === "plan" ? "Gerando plano com IA..." : "Analisando conteúdo com IA...",
+          "O servidor está enviando seu conteúdo para a IA e aguardando a resposta."
+        );
+
+        const resp = await fetch(endpoint, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            action,
+            model,
+            content,
+            subjects: els.subjects.value.trim(),
+            examDate: els.examDate.value,
+            hoursPerDay: els.hoursPerDay.value.trim()
+          })
+        });
+
+        const data = await resp.json();
+        if (!resp.ok || !data.ok) {
+          throw new Error(data.error || "Falha ao processar IA.");
+        }
+
+        setResult(data.result || "Sem resposta da IA.");
+        setStatus("IA respondeu com sucesso", `Resposta recebida usando o modelo ${data.model || model}.`, "ok");
+
+        if (action === "plan" && data.structured) {
+          renderPlan(data.structured);
+        }
+      } catch (error) {
+        setResult("Erro ao chamar IA.");
+        setStatus("Erro na IA", error.message || "Falha inesperada ao processar a solicitação.", "err");
+      } finally {
+        setBusy(false);
+      }
+    }
+
+    els.testButton.addEventListener("click", testConnection);
+    els.analyzeButton.addEventListener("click", () => callStudyAI("analyze"));
+    els.planButton.addEventListener("click", () => callStudyAI("plan"));
+    els.fileInput.addEventListener("change", (event) => importFile(event.target.files?.[0]));
+
+    els.clearButton.addEventListener("click", () => {
+      els.content.value = "";
+      setResult("A resposta da IA aparecerá aqui.");
+      clearPlanCards();
+      setStatus("Conteúdo limpo", "Cole um novo conteúdo ou importe outro arquivo.");
+    });
+
+    els.copyButton.addEventListener("click", async () => {
+      if (!state.lastTextResult) return;
+      try {
+        await navigator.clipboard.writeText(state.lastTextResult);
+        setStatus("Resultado copiado", "A resposta da IA foi copiada para sua área de transferência.", "ok");
+      } catch {
+        setStatus("Não consegui copiar", "Copie manualmente o resultado no painel ao lado.", "err");
+      }
+    });
+
+    testConnection();
+  </script>
+</body>
+</html>
