@@ -22,8 +22,8 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const DATA_DIR = path.join(__dirname, "data");
-const DB_FILE = path.join(DATA_DIR, "db.json");
-const INDEX_FILE = path.join(__dirname, "index.html");
+const DB_FILE = path.join(DATA_DIR, "db.json")
+const INDEX_FILE = path.join(__dirname, "vou-estudar-ia-real.html");
 
 const TRIAL_DAYS = 3;
 
