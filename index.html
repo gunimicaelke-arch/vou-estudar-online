@@ -9,11 +9,10 @@
     :root{
       --bg:#050816;
       --bg2:#081126;
-      --panel:#081120;
-      --card:#070f1f;
-      --card-2:#0b162d;
-      --line:rgba(255,255,255,.09);
-      --line-strong:rgba(255,255,255,.14);
+      --card:#07101f;
+      --card2:#0b1730;
+      --line:rgba(255,255,255,.10);
+      --line2:rgba(255,255,255,.16);
       --text:#f4f7ff;
       --muted:#97abc9;
       --blue:#1fa2ff;
@@ -45,25 +44,16 @@
         linear-gradient(180deg, #040812, #050816 40%, #061022 100%);
     }
 
-    body{
-      padding:22px;
-    }
+    body{ padding:22px; }
 
     .app{
       width:min(1480px, 100%);
       margin:0 auto;
     }
 
-    .glass{
-      background:linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.02));
-      border:1px solid var(--line);
-      box-shadow:var(--shadow);
-      backdrop-filter:blur(8px);
-    }
-
     .hero{
       display:grid;
-      grid-template-columns:1.55fr 1fr;
+      grid-template-columns:1.45fr 1fr;
       gap:18px;
       padding:28px;
       border-radius:34px;
@@ -82,7 +72,6 @@
       gap:14px;
       font-size:30px;
       font-weight:900;
-      letter-spacing:.2px;
       margin-bottom:12px;
     }
 
@@ -129,9 +118,7 @@
     }
 
     .input::placeholder,
-    .textarea::placeholder{
-      color:#89a0c3;
-    }
+    .textarea::placeholder{ color:#89a0c3; }
 
     .input:focus,
     .select:focus,
@@ -149,7 +136,8 @@
 
     .hero-actions,
     .file-row,
-    .item-actions{
+    .item-actions,
+    .subject-actions{
       display:flex;
       flex-wrap:wrap;
       gap:12px;
@@ -219,8 +207,9 @@
       padding:26px;
       border-radius:34px;
       background:linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.03));
-      border:1px solid var(--line-strong);
+      border:1px solid var(--line2);
       min-height:100%;
+      box-shadow:var(--shadow);
     }
 
     .status-head{
@@ -257,11 +246,23 @@
       min-height:84px;
     }
 
-    .status-cta{
+    .goal-banner{
+      display:none;
+      align-items:center;
+      justify-content:space-between;
+      gap:16px;
+      padding:18px 20px;
       margin-top:16px;
-      display:flex;
-      justify-content:flex-end;
+      border-radius:24px;
+      border:1px solid rgba(40,224,161,.35);
+      background:linear-gradient(135deg, rgba(9,51,36,.95), rgba(7,28,22,.95));
+      box-shadow:0 0 30px rgba(40,224,161,.18);
     }
+
+    .goal-banner-icon{ font-size:34px; }
+    .goal-banner-title{ font-size:24px; font-weight:900; color:#2effaf; }
+    .goal-banner-text{ font-size:15px; color:#dffff3; margin-top:4px; }
+    .goal-banner-percent{ font-size:24px; font-weight:900; color:#2effaf; }
 
     .metrics{
       display:grid;
@@ -424,14 +425,8 @@
       white-space:nowrap;
     }
 
-    .chart-wrap{
-      position:relative;
-      height:250px;
-    }
-
-    .chart-wrap.short{
-      height:220px;
-    }
+    .chart-wrap{ position:relative; height:250px; }
+    .chart-wrap.short{ height:220px; }
 
     .workspace{
       display:grid;
@@ -451,9 +446,7 @@
       margin:0 0 16px;
     }
 
-    .grid-2,
-    .grid-3,
-    .grid-4{
+    .grid-2, .grid-3, .grid-4{
       display:grid;
       gap:14px;
       margin-bottom:14px;
@@ -497,14 +490,17 @@
 
     .plan-list,
     .saved-list,
-    .reminders-list{
+    .reminders-list,
+    .subject-list{
       display:grid;
       gap:14px;
     }
 
     .plan-card,
     .saved-item,
-    .reminder-item{
+    .reminder-item,
+    .subject-row,
+    .session-box{
       border:1px solid var(--line);
       background:rgba(255,255,255,.03);
       border-radius:22px;
@@ -513,9 +509,47 @@
 
     .plan-card h3,
     .saved-item h3,
-    .reminder-item h3{
+    .reminder-item h3,
+    .session-box h3{
       margin:0 0 10px;
       font-size:17px;
+    }
+
+    .subject-row{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:14px;
+    }
+
+    .subject-row.active{
+      border-color:rgba(123,77,255,.55);
+      box-shadow:0 0 22px rgba(123,77,255,.20);
+    }
+
+    .subject-left{
+      display:flex;
+      align-items:center;
+      gap:12px;
+    }
+
+    .subject-name{
+      font-size:18px;
+      font-weight:800;
+    }
+
+    .subject-time{
+      font-size:24px;
+      font-weight:900;
+      min-width:125px;
+      text-align:center;
+    }
+
+    .session-time{
+      font-size:30px;
+      font-weight:900;
+      margin-top:10px;
+      margin-bottom:14px;
     }
 
     .chips{
@@ -601,6 +635,8 @@
       body{ padding:14px; }
       .hero, .section, .card{ padding:18px; }
       .brand{ font-size:24px; }
+      .subject-row{ flex-direction:column; align-items:flex-start; }
+      .subject-time{ text-align:left; }
     }
   </style>
 </head>
@@ -614,7 +650,7 @@
         </div>
 
         <p>
-          Analise conteúdo colado ou importado, gere plano inteligente, acompanhe os gráficos e salve cronogramas de prova e estudo por matéria.
+          Analise conteúdo colado ou importado, gere plano inteligente, acompanhe os gráficos, conte o tempo automático por matéria e salve cronogramas e lembretes.
         </p>
 
         <div class="hero-grid">
@@ -630,7 +666,7 @@
         </div>
 
         <div class="hint">
-          Use <strong>/api/study-ai</strong> para o sistema consultar o motor inteligente no mesmo domínio.
+          Se existir <strong>/api/app-state</strong>, os mesmos dados serão puxados no mesmo link mesmo após atualizar ou entrar de outro aparelho. Sem esse endpoint, o sistema usa o navegador local.
         </div>
 
         <div class="hero-actions">
@@ -640,7 +676,7 @@
         </div>
       </div>
 
-      <div class="status-box glass">
+      <div class="status-box">
         <div>
           <div class="status-head">
             <div class="status-date" id="liveClock">📅 --</div>
@@ -649,6 +685,15 @@
           <div class="status-title" id="statusTitle">Pronto para uso</div>
           <div class="status-text" id="statusText">
             Preencha os dados e acompanhe tudo começando do zero.
+          </div>
+
+          <div id="goalReachedBanner" class="goal-banner">
+            <div class="goal-banner-icon">🏆</div>
+            <div>
+              <div class="goal-banner-title">Meta de estudo batida!</div>
+              <div class="goal-banner-text" id="goalReachedText">Você estudou 0h.</div>
+            </div>
+            <div class="goal-banner-percent" id="goalReachedPercent">0%</div>
           </div>
         </div>
 
@@ -783,7 +828,7 @@
           </div>
 
           <div class="field">
-            <label for="hoursPerDay">Horas por dia</label>
+            <label for="hoursPerDay">Horas por dia para meta</label>
             <input id="hoursPerDay" class="input" type="text" placeholder="Ex: 3 horas" />
           </div>
         </div>
@@ -815,7 +860,7 @@
         </div>
 
         <div class="hint">
-          PDF, DOCX, XLSX e CSV são enviados ao backend para extrair o texto.
+          O campo de horas por dia define sua meta. O tempo estudado entra automático quando você iniciar uma matéria abaixo.
         </div>
       </div>
 
@@ -833,6 +878,27 @@
 
     <section class="workspace">
       <div class="section card">
+        <h2 class="section-title">Timer automático por matéria</h2>
+
+        <div id="subjectTimerList" class="subject-list"></div>
+        <div id="emptySubjectBox" class="empty">Digite as matérias acima para ativar o timer automático.</div>
+
+        <div style="height:14px;"></div>
+
+        <div class="session-box">
+          <h3>Sessão atual</h3>
+          <div class="chips">
+            <span class="chip" id="currentSessionSubject">Nenhuma matéria ativa</span>
+          </div>
+          <div class="session-time" id="currentSessionTime">00:00:00</div>
+          <div class="subject-actions">
+            <button class="btn danger" id="pauseTimerButton" type="button">Pausar sessão</button>
+            <button class="btn secondary" id="resetTimerButton" type="button">Zerar sessão</button>
+          </div>
+        </div>
+
+        <div style="height:18px;"></div>
+
         <h2 class="section-title">Lembretes de trabalho e estudo</h2>
 
         <div class="grid-3">
@@ -885,7 +951,6 @@
           <button class="btn success" id="saveReminderButton" type="button">Salvar lembrete</button>
           <button class="btn secondary" id="clearReminderFormButton" type="button">Limpar campos</button>
           <button class="btn secondary" id="enableNotificationButton" type="button">Ativar aviso do navegador</button>
-          <button class="btn secondary" id="registerHourButton" type="button">Registrar 1h estudada</button>
           <button class="btn secondary" id="registerContentButton" type="button">Concluir 1 conteúdo</button>
         </div>
 
@@ -902,16 +967,15 @@
       </div>
     </section>
 
-    <div class="footer-note">Vou Estudar+ • inteligente • cronogramas • lembretes • progresso visual</div>
+    <div class="footer-note">Vou Estudar+ • inteligente • timer automático • cronogramas • lembretes • progresso visual</div>
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script>
     const $ = (id) => document.getElementById(id);
 
-    const METRICS_KEY = "vou_estudar_metricas_premium_v2";
-    const SCHEDULES_KEY = "vou_estudar_cronogramas_premium_v2";
-    const REMINDERS_KEY = "vou_estudar_lembretes_premium_v2";
+    const LOCAL_KEY = "vou_estudar_estado_unico_v1";
+    const APP_STATE_ENDPOINT = "/api/app-state";
 
     const state = {
       loading: false,
@@ -919,9 +983,11 @@
       currentStructuredPlan: null,
       charts: {},
       reminderTimers: [],
-      metrics: loadMetrics(),
-      schedules: loadSchedules(),
-      reminders: loadReminders()
+      syncMode: "local",
+      metrics: getDefaultMetrics(),
+      schedules: [],
+      reminders: [],
+      studyTimer: getDefaultStudyTimer()
     };
 
     const els = {
@@ -939,6 +1005,10 @@
       liveClock: $("liveClock"),
       refreshDashboardButton: $("refreshDashboardButton"),
 
+      goalReachedBanner: $("goalReachedBanner"),
+      goalReachedText: $("goalReachedText"),
+      goalReachedPercent: $("goalReachedPercent"),
+
       resultBox: $("resultBox"),
       planCards: $("planCards"),
       emptyPlanBox: $("emptyPlanBox"),
@@ -950,6 +1020,13 @@
       copyButton: $("copyButton"),
       saveScheduleButton: $("saveScheduleButton"),
       resetAllButton: $("resetAllButton"),
+
+      subjectTimerList: $("subjectTimerList"),
+      emptySubjectBox: $("emptySubjectBox"),
+      currentSessionSubject: $("currentSessionSubject"),
+      currentSessionTime: $("currentSessionTime"),
+      pauseTimerButton: $("pauseTimerButton"),
+      resetTimerButton: $("resetTimerButton"),
 
       remindersList: $("remindersList"),
       emptyReminderBox: $("emptyReminderBox"),
@@ -963,7 +1040,6 @@
       saveReminderButton: $("saveReminderButton"),
       clearReminderFormButton: $("clearReminderFormButton"),
       enableNotificationButton: $("enableNotificationButton"),
-      registerHourButton: $("registerHourButton"),
       registerContentButton: $("registerContentButton"),
 
       savedSchedulesList: $("savedSchedulesList"),
@@ -1001,45 +1077,14 @@
       };
     }
 
-    function loadMetrics(){
-      try{
-        const raw = localStorage.getItem(METRICS_KEY);
-        return raw ? { ...getDefaultMetrics(), ...JSON.parse(raw) } : getDefaultMetrics();
-      }catch{
-        return getDefaultMetrics();
-      }
-    }
-
-    function saveMetrics(){
-      localStorage.setItem(METRICS_KEY, JSON.stringify(state.metrics));
-    }
-
-    function loadSchedules(){
-      try{
-        const raw = localStorage.getItem(SCHEDULES_KEY);
-        const parsed = raw ? JSON.parse(raw) : [];
-        return Array.isArray(parsed) ? parsed : [];
-      }catch{
-        return [];
-      }
-    }
-
-    function saveSchedules(){
-      localStorage.setItem(SCHEDULES_KEY, JSON.stringify(state.schedules));
-    }
-
-    function loadReminders(){
-      try{
-        const raw = localStorage.getItem(REMINDERS_KEY);
-        const parsed = raw ? JSON.parse(raw) : [];
-        return Array.isArray(parsed) ? parsed : [];
-      }catch{
-        return [];
-      }
-    }
-
-    function saveReminders(){
-      localStorage.setItem(REMINDERS_KEY, JSON.stringify(state.reminders));
+    function getDefaultStudyTimer(){
+      return {
+        activeSubject: "",
+        isRunning: false,
+        startedAt: null,
+        currentSessionSeconds: 0,
+        subjects: {}
+      };
     }
 
     function createId(){
@@ -1076,6 +1121,18 @@
         .replaceAll("'","&#039;");
     }
 
+    function formatSeconds(totalSeconds){
+      const s = Math.max(0, Math.floor(totalSeconds || 0));
+      const hours = Math.floor(s / 3600);
+      const minutes = Math.floor((s % 3600) / 60);
+      const seconds = s % 60;
+      return [
+        String(hours).padStart(2, "0"),
+        String(minutes).padStart(2, "0"),
+        String(seconds).padStart(2, "0")
+      ].join(":");
+    }
+
     function updateClock(){
       const now = new Date();
       els.liveClock.textContent = "📅 " + now.toLocaleString("pt-BR", {
@@ -1094,7 +1151,6 @@
         els.planButton,
         els.saveScheduleButton,
         els.saveReminderButton,
-        els.registerHourButton,
         els.registerContentButton
       ].forEach(btn => {
         if(btn) btn.disabled = isBusy;
@@ -1126,6 +1182,28 @@
       if(clearCurrent) state.currentStructuredPlan = null;
     }
 
+    function updateWeekGoalFromInput(){
+      const value = parseFloat(String(els.hoursPerDay.value).replace(",", "."));
+      state.metrics.weekGoal = (!Number.isNaN(value) && value > 0) ? Math.round(value * 7 * 10) / 10 : 0;
+    }
+
+    function updateStudyStreak(){
+      const today = new Date();
+      const todayStr = today.toISOString().slice(0,10);
+
+      if(state.metrics.ultimaDataEstudo === todayStr) return;
+
+      const yesterday = new Date(today);
+      yesterday.setDate(today.getDate() - 1);
+      const yesterdayStr = yesterday.toISOString().slice(0,10);
+
+      state.metrics.sequencia = state.metrics.ultimaDataEstudo === yesterdayStr
+        ? state.metrics.sequencia + 1
+        : 1;
+
+      state.metrics.ultimaDataEstudo = todayStr;
+    }
+
     function getReminderDateTime(reminder){
       if(!reminder?.date || !reminder?.time) return null;
       const date = new Date(`${reminder.date}T${reminder.time}:00`);
@@ -1152,50 +1230,113 @@
       return counts;
     }
 
-    function updateWeekGoalFromInput(){
-      const value = parseFloat(String(els.hoursPerDay.value).replace(",", "."));
-      state.metrics.weekGoal = (!Number.isNaN(value) && value > 0) ? Math.round(value * 7 * 10) / 10 : 0;
+    function ensureTimerSubjects(){
+      const subjects = splitSubjects(els.subjects.value).slice(0, 12);
+      subjects.forEach(subject => {
+        if(typeof state.studyTimer.subjects[subject] !== "number"){
+          state.studyTimer.subjects[subject] = 0;
+        }
+      });
+
+      Object.keys(state.studyTimer.subjects).forEach(subject => {
+        if(!subjects.includes(subject)){
+          delete state.studyTimer.subjects[subject];
+        }
+      });
+
+      if(state.studyTimer.activeSubject && !subjects.includes(state.studyTimer.activeSubject)){
+        forcePauseTimer();
+        state.studyTimer.activeSubject = "";
+      }
     }
 
-    function updateStudyStreak(){
-      const today = new Date();
-      const todayStr = today.toISOString().slice(0,10);
-
-      if(state.metrics.ultimaDataEstudo === todayStr) return;
-
-      const yesterday = new Date(today);
-      yesterday.setDate(today.getDate() - 1);
-      const yesterdayStr = yesterday.toISOString().slice(0,10);
-
-      state.metrics.sequencia = state.metrics.ultimaDataEstudo === yesterdayStr
-        ? state.metrics.sequencia + 1
-        : 1;
-
-      state.metrics.ultimaDataEstudo = todayStr;
-    }
-
-    function registerStudyHour(){
-      updateStudyStreak();
+    function addSecondsToWeeklyChart(seconds){
       const current = new Date().getDay();
       const idx = current === 0 ? 6 : current - 1;
-      state.metrics.horasSemana[idx] += 1;
-      saveMetrics();
-      refreshDashboard();
-      setStatus("Hora registrada", "Adicionei 1 hora estudada no gráfico semanal.", "ok");
+      const hours = seconds / 3600;
+      state.metrics.horasSemana[idx] = (state.metrics.horasSemana[idx] || 0) + hours;
+      updateStudyStreak();
     }
 
-    function registerCompletedContent(){
-      updateStudyStreak();
-      const current = new Date().getDay();
-      const idx = current === 0 ? 6 : current - 1;
+    function addSecondsToSubjectChart(subject, seconds){
+      const hours = seconds / 3600;
+      if(!subject) return;
 
-      state.metrics.manualCompleted += 1;
-      state.metrics.evolucaoConteudos[idx] += 1;
+      if(!state.metrics.materias.includes(subject)){
+        if(state.metrics.materias.length < 6){
+          state.metrics.materias.push(subject);
+          state.metrics.valoresMaterias.push(0);
+        }
+      }
+
+      const idx = state.metrics.materias.indexOf(subject);
+      if(idx >= 0){
+        state.metrics.valoresMaterias[idx] = (state.metrics.valoresMaterias[idx] || 0) + hours;
+      }
+    }
+
+    function getCurrentRunningSeconds(){
+      if(!state.studyTimer.isRunning || !state.studyTimer.startedAt) return 0;
+      return Math.max(0, Math.floor((Date.now() - state.studyTimer.startedAt) / 1000));
+    }
+
+    function startSubjectTimer(subject){
+      if(!subject) return;
+
+      if(state.studyTimer.isRunning){
+        forcePauseTimer();
+      }
+
+      state.studyTimer.activeSubject = subject;
+      state.studyTimer.isRunning = true;
+      state.studyTimer.startedAt = Date.now();
+      state.studyTimer.currentSessionSeconds = 0;
+
+      scheduleSaveState();
+      renderSubjectTimers();
+      setStatus("Timer iniciado", `Contagem iniciada em ${subject}.`, "ok");
+    }
+
+    function forcePauseTimer(){
+      if(!state.studyTimer.isRunning || !state.studyTimer.activeSubject || !state.studyTimer.startedAt) return;
+
+      const diffSeconds = Math.max(0, Math.floor((Date.now() - state.studyTimer.startedAt) / 1000));
+      const subject = state.studyTimer.activeSubject;
+
+      state.studyTimer.subjects[subject] = (state.studyTimer.subjects[subject] || 0) + diffSeconds;
+      state.studyTimer.currentSessionSeconds = diffSeconds;
+
+      addSecondsToWeeklyChart(diffSeconds);
+      addSecondsToSubjectChart(subject, diffSeconds);
+
+      state.studyTimer.isRunning = false;
+      state.studyTimer.startedAt = null;
 
       recalculateProgress();
-      saveMetrics();
+      scheduleSaveState();
+    }
+
+    function pauseSubjectTimer(){
+      if(!state.studyTimer.isRunning){
+        setStatus("Nenhuma sessão ativa", "Não há matéria em contagem agora.", "err");
+        return;
+      }
+
+      forcePauseTimer();
+      renderSubjectTimers();
       refreshDashboard();
-      setStatus("Conteúdo concluído", "Atualizei os gráficos de progresso.", "ok");
+      checkGoalReached();
+      setStatus("Sessão pausada", "O tempo estudado foi somado automaticamente.", "ok");
+    }
+
+    function resetCurrentSession(){
+      state.studyTimer.activeSubject = "";
+      state.studyTimer.isRunning = false;
+      state.studyTimer.startedAt = null;
+      state.studyTimer.currentSessionSeconds = 0;
+      scheduleSaveState();
+      renderSubjectTimers();
+      setStatus("Sessão zerada", "A sessão atual foi encerrada.", "ok");
     }
 
     function recalculateSubjectData(){
@@ -1218,8 +1359,25 @@
         if(counts.has(subject)) counts.set(subject, (counts.get(subject) || 0) + 1);
       });
 
+      Object.entries(state.studyTimer.subjects || {}).forEach(([subject, sec]) => {
+        if(!subject) return;
+        const hours = Number(sec || 0) / 3600;
+        if(!counts.has(subject) && counts.size < 6) counts.set(subject, 0);
+        if(counts.has(subject)) counts.set(subject, (counts.get(subject) || 0) + hours);
+      });
+
+      if(state.studyTimer.isRunning && state.studyTimer.activeSubject){
+        const liveHours = getCurrentRunningSeconds() / 3600;
+        const subject = state.studyTimer.activeSubject;
+        if(!counts.has(subject) && counts.size < 6) counts.set(subject, 0);
+        if(counts.has(subject)) counts.set(subject, (counts.get(subject) || 0) + liveHours);
+      }
+
       state.metrics.materias = Array.from(counts.keys()).slice(0, 6);
-      state.metrics.valoresMaterias = state.metrics.materias.map(subject => counts.get(subject) || 0);
+      state.metrics.valoresMaterias = state.metrics.materias.map(subject => {
+        const value = counts.get(subject) || 0;
+        return Math.round(value * 100) / 100;
+      });
     }
 
     function recalculateProgress(){
@@ -1241,10 +1399,12 @@
     }
 
     function refreshTopMetrics(){
-      const totalHoras = state.metrics.horasSemana.reduce((a,b) => a + b, 0);
+      const totalHoras = state.metrics.horasSemana.reduce((a,b) => a + b, 0)
+        + (state.studyTimer.isRunning ? getCurrentRunningSeconds() / 3600 : 0);
+
       const reminderCounts = getReminderStatusCounts();
 
-      els.metricHours.textContent = `${totalHoras}h`;
+      els.metricHours.textContent = `${totalHoras.toFixed(1)}h`;
       els.metricHoursSub.textContent = totalHoras > 0
         ? `Sequência atual: ${state.metrics.sequencia} dia(s)`
         : "Comece a registrar seus estudos.";
@@ -1263,6 +1423,22 @@
       els.progressExamLabel.textContent = els.examDate.value
         ? `Prova em ${formatDate(els.examDate.value)}`
         : "Sem data de prova";
+    }
+
+    function checkGoalReached(){
+      const totalHoras = state.metrics.horasSemana.reduce((a,b) => a + b, 0)
+        + (state.studyTimer.isRunning ? getCurrentRunningSeconds() / 3600 : 0);
+
+      const meta = Number(state.metrics.weekGoal || 0);
+
+      if(meta > 0 && totalHoras >= meta){
+        const pct = Math.round((totalHoras / meta) * 100);
+        els.goalReachedBanner.style.display = "flex";
+        els.goalReachedText.textContent = `Você estudou ${totalHoras.toFixed(1)}h esta semana. Sua meta era ${meta}h.`;
+        els.goalReachedPercent.textContent = `${pct}%`;
+      } else {
+        els.goalReachedBanner.style.display = "none";
+      }
     }
 
     function destroyCharts(){
@@ -1289,13 +1465,20 @@
         ? [state.metrics.progressoConcluido, state.metrics.progressoFaltando]
         : [0, 100];
 
+      const horasSemanaChart = [...state.metrics.horasSemana];
+      if(state.studyTimer.isRunning){
+        const current = new Date().getDay();
+        const idx = current === 0 ? 6 : current - 1;
+        horasSemanaChart[idx] += getCurrentRunningSeconds() / 3600;
+      }
+
       state.charts.horas = new Chart(document.getElementById("graficoHorasSemana"), {
         type: "line",
         data: {
           labels: state.metrics.diasSemana,
           datasets: [{
             label: "Horas estudadas",
-            data: state.metrics.horasSemana,
+            data: horasSemanaChart.map(v => Math.round(v * 100) / 100),
             borderColor: "#15b6ff",
             backgroundColor: "rgba(21,182,255,.18)",
             pointBackgroundColor: "#21d7ff",
@@ -1464,12 +1647,65 @@
       });
     }
 
+    function renderSubjectTimers(){
+      ensureTimerSubjects();
+      els.subjectTimerList.innerHTML = "";
+
+      const subjects = splitSubjects(els.subjects.value).slice(0, 12);
+      els.emptySubjectBox.style.display = subjects.length ? "none" : "block";
+
+      subjects.forEach(subject => {
+        const savedSeconds = state.studyTimer.subjects[subject] || 0;
+        const liveSeconds =
+          state.studyTimer.isRunning && state.studyTimer.activeSubject === subject
+            ? getCurrentRunningSeconds()
+            : 0;
+
+        const totalSeconds = savedSeconds + liveSeconds;
+
+        const row = document.createElement("div");
+        row.className = "subject-row" + (
+          state.studyTimer.activeSubject === subject && state.studyTimer.isRunning ? " active" : ""
+        );
+
+        const isActive = state.studyTimer.activeSubject === subject && state.studyTimer.isRunning;
+
+        row.innerHTML = `
+          <div class="subject-left">
+            <div class="subject-name">${escapeHtml(subject)}</div>
+          </div>
+          <div class="subject-time">${formatSeconds(totalSeconds)}</div>
+          <div class="item-actions">
+            <button class="btn ${isActive ? "danger" : "success"} small"
+              data-timer-subject="${escapeHtml(subject)}"
+              data-timer-action="${isActive ? "pause" : "start"}"
+              type="button">
+              ${isActive ? "Pausar" : "Iniciar"}
+            </button>
+          </div>
+        `;
+
+        els.subjectTimerList.appendChild(row);
+      });
+
+      els.currentSessionSubject.textContent =
+        state.studyTimer.activeSubject || "Nenhuma matéria ativa";
+
+      if(state.studyTimer.isRunning && state.studyTimer.activeSubject){
+        els.currentSessionTime.textContent = formatSeconds(getCurrentRunningSeconds());
+      } else {
+        els.currentSessionTime.textContent = "00:00:00";
+      }
+    }
+
     function refreshDashboard(){
       updateWeekGoalFromInput();
       recalculateSubjectData();
       recalculateProgress();
       refreshTopMetrics();
       renderCharts();
+      renderSubjectTimers();
+      checkGoalReached();
     }
 
     function renderPlan(structured, applyMetrics = true){
@@ -1543,7 +1779,7 @@
       });
 
       state.metrics.planSubjectCounts = counts;
-      saveMetrics();
+      scheduleSaveState();
       refreshDashboard();
     }
 
@@ -1578,9 +1814,9 @@
       };
 
       state.schedules.unshift(item);
-      saveSchedules();
+      scheduleSaveState();
       renderSchedules();
-      setStatus("Cronograma salvo", "Seu cronograma foi salvo no navegador.", "ok");
+      setStatus("Cronograma salvo", "Seu cronograma foi salvo.", "ok");
     }
 
     function loadSchedule(id){
@@ -1601,12 +1837,13 @@
         clearPlanCards(true);
       }
 
+      scheduleSaveState();
       setStatus("Cronograma carregado", `Carreguei "${item.title}".`, "ok");
     }
 
     function deleteSchedule(id){
       state.schedules = state.schedules.filter(item => item.id !== id);
-      saveSchedules();
+      scheduleSaveState();
       renderSchedules();
       setStatus("Cronograma excluído", "O cronograma foi removido.", "ok");
     }
@@ -1750,8 +1987,7 @@
       };
 
       state.reminders.unshift(item);
-      saveReminders();
-      saveMetrics();
+      scheduleSaveState();
       renderReminders();
       refreshDashboard();
       scheduleReminderNotifications();
@@ -1764,8 +2000,7 @@
       if(!item) return;
 
       item.status = newStatus;
-      saveReminders();
-      saveMetrics();
+      scheduleSaveState();
       renderReminders();
       refreshDashboard();
       scheduleReminderNotifications();
@@ -1774,8 +2009,7 @@
 
     function deleteReminder(id){
       state.reminders = state.reminders.filter(item => item.id !== id);
-      saveReminders();
-      saveMetrics();
+      scheduleSaveState();
       renderReminders();
       refreshDashboard();
       scheduleReminderNotifications();
@@ -1833,13 +2067,12 @@
     }
 
     function resetAllData(){
-      localStorage.removeItem(METRICS_KEY);
-      localStorage.removeItem(SCHEDULES_KEY);
-      localStorage.removeItem(REMINDERS_KEY);
+      localStorage.removeItem(LOCAL_KEY);
 
       state.metrics = getDefaultMetrics();
       state.schedules = [];
       state.reminders = [];
+      state.studyTimer = getDefaultStudyTimer();
       state.currentStructuredPlan = null;
       state.lastTextResult = "";
 
@@ -1856,7 +2089,104 @@
       renderSchedules();
       renderReminders();
       refreshDashboard();
+      scheduleSaveState();
       setStatus("Tudo zerado", "Os dados foram limpos e começaram do zero.", "ok");
+    }
+
+    function buildPersistedState(){
+      return {
+        metrics: state.metrics,
+        schedules: state.schedules,
+        reminders: state.reminders,
+        studyTimer: state.studyTimer,
+        form: {
+          aiEndpoint: els.aiEndpoint.value,
+          aiModel: els.aiModel.value,
+          scheduleTitle: els.scheduleTitle.value,
+          subjects: els.subjects.value,
+          examDate: els.examDate.value,
+          hoursPerDay: els.hoursPerDay.value,
+          content: els.content.value
+        },
+        result: state.lastTextResult,
+        currentStructuredPlan: state.currentStructuredPlan
+      };
+    }
+
+    function applyPersistedState(data){
+      if(!data) return;
+
+      state.metrics = { ...getDefaultMetrics(), ...(data.metrics || {}) };
+      state.schedules = Array.isArray(data.schedules) ? data.schedules : [];
+      state.reminders = Array.isArray(data.reminders) ? data.reminders : [];
+      state.studyTimer = { ...getDefaultStudyTimer(), ...(data.studyTimer || {}) };
+      state.lastTextResult = data.result || "";
+      state.currentStructuredPlan = data.currentStructuredPlan || null;
+
+      const form = data.form || {};
+      if(form.aiEndpoint) els.aiEndpoint.value = form.aiEndpoint;
+      if(form.aiModel) els.aiModel.value = form.aiModel;
+      els.scheduleTitle.value = form.scheduleTitle || "";
+      els.subjects.value = form.subjects || "";
+      els.examDate.value = form.examDate || "";
+      els.hoursPerDay.value = form.hoursPerDay || "";
+      els.content.value = form.content || "";
+    }
+
+    async function loadRemoteState(){
+      const resp = await fetch(APP_STATE_ENDPOINT, { cache: "no-store" });
+      if(!resp.ok) throw new Error("Sem sincronização remota");
+      const data = await resp.json();
+      if(!data || !data.ok) throw new Error("Sem sincronização remota");
+      state.syncMode = "remote";
+      return data.state || {};
+    }
+
+    function loadLocalState(){
+      try{
+        const raw = localStorage.getItem(LOCAL_KEY);
+        return raw ? JSON.parse(raw) : {};
+      }catch{
+        return {};
+      }
+    }
+
+    async function loadAllState(){
+      try{
+        const remote = await loadRemoteState();
+        applyPersistedState(remote);
+        setStatus("Dados sincronizados", "Seus dados foram carregados do servidor.", "ok");
+      }catch{
+        const local = loadLocalState();
+        applyPersistedState(local);
+      }
+    }
+
+    let saveTimer = null;
+
+    function scheduleSaveState(){
+      if(saveTimer) clearTimeout(saveTimer);
+      saveTimer = setTimeout(saveAllState, 350);
+    }
+
+    async function saveAllState(){
+      const payload = buildPersistedState();
+
+      try{
+        if(state.syncMode === "remote"){
+          await fetch(APP_STATE_ENDPOINT, {
+            method: "POST",
+            headers: { "Content-Type":"application/json" },
+            body: JSON.stringify(payload)
+          });
+        }
+      }catch{
+        state.syncMode = "local";
+      }
+
+      try{
+        localStorage.setItem(LOCAL_KEY, JSON.stringify(payload));
+      }catch{}
     }
 
     async function testConnection(){
@@ -1911,6 +2241,7 @@
         }
 
         els.content.value = data.text || "";
+        scheduleSaveState();
         setStatus("Arquivo importado", `${file.name} foi convertido em texto.`, "ok");
       }catch(error){
         setStatus("Erro ao importar", error.message || "Não consegui importar esse arquivo.", "err");
@@ -1966,6 +2297,8 @@
         } else if(action !== "plan"){
           state.currentStructuredPlan = null;
         }
+
+        scheduleSaveState();
       }catch(error){
         setResult("Erro ao processar.");
         setStatus("Erro no processamento", error.message || "Falha inesperada.", "err");
@@ -1977,8 +2310,10 @@
     els.testButton.addEventListener("click", testConnection);
     els.analyzeButton.addEventListener("click", () => callStudyAI("analyze"));
     els.planButton.addEventListener("click", () => callStudyAI("plan"));
+
     els.refreshDashboardButton.addEventListener("click", () => {
       refreshDashboard();
+      scheduleSaveState();
       setStatus("Painel atualizado", "Os dados visuais foram atualizados.", "ok");
     });
 
@@ -1992,10 +2327,10 @@
       els.content.value = "";
       state.metrics.planSubjectCounts = {};
       state.metrics.planTarget = 0;
-      saveMetrics();
       setResult("A resposta aparecerá aqui.");
       clearPlanCards(true);
       refreshDashboard();
+      scheduleSaveState();
       setStatus("Conteúdo limpo", "Preencha novos dados para gerar outro cronograma.");
     });
 
@@ -2011,24 +2346,44 @@
 
     els.saveScheduleButton.addEventListener("click", saveCurrentSchedule);
     els.resetAllButton.addEventListener("click", resetAllData);
+
     els.saveReminderButton.addEventListener("click", saveReminder);
     els.clearReminderFormButton.addEventListener("click", clearReminderForm);
     els.enableNotificationButton.addEventListener("click", enableNotifications);
-    els.registerHourButton.addEventListener("click", registerStudyHour);
-    els.registerContentButton.addEventListener("click", registerCompletedContent);
+    els.registerContentButton.addEventListener("click", () => {
+      state.metrics.manualCompleted += 1;
+      const current = new Date().getDay();
+      const idx = current === 0 ? 6 : current - 1;
+      state.metrics.evolucaoConteudos[idx] += 1;
+      updateStudyStreak();
+      refreshDashboard();
+      scheduleSaveState();
+      setStatus("Conteúdo concluído", "Atualizei os gráficos de progresso.", "ok");
+    });
+
+    els.pauseTimerButton.addEventListener("click", pauseSubjectTimer);
+    els.resetTimerButton.addEventListener("click", resetCurrentSession);
 
     els.subjects.addEventListener("input", () => {
+      ensureTimerSubjects();
       refreshDashboard();
-      saveMetrics();
+      scheduleSaveState();
     });
 
     els.hoursPerDay.addEventListener("input", () => {
       updateWeekGoalFromInput();
       refreshDashboard();
-      saveMetrics();
+      scheduleSaveState();
     });
 
-    els.examDate.addEventListener("change", refreshDashboard);
+    els.examDate.addEventListener("change", () => {
+      refreshDashboard();
+      scheduleSaveState();
+    });
+
+    [els.scheduleTitle, els.content, els.aiEndpoint, els.aiModel].forEach(input => {
+      input.addEventListener("input", scheduleSaveState);
+    });
 
     els.savedSchedulesList.addEventListener("click", (event) => {
       const button = event.target.closest("button[data-schedule-action]");
@@ -2054,13 +2409,60 @@
       if(action === "concluido") updateReminderStatus(id, "concluido");
     });
 
-    updateClock();
-    setInterval(updateClock, 30000);
-    renderSchedules();
-    renderReminders();
-    refreshDashboard();
-    scheduleReminderNotifications();
-    testConnection();
+    els.subjectTimerList.addEventListener("click", (event) => {
+      const button = event.target.closest("button[data-timer-action]");
+      if(!button) return;
+
+      const subject = button.dataset.timerSubject;
+      const action = button.dataset.timerAction;
+
+      if(action === "start") startSubjectTimer(subject);
+      if(action === "pause") pauseSubjectTimer();
+    });
+
+    setInterval(() => {
+      updateClock();
+      if(state.studyTimer.isRunning){
+        renderSubjectTimers();
+        refreshTopMetrics();
+        renderCharts();
+        checkGoalReached();
+      }
+    }, 1000);
+
+    window.addEventListener("beforeunload", () => {
+      if(state.studyTimer.isRunning){
+        forcePauseTimer();
+      }
+      try{
+        localStorage.setItem(LOCAL_KEY, JSON.stringify(buildPersistedState()));
+      }catch{}
+    });
+
+    async function init(){
+      updateClock();
+      await loadAllState();
+      setResult(state.lastTextResult || "A resposta aparecerá aqui.");
+
+      if(state.currentStructuredPlan){
+        renderPlan(state.currentStructuredPlan, false);
+      } else {
+        clearPlanCards(false);
+      }
+
+      renderSchedules();
+      renderReminders();
+      refreshDashboard();
+      scheduleReminderNotifications();
+
+      if(state.syncMode === "remote"){
+        setStatus("Dados carregados", "Seus dados foram carregados do servidor.", "ok");
+      }
+
+      testConnection();
+    }
+
+    init();
   </script>
 </body>
 </html>
