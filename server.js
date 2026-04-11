@@ -1,4 +1,3 @@
-
 import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
@@ -65,47 +64,50 @@ function nowISO() {
   return new Date().toISOString();
 }
 
-function makeId(prefix = "id") {
-  return prefix + "_" + Date.now() + "_" + Math.floor(Math.random() * 100000);
+function makeId(prefix) {
+  return String(prefix || "id") + "_" + Date.now() + "_" + Math.floor(Math.random() * 100000);
 }
 
-function cortarTexto(texto = "", limite = 3000) {
+function cortarTexto(texto, limite) {
   if (typeof texto !== "string") return "";
-  return texto.trim().slice(0, limite);
-}
-
-function daysBetween(startISO, endDate = new Date()) {
-  const start = new Date(startISO);
-  const diff = endDate.getTime() - start.getTime();
-  return diff / (1000 * 60 * 60 * 24);
-}
-
-function isTrialExpired(user) {
-  if (!user?.trialStartedAt) return false;
-  if (user.subscriptionActive) return false;
-  return daysBetween(user.trialStartedAt) >= TRIAL_DAYS;
-}
-
-function remainingTrialDays(user) {
-  if (!user?.trialStartedAt) return TRIAL_DAYS;
-  const used = daysBetween(user.trialStartedAt);
-  return Math.max(0, Math.ceil(TRIAL_DAYS - used));
+  return texto.trim().slice(0, Number(limite || 3000));
 }
 
 function normalizeEmail(email) {
   return String(email || "").trim().toLowerCase();
 }
 
-function getOrCreateUser(email, name = "Aluno") {
+function daysBetween(startISO, endDate) {
+  const start = new Date(startISO);
+  const end = endDate || new Date();
+  const diff = end.getTime() - start.getTime();
+  return diff / (1000 * 60 * 60 * 24);
+}
+
+function isTrialExpired(user) {
+  if (!user || !user.trialStartedAt) return false;
+  if (user.subscriptionActive) return false;
+  return daysBetween(user.trialStartedAt) >= TRIAL_DAYS;
+}
+
+function remainingTrialDays(user) {
+  if (!user || !user.trialStartedAt) return TRIAL_DAYS;
+  const used = daysBetween(user.trialStartedAt);
+  return Math.max(0, Math.ceil(TRIAL_DAYS - used));
+}
+
+function getOrCreateUser(email, name) {
   const db = loadDB();
   const normalizedEmail = normalizeEmail(email);
 
-  let user = db.users.find((u) => normalizeEmail(u.email) === normalizedEmail);
+  let user = db.users.find(function (u) {
+    return normalizeEmail(u.email) === normalizedEmail;
+  });
 
   if (!user) {
     user = {
       id: makeId("user"),
-      name: name || "Aluno",
+      name: String(name || "Aluno").trim() || "Aluno",
       email: normalizedEmail,
       createdAt: nowISO(),
       trialStartedAt: nowISO(),
@@ -122,29 +124,76 @@ function getOrCreateUser(email, name = "Aluno") {
 function updateUser(email, updater) {
   const db = loadDB();
   const normalizedEmail = normalizeEmail(email);
-  const index = db.users.findIndex(
-    (u) => normalizeEmail(u.email) === normalizedEmail
-  );
+
+  const index = db.users.findIndex(function (u) {
+    return normalizeEmail(u.email) === normalizedEmail;
+  });
 
   if (index === -1) return null;
 
-  db.users[index] = { ...db.users[index], ...updater };
+  db.users[index] = Object.assign({}, db.users[index], updater || {});
   saveDB(db);
   return db.users[index];
 }
 
+function getEmailFromRequest(req) {
+  return normalizeEmail(
+    req.headers["x-user-email"] ||
+      (req.body ? req.body.email : "") ||
+      (req.query ? req.query.email : "") ||
+      ""
+  );
+}
+
+function requireAccess(req, res, next) {
+  const email = getEmailFromRequest(req);
+  const name = String(
+    (req.body ? req.body.name : "") ||
+      (req.query ? req.query.name : "") ||
+      "Aluno"
+  ).trim();
+
+  if (!email) {
+    return res.status(400).json({
+      ok: false,
+      mensagem: "Email do usuário não enviado."
+    });
+  }
+
+  const user = getOrCreateUser(email, name);
+
+  if (isTrialExpired(user)) {
+    return res.status(403).json({
+      ok: false,
+      blocked: true,
+      motivo: "trial_expired",
+      mensagem: "Seu período de teste terminou. Assine para continuar.",
+      trialRemainingDays: 0,
+      subscriptionActive: user.subscriptionActive,
+      paymentLink: paymentLink
+    });
+  }
+
+  req.user = user;
+  next();
+}
+
 function extrairTextoDoResponse(response) {
-  if (response?.output_text) return response.output_text;
+  if (response && response.output_text) return response.output_text;
 
   try {
     const textos = [];
-    for (const item of response?.output || []) {
-      for (const content of item?.content || []) {
-        if (content?.type === "output_text" && content?.text) {
-          textos.push(content.text);
+    const output = response && response.output ? response.output : [];
+
+    for (const item of output) {
+      const content = item && item.content ? item.content : [];
+      for (const c of content) {
+        if (c && c.type === "output_text" && c.text) {
+          textos.push(c.text);
         }
       }
     }
+
     return textos.join("\n").trim();
   } catch {
     return "";
@@ -166,7 +215,7 @@ async function extrairTextoArquivo(file) {
     mime.includes("officedocument.wordprocessingml") ||
     nome.endsWith(".docx")
   ) {
-    const result = await mammoth.extractRawText({ buffer });
+    const result = await mammoth.extractRawText({ buffer: buffer });
     return result.value || "";
   }
 
@@ -180,10 +229,12 @@ async function extrairTextoArquivo(file) {
     const workbook = xlsx.read(buffer, { type: "buffer" });
     const partes = [];
 
-    workbook.SheetNames.forEach((sheetName) => {
+    workbook.SheetNames.forEach(function (sheetName) {
       const ws = workbook.Sheets[sheetName];
       const rows = xlsx.utils.sheet_to_json(ws, { header: 1, defval: "" });
-      const text = rows.map((row) => row.join(" | ")).join("\n");
+      const text = rows.map(function (row) {
+        return row.join(" | ");
+      }).join("\n");
       partes.push("Planilha: " + sheetName + "\n" + text);
     });
 
@@ -204,16 +255,18 @@ async function extrairTextoArquivo(file) {
 function tratarErroOpenAI(err, res) {
   console.error("Erro OpenAI:", err);
 
-  const status = err?.status || err?.code || 500;
+  const status = err && (err.status || err.code) ? (err.status || err.code) : 500;
   const detalhe =
-    err?.error?.message || err?.message || "Erro interno ao acessar o serviço.";
+    (err && err.error && err.error.message) ||
+    (err && err.message) ||
+    "Erro interno ao acessar o serviço.";
 
   if (status === 429) {
     return res.status(429).json({
       ok: false,
       tipo: "quota",
       mensagem: "Limite de uso atingido no momento.",
-      detalhe
+      detalhe: detalhe
     });
   }
 
@@ -222,7 +275,7 @@ function tratarErroOpenAI(err, res) {
       ok: false,
       tipo: "auth",
       mensagem: "Chave do serviço inválida ou ausente.",
-      detalhe
+      detalhe: detalhe
     });
   }
 
@@ -230,46 +283,8 @@ function tratarErroOpenAI(err, res) {
     ok: false,
     tipo: "server",
     mensagem: "Erro ao processar a solicitação.",
-    detalhe
+    detalhe: detalhe
   });
-}
-
-function getEmailFromRequest(req) {
-  return normalizeEmail(
-    req.headers["x-user-email"] ||
-      req.body?.email ||
-      req.query?.email ||
-      ""
-  );
-}
-
-function requireAccess(req, res, next) {
-  const email = getEmailFromRequest(req);
-  const name = String(req.body?.name || req.query?.name || "Aluno").trim();
-
-  if (!email) {
-    return res.status(400).json({
-      ok: false,
-      mensagem: "Email do usuário não enviado."
-    });
-  }
-
-  const user = getOrCreateUser(email, name);
-
-  if (isTrialExpired(user)) {
-    return res.status(403).json({
-      ok: false,
-      blocked: true,
-      motivo: "trial_expired",
-      mensagem: "Seu período de teste terminou. Assine para continuar.",
-      trialRemainingDays: 0,
-      subscriptionActive: user.subscriptionActive,
-      paymentLink
-    });
-  }
-
-  req.user = user;
-  next();
 }
 
 const upload = multer({
@@ -285,39 +300,41 @@ const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY
 });
 
-app.get("/", (req, res) => {
+app.get("/", function (req, res) {
   if (fs.existsSync(INDEX_FILE)) {
     return res.sendFile(INDEX_FILE);
   }
 
-  return res.type("html").send(`
-<!DOCTYPE html>
-<html lang="pt-BR">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Vou Estudar+</title>
-  <style>
-    body { font-family: Arial, sans-serif; background:#081120; color:#eef6ff; margin:0; padding:40px; }
-    .box { max-width:800px; margin:0 auto; background:#101c34; border:1px solid rgba(255,255,255,.08); border-radius:18px; padding:24px; }
-    h1 { margin-top:0; }
-    a { color:#66ecff; }
-    code { background:rgba(255,255,255,.08); padding:2px 6px; border-radius:6px; }
-  </style>
-</head>
-<body>
-  <div class="box">
-    <h1>Servidor no ar</h1>
-    <p>O backend está funcionando.</p>
-    <p>Se a tela principal não abriu, envie também um arquivo <code>index.html</code> para a raiz do projeto.</p>
-    <p>Teste de saúde: <a href="/api/health">/api/health</a></p>
-  </div>
-</body>
-</html>
-  `);
+  const html = [
+    "<!DOCTYPE html>",
+    "<html lang=\"pt-BR\">",
+    "<head>",
+    "<meta charset=\"UTF-8\" />",
+    "<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\" />",
+    "<title>Vou Estudar+</title>",
+    "<style>",
+    "body{font-family:Arial,sans-serif;background:#081120;color:#eef6ff;margin:0;padding:40px}",
+    ".box{max-width:800px;margin:0 auto;background:#101c34;border:1px solid rgba(255,255,255,.08);border-radius:18px;padding:24px}",
+    "h1{margin-top:0}",
+    "a{color:#66ecff}",
+    "code{background:rgba(255,255,255,.08);padding:2px 6px;border-radius:6px}",
+    "</style>",
+    "</head>",
+    "<body>",
+    "<div class=\"box\">",
+    "<h1>Servidor no ar</h1>",
+    "<p>O backend está funcionando.</p>",
+    "<p>Se a tela principal não abriu, envie também um arquivo <code>index.html</code> para a raiz do projeto.</p>",
+    "<p>Teste de saúde: <a href=\"/api/health\">/api/health</a></p>",
+    "</div>",
+    "</body>",
+    "</html>"
+  ].join("");
+
+  return res.type("html").send(html);
 });
 
-app.get("/api/health", (req, res) => {
+app.get("/api/health", function (req, res) {
   const db = loadDB();
   res.json({
     ok: true,
@@ -331,9 +348,9 @@ app.get("/api/health", (req, res) => {
   });
 });
 
-app.post("/api/trial/start", (req, res) => {
-  const email = normalizeEmail(req.body?.email);
-  const name = String(req.body?.name || "Aluno").trim();
+app.post("/api/trial/start", function (req, res) {
+  const email = normalizeEmail(req.body ? req.body.email : "");
+  const name = String((req.body ? req.body.name : "") || "Aluno").trim();
 
   if (!email) {
     return res.status(400).json({
@@ -346,15 +363,15 @@ app.post("/api/trial/start", (req, res) => {
 
   return res.json({
     ok: true,
-    user,
+    user: user,
     trialRemainingDays: remainingTrialDays(user),
     subscriptionActive: user.subscriptionActive,
-    paymentLink
+    paymentLink: paymentLink
   });
 });
 
-app.get("/api/access-status", (req, res) => {
-  const email = normalizeEmail(req.query?.email);
+app.get("/api/access-status", function (req, res) {
+  const email = normalizeEmail(req.query ? req.query.email : "");
 
   if (!email) {
     return res.status(400).json({
@@ -373,13 +390,13 @@ app.get("/api/access-status", (req, res) => {
     blocked: isTrialExpired(user),
     trialRemainingDays: remainingTrialDays(user),
     trialStartedAt: user.trialStartedAt,
-    paymentLink
+    paymentLink: paymentLink
   });
 });
 
-app.post("/api/subscription/activate", (req, res) => {
-  const email = normalizeEmail(req.body?.email);
-  const plan = String(req.body?.plan || "premium").trim();
+app.post("/api/subscription/activate", function (req, res) {
+  const email = normalizeEmail(req.body ? req.body.email : "");
+  const plan = String((req.body ? req.body.plan : "") || "premium").trim();
 
   if (!email) {
     return res.status(400).json({
@@ -391,7 +408,7 @@ app.post("/api/subscription/activate", (req, res) => {
   getOrCreateUser(email);
   const updated = updateUser(email, {
     subscriptionActive: true,
-    plan
+    plan: plan
   });
 
   return res.json({
@@ -401,8 +418,8 @@ app.post("/api/subscription/activate", (req, res) => {
   });
 });
 
-app.post("/api/subscription/deactivate", (req, res) => {
-  const email = normalizeEmail(req.body?.email);
+app.post("/api/subscription/deactivate", function (req, res) {
+  const email = normalizeEmail(req.body ? req.body.email : "");
 
   if (!email) {
     return res.status(400).json({
@@ -423,7 +440,7 @@ app.post("/api/subscription/deactivate", (req, res) => {
   });
 });
 
-app.post("/api/extract-file", requireAccess, upload.single("file"), async (req, res) => {
+app.post("/api/extract-file", requireAccess, upload.single("file"), async function (req, res) {
   try {
     if (!req.file) {
       return res.status(400).json({
@@ -448,13 +465,13 @@ app.post("/api/extract-file", requireAccess, upload.single("file"), async (req, 
   }
 });
 
-app.post("/api/conteudos/salvar", requireAccess, (req, res) => {
+app.post("/api/conteudos/salvar", requireAccess, function (req, res) {
   const db = loadDB();
 
-  const titulo = cortarTexto(req.body?.titulo || "", 160);
-  const materia = cortarTexto(req.body?.materia || "", 100);
-  const conteudo = cortarTexto(req.body?.conteudo || "", 20000);
-  const dataProva = cortarTexto(req.body?.dataProva || "", 40);
+  const titulo = cortarTexto(req.body ? req.body.titulo : "", 160);
+  const materia = cortarTexto(req.body ? req.body.materia : "", 100);
+  const conteudo = cortarTexto(req.body ? req.body.conteudo : "", 20000);
+  const dataProva = cortarTexto(req.body ? req.body.dataProva : "", 40);
 
   if (!conteudo) {
     return res.status(400).json({
@@ -469,7 +486,7 @@ app.post("/api/conteudos/salvar", requireAccess, (req, res) => {
     titulo: titulo || "Conteúdo sem título",
     materia: materia || "Matéria não informada",
     dataProva: dataProva || "",
-    conteudo,
+    conteudo: conteudo,
     createdAt: nowISO()
   };
 
@@ -479,13 +496,15 @@ app.post("/api/conteudos/salvar", requireAccess, (req, res) => {
   return res.json({
     ok: true,
     mensagem: "Conteúdo salvo com sucesso.",
-    item
+    item: item
   });
 });
 
-app.get("/api/conteudos", requireAccess, (req, res) => {
+app.get("/api/conteudos", requireAccess, function (req, res) {
   const db = loadDB();
-  const lista = db.conteudos.filter((item) => item.userEmail === req.user.email);
+  const lista = db.conteudos.filter(function (item) {
+    return item.userEmail === req.user.email;
+  });
 
   return res.json({
     ok: true,
@@ -493,14 +512,14 @@ app.get("/api/conteudos", requireAccess, (req, res) => {
   });
 });
 
-app.delete("/api/conteudos/:id", requireAccess, (req, res) => {
+app.delete("/api/conteudos/:id", requireAccess, function (req, res) {
   const db = loadDB();
   const id = String(req.params.id);
   const antes = db.conteudos.length;
 
-  db.conteudos = db.conteudos.filter(
-    (item) => !(item.id === id && item.userEmail === req.user.email)
-  );
+  db.conteudos = db.conteudos.filter(function (item) {
+    return !(item.id === id && item.userEmail === req.user.email);
+  });
 
   saveDB(db);
 
@@ -510,7 +529,7 @@ app.delete("/api/conteudos/:id", requireAccess, (req, res) => {
   });
 });
 
-app.post("/api/study-ai", requireAccess, async (req, res) => {
+app.post("/api/study-ai", requireAccess, async function (req, res) {
   try {
     if (!process.env.OPENAI_API_KEY) {
       return res.status(500).json({
@@ -519,12 +538,12 @@ app.post("/api/study-ai", requireAccess, async (req, res) => {
       });
     }
 
-    const mode = String(req.body?.mode || "explain").toLowerCase();
-    const materia = cortarTexto(req.body?.materia || "", 100);
-    const conteudo = cortarTexto(req.body?.conteudo || "", 12000);
-    const dataProva = cortarTexto(req.body?.dataProva || "", 40);
-    const diasPorSemana = cortarTexto(String(req.body?.diasPorSemana || ""), 20);
-    const horasPorDia = cortarTexto(String(req.body?.horasPorDia || ""), 20);
+    const mode = String((req.body ? req.body.mode : "") || "explain").toLowerCase();
+    const materia = cortarTexto(req.body ? req.body.materia : "", 100);
+    const conteudo = cortarTexto(req.body ? req.body.conteudo : "", 12000);
+    const dataProva = cortarTexto(req.body ? req.body.dataProva : "", 40);
+    const diasPorSemana = cortarTexto(String((req.body ? req.body.diasPorSemana : "") || ""), 20);
+    const horasPorDia = cortarTexto(String((req.body ? req.body.horasPorDia : "") || ""), 20);
 
     if (!conteudo && mode !== "test") {
       return res.status(400).json({
@@ -643,34 +662,34 @@ app.post("/api/study-ai", requireAccess, async (req, res) => {
 
     const response = await openai.responses.create({
       model: defaultModel,
-      input,
-      max_output_tokens
+      input: input,
+      max_output_tokens: max_output_tokens
     });
 
     const resultado = extrairTextoDoResponse(response);
 
     return res.json({
       ok: true,
-      resultado
+      resultado: resultado
     });
   } catch (err) {
     return tratarErroOpenAI(err, res);
   }
 });
 
-app.post("/api/trabalhos", requireAccess, (req, res) => {
+app.post("/api/trabalhos", requireAccess, function (req, res) {
   const db = loadDB();
 
   const trabalho = {
     id: makeId("work"),
     userEmail: req.user.email,
-    titulo: cortarTexto(req.body?.titulo || "", 160),
-    materia: cortarTexto(req.body?.materia || "", 100),
-    data: cortarTexto(req.body?.data || "", 30),
-    hora: cortarTexto(req.body?.hora || "", 20),
-    lembrete: cortarTexto(req.body?.lembrete || "Sem lembrete", 40),
-    status: cortarTexto(req.body?.status || "Pendente", 40),
-    anexoNome: cortarTexto(req.body?.anexoNome || "", 200),
+    titulo: cortarTexto(req.body ? req.body.titulo : "", 160),
+    materia: cortarTexto(req.body ? req.body.materia : "", 100),
+    data: cortarTexto(req.body ? req.body.data : "", 30),
+    hora: cortarTexto(req.body ? req.body.hora : "", 20),
+    lembrete: cortarTexto((req.body ? req.body.lembrete : "") || "Sem lembrete", 40),
+    status: cortarTexto((req.body ? req.body.status : "") || "Pendente", 40),
+    anexoNome: cortarTexto(req.body ? req.body.anexoNome : "", 200),
     createdAt: nowISO()
   };
 
@@ -686,13 +705,15 @@ app.post("/api/trabalhos", requireAccess, (req, res) => {
 
   return res.json({
     ok: true,
-    trabalho
+    trabalho: trabalho
   });
 });
 
-app.get("/api/trabalhos", requireAccess, (req, res) => {
+app.get("/api/trabalhos", requireAccess, function (req, res) {
   const db = loadDB();
-  const lista = db.trabalhos.filter((t) => t.userEmail === req.user.email);
+  const lista = db.trabalhos.filter(function (t) {
+    return t.userEmail === req.user.email;
+  });
 
   return res.json({
     ok: true,
@@ -700,14 +721,14 @@ app.get("/api/trabalhos", requireAccess, (req, res) => {
   });
 });
 
-app.delete("/api/trabalhos/:id", requireAccess, (req, res) => {
+app.delete("/api/trabalhos/:id", requireAccess, function (req, res) {
   const db = loadDB();
   const id = String(req.params.id);
   const antes = db.trabalhos.length;
 
-  db.trabalhos = db.trabalhos.filter(
-    (t) => !(t.id === id && t.userEmail === req.user.email)
-  );
+  db.trabalhos = db.trabalhos.filter(function (t) {
+    return !(t.id === id && t.userEmail === req.user.email);
+  });
 
   saveDB(db);
 
@@ -717,13 +738,13 @@ app.delete("/api/trabalhos/:id", requireAccess, (req, res) => {
   });
 });
 
-app.patch("/api/trabalhos/:id/concluir", requireAccess, (req, res) => {
+app.patch("/api/trabalhos/:id/concluir", requireAccess, function (req, res) {
   const db = loadDB();
   const id = String(req.params.id);
 
-  const index = db.trabalhos.findIndex(
-    (t) => t.id === id && t.userEmail === req.user.email
-  );
+  const index = db.trabalhos.findIndex(function (t) {
+    return t.id === id && t.userEmail === req.user.email;
+  });
 
   if (index === -1) {
     return res.status(404).json({
@@ -741,53 +762,6 @@ app.patch("/api/trabalhos/:id/concluir", requireAccess, (req, res) => {
   });
 });
 
-app.listen(port, () => {
+app.listen(port, function () {
   console.log("Servidor rodando na porta " + port);
 });
-package.json
-Troque também pelo seguinte:
-JSON
-{
-  "name": "vou-estudar-online",
-  "version": "1.0.0",
-  "description": "Plataforma de estudo com cronograma para prova e conteúdos salvos",
-  "type": "module",
-  "main": "server.js",
-  "scripts": {
-    "start": "node server.js"
-  },
-  "engines": {
-    "node": ">=18"
-  },
-  "dependencies": {
-    "cors": "^2.8.5",
-    "dotenv": "^16.4.5",
-    "express": "^4.21.2",
-    "mammoth": "^1.8.0",
-    "multer": "^1.4.5-lts.1",
-    "openai": "^4.104.0",
-    "pdf-parse": "^1.1.1",
-    "xlsx": "^0.18.5"
-  }
-}
-Variáveis no Render
-Em Environment:
-Environment
-OPENAI_API_KEY=sua_chave_real
-PAYMENT_LINK=https://www.mercadopago.com.br/subscriptions/checkout?preapproval_plan_id=b27021920330458991fef9820c1acd53
-DEFAULT_MODEL=gpt-4.1-mini
-ALLOWED_ORIGIN=*
-Depois faça isso
-Commit do server.js
-Commit do package.json
-No Render: Manual Deploy
-Deploy latest commit
-Teste
-Abra:
-Plain text
-https://vou-estudar-online.onrender.com/api/health
-Se aparecer:
-ok: true
-hasOpenAIKey: true
-o backend está pronto.
-Depois abrimos a tela com o HTML.
