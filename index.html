@@ -1373,3 +1373,99 @@
 </body>
 </html>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+/* ===== GRÁFICOS DE ESTUDO ===== */
+.graficos-estudo{
+  margin-top: 28px;
+}
+
+.graficos-topo{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  margin-bottom:18px;
+  flex-wrap:wrap;
+}
+
+.graficos-topo h2{
+  margin:0;
+  color:#fff;
+  font-size:24px;
+  font-weight:800;
+}
+
+.graficos-topo p{
+  margin:6px 0 0 0;
+  color:rgba(255,255,255,.72);
+  font-size:14px;
+}
+
+.graficos-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(280px,1fr));
+  gap:18px;
+}
+
+.grafico-card{
+  background:linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.02)), var(--card);
+  border:1px solid rgba(255,255,255,.08);
+  border-radius:22px;
+  padding:18px;
+  box-shadow:0 14px 40px rgba(0,0,0,.22);
+  backdrop-filter:blur(8px);
+}
+
+.grafico-card h3{
+  margin:0 0 14px 0;
+  color:#fff;
+  font-size:17px;
+  font-weight:700;
+}
+
+.grafico-card p{
+  margin:0 0 14px 0;
+  color:rgba(255,255,255,.68);
+  font-size:13px;
+}
+
+.grafico-card canvas{
+  width:100% !important;
+  height:260px !important;
+}
+
+.grafico-card.grafico-largo{
+  grid-column:span 2;
+}
+
+.kpis-estudo{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
+  gap:14px;
+  margin-bottom:18px;
+}
+
+.kpi-estudo{
+  background:linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,.02)), var(--card2);
+  border:1px solid rgba(255,255,255,.08);
+  border-radius:18px;
+  padding:16px;
+}
+
+.kpi-estudo span{
+  display:block;
+  color:rgba(255,255,255,.68);
+  font-size:13px;
+  margin-bottom:6px;
+}
+
+.kpi-estudo strong{
+  color:#fff;
+  font-size:24px;
+  font-weight:800;
+}
+
+@media (max-width: 900px){
+  .grafico-card.grafico-largo{
+    grid-column:span 1;
+  }
+}
