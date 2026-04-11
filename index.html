@@ -3,1365 +3,708 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Vou Estudar+</title>
+  <title>Vou Estudar+ | IA real no sistema</title>
+
   <style>
     :root{
-      --bg:#081120;
-      --bg2:#0d1830;
-      --card:#101c34;
-      --card2:#13213d;
-      --line:rgba(255,255,255,.08);
-      --text:#eef6ff;
-      --muted:#9eb6d6;
-      --blue:#00d4ff;
-      --purple:#7c5cff;
-      --green:#35d6a7;
-      --yellow:#ffd166;
-      --danger:#ff6b81;
-      --shadow:0 20px 50px rgba(0,0,0,.28);
+      --bg-1:#030915;
+      --bg-2:#060d1f;
+      --bg-3:#0a1228;
+      --card:rgba(255,255,255,0.06);
+      --card-2:rgba(255,255,255,0.04);
+      --line:rgba(255,255,255,0.12);
+      --text:#f4f7fb;
+      --muted:#9fb0ca;
+      --cyan:#19c2ff;
+      --blue:#2b7fff;
+      --purple:#7b61ff;
+      --success:#19d38a;
+      --danger:#ff6c8f;
+      --warning:#ffcc66;
+      --shadow:0 18px 45px rgba(0,0,0,0.35);
+      --radius-xl:26px;
+      --radius-lg:18px;
+      --radius-md:14px;
     }
 
-    *{
-      box-sizing:border-box;
+    *{ box-sizing:border-box; }
+
+    html, body{
       margin:0;
       padding:0;
+      min-height:100%;
+      font-family:Inter, Arial, sans-serif;
+      color:var(--text);
+      background:
+        radial-gradient(circle at top left, rgba(25,194,255,0.18), transparent 28%),
+        radial-gradient(circle at top right, rgba(123,97,255,0.22), transparent 32%),
+        linear-gradient(180deg, var(--bg-2), var(--bg-1));
     }
 
     body{
-      font-family:Arial, Helvetica, sans-serif;
-      background:
-        radial-gradient(circle at top left, rgba(0,212,255,.10), transparent 28%),
-        radial-gradient(circle at top right, rgba(124,92,255,.12), transparent 26%),
-        linear-gradient(180deg, var(--bg), #091427 100%);
-      color:var(--text);
-      min-height:100vh;
+      padding:28px 0 40px;
     }
 
-    .container{
-      width:min(1180px, calc(100% - 24px));
+    .wrap{
+      width:min(1320px, calc(100% - 32px));
       margin:0 auto;
-      padding:20px 0 40px;
     }
 
     .hero{
-      background:linear-gradient(145deg, rgba(16,28,52,.96), rgba(10,20,38,.98));
+      background:linear-gradient(135deg, rgba(10,25,55,0.92), rgba(9,8,40,0.92));
       border:1px solid var(--line);
-      border-radius:28px;
-      padding:26px;
+      border-radius:32px;
       box-shadow:var(--shadow);
+      padding:28px;
+      display:grid;
+      grid-template-columns:1.35fr 0.85fr;
+      gap:18px;
       margin-bottom:18px;
     }
 
-    .hero-top{
-      display:grid;
-      grid-template-columns:1.1fr .9fr;
-      gap:18px;
-      align-items:start;
-    }
-
-    .badge{
-      display:inline-block;
-      padding:8px 14px;
-      border-radius:999px;
-      background:rgba(0,212,255,.10);
-      border:1px solid rgba(0,212,255,.18);
-      color:#8cecff;
-      font-size:12px;
-      font-weight:700;
-      letter-spacing:.8px;
-      margin-bottom:12px;
-    }
-
-    h1{
-      font-size:clamp(30px,5vw,46px);
-      line-height:1.05;
-      margin-bottom:12px;
+    .title{
+      display:flex;
+      align-items:center;
+      gap:12px;
+      font-size:28px;
+      font-weight:800;
+      margin-bottom:10px;
     }
 
     .subtitle{
       color:var(--muted);
-      max-width:700px;
-      line-height:1.65;
+      font-size:18px;
+      line-height:1.5;
+      margin-bottom:24px;
+    }
+
+    .status-card,
+    .panel,
+    .output,
+    .days,
+    .grafico-card,
+    .kpi-estudo{
+      background:var(--card);
+      border:1px solid var(--line);
+      border-radius:var(--radius-xl);
+      box-shadow:var(--shadow);
+      backdrop-filter:blur(8px);
+    }
+
+    .status-card{
+      padding:26px;
+      display:flex;
+      flex-direction:column;
+      justify-content:center;
+      min-height:180px;
+      background:linear-gradient(180deg, rgba(255,255,255,0.05), rgba(255,255,255,0.03));
+    }
+
+    .status-title{
+      font-size:20px;
+      font-weight:800;
+      margin-bottom:10px;
+    }
+
+    .status-title.ok{ color:#9ff0c9; }
+    .status-title.err{ color:#ffb2c1; }
+
+    .status-text{
+      color:#d9e5f7;
+      line-height:1.6;
       font-size:15px;
     }
 
-    .hero-actions{
-      display:flex;
-      gap:12px;
-      flex-wrap:wrap;
-      margin-top:20px;
+    .grid{
+      display:grid;
+      grid-template-columns:1.05fr 0.95fr;
+      gap:18px;
+      margin-bottom:18px;
     }
 
-    button, .link-btn{
+    .panel,
+    .output,
+    .days{
+      padding:22px;
+    }
+
+    .panel h2,
+    .output h2,
+    .days h2{
+      margin:0 0 18px;
+      font-size:22px;
+      font-weight:800;
+    }
+
+    .row-2,
+    .row-3{
+      display:grid;
+      gap:16px;
+      margin-bottom:16px;
+    }
+
+    .row-2{ grid-template-columns:1fr 1fr; }
+    .row-3{ grid-template-columns:repeat(3, 1fr); }
+
+    label{
+      display:block;
+      margin-bottom:8px;
+      font-weight:700;
+      font-size:14px;
+      color:#eef4ff;
+    }
+
+    input,
+    textarea,
+    select,
+    button{
+      font:inherit;
+    }
+
+    input[type="text"],
+    input[type="date"],
+    textarea{
+      width:100%;
+      border:1px solid var(--line);
+      background:rgba(255,255,255,0.06);
+      color:var(--text);
+      border-radius:16px;
+      padding:14px 16px;
+      outline:none;
+      transition:.2s ease;
+    }
+
+    input[type="text"]::placeholder,
+    textarea::placeholder{
+      color:#8ea5c8;
+    }
+
+    input[type="text"]:focus,
+    input[type="date"]:focus,
+    textarea:focus{
+      border-color:rgba(25,194,255,0.45);
+      box-shadow:0 0 0 3px rgba(25,194,255,0.12);
+    }
+
+    textarea{
+      min-height:240px;
+      resize:vertical;
+      line-height:1.55;
+    }
+
+    .hint{
+      color:var(--muted);
+      font-size:13px;
+      line-height:1.5;
+      margin-top:10px;
+    }
+
+    .button-row{
+      display:flex;
+      flex-wrap:wrap;
+      gap:12px;
+      margin-top:16px;
+    }
+
+    button,
+    .file-button{
       border:none;
       cursor:pointer;
       border-radius:16px;
       padding:14px 18px;
       font-weight:800;
-      text-decoration:none;
+      transition:.2s ease;
       display:inline-flex;
       align-items:center;
       justify-content:center;
-      transition:.18s ease;
+      text-decoration:none;
     }
 
-    button:hover, .link-btn:hover{
+    button{
+      background:linear-gradient(135deg, var(--cyan), var(--blue));
+      color:#03111f;
+      box-shadow:0 10px 28px rgba(25,194,255,0.22);
+    }
+
+    button:hover,
+    .file-button:hover{
       transform:translateY(-1px);
+      filter:brightness(1.04);
     }
 
-    .btn-primary{
-      background:linear-gradient(135deg, var(--blue), #66ecff);
-      color:#06111b;
-      box-shadow:0 12px 28px rgba(0,212,255,.22);
+    button:disabled{
+      opacity:.65;
+      cursor:not-allowed;
+      transform:none;
+      filter:none;
     }
 
-    .btn-success{
-      background:linear-gradient(135deg, var(--green), #7df0cc);
-      color:#062118;
-    }
-
-    .btn-secondary{
-      background:rgba(255,255,255,.05);
-      border:1px solid rgba(255,255,255,.08);
+    .secondary,
+    .file-button.secondary{
+      background:rgba(255,255,255,0.06);
       color:var(--text);
-    }
-
-    .stats-preview{
-      display:grid;
-      grid-template-columns:repeat(2,1fr);
-      gap:12px;
-    }
-
-    .preview-card{
-      background:rgba(255,255,255,.04);
-      border:1px solid rgba(255,255,255,.08);
-      border-radius:20px;
-      padding:16px;
-      box-shadow:0 10px 22px rgba(0,0,0,.14);
-    }
-
-    .preview-card small{
-      display:block;
-      color:var(--muted);
-      margin-bottom:8px;
-      font-size:12px;
-    }
-
-    .preview-card strong{
-      display:block;
-      font-size:24px;
-      margin-bottom:6px;
-      color:#eef6ff;
-    }
-
-    .preview-card span{
-      color:var(--muted);
-      font-size:13px;
-      line-height:1.5;
-    }
-
-    .dashboard-top{
-      display:grid;
-      grid-template-columns:repeat(4,1fr);
-      gap:14px;
-      margin-bottom:18px;
-    }
-
-    .metric-card{
-      border-radius:20px;
-      padding:18px;
-      box-shadow:var(--shadow);
-      border:1px solid rgba(255,255,255,.06);
-    }
-
-    .metric-card.blue{
-      background:linear-gradient(145deg, rgba(0,212,255,.16), rgba(16,28,52,.95));
-    }
-
-    .metric-card.purple{
-      background:linear-gradient(145deg, rgba(124,92,255,.18), rgba(16,28,52,.95));
-    }
-
-    .metric-card.green{
-      background:linear-gradient(145deg, rgba(53,214,167,.18), rgba(16,28,52,.95));
-    }
-
-    .metric-card.yellow{
-      background:linear-gradient(145deg, rgba(255,209,102,.18), rgba(16,28,52,.95));
-    }
-
-    .metric-label{
-      display:block;
-      font-size:13px;
-      color:var(--muted);
-      margin-bottom:8px;
-    }
-
-    .metric-card strong{
-      display:block;
-      font-size:30px;
-      margin-bottom:6px;
-    }
-
-    .metric-card small{
-      color:#d8e7fb;
-    }
-
-    .section{
-      background:linear-gradient(145deg, rgba(16,28,52,.96), rgba(10,20,38,.98));
       border:1px solid var(--line);
-      border-radius:24px;
-      padding:22px;
-      box-shadow:var(--shadow);
-      margin-bottom:18px;
+      box-shadow:none;
     }
 
-    .section h2{
-      font-size:24px;
-      margin-bottom:6px;
-    }
-
-    .section p.head{
-      color:var(--muted);
-      margin-bottom:18px;
-      line-height:1.5;
-    }
-
-    .grid-2{
-      display:grid;
-      grid-template-columns:1.15fr .85fr;
-      gap:16px;
-    }
-
-    .card{
-      background:linear-gradient(145deg, rgba(19,33,61,.96), rgba(15,27,50,.98));
-      border:1px solid rgba(255,255,255,.07);
-      border-radius:22px;
-      padding:18px;
-      box-shadow:0 12px 30px rgba(0,0,0,.18);
-    }
-
-    .card h3{
-      margin-bottom:12px;
-      font-size:18px;
-      color:#fff;
-    }
-
-    .field{
-      margin-bottom:14px;
-    }
-
-    label{
-      display:block;
+    .mini-btn{
+      padding:11px 14px;
       font-size:13px;
-      font-weight:700;
-      margin-bottom:7px;
-      color:#dcecff;
+      border-radius:14px;
     }
 
-    input, textarea, select{
-      width:100%;
-      background:rgba(255,255,255,.05);
-      border:1px solid rgba(255,255,255,.08);
-      color:var(--text);
-      border-radius:16px;
-      padding:14px;
-      outline:none;
-      font-size:14px;
+    .output-box{
+      min-height:220px;
+      border-radius:18px;
+      border:1px solid var(--line);
+      background:rgba(255,255,255,0.04);
+      padding:18px;
+      white-space:pre-wrap;
+      line-height:1.65;
+      color:#e9f1ff;
     }
 
-    input::placeholder, textarea::placeholder{
-      color:#8ea6c5;
-    }
-
-    textarea{
-      min-height:180px;
-      resize:vertical;
-    }
-
-    .row{
+    .cards{
       display:grid;
-      grid-template-columns:1fr 1fr;
-      gap:12px;
+      gap:14px;
     }
 
-    .actions{
+    .day-card{
+      border:1px solid rgba(255,255,255,0.10);
+      background:rgba(255,255,255,0.04);
+      border-radius:18px;
+      padding:16px;
+    }
+
+    .day-card h3{
+      margin:0 0 12px;
+      font-size:18px;
+    }
+
+    .day-card strong{
+      color:#ffffff;
+    }
+
+    .chip-row{
       display:flex;
-      gap:10px;
       flex-wrap:wrap;
-      margin-top:6px;
-    }
-
-    .result{
-      min-height:120px;
-      white-space:pre-wrap;
-      line-height:1.6;
-      color:#eef6ff;
-    }
-
-    .price-box{
-      margin-top:18px;
-      background:linear-gradient(145deg, rgba(0,212,255,.10), rgba(124,92,255,.10));
-      border:1px solid rgba(0,212,255,.16);
-      border-radius:18px;
-      padding:18px;
-      text-align:center;
-    }
-
-    .price-box h3{
-      margin-bottom:8px;
-      font-size:24px;
-    }
-
-    .price{
-      font-size:40px;
-      font-weight:900;
-      margin-bottom:8px;
-    }
-
-    .price small{
-      font-size:18px;
-      color:#a8ddff;
-    }
-
-    .reward-panel{
-      display:grid;
-      grid-template-columns:repeat(4,1fr);
-      gap:12px;
-      margin-top:16px;
-    }
-
-    .reward-box{
-      background:rgba(255,255,255,.04);
-      border:1px solid var(--line);
-      border-radius:18px;
-      padding:16px;
-      text-align:center;
-    }
-
-    .reward-label{
-      display:block;
-      color:var(--muted);
-      font-size:13px;
-      margin-bottom:8px;
-    }
-
-    .reward-box strong{
-      font-size:24px;
-    }
-
-    .chart-card{
-      background:rgba(255,255,255,.04);
-      border:1px solid var(--line);
-      border-radius:18px;
-      padding:18px;
-      margin-top:16px;
-    }
-
-    .chart-card h3{
-      margin-bottom:6px;
-    }
-
-    .chart-card p{
-      color:var(--muted);
-      font-size:13px;
+      gap:8px;
       margin-bottom:12px;
     }
 
-    .chart-bars{
-      height:210px;
-      display:flex;
-      align-items:flex-end;
-      gap:12px;
-    }
-
-    .bar-wrap{
-      flex:1;
-      display:flex;
-      flex-direction:column;
+    .chip{
+      display:inline-flex;
       align-items:center;
-      gap:10px;
-    }
-
-    .bar{
-      width:100%;
-      max-width:42px;
-      border-radius:14px 14px 6px 6px;
-      box-shadow:0 10px 22px rgba(0,0,0,.18);
-    }
-
-    .bar.blue{
-      background:linear-gradient(180deg, var(--blue), #4eecff);
-    }
-
-    .bar.purple{
-      background:linear-gradient(180deg, var(--purple), #a791ff);
-    }
-
-    .bar.green{
-      background:linear-gradient(180deg, var(--green), #7df0ce);
-    }
-
-    .bar-wrap span{
-      font-size:12px;
-      color:var(--muted);
-    }
-
-    .resultado-cards{
-      display:grid;
-      grid-template-columns:repeat(2,1fr);
-      gap:14px;
-      margin-top:16px;
-    }
-
-    .resultado-card{
-      background:linear-gradient(145deg, rgba(20,35,62,.96), rgba(14,27,49,.98));
-      border:1px solid rgba(255,255,255,.07);
-      border-radius:20px;
-      padding:16px;
-      box-shadow:0 10px 24px rgba(0,0,0,.14);
-    }
-
-    .resultado-tag{
-      display:inline-block;
-      font-size:12px;
-      font-weight:800;
-      color:#8cecff;
-      background:rgba(0,212,255,.10);
-      border:1px solid rgba(0,212,255,.14);
-      padding:7px 10px;
-      border-radius:999px;
-      margin-bottom:10px;
-    }
-
-    .resultado-texto{
-      color:var(--muted);
-      line-height:1.7;
-      font-size:14px;
-      white-space:pre-wrap;
-    }
-
-    .work-list{
-      display:grid;
-      gap:12px;
-      margin-top:14px;
-    }
-
-    .work-item{
-      background:linear-gradient(145deg, rgba(20,35,62,.96), rgba(14,27,49,.98));
-      border:1px solid rgba(255,255,255,.07);
-      border-radius:18px;
-      padding:16px;
-      box-shadow:0 10px 24px rgba(0,0,0,.14);
-    }
-
-    .work-item strong{
-      display:block;
-      font-size:17px;
-      margin-bottom:8px;
-    }
-
-    .work-meta{
-      color:var(--muted);
-      line-height:1.6;
-      font-size:13px;
-      margin-bottom:12px;
-    }
-
-    .pill{
-      display:inline-block;
+      gap:6px;
       padding:7px 12px;
       border-radius:999px;
+      background:rgba(25,194,255,0.10);
+      border:1px solid rgba(25,194,255,0.18);
+      color:#d8efff;
       font-size:12px;
-      font-weight:800;
-      margin-bottom:10px;
+      font-weight:700;
     }
 
-    .pill.pendente{
-      background:rgba(255,209,102,.12);
-      color:#ffe29a;
-      border:1px solid rgba(255,209,102,.18);
+    ul{
+      margin:10px 0 0 18px;
+      padding:0;
+      color:#dbe6f6;
+      line-height:1.55;
     }
 
-    .pill.andamento{
-      background:rgba(0,212,255,.12);
-      color:#8deaff;
-      border:1px solid rgba(0,212,255,.18);
+    .graficos-estudo{
+      margin-top:8px;
+      margin-bottom:18px;
     }
 
-    .pill.concluido{
-      background:rgba(53,214,167,.12);
-      color:#9df2d7;
-      border:1px solid rgba(53,214,167,.18);
-    }
-
-    .status{
-      margin-top:10px;
-      font-size:13px;
-      color:var(--muted);
-    }
-
-    .access-area{
-      display:grid;
-      grid-template-columns:1fr 1fr auto;
-      gap:12px;
-      align-items:end;
-      margin-bottom:14px;
-    }
-
-    .overlay{
-      position:fixed;
-      inset:0;
-      background:rgba(5,10,18,.86);
-      backdrop-filter:blur(6px);
-      display:none;
-      align-items:center;
-      justify-content:center;
-      padding:18px;
-      z-index:9999;
-    }
-
-    .overlay.active{
+    .graficos-topo{
       display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      margin-bottom:18px;
+      flex-wrap:wrap;
     }
 
-    .overlay-box{
-      width:min(520px,100%);
-      background:linear-gradient(145deg, rgba(15,28,52,.98), rgba(8,18,35,.99));
-      border:1px solid rgba(0,212,255,.18);
-      border-radius:22px;
-      padding:24px;
+    .graficos-topo h2{
+      margin:0;
+      color:#fff;
+      font-size:24px;
+      font-weight:800;
+    }
+
+    .graficos-topo p{
+      margin:6px 0 0;
+      color:rgba(255,255,255,.72);
+      font-size:14px;
+    }
+
+    .graficos-grid{
+      display:grid;
+      grid-template-columns:repeat(2, minmax(0, 1fr));
+      gap:18px;
+    }
+
+    .grafico-card{
+      padding:18px;
+      background:
+        linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.02)),
+        var(--card);
+    }
+
+    .grafico-card h3{
+      margin:0 0 8px;
+      color:#fff;
+      font-size:17px;
+      font-weight:700;
+    }
+
+    .grafico-card p{
+      margin:0 0 14px;
+      color:rgba(255,255,255,.68);
+      font-size:13px;
+      line-height:1.5;
+    }
+
+    .grafico-card canvas{
+      width:100% !important;
+      height:260px !important;
+    }
+
+    .grafico-largo{
+      grid-column:span 2;
+    }
+
+    .kpis-estudo{
+      display:grid;
+      grid-template-columns:repeat(4, minmax(0, 1fr));
+      gap:14px;
+      margin-bottom:18px;
+    }
+
+    .kpi-estudo{
+      padding:16px;
+      border-radius:20px;
+      background:
+        linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,.02)),
+        var(--card-2);
+    }
+
+    .kpi-estudo span{
+      display:block;
+      color:rgba(255,255,255,.68);
+      font-size:13px;
+      margin-bottom:6px;
+    }
+
+    .kpi-estudo strong{
+      color:#fff;
+      font-size:24px;
+      font-weight:800;
+    }
+
+    .chart-actions{
+      display:flex;
+      flex-wrap:wrap;
+      gap:10px;
+      margin-top:12px;
+    }
+
+    .footer-note{
       text-align:center;
-    }
-
-    .overlay-box h3{
-      font-size:26px;
-      margin-bottom:10px;
-    }
-
-    .overlay-box p{
+      margin-top:18px;
       color:var(--muted);
-      line-height:1.6;
-      margin-bottom:14px;
+      font-size:15px;
     }
 
-    @media (max-width: 980px){
-      .hero-top,
-      .grid-2,
-      .dashboard-top,
-      .reward-panel,
-      .resultado-cards{
-        grid-template-columns:1fr 1fr;
-      }
-
-      .access-area{
-        grid-template-columns:1fr;
-      }
+    input[type="file"]{
+      display:none;
     }
 
-    @media (max-width: 680px){
-      .container{
-        width:min(100% - 14px, 100%);
-      }
-
-      .row,
-      .dashboard-top,
-      .reward-panel,
-      .resultado-cards,
-      .stats-preview{
+    @media (max-width: 1100px){
+      .hero,
+      .grid,
+      .row-2,
+      .row-3,
+      .graficos-grid,
+      .kpis-estudo{
         grid-template-columns:1fr;
       }
 
-      .grid-2{
-        grid-template-columns:1fr;
+      .grafico-largo{
+        grid-column:span 1;
       }
 
-      .actions,
-      .hero-actions{
-        flex-direction:column;
-      }
-
-      button, .link-btn{
-        width:100%;
+      .status-card{
+        min-height:auto;
       }
     }
   </style>
 </head>
 <body>
-  <div class="container">
-
+  <div class="wrap">
     <section class="hero">
-      <div class="hero-top">
-        <div>
-          <div class="badge">PLATAFORMA DE ESTUDO PREMIUM</div>
-          <h1>Estude com mais organização, foco e resultado</h1>
-          <div class="subtitle">
-            Organize seu conteúdo, acompanhe seus trabalhos, monte estratégias para prova
-            e mantenha sua rotina de estudo muito mais clara, bonita e motivadora.
-          </div>
+      <div>
+        <div class="title">🤖 IA real no sistema</div>
+        <div class="subtitle">
+          Conecte sua IA por endpoint, analise conteúdo colado ou importado e gere um plano de estudo realmente personalizado dentro do Vou Estudar+.
+        </div>
 
-          <div class="hero-actions">
-            <button class="btn-primary" onclick="irParaEstudo()">Começar agora</button>
-            <a id="paymentBtnTop" class="link-btn btn-success" href="#" target="_blank" rel="noopener noreferrer">
-              Assinar acesso
-            </a>
+        <div class="row-2">
+          <div>
+            <label for="aiEndpoint">Endpoint da IA</label>
+            <input id="aiEndpoint" type="text" value="/api/study-ai" placeholder="/api/study-ai" />
+          </div>
+          <div>
+            <label for="aiModel">Modelo</label>
+            <input id="aiModel" type="text" value="gpt-4.1-mini" placeholder="gpt-4.1-mini" />
           </div>
         </div>
 
-        <div class="stats-preview">
-          <div class="preview-card">
-            <small>Plano de estudo</small>
-            <strong>Organizado</strong>
-            <span>metas claras e etapas objetivas</span>
-          </div>
-
-          <div class="preview-card">
-            <small>Trabalhos</small>
-            <strong>Em dia</strong>
-            <span>prazos, lembretes e controle</span>
-          </div>
-
-          <div class="preview-card">
-            <small>Progresso</small>
-            <strong>Visual</strong>
-            <span>gráficos e recompensa</span>
-          </div>
-
-          <div class="preview-card">
-            <small>Rotina</small>
-            <strong>Mais foco</strong>
-            <span>menos bagunça, mais resultado</span>
-          </div>
+        <div class="hint">
+          Nesta versão online, o ideal é deixar o endpoint como <strong>/api/study-ai</strong> para usar o mesmo domínio do sistema.
         </div>
+
+        <div class="button-row">
+          <button class="secondary" id="testButton" type="button">Testar conexão</button>
+          <button id="analyzeButton" type="button">Analisar conteúdo com IA</button>
+          <button id="planButton" type="button">Gerar plano com IA</button>
+        </div>
+      </div>
+
+      <div class="status-card">
+        <div class="status-title" id="statusTitle">Pronto para publicar online</div>
+        <div class="status-text" id="statusText">Depois do deploy, teste a conexão e use o sistema no mesmo link.</div>
       </div>
     </section>
 
-    <div class="dashboard-top">
-      <div class="metric-card blue">
-        <span class="metric-label">Meta da semana</span>
-        <strong>78%</strong>
-        <small>evolução muito boa</small>
-      </div>
+    <section class="grid">
+      <div class="panel">
+        <h2>Conteúdo e dados do estudo</h2>
 
-      <div class="metric-card purple">
-        <span class="metric-label">Sequência</span>
-        <strong>9 dias</strong>
-        <small>constância ativa</small>
-      </div>
-
-      <div class="metric-card green">
-        <span class="metric-label">Trabalhos</span>
-        <strong>12</strong>
-        <small>5 concluídos</small>
-      </div>
-
-      <div class="metric-card yellow">
-        <span class="metric-label">Próxima prova</span>
-        <strong>3 dias</strong>
-        <small>revisão intensiva</small>
-      </div>
-    </div>
-
-    <section class="section" id="estudo">
-      <h2>Estudo inteligente</h2>
-      <p class="head">Conteúdo mais bem organizado, explicação clara e cronograma estratégico para prova.</p>
-
-      <div class="access-area">
-        <div class="field">
-          <label for="email">Email</label>
-          <input id="email" type="email" placeholder="Digite seu email">
-        </div>
-
-        <div class="field">
-          <label for="nome">Nome</label>
-          <input id="nome" type="text" placeholder="Digite seu nome">
-        </div>
-
-        <button class="btn-primary" onclick="iniciarAcesso()">Entrar</button>
-      </div>
-
-      <div id="loginStatus" class="status"></div>
-
-      <div class="grid-2" style="margin-top:16px">
-        <div class="card">
-          <h3>Conteúdo principal</h3>
-
-          <div class="field">
-            <label for="materia">Matéria</label>
-            <input id="materia" type="text" placeholder="Ex.: Direito Constitucional">
+        <div class="row-3">
+          <div>
+            <label for="subjects">Matérias</label>
+            <input id="subjects" type="text" placeholder="Ex: Português, Matemática, História" />
           </div>
-
-          <div class="row">
-            <div class="field">
-              <label for="dataProva">Data da prova</label>
-              <input id="dataProva" type="text" placeholder="25/05/2026">
-            </div>
-            <div class="field">
-              <label for="diasPorSemana">Dias por semana</label>
-              <input id="diasPorSemana" type="number" placeholder="5">
-            </div>
+          <div>
+            <label for="examDate">Data da prova</label>
+            <input id="examDate" type="date" />
           </div>
-
-          <div class="field">
-            <label for="horasPorDia">Horas por dia</label>
-            <input id="horasPorDia" type="number" placeholder="2">
-          </div>
-
-          <div class="field">
-            <label for="conteudo">Conteúdo</label>
-            <textarea id="conteudo" placeholder="Cole aqui o PDF convertido ou o conteúdo para explicação e cronograma..."></textarea>
-          </div>
-
-          <div class="actions">
-            <button class="btn-primary" onclick="explicarConteudo()">Explicar conteúdo</button>
-            <button class="btn-success" onclick="gerarCronogramaProva()">Cronograma para prova</button>
-            <button class="btn-secondary" onclick="importarArquivo()">Importar arquivo</button>
-          </div>
-
-          <div class="field" style="margin-top:14px;">
-            <input id="arquivoConteudo" type="file">
+          <div>
+            <label for="hoursPerDay">Horas por dia</label>
+            <input id="hoursPerDay" type="text" placeholder="Ex: 3 horas" />
           </div>
         </div>
 
         <div>
-          <div class="card" id="assinatura">
-            <h3>Assinatura mensal</h3>
-            <p class="head" style="margin-bottom:12px">Acesso completo à plataforma com visual premium e organização total.</p>
+          <label for="content">Cole o conteúdo aqui</label>
+          <textarea id="content" placeholder="Cole matéria, resumo, edital, apostila, questões, roteiro ou qualquer conteúdo que a IA deve analisar."></textarea>
+          <div class="hint">Você pode colar texto direto ou importar arquivo. PDF, DOCX, XLSX e CSV vão para o backend para extrair o texto.</div>
+        </div>
 
-            <div class="price-box" style="margin-top:0">
-              <h3>Plano mensal</h3>
-              <div class="price">R$ 15,00 <small>/mês</small></div>
-              <a id="paymentBtn" class="link-btn btn-success" href="#" target="_blank" rel="noopener noreferrer">
-                Assinar agora
-              </a>
-            </div>
-          </div>
-
-          <div class="chart-card">
-            <h3>Progresso semanal</h3>
-            <p>Visual simples para mostrar ritmo de estudo ao longo da semana.</p>
-
-            <div class="chart-bars">
-              <div class="bar-wrap"><div class="bar blue" style="height:42%"></div><span>Seg</span></div>
-              <div class="bar-wrap"><div class="bar purple" style="height:74%"></div><span>Ter</span></div>
-              <div class="bar-wrap"><div class="bar green" style="height:56%"></div><span>Qua</span></div>
-              <div class="bar-wrap"><div class="bar blue" style="height:88%"></div><span>Qui</span></div>
-              <div class="bar-wrap"><div class="bar purple" style="height:66%"></div><span>Sex</span></div>
-              <div class="bar-wrap"><div class="bar green" style="height:35%"></div><span>Sáb</span></div>
-              <div class="bar-wrap"><div class="bar blue" style="height:50%"></div><span>Dom</span></div>
-            </div>
-          </div>
+        <div class="button-row">
+          <label class="file-button secondary" for="fileInput">Importar arquivo</label>
+          <button class="secondary" id="clearButton" type="button">Limpar conteúdo</button>
+          <button class="secondary" id="copyButton" type="button">Copiar resultado</button>
+          <input id="fileInput" type="file" accept=".txt,.md,.html,.json,.csv,.pdf,.docx,.xlsx,.xls" />
         </div>
       </div>
 
-      <div class="reward-panel">
-        <div class="reward-box">
-          <span class="reward-label">Pontuação</span>
-          <strong>1250</strong>
+      <div>
+        <section class="output">
+          <h2>Resposta da IA</h2>
+          <div class="output-box" id="resultBox">A resposta da IA aparecerá aqui.</div>
+        </section>
+
+        <section class="days" id="daysSection" hidden>
+          <h2>Plano diário estruturado</h2>
+          <div class="cards" id="planCards"></div>
+        </section>
+      </div>
+    </section>
+
+    <section class="graficos-estudo">
+      <div class="graficos-topo">
+        <div>
+          <h2>Andamento dos estudos</h2>
+          <p>Acompanhe horas estudadas, progresso do plano, matérias mais presentes e evolução dos conteúdos.</p>
         </div>
-        <div class="reward-box">
-          <span class="reward-label">Sequência</span>
-          <strong>7 dias</strong>
-        </div>
-        <div class="reward-box">
-          <span class="reward-label">Meta semanal</span>
-          <strong>78%</strong>
-        </div>
-        <div class="reward-box">
-          <span class="reward-label">Recompensa</span>
-          <strong>Nível Prata</strong>
+
+        <div class="chart-actions">
+          <button class="secondary mini-btn" id="addHourButton" type="button">Registrar 1h estudada</button>
+          <button class="secondary mini-btn" id="completeContentButton" type="button">Concluir 1 conteúdo</button>
+          <button class="secondary mini-btn" id="resetChartsButton" type="button">Resetar gráficos</button>
         </div>
       </div>
 
-      <div class="card" style="margin-top:16px">
-        <h3>Resultado</h3>
+      <div class="kpis-estudo">
+        <div class="kpi-estudo">
+          <span>Horas estudadas na semana</span>
+          <strong id="kpiHorasSemana">0h</strong>
+        </div>
+        <div class="kpi-estudo">
+          <span>Conteúdos concluídos</span>
+          <strong id="kpiConteudos">0</strong>
+        </div>
+        <div class="kpi-estudo">
+          <span>Meta concluída</span>
+          <strong id="kpiMeta">0%</strong>
+        </div>
+        <div class="kpi-estudo">
+          <span>Sequência de estudo</span>
+          <strong id="kpiSequencia">0 dias</strong>
+        </div>
+      </div>
 
-        <div id="resultado" class="result">Aqui vai aparecer a explicação ou o cronograma da prova.</div>
+      <div class="graficos-grid">
+        <div class="grafico-card grafico-largo">
+          <h3>Horas estudadas na semana</h3>
+          <p>Registre suas horas para acompanhar em quais dias você rendeu mais.</p>
+          <canvas id="graficoHorasSemana"></canvas>
+        </div>
 
-        <div id="resultadoCards" class="resultado-cards" style="display:none;">
-          <div class="resultado-card">
-            <span class="resultado-tag">Temas prioritários</span>
-            <div id="cardTemas" class="resultado-texto"></div>
-          </div>
+        <div class="grafico-card">
+          <h3>Progresso geral</h3>
+          <p>Percentual concluído com base no último plano gerado.</p>
+          <canvas id="graficoProgressoGeral"></canvas>
+        </div>
 
-          <div class="resultado-card">
-            <span class="resultado-tag">Chance de cair</span>
-            <div id="cardChance" class="resultado-texto"></div>
-          </div>
+        <div class="grafico-card">
+          <h3>Matérias mais estudadas</h3>
+          <p>Distribuição com base nas matérias informadas e no plano gerado.</p>
+          <canvas id="graficoMaterias"></canvas>
+        </div>
 
-          <div class="resultado-card">
-            <span class="resultado-tag">Cronograma</span>
-            <div id="cardCronograma" class="resultado-texto"></div>
-          </div>
-
-          <div class="resultado-card">
-            <span class="resultado-tag">Revisão e fixação</span>
-            <div id="cardRevisao" class="resultado-texto"></div>
-          </div>
-
-          <div class="resultado-card">
-            <span class="resultado-tag">Método mais eficiente</span>
-            <div id="cardMetodo" class="resultado-texto"></div>
-          </div>
-
-          <div class="resultado-card">
-            <span class="resultado-tag">Alerta final</span>
-            <div id="cardAlerta" class="resultado-texto"></div>
-          </div>
+        <div class="grafico-card grafico-largo">
+          <h3>Evolução dos conteúdos concluídos</h3>
+          <p>Veja como seu avanço está evoluindo ao longo da semana.</p>
+          <canvas id="graficoEvolucao"></canvas>
         </div>
       </div>
     </section>
 
-    <section class="section">
-      <h2>Gestão de trabalhos</h2>
-      <p class="head">Cadastre atividades, organize prazos e acompanhe tudo de forma clara e bonita.</p>
-
-      <div class="grid-2">
-        <div class="card">
-          <h3>Novo trabalho</h3>
-
-          <div class="field">
-            <label for="trabalhoTitulo">Título</label>
-            <input id="trabalhoTitulo" type="text" placeholder="Título do trabalho">
-          </div>
-
-          <div class="field">
-            <label for="trabalhoMateria">Matéria</label>
-            <input id="trabalhoMateria" type="text" placeholder="Matéria">
-          </div>
-
-          <div class="row">
-            <div class="field">
-              <label for="trabalhoData">Data</label>
-              <input id="trabalhoData" type="date">
-            </div>
-            <div class="field">
-              <label for="trabalhoHora">Horário</label>
-              <input id="trabalhoHora" type="time">
-            </div>
-          </div>
-
-          <div class="row">
-            <div class="field">
-              <label for="trabalhoLembrete">Lembrete</label>
-              <select id="trabalhoLembrete">
-                <option>Sem lembrete</option>
-                <option>No horário</option>
-                <option>30 minutos antes</option>
-                <option>1 hora antes</option>
-                <option>1 dia antes</option>
-              </select>
-            </div>
-
-            <div class="field">
-              <label for="trabalhoStatus">Status</label>
-              <select id="trabalhoStatus">
-                <option>Pendente</option>
-                <option>Em andamento</option>
-                <option>Concluído</option>
-              </select>
-            </div>
-          </div>
-
-          <div class="field">
-            <label for="trabalhoArquivo">Anexo</label>
-            <input id="trabalhoArquivo" type="file">
-          </div>
-
-          <div class="actions">
-            <button class="btn-success" onclick="salvarTrabalho()">Salvar trabalho</button>
-            <button class="btn-secondary" onclick="carregarTrabalhos()">Atualizar lista</button>
-          </div>
-        </div>
-
-        <div class="card">
-          <h3>Lista de trabalhos</h3>
-          <div id="listaTrabalhos" class="work-list"></div>
-        </div>
-      </div>
-    </section>
+    <div class="footer-note">Vou Estudar+ • plano automático • foco • recompensa • progresso visual</div>
   </div>
 
-  <div id="overlay" class="overlay">
-    <div class="overlay-box">
-      <h3>Acesso necessário</h3>
-      <p>Para continuar usando a plataforma completa, ative sua assinatura.</p>
-      <div class="actions" style="justify-content:center;">
-        <a id="overlayPaymentBtn" class="link-btn btn-success" href="#" target="_blank" rel="noopener noreferrer">
-          Assinar agora
-        </a>
-        <button class="btn-secondary" onclick="consultarStatus()">Atualizar status</button>
-      </div>
-    </div>
-  </div>
-
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script>
-    let currentEmail = "";
-    let paymentLink = "#";
+    const $ = (id) => document.getElementById(id);
+    const STORAGE_KEY = "vou_estudar_metricas_v2";
 
-    function irParaEstudo(){
-      const secao = document.querySelector("#estudo");
-      if(secao){
-        secao.scrollIntoView({ behavior: "smooth" });
-      }
-    }
+    const state = {
+      loading: false,
+      lastTextResult: "",
+      charts: {},
+      metrics: loadMetrics()
+    };
 
-    function limparResultadoCards(){
-      document.getElementById("resultadoCards").style.display = "none";
-      document.getElementById("cardTemas").textContent = "";
-      document.getElementById("cardChance").textContent = "";
-      document.getElementById("cardCronograma").textContent = "";
-      document.getElementById("cardRevisao").textContent = "";
-      document.getElementById("cardMetodo").textContent = "";
-      document.getElementById("cardAlerta").textContent = "";
-    }
+    const els = {
+      aiEndpoint: $("aiEndpoint"),
+      aiModel: $("aiModel"),
+      subjects: $("subjects"),
+      examDate: $("examDate"),
+      hoursPerDay: $("hoursPerDay"),
+      content: $("content"),
+      fileInput: $("fileInput"),
+      statusTitle: $("statusTitle"),
+      statusText: $("statusText"),
+      resultBox: $("resultBox"),
+      planCards: $("planCards"),
+      daysSection: $("daysSection"),
+      analyzeButton: $("analyzeButton"),
+      planButton: $("planButton"),
+      testButton: $("testButton"),
+      clearButton: $("clearButton"),
+      copyButton: $("copyButton"),
+      addHourButton: $("addHourButton"),
+      completeContentButton: $("completeContentButton"),
+      resetChartsButton: $("resetChartsButton"),
+      kpiHorasSemana: $("kpiHorasSemana"),
+      kpiConteudos: $("kpiConteudos"),
+      kpiMeta: $("kpiMeta"),
+      kpiSequencia: $("kpiSequencia")
+    };
 
-    function setStatus(message){
-      document.getElementById("loginStatus").textContent = message || "";
-    }
-
-    function setResultado(message){
-      limparResultadoCards();
-      document.getElementById("resultado").textContent = message || "";
-    }
-
-    function mostrarResultadoSimples(texto){
-      limparResultadoCards();
-      document.getElementById("resultado").textContent = texto || "";
-    }
-
-    function getEmail(){
-      return document.getElementById("email").value.trim().toLowerCase();
-    }
-
-    function getNome(){
-      return document.getElementById("nome").value.trim();
-    }
-
-    function updatePaymentButtons(){
-      document.getElementById("paymentBtn").href = paymentLink || "#";
-      document.getElementById("paymentBtnTop").href = paymentLink || "#";
-      document.getElementById("overlayPaymentBtn").href = paymentLink || "#";
-    }
-
-    function showBlocked(){
-      document.getElementById("overlay").classList.add("active");
-    }
-
-    function hideBlocked(){
-      document.getElementById("overlay").classList.remove("active");
-    }
-
-    function extrairSecao(texto, inicio, proximosTitulos = []){
-      const upper = texto.toUpperCase();
-      const idxInicio = upper.indexOf(inicio.toUpperCase());
-      if(idxInicio === -1) return "";
-
-      let idxFim = texto.length;
-
-      for(const titulo of proximosTitulos){
-        const pos = upper.indexOf(titulo.toUpperCase(), idxInicio + inicio.length);
-        if(pos !== -1 && pos < idxFim){
-          idxFim = pos;
-        }
-      }
-
-      return texto.slice(idxInicio + inicio.length, idxFim).trim();
-    }
-
-    function renderizarCardsCronograma(texto){
-      if(!texto){
-        mostrarResultadoSimples("Sem conteúdo para exibir.");
-        return;
-      }
-
-      const temas = extrairSecao(texto, "1. TEMAS PRIORITÁRIOS", [
-        "2. CHANCE DE CAIR NA PROVA",
-        "2) CHANCE DE CAIR NA PROVA"
-      ]);
-
-      const chance = extrairSecao(texto, "2. CHANCE DE CAIR NA PROVA", [
-        "3. CRONOGRAMA DE ESTUDO",
-        "3) CRONOGRAMA DE ESTUDO"
-      ]) || extrairSecao(texto, "2) CHANCE DE CAIR NA PROVA", [
-        "3. CRONOGRAMA DE ESTUDO",
-        "3) CRONOGRAMA DE ESTUDO"
-      ]);
-
-      const cronograma = extrairSecao(texto, "3. CRONOGRAMA DE ESTUDO", [
-        "4. REVISÃO E FIXAÇÃO",
-        "4) REVISÃO E FIXAÇÃO"
-      ]) || extrairSecao(texto, "3) CRONOGRAMA DE ESTUDO", [
-        "4. REVISÃO E FIXAÇÃO",
-        "4) REVISÃO E FIXAÇÃO"
-      ]);
-
-      const revisao = extrairSecao(texto, "4. REVISÃO E FIXAÇÃO", [
-        "5. MÉTODO MAIS EFICIENTE",
-        "5) MÉTODO MAIS EFICIENTE"
-      ]) || extrairSecao(texto, "4) REVISÃO E FIXAÇÃO", [
-        "5. MÉTODO MAIS EFICIENTE",
-        "5) MÉTODO MAIS EFICIENTE"
-      ]);
-
-      const metodo = extrairSecao(texto, "5. MÉTODO MAIS EFICIENTE", [
-        "6. ALERTA FINAL",
-        "6) ALERTA FINAL"
-      ]) || extrairSecao(texto, "5) MÉTODO MAIS EFICIENTE", [
-        "6. ALERTA FINAL",
-        "6) ALERTA FINAL"
-      ]);
-
-      const alerta = extrairSecao(texto, "6. ALERTA FINAL", []) ||
-                    extrairSecao(texto, "6) ALERTA FINAL", []);
-
-      const encontrouBlocos = temas || chance || cronograma || revisao || metodo || alerta;
-
-      if(!encontrouBlocos){
-        mostrarResultadoSimples(texto);
-        return;
-      }
-
-      document.getElementById("resultado").textContent = "";
-      document.getElementById("resultadoCards").style.display = "grid";
-
-      document.getElementById("cardTemas").textContent = temas || "Não identificado.";
-      document.getElementById("cardChance").textContent = chance || "Não identificado.";
-      document.getElementById("cardCronograma").textContent = cronograma || "Não identificado.";
-      document.getElementById("cardRevisao").textContent = revisao || "Não identificado.";
-      document.getElementById("cardMetodo").textContent = metodo || "Não identificado.";
-      document.getElementById("cardAlerta").textContent = alerta || "Não identificado.";
-    }
-
-    async function iniciarAcesso(){
-      const email = getEmail();
-      const name = getNome();
-
-      if(!email){
-        setStatus("Digite seu email para entrar.");
-        return;
-      }
-
-      try{
-        const response = await fetch("/api/trial/start", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ email, name })
-        });
-
-        const data = await response.json();
-
-        if(!data.ok){
-          setStatus(data.mensagem || "Erro ao iniciar acesso.");
-          return;
-        }
-
-        currentEmail = email;
-        paymentLink = data.paymentLink || "#";
-        updatePaymentButtons();
-        hideBlocked();
-        setStatus("Acesso iniciado com sucesso.");
-        carregarTrabalhos();
-      }catch{
-        setStatus("Erro ao iniciar o acesso.");
-      }
-    }
-
-    async function consultarStatus(){
-      const email = getEmail();
-
-      if(!email){
-        setStatus("Digite seu email para verificar o acesso.");
-        return;
-      }
-
-      try{
-        const response = await fetch(`/api/access-status?email=${encodeURIComponent(email)}`);
-        const data = await response.json();
-
-        if(!data.ok){
-          setStatus(data.mensagem || "Erro ao consultar acesso.");
-          return;
-        }
-
-        currentEmail = email;
-        paymentLink = data.paymentLink || "#";
-        updatePaymentButtons();
-
-        if(data.blocked){
-          showBlocked();
-          setStatus("Seu acesso precisa ser liberado.");
-        } else {
-          hideBlocked();
-          setStatus("Acesso liberado.");
-          carregarTrabalhos();
-        }
-      }catch{
-        setStatus("Erro ao consultar status.");
-      }
-    }
-
-    function getHeaders(){
+    function getDefaultMetrics() {
       return {
-        "Content-Type": "application/json",
-        "x-user-email": currentEmail
+        horasSemana: [0, 0, 0, 0, 0, 0, 0],
+        evolucaoConteudos: [0, 0, 0, 0, 0, 0, 0],
+        diasSemana: ["Seg", "Ter", "Qua", "Qui", "Sex", "Sáb", "Dom"],
+        materias: ["Português", "Matemática", "História", "Direito"],
+        valoresMaterias: [0, 0, 0, 0],
+        progressoConcluido: 0,
+        progressoFaltando: 100,
+        totalConteudos: 0,
+        totalMeta: 0,
+        sequencia: 0,
+        ultimaDataEstudo: "",
+        ultimoPlanoDias: 0
       };
     }
 
-    function validarEmailAntes(){
-      if(!currentEmail){
-        setResultado("Digite o email e clique em 'Entrar' primeiro.");
-        return false;
-      }
-      return true;
-    }
-
-    async function explicarConteudo(){
-      if(!validarEmailAntes()) return;
-
-      const conteudo = document.getElementById("conteudo").value.trim();
-      const materia = document.getElementById("materia").value.trim();
-
-      if(!conteudo){
-        setResultado("Cole um conteúdo para explicar.");
-        return;
-      }
-
-      setResultado("Explicando conteúdo...");
-
-      try{
-        const response = await fetch("/api/study-ai", {
-          method: "POST",
-          headers: getHeaders(),
-          body: JSON.stringify({
-            email: currentEmail,
-            mode: "explain",
-            materia,
-            conteudo
-          })
-        });
-
-        const data = await response.json();
-
-        if(response.status === 403 && data.blocked){
-          showBlocked();
-          setResultado(data.mensagem || "Acesso bloqueado.");
-          return;
-        }
-
-        mostrarResultadoSimples(
-          data.resultado || data.mensagem || "Não foi possível explicar o conteúdo."
-        );
-      }catch{
-        setResultado("Erro ao explicar conteúdo.");
+    function loadMetrics() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (!raw) return getDefaultMetrics();
+        const parsed = JSON.parse(raw);
+        return {
+          ...getDefaultMetrics(),
+          ...parsed
+        };
+      } catch {
+        return getDefaultMetrics();
       }
     }
 
-    async function gerarCronogramaProva(){
-      if(!validarEmailAntes()) return;
-
-      const conteudo = document.getElementById("conteudo").value.trim();
-      const materia = document.getElementById("materia").value.trim();
-      const dataProva = document.getElementById("dataProva").value.trim();
-      const diasPorSemana = document.getElementById("diasPorSemana").value.trim();
-      const horasPorDia = document.getElementById("horasPorDia").value.trim();
-
-      if(!conteudo){
-        setResultado("Cole um conteúdo para montar o cronograma.");
-        return;
-      }
-
-      setResultado("Montando cronograma para prova...");
-
-      try{
-        const response = await fetch("/api/study-ai", {
-          method: "POST",
-          headers: getHeaders(),
-          body: JSON.stringify({
-            email: currentEmail,
-            mode: "plan",
-            materia,
-            conteudo,
-            dataProva,
-            diasPorSemana,
-            horasPorDia
-          })
-        });
-
-        const data = await response.json();
-
-        if(response.status === 403 && data.blocked){
-          showBlocked();
-          setResultado(data.mensagem || "Acesso bloqueado.");
-          return;
-        }
-
-        const textoFinal = data.resultado || data.mensagem || "Não foi possível montar o cronograma.";
-        renderizarCardsCronograma(textoFinal);
-      }catch{
-        setResultado("Erro ao montar cronograma.");
-      }
+    function saveMetrics() {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state.metrics));
     }
 
-    async function importarArquivo(){
-      if(!validarEmailAntes()) return;
-
-      const fileInput = document.getElementById("arquivoConteudo");
-      const file = fileInput.files[0];
-
-      if(!file){
-        setResultado("Selecione um arquivo para importar.");
-        return;
-      }
-
-      const formData = new FormData();
-      formData.append("file", file);
-      formData.append("email", currentEmail);
-
-      setResultado("Importando conteúdo...");
-
-      try{
-        const response = await fetch("/api/extract-file", {
-          method: "POST",
-          headers: {
-            "x-user-email": currentEmail
-          },
-          body: formData
-        });
-
-        const data = await response.json();
-
-        if(response.status === 403 && data.blocked){
-          showBlocked();
-          setResultado(data.mensagem || "Acesso bloqueado.");
-          return;
-        }
-
-        if(data.extractedText){
-          document.getElementById("conteudo").value = data.extractedText;
-          setResultado("Conteúdo importado com sucesso.");
-        } else {
-          setResultado(data.mensagem || "Não foi possível importar o arquivo.");
-        }
-      }catch{
-        setResultado("Erro ao importar arquivo.");
-      }
+    function setBusy(isBusy) {
+      state.loading = isBusy;
+      [
+        els.analyzeButton,
+        els.planButton,
+        els.testButton,
+        els.addHourButton,
+        els.completeContentButton
+      ].forEach(btn => {
+        if (btn) btn.disabled = isBusy;
+      });
     }
 
-    async function salvarTrabalho(){
-      if(!validarEmailAntes()) return;
-
-      const titulo = document.getElementById("trabalhoTitulo").value.trim();
-      const materia = document.getElementById("trabalhoMateria").value.trim();
-      const data = document.getElementById("trabalhoData").value;
-      const hora = document.getElementById("trabalhoHora").value;
-      const lembrete = document.getElementById("trabalhoLembrete").value;
-      const status = document.getElementById("trabalhoStatus").value;
-      const anexo = document.getElementById("trabalhoArquivo").files[0];
-
-      if(!titulo){
-        alert("Digite o título do trabalho.");
-        return;
-      }
-
-      try{
-        const response = await fetch("/api/trabalhos", {
-          method: "POST",
-          headers: getHeaders(),
-          body: JSON.stringify({
-            email: currentEmail,
-            titulo,
-            materia,
-            data,
-            hora,
-            lembrete,
-            status,
-            anexoNome: anexo ? anexo.name : ""
-          })
-        });
-
-        const dataResp = await response.json();
-
-        if(response.status === 403 && dataResp.blocked){
-          showBlocked();
-          return;
-        }
-
-        if(!dataResp.ok){
-          alert(dataResp.mensagem || "Erro ao salvar trabalho.");
-          return;
-        }
-
-        document.getElementById("trabalhoTitulo").value = "";
-        document.getElementById("trabalhoMateria").value = "";
-        document.getElementById("trabalhoData").value = "";
-        document.getElementById("trabalhoHora").value = "";
-        document.getElementById("trabalhoLembrete").value = "Sem lembrete";
-        document.getElementById("trabalhoStatus").value = "Pendente";
-        document.getElementById("trabalhoArquivo").value = "";
-
-        carregarTrabalhos();
-      }catch{
-        alert("Erro ao salvar trabalho.");
-      }
+    function setStatus(title, text, type = "normal") {
+      els.statusTitle.textContent = title;
+      els.statusText.textContent = text;
+      els.statusTitle.className = "status-title";
+      if (type === "ok") els.statusTitle.classList.add("ok");
+      if (type === "err") els.statusTitle.classList.add("err");
     }
 
-    async function carregarTrabalhos(){
-      if(!currentEmail) return;
-
-      const box = document.getElementById("listaTrabalhos");
-      box.innerHTML = "<div class='status'>Carregando trabalhos...</div>";
-
-      try{
-        const response = await fetch(`/api/trabalhos?email=${encodeURIComponent(currentEmail)}`, {
-          headers: {
-            "x-user-email": currentEmail
-          }
-        });
-
-        const data = await response.json();
-
-        if(response.status === 403 && data.blocked){
-          showBlocked();
-          box.innerHTML = "";
-          return;
-        }
-
-        if(!data.ok){
-          box.innerHTML = "<div class='status'>Não foi possível carregar.</div>";
-          return;
-        }
-
-        if(!data.trabalhos.length){
-          box.innerHTML = "<div class='status'>Nenhum trabalho cadastrado.</div>";
-          return;
-        }
-
-        box.innerHTML = data.trabalhos.map(item => {
-          const classe =
-            item.status === "Concluído" ? "concluido" :
-            item.status === "Em andamento" ? "andamento" : "pendente";
-
-          return `
-            <div class="work-item">
-              <div class="pill ${classe}">${escapeHtml(item.status || "Pendente")}</div>
-              <strong>${escapeHtml(item.titulo)}</strong>
-              <div class="work-meta">
-                Matéria: ${escapeHtml(item.materia || "Não informada")}<br>
-                Data: ${escapeHtml(item.data || "-")}<br>
-                Horário: ${escapeHtml(item.hora || "-")}<br>
-                Lembrete: ${escapeHtml(item.lembrete || "-")}<br>
-                Anexo: ${escapeHtml(item.anexoNome || "Sem anexo")}
-              </div>
-            </div>
-          `;
-        }).join("");
-      }catch{
-        box.innerHTML = "<div class='status'>Erro ao carregar trabalhos.</div>";
-      }
+    function setResult(text) {
+      state.lastTextResult = text || "";
+      els.resultBox.textContent = state.lastTextResult || "Sem resposta.";
     }
 
-    function escapeHtml(text){
+    function clearPlanCards() {
+      els.planCards.innerHTML = "";
+      els.daysSection.hidden = true;
+    }
+
+    function baseUrlFromEndpoint(endpoint) {
+      const clean = String(endpoint || "").trim();
+      return clean.replace(/\/api\/study-ai\/?$/i, "");
+    }
+
+    function splitSubjects(raw) {
+      return String(raw || "")
+        .split(",")
+        .map(item => item.trim())
+        .filter(Boolean);
+    }
+
+    function escapeHtml(text) {
       return String(text ?? "")
         .replaceAll("&", "&amp;")
         .replaceAll("<", "&lt;")
@@ -1369,103 +712,464 @@
         .replaceAll('"', "&quot;")
         .replaceAll("'", "&#039;");
     }
+
+    function getWeekdayIndex() {
+      const current = new Date().getDay();
+      return current === 0 ? 6 : current - 1;
+    }
+
+    function updateStudyStreak() {
+      const today = new Date();
+      const todayStr = today.toISOString().slice(0, 10);
+
+      if (state.metrics.ultimaDataEstudo === todayStr) return;
+
+      const yesterday = new Date(today);
+      yesterday.setDate(today.getDate() - 1);
+      const yesterdayStr = yesterday.toISOString().slice(0, 10);
+
+      if (state.metrics.ultimaDataEstudo === yesterdayStr) {
+        state.metrics.sequencia += 1;
+      } else {
+        state.metrics.sequencia = 1;
+      }
+
+      state.metrics.ultimaDataEstudo = todayStr;
+    }
+
+    function ensureSubjectsDistribution() {
+      const subjects = splitSubjects(els.subjects.value);
+      if (subjects.length) {
+        state.metrics.materias = subjects;
+        state.metrics.valoresMaterias = subjects.map((_, index) => state.metrics.valoresMaterias[index] || 0);
+      } else if (!state.metrics.materias.length) {
+        state.metrics.materias = ["Português", "Matemática", "História", "Direito"];
+        state.metrics.valoresMaterias = [0, 0, 0, 0];
+      }
+    }
+
+    function recalculateProgress() {
+      const totalMeta = Number(state.metrics.totalMeta || 0);
+      const totalConteudos = Number(state.metrics.totalConteudos || 0);
+
+      if (totalMeta > 0) {
+        state.metrics.progressoConcluido = Math.min(100, Math.round((totalConteudos / totalMeta) * 100));
+      } else {
+        state.metrics.progressoConcluido = totalConteudos > 0 ? Math.min(100, totalConteudos * 10) : 0;
+      }
+
+      state.metrics.progressoFaltando = Math.max(0, 100 - state.metrics.progressoConcluido);
+    }
+
+    function registerStudyHour() {
+      updateStudyStreak();
+      const idx = getWeekdayIndex();
+      state.metrics.horasSemana[idx] += 1;
+      saveMetrics();
+      refreshDashboard();
+      setStatus("Hora registrada", "Adicionei 1 hora estudada nos gráficos.", "ok");
+    }
+
+    function registerCompletedContent() {
+      updateStudyStreak();
+      const idx = getWeekdayIndex();
+
+      state.metrics.totalConteudos += 1;
+      state.metrics.evolucaoConteudos[idx] += 1;
+
+      if (state.metrics.valoresMaterias.length) {
+        state.metrics.valoresMaterias[0] += 1;
+      }
+
+      recalculateProgress();
+      saveMetrics();
+      refreshDashboard();
+      setStatus("Conteúdo concluído", "Atualizei o andamento dos estudos.", "ok");
+    }
+
+    function resetCharts() {
+      state.metrics = getDefaultMetrics();
+      saveMetrics();
+      refreshDashboard();
+      setStatus("Gráficos resetados", "Os dados visuais foram zerados.", "ok");
+    }
+
+    function applyPlanToMetrics(structured) {
+      ensureSubjectsDistribution();
+
+      if (!structured || !Array.isArray(structured.plano_diario)) return;
+
+      const plano = structured.plano_diario;
+      const totalTarefas = plano.reduce((sum, item) => {
+        return sum + (Array.isArray(item.tarefas) ? item.tarefas.length : 0);
+      }, 0);
+
+      state.metrics.totalMeta = totalTarefas || plano.length || state.metrics.totalMeta;
+      state.metrics.ultimoPlanoDias = plano.length;
+
+      const subjects = splitSubjects(els.subjects.value);
+      const counts = new Map();
+
+      if (subjects.length) {
+        subjects.forEach(subject => counts.set(subject, 0));
+      }
+
+      plano.forEach((item, index) => {
+        const foco = String(item.foco || `Dia ${index + 1}`).trim();
+        const tasks = Array.isArray(item.tarefas) ? item.tarefas.join(" ") : "";
+        const text = `${foco} ${tasks}`.toLowerCase();
+
+        let matched = false;
+
+        subjects.forEach(subject => {
+          if (text.includes(subject.toLowerCase())) {
+            counts.set(subject, (counts.get(subject) || 0) + 1);
+            matched = true;
+          }
+        });
+
+        if (!subjects.length || !matched) {
+          const key = foco.length > 24 ? foco.slice(0, 24) + "..." : foco;
+          counts.set(key, (counts.get(key) || 0) + 1);
+        }
+      });
+
+      const labels = Array.from(counts.keys()).slice(0, 6);
+      const values = labels.map(label => counts.get(label) || 0);
+
+      if (labels.length) {
+        state.metrics.materias = labels;
+        state.metrics.valoresMaterias = values;
+      }
+
+      recalculateProgress();
+      saveMetrics();
+      refreshDashboard();
+    }
+
+    function refreshKPIs() {
+      const totalHoras = state.metrics.horasSemana.reduce((a, b) => a + b, 0);
+
+      els.kpiHorasSemana.textContent = totalHoras + "h";
+      els.kpiConteudos.textContent = String(state.metrics.totalConteudos);
+      els.kpiMeta.textContent = state.metrics.progressoConcluido + "%";
+      els.kpiSequencia.textContent = state.metrics.sequencia + " dias";
+    }
+
+    function renderCharts() {
+      if (!window.Chart) return;
+
+      const corTexto = "#ffffff";
+      const corGrade = "rgba(255,255,255,0.08)";
+
+      Object.values(state.charts).forEach(chart => chart.destroy());
+      state.charts = {};
+
+      state.charts.horas = new Chart(document.getElementById("graficoHorasSemana"), {
+        type: "line",
+        data: {
+          labels: state.metrics.diasSemana,
+          datasets: [{
+            label: "Horas estudadas",
+            data: state.metrics.horasSemana,
+            borderColor: "#19c2ff",
+            backgroundColor: "rgba(25,194,255,0.16)",
+            pointBackgroundColor: "#19c2ff",
+            pointBorderColor: "#19c2ff",
+            borderWidth: 3,
+            tension: 0.35,
+            fill: true
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { labels: { color: corTexto } }
+          },
+          scales: {
+            x: {
+              ticks: { color: corTexto },
+              grid: { color: corGrade }
+            },
+            y: {
+              beginAtZero: true,
+              ticks: { color: corTexto },
+              grid: { color: corGrade }
+            }
+          }
+        }
+      });
+
+      state.charts.progresso = new Chart(document.getElementById("graficoProgressoGeral"), {
+        type: "doughnut",
+        data: {
+          labels: ["Concluído", "Faltando"],
+          datasets: [{
+            data: [state.metrics.progressoConcluido, state.metrics.progressoFaltando],
+            backgroundColor: ["#19d38a", "rgba(255,255,255,0.12)"],
+            borderWidth: 0
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          cutout: "68%",
+          plugins: {
+            legend: {
+              position: "bottom",
+              labels: { color: corTexto }
+            }
+          }
+        }
+      });
+
+      state.charts.materias = new Chart(document.getElementById("graficoMaterias"), {
+        type: "bar",
+        data: {
+          labels: state.metrics.materias,
+          datasets: [{
+            label: "Presença no plano / progresso",
+            data: state.metrics.valoresMaterias,
+            backgroundColor: ["#19c2ff", "#2b7fff", "#7b61ff", "#19d38a", "#ffcc66", "#ff6c8f"],
+            borderRadius: 10
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { labels: { color: corTexto } }
+          },
+          scales: {
+            x: {
+              ticks: { color: corTexto },
+              grid: { color: corGrade }
+            },
+            y: {
+              beginAtZero: true,
+              ticks: { color: corTexto },
+              grid: { color: corGrade }
+            }
+          }
+        }
+      });
+
+      state.charts.evolucao = new Chart(document.getElementById("graficoEvolucao"), {
+        type: "bar",
+        data: {
+          labels: state.metrics.diasSemana,
+          datasets: [{
+            label: "Conteúdos concluídos",
+            data: state.metrics.evolucaoConteudos,
+            backgroundColor: "#7b61ff",
+            borderRadius: 10
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { labels: { color: corTexto } }
+          },
+          scales: {
+            x: {
+              ticks: { color: corTexto },
+              grid: { color: corGrade }
+            },
+            y: {
+              beginAtZero: true,
+              ticks: { color: corTexto },
+              grid: { color: corGrade }
+            }
+          }
+        }
+      });
+    }
+
+    function refreshDashboard() {
+      ensureSubjectsDistribution();
+      refreshKPIs();
+      renderCharts();
+    }
+
+    async function testConnection() {
+      const endpoint = els.aiEndpoint.value.trim() || "/api/study-ai";
+
+      try {
+        setBusy(true);
+        setStatus("Testando conexão...", "Verificando servidor e configuração da IA.");
+
+        const base = baseUrlFromEndpoint(endpoint);
+        const resp = await fetch(base + "/api/health");
+        const data = await resp.json();
+
+        if (!resp.ok || !data.ok) {
+          throw new Error(data.error || "Falha ao testar a conexão.");
+        }
+
+        const configured = data.openai_configured ? "sim" : "não";
+        setStatus(
+          "Conexão OK",
+          `Servidor ativo. OpenAI configurada: ${configured}. Modelo padrão do servidor: ${data.default_model || "não informado"}.`,
+          "ok"
+        );
+      } catch (error) {
+        setStatus("Erro na conexão", error.message || "Não consegui testar a conexão.", "err");
+      } finally {
+        setBusy(false);
+      }
+    }
+
+    async function importFile(file) {
+      if (!file) return;
+
+      try {
+        setBusy(true);
+        setStatus("Importando arquivo...", `Lendo ${file.name} para transformar em texto.`);
+
+        const endpoint = els.aiEndpoint.value.trim() || "/api/study-ai";
+        const base = baseUrlFromEndpoint(endpoint);
+        const formData = new FormData();
+        formData.append("file", file);
+
+        const resp = await fetch(base + "/api/extract-file", {
+          method: "POST",
+          body: formData
+        });
+
+        const data = await resp.json();
+
+        if (!resp.ok || !data.ok) {
+          throw new Error(data.error || "Falha ao extrair texto do arquivo.");
+        }
+
+        els.content.value = data.text || "";
+        setStatus("Arquivo importado", `${file.name} foi convertido em texto e carregado no sistema.`, "ok");
+      } catch (error) {
+        setStatus("Erro ao importar", error.message || "Não consegui importar esse arquivo.", "err");
+      } finally {
+        setBusy(false);
+        els.fileInput.value = "";
+      }
+    }
+
+    function renderPlan(structured) {
+      clearPlanCards();
+
+      if (!structured || !Array.isArray(structured.plano_diario) || !structured.plano_diario.length) return;
+
+      els.daysSection.hidden = false;
+
+      structured.plano_diario.forEach((item, index) => {
+        const card = document.createElement("div");
+        card.className = "day-card";
+
+        const tasks = Array.isArray(item.tarefas)
+          ? `<ul>${item.tarefas.map(task => `<li>${escapeHtml(task)}</li>`).join("")}</ul>`
+          : "";
+
+        card.innerHTML = `
+          <h3>Dia ${escapeHtml(item.dia ?? index + 1)} • ${escapeHtml(item.foco || "Foco do dia")}</h3>
+          <div class="chip-row">
+            <span class="chip">Tempo: ${escapeHtml(item.tempo_estimado || "não informado")}</span>
+            <span class="chip">Revisão: ${escapeHtml(item.revisao || "não informada")}</span>
+          </div>
+          <div><strong>Meta:</strong> ${escapeHtml(item.meta || "não informada")}</div>
+          ${tasks}
+        `;
+
+        els.planCards.appendChild(card);
+      });
+
+      applyPlanToMetrics(structured);
+    }
+
+    async function callStudyAI(action) {
+      const endpoint = els.aiEndpoint.value.trim() || "/api/study-ai";
+      const content = els.content.value.trim();
+      const model = els.aiModel.value.trim() || "gpt-4.1-mini";
+
+      if (!content) {
+        setStatus("Sem conteúdo", "Cole ou importe algum conteúdo antes de chamar a IA.", "err");
+        return;
+      }
+
+      try {
+        setBusy(true);
+        clearPlanCards();
+        setResult("Processando com IA...");
+        setStatus(
+          action === "plan" ? "Gerando plano com IA..." : "Analisando conteúdo com IA...",
+          "O servidor está enviando seu conteúdo para a IA e aguardando a resposta."
+        );
+
+        const resp = await fetch(endpoint, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            action,
+            model,
+            content,
+            subjects: els.subjects.value.trim(),
+            examDate: els.examDate.value,
+            hoursPerDay: els.hoursPerDay.value.trim()
+          })
+        });
+
+        const data = await resp.json();
+
+        if (!resp.ok || !data.ok) {
+          throw new Error(data.error || "Falha ao processar IA.");
+        }
+
+        setResult(data.result || "Sem resposta da IA.");
+        setStatus("IA respondeu com sucesso", `Resposta recebida usando o modelo ${data.model || model}.`, "ok");
+
+        if (action === "plan" && data.structured) {
+          renderPlan(data.structured);
+        }
+      } catch (error) {
+        setResult("Erro ao chamar IA.");
+        setStatus("Erro na IA", error.message || "Falha inesperada ao processar a solicitação.", "err");
+      } finally {
+        setBusy(false);
+      }
+    }
+
+    els.testButton.addEventListener("click", testConnection);
+    els.analyzeButton.addEventListener("click", () => callStudyAI("analyze"));
+    els.planButton.addEventListener("click", () => callStudyAI("plan"));
+    els.fileInput.addEventListener("change", (event) => importFile(event.target.files?.[0]));
+
+    els.clearButton.addEventListener("click", () => {
+      els.content.value = "";
+      setResult("A resposta da IA aparecerá aqui.");
+      clearPlanCards();
+      setStatus("Conteúdo limpo", "Cole um novo conteúdo ou importe outro arquivo.");
+    });
+
+    els.copyButton.addEventListener("click", async () => {
+      if (!state.lastTextResult) return;
+      try {
+        await navigator.clipboard.writeText(state.lastTextResult);
+        setStatus("Resultado copiado", "A resposta da IA foi copiada para sua área de transferência.", "ok");
+      } catch {
+        setStatus("Não consegui copiar", "Copie manualmente o resultado no painel ao lado.", "err");
+      }
+    });
+
+    els.addHourButton.addEventListener("click", registerStudyHour);
+    els.completeContentButton.addEventListener("click", registerCompletedContent);
+    els.resetChartsButton.addEventListener("click", resetCharts);
+    els.subjects.addEventListener("change", () => {
+      ensureSubjectsDistribution();
+      saveMetrics();
+      refreshDashboard();
+    });
+
+    refreshDashboard();
+    testConnection();
   </script>
 </body>
 </html>
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-/* ===== GRÁFICOS DE ESTUDO ===== */
-.graficos-estudo{
-  margin-top: 28px;
-}
-
-.graficos-topo{
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  gap:12px;
-  margin-bottom:18px;
-  flex-wrap:wrap;
-}
-
-.graficos-topo h2{
-  margin:0;
-  color:#fff;
-  font-size:24px;
-  font-weight:800;
-}
-
-.graficos-topo p{
-  margin:6px 0 0 0;
-  color:rgba(255,255,255,.72);
-  font-size:14px;
-}
-
-.graficos-grid{
-  display:grid;
-  grid-template-columns:repeat(auto-fit,minmax(280px,1fr));
-  gap:18px;
-}
-
-.grafico-card{
-  background:linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.02)), var(--card);
-  border:1px solid rgba(255,255,255,.08);
-  border-radius:22px;
-  padding:18px;
-  box-shadow:0 14px 40px rgba(0,0,0,.22);
-  backdrop-filter:blur(8px);
-}
-
-.grafico-card h3{
-  margin:0 0 14px 0;
-  color:#fff;
-  font-size:17px;
-  font-weight:700;
-}
-
-.grafico-card p{
-  margin:0 0 14px 0;
-  color:rgba(255,255,255,.68);
-  font-size:13px;
-}
-
-.grafico-card canvas{
-  width:100% !important;
-  height:260px !important;
-}
-
-.grafico-card.grafico-largo{
-  grid-column:span 2;
-}
-
-.kpis-estudo{
-  display:grid;
-  grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
-  gap:14px;
-  margin-bottom:18px;
-}
-
-.kpi-estudo{
-  background:linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,.02)), var(--card2);
-  border:1px solid rgba(255,255,255,.08);
-  border-radius:18px;
-  padding:16px;
-}
-
-.kpi-estudo span{
-  display:block;
-  color:rgba(255,255,255,.68);
-  font-size:13px;
-  margin-bottom:6px;
-}
-
-.kpi-estudo strong{
-  color:#fff;
-  font-size:24px;
-  font-weight:800;
-}
-
-@media (max-width: 900px){
-  .grafico-card.grafico-largo{
-    grid-column:span 1;
-  }
-}
