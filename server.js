@@ -1976,5 +1976,5 @@ app.patch("/api/trabalhos/:id/concluir", requireAccess, (req, res) => {
 });
 
 app.listen(port, () => {
- console.log(\`Servidor rodando na porta \${port}`);
+  console.log("Servidor rodando na porta " + port);
 });
