@@ -8,22 +8,22 @@
   <style>
     :root{
       --bg-1:#030915;
-      --bg-2:#060d1f;
-      --bg-3:#0a1228;
+      --bg-2:#061022;
+      --bg-3:#0a1730;
       --card:rgba(255,255,255,0.06);
       --card-2:rgba(255,255,255,0.04);
       --line:rgba(255,255,255,0.12);
       --text:#f4f7fb;
-      --muted:#9fb0ca;
-      --cyan:#19c2ff;
-      --blue:#2b7fff;
-      --purple:#7b61ff;
-      --success:#19d38a;
-      --danger:#ff6c8f;
-      --warning:#ffcc66;
+      --muted:#9db0cd;
+      --cyan:#38d5ff;
+      --blue:#2d7dff;
+      --purple:#7c63ff;
+      --green:#3de7a2;
+      --danger:#ff6f91;
+      --warning:#ffd36a;
       --shadow:0 18px 45px rgba(0,0,0,0.35);
-      --radius-xl:26px;
-      --radius-lg:18px;
+      --radius-xl:28px;
+      --radius-lg:20px;
       --radius-md:14px;
     }
 
@@ -36,8 +36,8 @@
       font-family:Inter, Arial, sans-serif;
       color:var(--text);
       background:
-        radial-gradient(circle at top left, rgba(25,194,255,0.18), transparent 28%),
-        radial-gradient(circle at top right, rgba(123,97,255,0.22), transparent 32%),
+        radial-gradient(circle at top left, rgba(56,213,255,0.18), transparent 28%),
+        radial-gradient(circle at top right, rgba(124,99,255,0.22), transparent 32%),
         linear-gradient(180deg, var(--bg-2), var(--bg-1));
     }
 
@@ -46,15 +46,26 @@
     }
 
     .wrap{
-      width:min(1320px, calc(100% - 32px));
+      width:min(1360px, calc(100% - 28px));
       margin:0 auto;
     }
 
-    .hero{
-      background:linear-gradient(135deg, rgba(10,25,55,0.92), rgba(9,8,40,0.92));
+    .hero,
+    .panel,
+    .output,
+    .days,
+    .grafico-card,
+    .kpi-estudo,
+    .saved-card,
+    .status-card{
+      background:linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.025));
       border:1px solid var(--line);
-      border-radius:32px;
+      border-radius:var(--radius-xl);
       box-shadow:var(--shadow);
+      backdrop-filter:blur(8px);
+    }
+
+    .hero{
       padding:28px;
       display:grid;
       grid-template-columns:1.35fr 0.85fr;
@@ -66,38 +77,25 @@
       display:flex;
       align-items:center;
       gap:12px;
-      font-size:28px;
+      font-size:30px;
       font-weight:800;
       margin-bottom:10px;
     }
 
     .subtitle{
       color:var(--muted);
-      font-size:18px;
-      line-height:1.5;
-      margin-bottom:24px;
-    }
-
-    .status-card,
-    .panel,
-    .output,
-    .days,
-    .grafico-card,
-    .kpi-estudo{
-      background:var(--card);
-      border:1px solid var(--line);
-      border-radius:var(--radius-xl);
-      box-shadow:var(--shadow);
-      backdrop-filter:blur(8px);
+      font-size:17px;
+      line-height:1.6;
+      margin-bottom:22px;
+      max-width:860px;
     }
 
     .status-card{
-      padding:26px;
+      padding:24px;
       display:flex;
       flex-direction:column;
       justify-content:center;
       min-height:180px;
-      background:linear-gradient(180deg, rgba(255,255,255,0.05), rgba(255,255,255,0.03));
     }
 
     .status-title{
@@ -106,18 +104,18 @@
       margin-bottom:10px;
     }
 
-    .status-title.ok{ color:#9ff0c9; }
-    .status-title.err{ color:#ffb2c1; }
+    .status-title.ok{ color:#adffd7; }
+    .status-title.err{ color:#ffb3c1; }
 
     .status-text{
-      color:#d9e5f7;
-      line-height:1.6;
+      color:#dfebff;
+      line-height:1.65;
       font-size:15px;
     }
 
     .grid{
       display:grid;
-      grid-template-columns:1.05fr 0.95fr;
+      grid-template-columns:1.08fr 0.92fr;
       gap:18px;
       margin-bottom:18px;
     }
@@ -130,8 +128,10 @@
 
     .panel h2,
     .output h2,
-    .days h2{
-      margin:0 0 18px;
+    .days h2,
+    .saved-top h2,
+    .graficos-topo h2{
+      margin:0 0 16px 0;
       font-size:22px;
       font-weight:800;
     }
@@ -151,7 +151,7 @@
       margin-bottom:8px;
       font-weight:700;
       font-size:14px;
-      color:#eef4ff;
+      color:#eff5ff;
     }
 
     input,
@@ -163,7 +163,8 @@
 
     input[type="text"],
     input[type="date"],
-    textarea{
+    textarea,
+    select{
       width:100%;
       border:1px solid var(--line);
       background:rgba(255,255,255,0.06);
@@ -181,21 +182,22 @@
 
     input[type="text"]:focus,
     input[type="date"]:focus,
-    textarea:focus{
-      border-color:rgba(25,194,255,0.45);
-      box-shadow:0 0 0 3px rgba(25,194,255,0.12);
+    textarea:focus,
+    select:focus{
+      border-color:rgba(56,213,255,0.45);
+      box-shadow:0 0 0 3px rgba(56,213,255,0.12);
     }
 
     textarea{
       min-height:240px;
       resize:vertical;
-      line-height:1.55;
+      line-height:1.58;
     }
 
     .hint{
       color:var(--muted);
       font-size:13px;
-      line-height:1.5;
+      line-height:1.55;
       margin-top:10px;
     }
 
@@ -222,8 +224,8 @@
 
     button{
       background:linear-gradient(135deg, var(--cyan), var(--blue));
-      color:#03111f;
-      box-shadow:0 10px 28px rgba(25,194,255,0.22);
+      color:#04111d;
+      box-shadow:0 12px 28px rgba(56,213,255,0.22);
     }
 
     button:hover,
@@ -247,6 +249,18 @@
       box-shadow:none;
     }
 
+    .success{
+      background:linear-gradient(135deg, var(--green), #5ee2c6);
+      color:#05201a;
+      box-shadow:0 12px 28px rgba(61,231,162,0.18);
+    }
+
+    .danger{
+      background:linear-gradient(135deg, #ff8aa8, var(--danger));
+      color:#2c0a14;
+      box-shadow:0 12px 28px rgba(255,111,145,0.18);
+    }
+
     .mini-btn{
       padding:11px 14px;
       font-size:13px;
@@ -260,8 +274,8 @@
       background:rgba(255,255,255,0.04);
       padding:18px;
       white-space:pre-wrap;
-      line-height:1.65;
-      color:#e9f1ff;
+      line-height:1.66;
+      color:#ebf2ff;
     }
 
     .cards{
@@ -282,7 +296,7 @@
     }
 
     .day-card strong{
-      color:#ffffff;
+      color:#fff;
     }
 
     .chip-row{
@@ -298,9 +312,9 @@
       gap:6px;
       padding:7px 12px;
       border-radius:999px;
-      background:rgba(25,194,255,0.10);
-      border:1px solid rgba(25,194,255,0.18);
-      color:#d8efff;
+      background:rgba(56,213,255,0.10);
+      border:1px solid rgba(56,213,255,0.18);
+      color:#dff5ff;
       font-size:12px;
       font-weight:700;
     }
@@ -309,11 +323,14 @@
       margin:10px 0 0 18px;
       padding:0;
       color:#dbe6f6;
-      line-height:1.55;
+      line-height:1.58;
+    }
+
+    input[type="file"]{
+      display:none;
     }
 
     .graficos-estudo{
-      margin-top:8px;
       margin-bottom:18px;
     }
 
@@ -326,53 +343,19 @@
       flex-wrap:wrap;
     }
 
-    .graficos-topo h2{
-      margin:0;
-      color:#fff;
-      font-size:24px;
-      font-weight:800;
-    }
-
-    .graficos-topo p{
-      margin:6px 0 0;
+    .graficos-topo p,
+    .saved-top p{
+      margin:6px 0 0 0;
       color:rgba(255,255,255,.72);
       font-size:14px;
-    }
-
-    .graficos-grid{
-      display:grid;
-      grid-template-columns:repeat(2, minmax(0, 1fr));
-      gap:18px;
-    }
-
-    .grafico-card{
-      padding:18px;
-      background:
-        linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.02)),
-        var(--card);
-    }
-
-    .grafico-card h3{
-      margin:0 0 8px;
-      color:#fff;
-      font-size:17px;
-      font-weight:700;
-    }
-
-    .grafico-card p{
-      margin:0 0 14px;
-      color:rgba(255,255,255,.68);
-      font-size:13px;
       line-height:1.5;
     }
 
-    .grafico-card canvas{
-      width:100% !important;
-      height:260px !important;
-    }
-
-    .grafico-largo{
-      grid-column:span 2;
+    .chart-actions,
+    .saved-actions{
+      display:flex;
+      flex-wrap:wrap;
+      gap:10px;
     }
 
     .kpis-estudo{
@@ -403,11 +386,113 @@
       font-weight:800;
     }
 
-    .chart-actions{
+    .graficos-grid{
+      display:grid;
+      grid-template-columns:repeat(2, minmax(0, 1fr));
+      gap:18px;
+    }
+
+    .grafico-card{
+      padding:18px;
+    }
+
+    .grafico-card h3{
+      margin:0 0 8px;
+      color:#fff;
+      font-size:17px;
+      font-weight:700;
+    }
+
+    .grafico-card p{
+      margin:0 0 14px;
+      color:rgba(255,255,255,.68);
+      font-size:13px;
+      line-height:1.5;
+    }
+
+    .grafico-card canvas{
+      width:100% !important;
+      height:260px !important;
+    }
+
+    .grafico-largo{
+      grid-column:span 2;
+    }
+
+    .saved-schedules{
+      margin-top:6px;
+    }
+
+    .saved-top{
+      display:flex;
+      align-items:flex-end;
+      justify-content:space-between;
+      gap:14px;
+      margin-bottom:18px;
+      flex-wrap:wrap;
+    }
+
+    .saved-filter{
+      min-width:260px;
+      max-width:320px;
+    }
+
+    .saved-list{
+      display:grid;
+      grid-template-columns:repeat(2, minmax(0, 1fr));
+      gap:16px;
+    }
+
+    .saved-card{
+      padding:18px;
+      display:flex;
+      flex-direction:column;
+      gap:12px;
+    }
+
+    .saved-card h3{
+      margin:0;
+      font-size:19px;
+    }
+
+    .saved-meta{
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+    }
+
+    .saved-badge{
+      display:inline-flex;
+      align-items:center;
+      padding:8px 12px;
+      border-radius:999px;
+      background:rgba(255,255,255,0.05);
+      border:1px solid rgba(255,255,255,0.10);
+      font-size:12px;
+      color:#dce9ff;
+      font-weight:700;
+    }
+
+    .saved-desc{
+      color:#d8e4f6;
+      font-size:14px;
+      line-height:1.55;
+    }
+
+    .saved-buttons{
       display:flex;
       flex-wrap:wrap;
       gap:10px;
-      margin-top:12px;
+      margin-top:auto;
+    }
+
+    .empty-box{
+      border:1px dashed rgba(255,255,255,0.16);
+      border-radius:22px;
+      padding:22px;
+      color:var(--muted);
+      background:rgba(255,255,255,0.03);
+      text-align:center;
     }
 
     .footer-note{
@@ -417,26 +502,24 @@
       font-size:15px;
     }
 
-    input[type="file"]{
-      display:none;
-    }
-
-    @media (max-width: 1100px){
+    @media (max-width: 1180px){
       .hero,
       .grid,
-      .row-2,
-      .row-3,
       .graficos-grid,
-      .kpis-estudo{
+      .saved-list{
         grid-template-columns:1fr;
       }
 
       .grafico-largo{
         grid-column:span 1;
       }
+    }
 
-      .status-card{
-        min-height:auto;
+    @media (max-width: 900px){
+      .row-2,
+      .row-3,
+      .kpis-estudo{
+        grid-template-columns:1fr;
       }
     }
   </style>
@@ -445,9 +528,9 @@
   <div class="wrap">
     <section class="hero">
       <div>
-        <div class="title">🤖 IA real no sistema</div>
+        <div class="title">🤖 Vou Estudar+ com IA real</div>
         <div class="subtitle">
-          Conecte sua IA por endpoint, analise conteúdo colado ou importado e gere um plano de estudo realmente personalizado dentro do Vou Estudar+.
+          Analise conteúdo colado ou importado, gere plano com IA, acompanhe os gráficos e salve cronogramas de prova e estudo por matéria.
         </div>
 
         <div class="row-2">
@@ -462,7 +545,7 @@
         </div>
 
         <div class="hint">
-          Nesta versão online, o ideal é deixar o endpoint como <strong>/api/study-ai</strong> para usar o mesmo domínio do sistema.
+          Use <strong>/api/study-ai</strong> para chamar sua IA no mesmo domínio do sistema.
         </div>
 
         <div class="button-row">
@@ -473,8 +556,8 @@
       </div>
 
       <div class="status-card">
-        <div class="status-title" id="statusTitle">Pronto para publicar online</div>
-        <div class="status-text" id="statusText">Depois do deploy, teste a conexão e use o sistema no mesmo link.</div>
+        <div class="status-title" id="statusTitle">Pronto para uso</div>
+        <div class="status-text" id="statusText">Teste a conexão, cole seu conteúdo e gere o cronograma com IA.</div>
       </div>
     </section>
 
@@ -482,7 +565,18 @@
       <div class="panel">
         <h2>Conteúdo e dados do estudo</h2>
 
-        <div class="row-3">
+        <div class="row-2">
+          <div>
+            <label for="scheduleTitle">Nome do cronograma</label>
+            <input id="scheduleTitle" type="text" placeholder="Ex: Prova Matemática Abril" />
+          </div>
+          <div>
+            <label for="hoursPerDay">Horas por dia</label>
+            <input id="hoursPerDay" type="text" placeholder="Ex: 3 horas" />
+          </div>
+        </div>
+
+        <div class="row-2">
           <div>
             <label for="subjects">Matérias</label>
             <input id="subjects" type="text" placeholder="Ex: Português, Matemática, História" />
@@ -491,22 +585,19 @@
             <label for="examDate">Data da prova</label>
             <input id="examDate" type="date" />
           </div>
-          <div>
-            <label for="hoursPerDay">Horas por dia</label>
-            <input id="hoursPerDay" type="text" placeholder="Ex: 3 horas" />
-          </div>
         </div>
 
         <div>
           <label for="content">Cole o conteúdo aqui</label>
           <textarea id="content" placeholder="Cole matéria, resumo, edital, apostila, questões, roteiro ou qualquer conteúdo que a IA deve analisar."></textarea>
-          <div class="hint">Você pode colar texto direto ou importar arquivo. PDF, DOCX, XLSX e CSV vão para o backend para extrair o texto.</div>
+          <div class="hint">Você pode colar texto direto ou importar arquivo. PDF, DOCX, XLSX e CSV são enviados ao backend para extrair o texto.</div>
         </div>
 
         <div class="button-row">
           <label class="file-button secondary" for="fileInput">Importar arquivo</label>
           <button class="secondary" id="clearButton" type="button">Limpar conteúdo</button>
           <button class="secondary" id="copyButton" type="button">Copiar resultado</button>
+          <button class="success" id="saveScheduleButton" type="button">Salvar cronograma</button>
           <input id="fileInput" type="file" accept=".txt,.md,.html,.json,.csv,.pdf,.docx,.xlsx,.xls" />
         </div>
       </div>
@@ -528,7 +619,7 @@
       <div class="graficos-topo">
         <div>
           <h2>Andamento dos estudos</h2>
-          <p>Acompanhe horas estudadas, progresso do plano, matérias mais presentes e evolução dos conteúdos.</p>
+          <p>Acompanhe horas estudadas, progresso do plano e evolução dos conteúdos.</p>
         </div>
 
         <div class="chart-actions">
@@ -560,48 +651,74 @@
       <div class="graficos-grid">
         <div class="grafico-card grafico-largo">
           <h3>Horas estudadas na semana</h3>
-          <p>Registre suas horas para acompanhar em quais dias você rendeu mais.</p>
+          <p>Veja em quais dias você estudou mais.</p>
           <canvas id="graficoHorasSemana"></canvas>
         </div>
 
         <div class="grafico-card">
           <h3>Progresso geral</h3>
-          <p>Percentual concluído com base no último plano gerado.</p>
+          <p>Percentual concluído do plano atual.</p>
           <canvas id="graficoProgressoGeral"></canvas>
         </div>
 
         <div class="grafico-card">
           <h3>Matérias mais estudadas</h3>
-          <p>Distribuição com base nas matérias informadas e no plano gerado.</p>
+          <p>Distribuição por matéria.</p>
           <canvas id="graficoMaterias"></canvas>
         </div>
 
         <div class="grafico-card grafico-largo">
           <h3>Evolução dos conteúdos concluídos</h3>
-          <p>Veja como seu avanço está evoluindo ao longo da semana.</p>
+          <p>Comparação dos últimos dias.</p>
           <canvas id="graficoEvolucao"></canvas>
         </div>
       </div>
     </section>
 
-    <div class="footer-note">Vou Estudar+ • plano automático • foco • recompensa • progresso visual</div>
+    <section class="saved-schedules">
+      <div class="saved-top">
+        <div>
+          <h2>Cronogramas salvos</h2>
+          <p>Salve seus cronogramas por matéria e prova para carregar depois com um clique.</p>
+        </div>
+
+        <div class="saved-actions">
+          <div class="saved-filter">
+            <label for="savedFilter">Filtrar por matéria</label>
+            <select id="savedFilter">
+              <option value="">Todas as matérias</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <div id="savedSchedulesList" class="saved-list"></div>
+      <div id="emptySavedBox" class="empty-box">Nenhum cronograma salvo ainda.</div>
+    </section>
+
+    <div class="footer-note">Vou Estudar+ • IA real • cronograma salvo • gráficos • progresso visual</div>
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script>
     const $ = (id) => document.getElementById(id);
-    const STORAGE_KEY = "vou_estudar_metricas_v2";
+
+    const METRICS_KEY = "vou_estudar_metricas_v3";
+    const SCHEDULES_KEY = "vou_estudar_cronogramas_v3";
 
     const state = {
       loading: false,
       lastTextResult: "",
+      currentStructuredPlan: null,
       charts: {},
-      metrics: loadMetrics()
+      metrics: loadMetrics(),
+      schedules: loadSchedules()
     };
 
     const els = {
       aiEndpoint: $("aiEndpoint"),
       aiModel: $("aiModel"),
+      scheduleTitle: $("scheduleTitle"),
       subjects: $("subjects"),
       examDate: $("examDate"),
       hoursPerDay: $("hoursPerDay"),
@@ -617,9 +734,13 @@
       testButton: $("testButton"),
       clearButton: $("clearButton"),
       copyButton: $("copyButton"),
+      saveScheduleButton: $("saveScheduleButton"),
       addHourButton: $("addHourButton"),
       completeContentButton: $("completeContentButton"),
       resetChartsButton: $("resetChartsButton"),
+      savedFilter: $("savedFilter"),
+      savedSchedulesList: $("savedSchedulesList"),
+      emptySavedBox: $("emptySavedBox"),
       kpiHorasSemana: $("kpiHorasSemana"),
       kpiConteudos: $("kpiConteudos"),
       kpiMeta: $("kpiMeta"),
@@ -638,27 +759,70 @@
         totalConteudos: 0,
         totalMeta: 0,
         sequencia: 0,
-        ultimaDataEstudo: "",
-        ultimoPlanoDias: 0
+        ultimaDataEstudo: ""
       };
     }
 
     function loadMetrics() {
       try {
-        const raw = localStorage.getItem(STORAGE_KEY);
+        const raw = localStorage.getItem(METRICS_KEY);
         if (!raw) return getDefaultMetrics();
-        const parsed = JSON.parse(raw);
-        return {
-          ...getDefaultMetrics(),
-          ...parsed
-        };
+        return { ...getDefaultMetrics(), ...JSON.parse(raw) };
       } catch {
         return getDefaultMetrics();
       }
     }
 
     function saveMetrics() {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(state.metrics));
+      localStorage.setItem(METRICS_KEY, JSON.stringify(state.metrics));
+    }
+
+    function loadSchedules() {
+      try {
+        const raw = localStorage.getItem(SCHEDULES_KEY);
+        const parsed = raw ? JSON.parse(raw) : [];
+        return Array.isArray(parsed) ? parsed : [];
+      } catch {
+        return [];
+      }
+    }
+
+    function saveSchedules() {
+      localStorage.setItem(SCHEDULES_KEY, JSON.stringify(state.schedules));
+    }
+
+    function createId() {
+      return "id_" + Date.now() + "_" + Math.random().toString(36).slice(2, 9);
+    }
+
+    function splitSubjects(raw) {
+      return String(raw || "")
+        .split(",")
+        .map(item => item.trim())
+        .filter(Boolean);
+    }
+
+    function formatDate(dateStr) {
+      if (!dateStr) return "Não informada";
+      const [y, m, d] = dateStr.split("-");
+      if (!y || !m || !d) return dateStr;
+      return `${d}/${m}/${y}`;
+    }
+
+    function formatDateTime(dateStr) {
+      if (!dateStr) return "Sem data";
+      const date = new Date(dateStr);
+      if (Number.isNaN(date.getTime())) return dateStr;
+      return date.toLocaleString("pt-BR");
+    }
+
+    function escapeHtml(text) {
+      return String(text ?? "")
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
     }
 
     function setBusy(isBusy) {
@@ -668,7 +832,8 @@
         els.planButton,
         els.testButton,
         els.addHourButton,
-        els.completeContentButton
+        els.completeContentButton,
+        els.saveScheduleButton
       ].forEach(btn => {
         if (btn) btn.disabled = isBusy;
       });
@@ -687,9 +852,10 @@
       els.resultBox.textContent = state.lastTextResult || "Sem resposta.";
     }
 
-    function clearPlanCards() {
+    function clearPlanCards(clearCurrent = true) {
       els.planCards.innerHTML = "";
       els.daysSection.hidden = true;
+      if (clearCurrent) state.currentStructuredPlan = null;
     }
 
     function baseUrlFromEndpoint(endpoint) {
@@ -697,20 +863,15 @@
       return clean.replace(/\/api\/study-ai\/?$/i, "");
     }
 
-    function splitSubjects(raw) {
-      return String(raw || "")
-        .split(",")
-        .map(item => item.trim())
-        .filter(Boolean);
-    }
-
-    function escapeHtml(text) {
-      return String(text ?? "")
-        .replaceAll("&", "&amp;")
-        .replaceAll("<", "&lt;")
-        .replaceAll(">", "&gt;")
-        .replaceAll('"', "&quot;")
-        .replaceAll("'", "&#039;");
+    function ensureSubjectsDistribution() {
+      const subjects = splitSubjects(els.subjects.value);
+      if (subjects.length) {
+        state.metrics.materias = subjects;
+        state.metrics.valoresMaterias = subjects.map((_, i) => state.metrics.valoresMaterias[i] || 0);
+      } else if (!state.metrics.materias.length) {
+        state.metrics.materias = ["Português", "Matemática", "História", "Direito"];
+        state.metrics.valoresMaterias = [0, 0, 0, 0];
+      }
     }
 
     function getWeekdayIndex() {
@@ -735,17 +896,6 @@
       }
 
       state.metrics.ultimaDataEstudo = todayStr;
-    }
-
-    function ensureSubjectsDistribution() {
-      const subjects = splitSubjects(els.subjects.value);
-      if (subjects.length) {
-        state.metrics.materias = subjects;
-        state.metrics.valoresMaterias = subjects.map((_, index) => state.metrics.valoresMaterias[index] || 0);
-      } else if (!state.metrics.materias.length) {
-        state.metrics.materias = ["Português", "Matemática", "História", "Direito"];
-        state.metrics.valoresMaterias = [0, 0, 0, 0];
-      }
     }
 
     function recalculateProgress() {
@@ -773,7 +923,6 @@
     function registerCompletedContent() {
       updateStudyStreak();
       const idx = getWeekdayIndex();
-
       state.metrics.totalConteudos += 1;
       state.metrics.evolucaoConteudos[idx] += 1;
 
@@ -791,65 +940,11 @@
       state.metrics = getDefaultMetrics();
       saveMetrics();
       refreshDashboard();
-      setStatus("Gráficos resetados", "Os dados visuais foram zerados.", "ok");
-    }
-
-    function applyPlanToMetrics(structured) {
-      ensureSubjectsDistribution();
-
-      if (!structured || !Array.isArray(structured.plano_diario)) return;
-
-      const plano = structured.plano_diario;
-      const totalTarefas = plano.reduce((sum, item) => {
-        return sum + (Array.isArray(item.tarefas) ? item.tarefas.length : 0);
-      }, 0);
-
-      state.metrics.totalMeta = totalTarefas || plano.length || state.metrics.totalMeta;
-      state.metrics.ultimoPlanoDias = plano.length;
-
-      const subjects = splitSubjects(els.subjects.value);
-      const counts = new Map();
-
-      if (subjects.length) {
-        subjects.forEach(subject => counts.set(subject, 0));
-      }
-
-      plano.forEach((item, index) => {
-        const foco = String(item.foco || `Dia ${index + 1}`).trim();
-        const tasks = Array.isArray(item.tarefas) ? item.tarefas.join(" ") : "";
-        const text = `${foco} ${tasks}`.toLowerCase();
-
-        let matched = false;
-
-        subjects.forEach(subject => {
-          if (text.includes(subject.toLowerCase())) {
-            counts.set(subject, (counts.get(subject) || 0) + 1);
-            matched = true;
-          }
-        });
-
-        if (!subjects.length || !matched) {
-          const key = foco.length > 24 ? foco.slice(0, 24) + "..." : foco;
-          counts.set(key, (counts.get(key) || 0) + 1);
-        }
-      });
-
-      const labels = Array.from(counts.keys()).slice(0, 6);
-      const values = labels.map(label => counts.get(label) || 0);
-
-      if (labels.length) {
-        state.metrics.materias = labels;
-        state.metrics.valoresMaterias = values;
-      }
-
-      recalculateProgress();
-      saveMetrics();
-      refreshDashboard();
+      setStatus("Gráficos resetados", "Os dados dos gráficos foram zerados.", "ok");
     }
 
     function refreshKPIs() {
       const totalHoras = state.metrics.horasSemana.reduce((a, b) => a + b, 0);
-
       els.kpiHorasSemana.textContent = totalHoras + "h";
       els.kpiConteudos.textContent = String(state.metrics.totalConteudos);
       els.kpiMeta.textContent = state.metrics.progressoConcluido + "%";
@@ -872,10 +967,10 @@
           datasets: [{
             label: "Horas estudadas",
             data: state.metrics.horasSemana,
-            borderColor: "#19c2ff",
-            backgroundColor: "rgba(25,194,255,0.16)",
-            pointBackgroundColor: "#19c2ff",
-            pointBorderColor: "#19c2ff",
+            borderColor: "#38d5ff",
+            backgroundColor: "rgba(56,213,255,0.14)",
+            pointBackgroundColor: "#38d5ff",
+            pointBorderColor: "#38d5ff",
             borderWidth: 3,
             tension: 0.35,
             fill: true
@@ -888,15 +983,8 @@
             legend: { labels: { color: corTexto } }
           },
           scales: {
-            x: {
-              ticks: { color: corTexto },
-              grid: { color: corGrade }
-            },
-            y: {
-              beginAtZero: true,
-              ticks: { color: corTexto },
-              grid: { color: corGrade }
-            }
+            x: { ticks: { color: corTexto }, grid: { color: corGrade } },
+            y: { beginAtZero: true, ticks: { color: corTexto }, grid: { color: corGrade } }
           }
         }
       });
@@ -907,7 +995,7 @@
           labels: ["Concluído", "Faltando"],
           datasets: [{
             data: [state.metrics.progressoConcluido, state.metrics.progressoFaltando],
-            backgroundColor: ["#19d38a", "rgba(255,255,255,0.12)"],
+            backgroundColor: ["#3de7a2", "rgba(255,255,255,0.12)"],
             borderWidth: 0
           }]
         },
@@ -929,9 +1017,9 @@
         data: {
           labels: state.metrics.materias,
           datasets: [{
-            label: "Presença no plano / progresso",
+            label: "Presença por matéria",
             data: state.metrics.valoresMaterias,
-            backgroundColor: ["#19c2ff", "#2b7fff", "#7b61ff", "#19d38a", "#ffcc66", "#ff6c8f"],
+            backgroundColor: ["#38d5ff", "#2d7dff", "#7c63ff", "#3de7a2", "#ffd36a", "#ff6f91"],
             borderRadius: 10
           }]
         },
@@ -942,15 +1030,8 @@
             legend: { labels: { color: corTexto } }
           },
           scales: {
-            x: {
-              ticks: { color: corTexto },
-              grid: { color: corGrade }
-            },
-            y: {
-              beginAtZero: true,
-              ticks: { color: corTexto },
-              grid: { color: corGrade }
-            }
+            x: { ticks: { color: corTexto }, grid: { color: corGrade } },
+            y: { beginAtZero: true, ticks: { color: corTexto }, grid: { color: corGrade } }
           }
         }
       });
@@ -962,7 +1043,7 @@
           datasets: [{
             label: "Conteúdos concluídos",
             data: state.metrics.evolucaoConteudos,
-            backgroundColor: "#7b61ff",
+            backgroundColor: "#7c63ff",
             borderRadius: 10
           }]
         },
@@ -973,15 +1054,8 @@
             legend: { labels: { color: corTexto } }
           },
           scales: {
-            x: {
-              ticks: { color: corTexto },
-              grid: { color: corGrade }
-            },
-            y: {
-              beginAtZero: true,
-              ticks: { color: corTexto },
-              grid: { color: corGrade }
-            }
+            x: { ticks: { color: corTexto }, grid: { color: corGrade } },
+            y: { beginAtZero: true, ticks: { color: corTexto }, grid: { color: corGrade } }
           }
         }
       });
@@ -993,73 +1067,69 @@
       renderCharts();
     }
 
-    async function testConnection() {
-      const endpoint = els.aiEndpoint.value.trim() || "/api/study-ai";
+    function applyPlanToMetrics(structured) {
+      ensureSubjectsDistribution();
 
-      try {
-        setBusy(true);
-        setStatus("Testando conexão...", "Verificando servidor e configuração da IA.");
+      if (!structured || !Array.isArray(structured.plano_diario)) return;
 
-        const base = baseUrlFromEndpoint(endpoint);
-        const resp = await fetch(base + "/api/health");
-        const data = await resp.json();
+      const plano = structured.plano_diario;
+      const totalTarefas = plano.reduce((sum, item) => {
+        return sum + (Array.isArray(item.tarefas) ? item.tarefas.length : 0);
+      }, 0);
 
-        if (!resp.ok || !data.ok) {
-          throw new Error(data.error || "Falha ao testar a conexão.");
-        }
+      state.metrics.totalMeta = totalTarefas || plano.length || state.metrics.totalMeta;
 
-        const configured = data.openai_configured ? "sim" : "não";
-        setStatus(
-          "Conexão OK",
-          `Servidor ativo. OpenAI configurada: ${configured}. Modelo padrão do servidor: ${data.default_model || "não informado"}.`,
-          "ok"
-        );
-      } catch (error) {
-        setStatus("Erro na conexão", error.message || "Não consegui testar a conexão.", "err");
-      } finally {
-        setBusy(false);
+      const subjects = splitSubjects(els.subjects.value);
+      const counts = new Map();
+
+      if (subjects.length) {
+        subjects.forEach(subject => counts.set(subject, 0));
       }
-    }
 
-    async function importFile(file) {
-      if (!file) return;
+      plano.forEach((item, index) => {
+        const foco = String(item.foco || `Dia ${index + 1}`).trim();
+        const tarefas = Array.isArray(item.tarefas) ? item.tarefas.join(" ") : "";
+        const text = `${foco} ${tarefas}`.toLowerCase();
 
-      try {
-        setBusy(true);
-        setStatus("Importando arquivo...", `Lendo ${file.name} para transformar em texto.`);
+        let matched = false;
 
-        const endpoint = els.aiEndpoint.value.trim() || "/api/study-ai";
-        const base = baseUrlFromEndpoint(endpoint);
-        const formData = new FormData();
-        formData.append("file", file);
-
-        const resp = await fetch(base + "/api/extract-file", {
-          method: "POST",
-          body: formData
+        subjects.forEach(subject => {
+          if (text.includes(subject.toLowerCase())) {
+            counts.set(subject, (counts.get(subject) || 0) + 1);
+            matched = true;
+          }
         });
 
-        const data = await resp.json();
-
-        if (!resp.ok || !data.ok) {
-          throw new Error(data.error || "Falha ao extrair texto do arquivo.");
+        if (!subjects.length || !matched) {
+          const key = foco.length > 22 ? foco.slice(0, 22) + "..." : foco;
+          counts.set(key, (counts.get(key) || 0) + 1);
         }
+      });
 
-        els.content.value = data.text || "";
-        setStatus("Arquivo importado", `${file.name} foi convertido em texto e carregado no sistema.`, "ok");
-      } catch (error) {
-        setStatus("Erro ao importar", error.message || "Não consegui importar esse arquivo.", "err");
-      } finally {
-        setBusy(false);
-        els.fileInput.value = "";
+      const labels = Array.from(counts.keys()).slice(0, 6);
+      const values = labels.map(label => counts.get(label) || 0);
+
+      if (labels.length) {
+        state.metrics.materias = labels;
+        state.metrics.valoresMaterias = values;
       }
+
+      recalculateProgress();
+      saveMetrics();
+      refreshDashboard();
     }
 
-    function renderPlan(structured) {
-      clearPlanCards();
+    function renderPlan(structured, applyMetrics = true) {
+      clearPlanCards(false);
+      state.currentStructuredPlan = structured || null;
 
-      if (!structured || !Array.isArray(structured.plano_diario) || !structured.plano_diario.length) return;
+      if (!structured || !Array.isArray(structured.plano_diario) || !structured.plano_diario.length) {
+        els.daysSection.hidden = true;
+        return;
+      }
 
       els.daysSection.hidden = false;
+      els.planCards.innerHTML = "";
 
       structured.plano_diario.forEach((item, index) => {
         const card = document.createElement("div");
@@ -1082,7 +1152,197 @@
         els.planCards.appendChild(card);
       });
 
-      applyPlanToMetrics(structured);
+      if (applyMetrics) {
+        applyPlanToMetrics(structured);
+      }
+    }
+
+    function getAutoTitle() {
+      const customTitle = els.scheduleTitle.value.trim();
+      if (customTitle) return customTitle;
+
+      const subjects = splitSubjects(els.subjects.value);
+      const firstSubject = subjects[0] || "Estudo";
+      const date = els.examDate.value ? formatDate(els.examDate.value) : "Sem data";
+      return `${firstSubject} • ${date}`;
+    }
+
+    function saveCurrentSchedule() {
+      const title = getAutoTitle();
+      const subjects = splitSubjects(els.subjects.value);
+
+      if (!els.content.value.trim() && !state.currentStructuredPlan && !state.lastTextResult) {
+        setStatus("Nada para salvar", "Cole conteúdo ou gere um plano antes de salvar o cronograma.", "err");
+        return;
+      }
+
+      const item = {
+        id: createId(),
+        title,
+        subjects,
+        examDate: els.examDate.value,
+        hoursPerDay: els.hoursPerDay.value.trim(),
+        content: els.content.value,
+        aiResult: state.lastTextResult,
+        structured: state.currentStructuredPlan,
+        createdAt: new Date().toISOString()
+      };
+
+      state.schedules.unshift(item);
+      saveSchedules();
+      refreshSavedFilters();
+      renderSavedSchedules();
+
+      setStatus("Cronograma salvo", "Seu cronograma de prova/estudo foi salvo no navegador.", "ok");
+    }
+
+    function loadSchedule(id) {
+      const item = state.schedules.find(schedule => schedule.id === id);
+      if (!item) return;
+
+      els.scheduleTitle.value = item.title || "";
+      els.subjects.value = Array.isArray(item.subjects) ? item.subjects.join(", ") : "";
+      els.examDate.value = item.examDate || "";
+      els.hoursPerDay.value = item.hoursPerDay || "";
+      els.content.value = item.content || "";
+
+      setResult(item.aiResult || "Cronograma carregado.");
+      renderPlan(item.structured, false);
+
+      setStatus("Cronograma carregado", `Carreguei "${item.title}".`, "ok");
+    }
+
+    function deleteSchedule(id) {
+      const item = state.schedules.find(schedule => schedule.id === id);
+      state.schedules = state.schedules.filter(schedule => schedule.id !== id);
+      saveSchedules();
+      refreshSavedFilters();
+      renderSavedSchedules();
+      setStatus("Cronograma excluído", item ? `"${item.title}" foi removido.` : "Cronograma removido.", "ok");
+    }
+
+    function refreshSavedFilters() {
+      const previous = els.savedFilter.value;
+      const subjects = [...new Set(state.schedules.flatMap(item => Array.isArray(item.subjects) ? item.subjects : []))];
+
+      els.savedFilter.innerHTML = `<option value="">Todas as matérias</option>` +
+        subjects.map(subject => `<option value="${escapeHtml(subject)}">${escapeHtml(subject)}</option>`).join("");
+
+      if (subjects.includes(previous)) {
+        els.savedFilter.value = previous;
+      } else {
+        els.savedFilter.value = "";
+      }
+    }
+
+    function renderSavedSchedules() {
+      const filter = els.savedFilter.value;
+      const list = filter
+        ? state.schedules.filter(item => Array.isArray(item.subjects) && item.subjects.includes(filter))
+        : state.schedules;
+
+      els.savedSchedulesList.innerHTML = "";
+
+      if (!list.length) {
+        els.emptySavedBox.style.display = "block";
+        return;
+      }
+
+      els.emptySavedBox.style.display = "none";
+
+      list.forEach(item => {
+        const card = document.createElement("div");
+        card.className = "saved-card";
+
+        const subjectsHtml = (item.subjects || []).length
+          ? item.subjects.map(subject => `<span class="saved-badge">${escapeHtml(subject)}</span>`).join("")
+          : `<span class="saved-badge">Sem matéria</span>`;
+
+        const hasPlan = item.structured && Array.isArray(item.structured.plano_diario) && item.structured.plano_diario.length;
+        const desc = hasPlan
+          ? `${item.structured.plano_diario.length} dia(s) de plano salvo(s).`
+          : "Sem plano diário estruturado salvo.";
+
+        card.innerHTML = `
+          <h3>${escapeHtml(item.title || "Cronograma sem nome")}</h3>
+          <div class="saved-meta">
+            ${subjectsHtml}
+            <span class="saved-badge">Prova: ${escapeHtml(formatDate(item.examDate))}</span>
+            <span class="saved-badge">Horas/dia: ${escapeHtml(item.hoursPerDay || "não informado")}</span>
+          </div>
+          <div class="saved-desc">
+            ${escapeHtml(desc)}<br>
+            Salvo em: ${escapeHtml(formatDateTime(item.createdAt))}
+          </div>
+          <div class="saved-buttons">
+            <button class="secondary mini-btn" data-action="load" data-id="${item.id}" type="button">Carregar</button>
+            <button class="danger mini-btn" data-action="delete" data-id="${item.id}" type="button">Excluir</button>
+          </div>
+        `;
+
+        els.savedSchedulesList.appendChild(card);
+      });
+    }
+
+    async function testConnection() {
+      const endpoint = els.aiEndpoint.value.trim() || "/api/study-ai";
+
+      try {
+        setBusy(true);
+        setStatus("Testando conexão...", "Verificando o servidor e a IA.");
+
+        const base = baseUrlFromEndpoint(endpoint);
+        const resp = await fetch(base + "/api/health");
+        const data = await resp.json();
+
+        if (!resp.ok || !data.ok) {
+          throw new Error(data.error || "Falha ao testar a conexão.");
+        }
+
+        const configured = data.openai_configured ? "sim" : "não";
+        setStatus(
+          "Conexão OK",
+          `Servidor ativo. OpenAI configurada: ${configured}. Modelo padrão: ${data.default_model || "não informado"}.`,
+          "ok"
+        );
+      } catch (error) {
+        setStatus("Erro na conexão", error.message || "Não consegui testar a conexão.", "err");
+      } finally {
+        setBusy(false);
+      }
+    }
+
+    async function importFile(file) {
+      if (!file) return;
+
+      try {
+        setBusy(true);
+        setStatus("Importando arquivo...", `Lendo ${file.name}.`);
+
+        const endpoint = els.aiEndpoint.value.trim() || "/api/study-ai";
+        const base = baseUrlFromEndpoint(endpoint);
+        const formData = new FormData();
+        formData.append("file", file);
+
+        const resp = await fetch(base + "/api/extract-file", {
+          method: "POST",
+          body: formData
+        });
+
+        const data = await resp.json();
+
+        if (!resp.ok || !data.ok) {
+          throw new Error(data.error || "Falha ao extrair texto do arquivo.");
+        }
+
+        els.content.value = data.text || "";
+        setStatus("Arquivo importado", `${file.name} foi convertido em texto.`, "ok");
+      } catch (error) {
+        setStatus("Erro ao importar", error.message || "Não consegui importar esse arquivo.", "err");
+      } finally {
+        setBusy(false);
+        els.fileInput.value = "";
+      }
     }
 
     async function callStudyAI(action) {
@@ -1097,11 +1357,11 @@
 
       try {
         setBusy(true);
-        clearPlanCards();
+        if (action === "plan") clearPlanCards();
         setResult("Processando com IA...");
         setStatus(
           action === "plan" ? "Gerando plano com IA..." : "Analisando conteúdo com IA...",
-          "O servidor está enviando seu conteúdo para a IA e aguardando a resposta."
+          "Aguarde a resposta do servidor."
         );
 
         const resp = await fetch(endpoint, {
@@ -1127,7 +1387,9 @@
         setStatus("IA respondeu com sucesso", `Resposta recebida usando o modelo ${data.model || model}.`, "ok");
 
         if (action === "plan" && data.structured) {
-          renderPlan(data.structured);
+          renderPlan(data.structured, true);
+        } else if (action !== "plan") {
+          state.currentStructuredPlan = null;
         }
       } catch (error) {
         setResult("Erro ao chamar IA.");
@@ -1141,34 +1403,55 @@
     els.analyzeButton.addEventListener("click", () => callStudyAI("analyze"));
     els.planButton.addEventListener("click", () => callStudyAI("plan"));
     els.fileInput.addEventListener("change", (event) => importFile(event.target.files?.[0]));
+    els.saveScheduleButton.addEventListener("click", saveCurrentSchedule);
 
     els.clearButton.addEventListener("click", () => {
+      els.scheduleTitle.value = "";
+      els.subjects.value = "";
+      els.examDate.value = "";
+      els.hoursPerDay.value = "";
       els.content.value = "";
       setResult("A resposta da IA aparecerá aqui.");
-      clearPlanCards();
-      setStatus("Conteúdo limpo", "Cole um novo conteúdo ou importe outro arquivo.");
+      clearPlanCards(true);
+      setStatus("Conteúdo limpo", "Preencha novos dados para gerar outro cronograma.");
     });
 
     els.copyButton.addEventListener("click", async () => {
       if (!state.lastTextResult) return;
       try {
         await navigator.clipboard.writeText(state.lastTextResult);
-        setStatus("Resultado copiado", "A resposta da IA foi copiada para sua área de transferência.", "ok");
+        setStatus("Resultado copiado", "A resposta da IA foi copiada.", "ok");
       } catch {
-        setStatus("Não consegui copiar", "Copie manualmente o resultado no painel ao lado.", "err");
+        setStatus("Não consegui copiar", "Copie manualmente o resultado.", "err");
       }
     });
 
     els.addHourButton.addEventListener("click", registerStudyHour);
     els.completeContentButton.addEventListener("click", registerCompletedContent);
     els.resetChartsButton.addEventListener("click", resetCharts);
+
     els.subjects.addEventListener("change", () => {
       ensureSubjectsDistribution();
       saveMetrics();
       refreshDashboard();
     });
 
+    els.savedFilter.addEventListener("change", renderSavedSchedules);
+
+    els.savedSchedulesList.addEventListener("click", (event) => {
+      const button = event.target.closest("button[data-action]");
+      if (!button) return;
+
+      const id = button.dataset.id;
+      const action = button.dataset.action;
+
+      if (action === "load") loadSchedule(id);
+      if (action === "delete") deleteSchedule(id);
+    });
+
     refreshDashboard();
+    refreshSavedFilters();
+    renderSavedSchedules();
     testConnection();
   </script>
 </body>
