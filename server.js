@@ -1517,8 +1517,9 @@ app.post("/api/study-ai", requireAccess, async (req, res) => {
       input = "Responda apenas: conexão ok";
       max_output_tokens = 20;
     } else if (mode === "explain") {
-      input = \`
-Você é um professor particular claro e didático.
+      input = `
+      `;
+Você  um professor particular claro e didático.
 
 Sua função é explicar o conteúdo enviado de forma simples, organizada e útil para estudo.
 
