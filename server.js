@@ -284,9 +284,7 @@ const html = `<!DOCTYPE html>
   <style>
     :root{
       --bg:#081120;
-      --bg2:#0d1830;
       --card:#101c34;
-      --card2:#13213d;
       --line:rgba(255,255,255,.08);
       --text:#eef6ff;
       --muted:#9eb6d6;
@@ -294,12 +292,9 @@ const html = `<!DOCTYPE html>
       --purple:#7c5cff;
       --green:#35d6a7;
       --yellow:#ffd166;
-      --danger:#ff6b81;
       --shadow:0 20px 50px rgba(0,0,0,.28);
     }
-
     *{box-sizing:border-box;margin:0;padding:0}
-
     body{
       font-family:Arial, Helvetica, sans-serif;
       background:
@@ -309,13 +304,7 @@ const html = `<!DOCTYPE html>
       color:var(--text);
       min-height:100vh;
     }
-
-    .container{
-      width:min(1180px, calc(100% - 24px));
-      margin:0 auto;
-      padding:20px 0 40px;
-    }
-
+    .container{width:min(1180px, calc(100% - 24px));margin:0 auto;padding:20px 0 40px}
     .hero{
       background:linear-gradient(145deg, rgba(16,28,52,.96), rgba(10,20,38,.98));
       border:1px solid var(--line);
@@ -324,495 +313,125 @@ const html = `<!DOCTYPE html>
       box-shadow:var(--shadow);
       margin-bottom:18px;
     }
-
-    .hero-top{
-      display:grid;
-      grid-template-columns:1.1fr .9fr;
-      gap:18px;
-      align-items:start;
-    }
-
+    .hero-top{display:grid;grid-template-columns:1.1fr .9fr;gap:18px;align-items:start}
     .badge{
-      display:inline-block;
-      padding:8px 14px;
-      border-radius:999px;
-      background:rgba(0,212,255,.10);
-      border:1px solid rgba(0,212,255,.18);
-      color:#8cecff;
-      font-size:12px;
-      font-weight:700;
-      letter-spacing:.8px;
-      margin-bottom:12px;
+      display:inline-block;padding:8px 14px;border-radius:999px;
+      background:rgba(0,212,255,.10);border:1px solid rgba(0,212,255,.18);
+      color:#8cecff;font-size:12px;font-weight:700;letter-spacing:.8px;margin-bottom:12px
     }
-
-    h1{
-      font-size:clamp(30px,5vw,46px);
-      line-height:1.05;
-      margin-bottom:12px;
-    }
-
-    .subtitle{
-      color:var(--muted);
-      max-width:700px;
-      line-height:1.65;
-      font-size:15px;
-    }
-
-    .hero-actions{
-      display:flex;
-      gap:12px;
-      flex-wrap:wrap;
-      margin-top:20px;
-    }
-
+    h1{font-size:clamp(30px,5vw,46px);line-height:1.05;margin-bottom:12px}
+    .subtitle{color:var(--muted);max-width:700px;line-height:1.65;font-size:15px}
+    .hero-actions{display:flex;gap:12px;flex-wrap:wrap;margin-top:20px}
     button, .link-btn{
-      border:none;
-      cursor:pointer;
-      border-radius:16px;
-      padding:14px 18px;
-      font-weight:800;
-      text-decoration:none;
-      display:inline-flex;
-      align-items:center;
-      justify-content:center;
-      transition:.18s ease;
+      border:none;cursor:pointer;border-radius:16px;padding:14px 18px;font-weight:800;
+      text-decoration:none;display:inline-flex;align-items:center;justify-content:center;transition:.18s ease
     }
-
-    button:hover, .link-btn:hover{ transform:translateY(-1px); }
-
-    .btn-primary{
-      background:linear-gradient(135deg, var(--blue), #66ecff);
-      color:#06111b;
-      box-shadow:0 12px 28px rgba(0,212,255,.22);
-    }
-
-    .btn-success{
-      background:linear-gradient(135deg, var(--green), #7df0cc);
-      color:#062118;
-    }
-
-    .btn-secondary{
-      background:rgba(255,255,255,.05);
-      border:1px solid rgba(255,255,255,.08);
-      color:var(--text);
-    }
-
-    .stats-preview{
-      display:grid;
-      grid-template-columns:repeat(2,1fr);
-      gap:12px;
-    }
-
-    .preview-card{
-      background:rgba(255,255,255,.04);
-      border:1px solid rgba(255,255,255,.08);
-      border-radius:20px;
-      padding:16px;
-      box-shadow:0 10px 22px rgba(0,0,0,.14);
-    }
-
-    .preview-card small{
-      display:block;
-      color:var(--muted);
-      margin-bottom:8px;
-      font-size:12px;
-    }
-
-    .preview-card strong{
-      display:block;
-      font-size:24px;
-      margin-bottom:6px;
-      color:#eef6ff;
-    }
-
-    .preview-card span{
-      color:var(--muted);
-      font-size:13px;
-      line-height:1.5;
-    }
-
-    .dashboard-top{
-      display:grid;
-      grid-template-columns:repeat(4,1fr);
-      gap:14px;
-      margin-bottom:18px;
-    }
-
-    .metric-card{
-      border-radius:20px;
-      padding:18px;
-      box-shadow:var(--shadow);
-      border:1px solid rgba(255,255,255,.06);
-    }
-
-    .metric-card.blue{ background:linear-gradient(145deg, rgba(0,212,255,.16), rgba(16,28,52,.95)); }
-    .metric-card.purple{ background:linear-gradient(145deg, rgba(124,92,255,.18), rgba(16,28,52,.95)); }
-    .metric-card.green{ background:linear-gradient(145deg, rgba(53,214,167,.18), rgba(16,28,52,.95)); }
-    .metric-card.yellow{ background:linear-gradient(145deg, rgba(255,209,102,.18), rgba(16,28,52,.95)); }
-
-    .metric-label{
-      display:block;
-      font-size:13px;
-      color:var(--muted);
-      margin-bottom:8px;
-    }
-
-    .metric-card strong{
-      display:block;
-      font-size:30px;
-      margin-bottom:6px;
-    }
-
-    .metric-card small{ color:#d8e7fb; }
-
+    button:hover, .link-btn:hover{transform:translateY(-1px)}
+    .btn-primary{background:linear-gradient(135deg, var(--blue), #66ecff);color:#06111b;box-shadow:0 12px 28px rgba(0,212,255,.22)}
+    .btn-success{background:linear-gradient(135deg, var(--green), #7df0cc);color:#062118}
+    .btn-secondary{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);color:var(--text)}
+    .stats-preview{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
+    .preview-card{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:20px;padding:16px;box-shadow:0 10px 22px rgba(0,0,0,.14)}
+    .preview-card small{display:block;color:var(--muted);margin-bottom:8px;font-size:12px}
+    .preview-card strong{display:block;font-size:24px;margin-bottom:6px;color:#eef6ff}
+    .preview-card span{color:var(--muted);font-size:13px;line-height:1.5}
+    .dashboard-top{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:18px}
+    .metric-card{border-radius:20px;padding:18px;box-shadow:var(--shadow);border:1px solid rgba(255,255,255,.06)}
+    .metric-card.blue{background:linear-gradient(145deg, rgba(0,212,255,.16), rgba(16,28,52,.95))}
+    .metric-card.purple{background:linear-gradient(145deg, rgba(124,92,255,.18), rgba(16,28,52,.95))}
+    .metric-card.green{background:linear-gradient(145deg, rgba(53,214,167,.18), rgba(16,28,52,.95))}
+    .metric-card.yellow{background:linear-gradient(145deg, rgba(255,209,102,.18), rgba(16,28,52,.95))}
+    .metric-label{display:block;font-size:13px;color:var(--muted);margin-bottom:8px}
+    .metric-card strong{display:block;font-size:30px;margin-bottom:6px}
+    .metric-card small{color:#d8e7fb}
     .section{
       background:linear-gradient(145deg, rgba(16,28,52,.96), rgba(10,20,38,.98));
-      border:1px solid var(--line);
-      border-radius:24px;
-      padding:22px;
-      box-shadow:var(--shadow);
-      margin-bottom:18px;
+      border:1px solid var(--line);border-radius:24px;padding:22px;box-shadow:var(--shadow);margin-bottom:18px
     }
-
-    .section h2{
-      font-size:24px;
-      margin-bottom:6px;
-    }
-
-    .section p.head{
-      color:var(--muted);
-      margin-bottom:18px;
-      line-height:1.5;
-    }
-
-    .grid-2{
-      display:grid;
-      grid-template-columns:1.15fr .85fr;
-      gap:16px;
-    }
-
+    .section h2{font-size:24px;margin-bottom:6px}
+    .section p.head{color:var(--muted);margin-bottom:18px;line-height:1.5}
+    .grid-2{display:grid;grid-template-columns:1.15fr .85fr;gap:16px}
     .card{
       background:linear-gradient(145deg, rgba(19,33,61,.96), rgba(15,27,50,.98));
-      border:1px solid rgba(255,255,255,.07);
-      border-radius:22px;
-      padding:18px;
-      box-shadow:0 12px 30px rgba(0,0,0,.18);
+      border:1px solid rgba(255,255,255,.07);border-radius:22px;padding:18px;box-shadow:0 12px 30px rgba(0,0,0,.18)
     }
-
-    .card h3{
-      margin-bottom:12px;
-      font-size:18px;
-      color:#fff;
-    }
-
-    .field{ margin-bottom:14px; }
-
-    label{
-      display:block;
-      font-size:13px;
-      font-weight:700;
-      margin-bottom:7px;
-      color:#dcecff;
-    }
-
+    .card h3{margin-bottom:12px;font-size:18px;color:#fff}
+    .field{margin-bottom:14px}
+    label{display:block;font-size:13px;font-weight:700;margin-bottom:7px;color:#dcecff}
     input, textarea, select{
-      width:100%;
-      background:rgba(255,255,255,.05);
-      border:1px solid rgba(255,255,255,.08);
-      color:var(--text);
-      border-radius:16px;
-      padding:14px;
-      outline:none;
-      font-size:14px;
+      width:100%;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);
+      color:var(--text);border-radius:16px;padding:14px;outline:none;font-size:14px
     }
-
-    input::placeholder, textarea::placeholder{ color:#8ea6c5; }
-
-    textarea{
-      min-height:180px;
-      resize:vertical;
-    }
-
-    .row{
-      display:grid;
-      grid-template-columns:1fr 1fr;
-      gap:12px;
-    }
-
-    .actions{
-      display:flex;
-      gap:10px;
-      flex-wrap:wrap;
-      margin-top:6px;
-    }
-
-    .result{
-      min-height:120px;
-      white-space:pre-wrap;
-      line-height:1.6;
-      color:#eef6ff;
-    }
-
+    input::placeholder, textarea::placeholder{color:#8ea6c5}
+    textarea{min-height:180px;resize:vertical}
+    .row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+    .actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:6px}
+    .result{min-height:120px;white-space:pre-wrap;line-height:1.6;color:#eef6ff}
     .price-box{
-      margin-top:18px;
-      background:linear-gradient(145deg, rgba(0,212,255,.10), rgba(124,92,255,.10));
-      border:1px solid rgba(0,212,255,.16);
-      border-radius:18px;
-      padding:18px;
-      text-align:center;
+      margin-top:18px;background:linear-gradient(145deg, rgba(0,212,255,.10), rgba(124,92,255,.10));
+      border:1px solid rgba(0,212,255,.16);border-radius:18px;padding:18px;text-align:center
     }
-
-    .price-box h3{
-      margin-bottom:8px;
-      font-size:24px;
-    }
-
-    .price{
-      font-size:40px;
-      font-weight:900;
-      margin-bottom:8px;
-    }
-
-    .price small{
-      font-size:18px;
-      color:#a8ddff;
-    }
-
-    .reward-panel{
-      display:grid;
-      grid-template-columns:repeat(4,1fr);
-      gap:12px;
-      margin-top:16px;
-    }
-
-    .reward-box{
-      background:rgba(255,255,255,.04);
-      border:1px solid var(--line);
-      border-radius:18px;
-      padding:16px;
-      text-align:center;
-    }
-
-    .reward-label{
-      display:block;
-      color:var(--muted);
-      font-size:13px;
-      margin-bottom:8px;
-    }
-
-    .reward-box strong{ font-size:24px; }
-
-    .chart-card{
-      background:rgba(255,255,255,.04);
-      border:1px solid var(--line);
-      border-radius:18px;
-      padding:18px;
-      margin-top:16px;
-    }
-
-    .chart-card h3{ margin-bottom:6px; }
-
-    .chart-card p{
-      color:var(--muted);
-      font-size:13px;
-      margin-bottom:12px;
-    }
-
-    .chart-bars{
-      height:210px;
-      display:flex;
-      align-items:flex-end;
-      gap:12px;
-    }
-
-    .bar-wrap{
-      flex:1;
-      display:flex;
-      flex-direction:column;
-      align-items:center;
-      gap:10px;
-    }
-
-    .bar{
-      width:100%;
-      max-width:42px;
-      border-radius:14px 14px 6px 6px;
-      box-shadow:0 10px 22px rgba(0,0,0,.18);
-    }
-
-    .bar.blue{ background:linear-gradient(180deg, var(--blue), #4eecff); }
-    .bar.purple{ background:linear-gradient(180deg, var(--purple), #a791ff); }
-    .bar.green{ background:linear-gradient(180deg, var(--green), #7df0ce); }
-
-    .bar-wrap span{
-      font-size:12px;
-      color:var(--muted);
-    }
-
-    .resultado-cards{
-      display:grid;
-      grid-template-columns:repeat(2,1fr);
-      gap:14px;
-      margin-top:16px;
-    }
-
+    .price-box h3{margin-bottom:8px;font-size:24px}
+    .price{font-size:40px;font-weight:900;margin-bottom:8px}
+    .price small{font-size:18px;color:#a8ddff}
+    .reward-panel{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:16px}
+    .reward-box{background:rgba(255,255,255,.04);border:1px solid var(--line);border-radius:18px;padding:16px;text-align:center}
+    .reward-label{display:block;color:var(--muted);font-size:13px;margin-bottom:8px}
+    .reward-box strong{font-size:24px}
+    .chart-card{background:rgba(255,255,255,.04);border:1px solid var(--line);border-radius:18px;padding:18px;margin-top:16px}
+    .chart-card h3{margin-bottom:6px}
+    .chart-card p{color:var(--muted);font-size:13px;margin-bottom:12px}
+    .chart-bars{height:210px;display:flex;align-items:flex-end;gap:12px}
+    .bar-wrap{flex:1;display:flex;flex-direction:column;align-items:center;gap:10px}
+    .bar{width:100%;max-width:42px;border-radius:14px 14px 6px 6px;box-shadow:0 10px 22px rgba(0,0,0,.18)}
+    .bar.blue{background:linear-gradient(180deg, var(--blue), #4eecff)}
+    .bar.purple{background:linear-gradient(180deg, var(--purple), #a791ff)}
+    .bar.green{background:linear-gradient(180deg, var(--green), #7df0ce)}
+    .bar-wrap span{font-size:12px;color:var(--muted)}
+    .resultado-cards{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;margin-top:16px}
     .resultado-card{
       background:linear-gradient(145deg, rgba(20,35,62,.96), rgba(14,27,49,.98));
-      border:1px solid rgba(255,255,255,.07);
-      border-radius:20px;
-      padding:16px;
-      box-shadow:0 10px 24px rgba(0,0,0,.14);
+      border:1px solid rgba(255,255,255,.07);border-radius:20px;padding:16px;box-shadow:0 10px 24px rgba(0,0,0,.14)
     }
-
     .resultado-tag{
-      display:inline-block;
-      font-size:12px;
-      font-weight:800;
-      color:#8cecff;
-      background:rgba(0,212,255,.10);
-      border:1px solid rgba(0,212,255,.14);
-      padding:7px 10px;
-      border-radius:999px;
-      margin-bottom:10px;
+      display:inline-block;font-size:12px;font-weight:800;color:#8cecff;background:rgba(0,212,255,.10);
+      border:1px solid rgba(0,212,255,.14);padding:7px 10px;border-radius:999px;margin-bottom:10px
     }
-
-    .resultado-texto{
-      color:var(--muted);
-      line-height:1.7;
-      font-size:14px;
-      white-space:pre-wrap;
-    }
-
-    .work-list{
-      display:grid;
-      gap:12px;
-      margin-top:14px;
-    }
-
+    .resultado-texto{color:var(--muted);line-height:1.7;font-size:14px;white-space:pre-wrap}
+    .work-list{display:grid;gap:12px;margin-top:14px}
     .work-item{
       background:linear-gradient(145deg, rgba(20,35,62,.96), rgba(14,27,49,.98));
-      border:1px solid rgba(255,255,255,.07);
-      border-radius:18px;
-      padding:16px;
-      box-shadow:0 10px 24px rgba(0,0,0,.14);
+      border:1px solid rgba(255,255,255,.07);border-radius:18px;padding:16px;box-shadow:0 10px 24px rgba(0,0,0,.14)
     }
-
-    .work-item strong{
-      display:block;
-      font-size:17px;
-      margin-bottom:8px;
-    }
-
-    .work-meta{
-      color:var(--muted);
-      line-height:1.6;
-      font-size:13px;
-      margin-bottom:12px;
-    }
-
-    .pill{
-      display:inline-block;
-      padding:7px 12px;
-      border-radius:999px;
-      font-size:12px;
-      font-weight:800;
-      margin-bottom:10px;
-    }
-
-    .pill.pendente{
-      background:rgba(255,209,102,.12);
-      color:#ffe29a;
-      border:1px solid rgba(255,209,102,.18);
-    }
-
-    .pill.andamento{
-      background:rgba(0,212,255,.12);
-      color:#8deaff;
-      border:1px solid rgba(0,212,255,.18);
-    }
-
-    .pill.concluido{
-      background:rgba(53,214,167,.12);
-      color:#9df2d7;
-      border:1px solid rgba(53,214,167,.18);
-    }
-
-    .status{
-      margin-top:10px;
-      font-size:13px;
-      color:var(--muted);
-    }
-
-    .access-area{
-      display:grid;
-      grid-template-columns:1fr 1fr auto;
-      gap:12px;
-      align-items:end;
-      margin-bottom:14px;
-    }
-
+    .work-item strong{display:block;font-size:17px;margin-bottom:8px}
+    .work-meta{color:var(--muted);line-height:1.6;font-size:13px;margin-bottom:12px}
+    .pill{display:inline-block;padding:7px 12px;border-radius:999px;font-size:12px;font-weight:800;margin-bottom:10px}
+    .pill.pendente{background:rgba(255,209,102,.12);color:#ffe29a;border:1px solid rgba(255,209,102,.18)}
+    .pill.andamento{background:rgba(0,212,255,.12);color:#8deaff;border:1px solid rgba(0,212,255,.18)}
+    .pill.concluido{background:rgba(53,214,167,.12);color:#9df2d7;border:1px solid rgba(53,214,167,.18)}
+    .status{margin-top:10px;font-size:13px;color:var(--muted)}
+    .access-area{display:grid;grid-template-columns:1fr 1fr auto;gap:12px;align-items:end;margin-bottom:14px}
     .overlay{
-      position:fixed;
-      inset:0;
-      background:rgba(5,10,18,.86);
-      backdrop-filter:blur(6px);
-      display:none;
-      align-items:center;
-      justify-content:center;
-      padding:18px;
-      z-index:9999;
+      position:fixed;inset:0;background:rgba(5,10,18,.86);backdrop-filter:blur(6px);
+      display:none;align-items:center;justify-content:center;padding:18px;z-index:9999
     }
-
-    .overlay.active{ display:flex; }
-
+    .overlay.active{display:flex}
     .overlay-box{
-      width:min(520px,100%);
-      background:linear-gradient(145deg, rgba(15,28,52,.98), rgba(8,18,35,.99));
-      border:1px solid rgba(0,212,255,.18);
-      border-radius:22px;
-      padding:24px;
-      text-align:center;
+      width:min(520px,100%);background:linear-gradient(145deg, rgba(15,28,52,.98), rgba(8,18,35,.99));
+      border:1px solid rgba(0,212,255,.18);border-radius:22px;padding:24px;text-align:center
     }
-
-    .overlay-box h3{
-      font-size:26px;
-      margin-bottom:10px;
-    }
-
-    .overlay-box p{
-      color:var(--muted);
-      line-height:1.6;
-      margin-bottom:14px;
-    }
-
+    .overlay-box h3{font-size:26px;margin-bottom:10px}
+    .overlay-box p{color:var(--muted);line-height:1.6;margin-bottom:14px}
     @media (max-width: 980px){
-      .hero-top,
-      .grid-2,
-      .dashboard-top,
-      .reward-panel,
-      .resultado-cards{
-        grid-template-columns:1fr 1fr;
-      }
-      .access-area{ grid-template-columns:1fr; }
+      .hero-top,.grid-2,.dashboard-top,.reward-panel,.resultado-cards{grid-template-columns:1fr 1fr}
+      .access-area{grid-template-columns:1fr}
     }
-
     @media (max-width: 680px){
-      .container{
-        width:min(100% - 14px, 100%);
-      }
-      .row,
-      .dashboard-top,
-      .reward-panel,
-      .resultado-cards,
-      .stats-preview{
-        grid-template-columns:1fr;
-      }
-      .grid-2{ grid-template-columns:1fr; }
-      .actions,
-      .hero-actions{
-        flex-direction:column;
-      }
-      button, .link-btn{ width:100%; }
+      .container{width:min(100% - 14px, 100%)}
+      .row,.dashboard-top,.reward-panel,.resultado-cards,.stats-preview{grid-template-columns:1fr}
+      .grid-2{grid-template-columns:1fr}
+      .actions,.hero-actions{flex-direction:column}
+      button,.link-btn{width:100%}
     }
   </style>
 </head>
@@ -837,57 +456,19 @@ const html = `<!DOCTYPE html>
         </div>
 
         <div class="stats-preview">
-          <div class="preview-card">
-            <small>Plano de estudo</small>
-            <strong>Organizado</strong>
-            <span>metas claras e etapas objetivas</span>
-          </div>
-
-          <div class="preview-card">
-            <small>Trabalhos</small>
-            <strong>Em dia</strong>
-            <span>prazos, lembretes e controle</span>
-          </div>
-
-          <div class="preview-card">
-            <small>Progresso</small>
-            <strong>Visual</strong>
-            <span>gráficos e recompensa</span>
-          </div>
-
-          <div class="preview-card">
-            <small>Rotina</small>
-            <strong>Mais foco</strong>
-            <span>menos bagunça, mais resultado</span>
-          </div>
+          <div class="preview-card"><small>Plano de estudo</small><strong>Organizado</strong><span>metas claras e etapas objetivas</span></div>
+          <div class="preview-card"><small>Trabalhos</small><strong>Em dia</strong><span>prazos, lembretes e controle</span></div>
+          <div class="preview-card"><small>Progresso</small><strong>Visual</strong><span>gráficos e recompensa</span></div>
+          <div class="preview-card"><small>Rotina</small><strong>Mais foco</strong><span>menos bagunça, mais resultado</span></div>
         </div>
       </div>
     </section>
 
     <div class="dashboard-top">
-      <div class="metric-card blue">
-        <span class="metric-label">Meta da semana</span>
-        <strong>78%</strong>
-        <small>evolução muito boa</small>
-      </div>
-
-      <div class="metric-card purple">
-        <span class="metric-label">Sequência</span>
-        <strong>9 dias</strong>
-        <small>constância ativa</small>
-      </div>
-
-      <div class="metric-card green">
-        <span class="metric-label">Trabalhos</span>
-        <strong>12</strong>
-        <small>5 concluídos</small>
-      </div>
-
-      <div class="metric-card yellow">
-        <span class="metric-label">Próxima prova</span>
-        <strong>3 dias</strong>
-        <small>revisão intensiva</small>
-      </div>
+      <div class="metric-card blue"><span class="metric-label">Meta da semana</span><strong>78%</strong><small>evolução muito boa</small></div>
+      <div class="metric-card purple"><span class="metric-label">Sequência</span><strong>9 dias</strong><small>constância ativa</small></div>
+      <div class="metric-card green"><span class="metric-label">Trabalhos</span><strong>12</strong><small>5 concluídos</small></div>
+      <div class="metric-card yellow"><span class="metric-label">Próxima prova</span><strong>3 dias</strong><small>revisão intensiva</small></div>
     </div>
 
     <section class="section" id="estudo">
@@ -899,12 +480,10 @@ const html = `<!DOCTYPE html>
           <label for="email">Email</label>
           <input id="email" type="email" placeholder="Digite seu email">
         </div>
-
         <div class="field">
           <label for="nome">Nome</label>
           <input id="nome" type="text" placeholder="Digite seu nome">
         </div>
-
         <button class="btn-primary" onclick="iniciarAcesso()">Entrar</button>
       </div>
 
@@ -913,6 +492,11 @@ const html = `<!DOCTYPE html>
       <div class="grid-2" style="margin-top:16px">
         <div class="card">
           <h3>Conteúdo principal</h3>
+
+          <div class="field">
+            <label for="tituloConteudo">Título do conteúdo</label>
+            <input id="tituloConteudo" type="text" placeholder="Ex.: Aula 1 - Direitos trabalhistas">
+          </div>
 
           <div class="field">
             <label for="materia">Matéria</label>
@@ -944,6 +528,7 @@ const html = `<!DOCTYPE html>
             <button class="btn-primary" onclick="explicarConteudo()">Explicar conteúdo</button>
             <button class="btn-success" onclick="gerarCronogramaProva()">Cronograma para prova</button>
             <button class="btn-secondary" onclick="importarArquivo()">Importar arquivo</button>
+            <button class="btn-secondary" onclick="salvarConteudoProva()">Salvar conteúdo</button>
           </div>
 
           <div class="field" style="margin-top:14px;">
@@ -955,7 +540,6 @@ const html = `<!DOCTYPE html>
           <div class="card" id="assinatura">
             <h3>Assinatura mensal</h3>
             <p class="head" style="margin-bottom:12px">Acesso completo à plataforma com visual premium e organização total.</p>
-
             <div class="price-box" style="margin-top:0">
               <h3>Plano mensal</h3>
               <div class="price">R$ 20,00 <small>/mês</small></div>
@@ -968,7 +552,6 @@ const html = `<!DOCTYPE html>
           <div class="chart-card">
             <h3>Progresso semanal</h3>
             <p>Visual simples para mostrar ritmo de estudo ao longo da semana.</p>
-
             <div class="chart-bars">
               <div class="bar-wrap"><div class="bar blue" style="height:42%"></div><span>Seg</span></div>
               <div class="bar-wrap"><div class="bar purple" style="height:74%"></div><span>Ter</span></div>
@@ -983,22 +566,10 @@ const html = `<!DOCTYPE html>
       </div>
 
       <div class="reward-panel">
-        <div class="reward-box">
-          <span class="reward-label">Pontuação</span>
-          <strong>1250</strong>
-        </div>
-        <div class="reward-box">
-          <span class="reward-label">Sequência</span>
-          <strong>7 dias</strong>
-        </div>
-        <div class="reward-box">
-          <span class="reward-label">Meta semanal</span>
-          <strong>78%</strong>
-        </div>
-        <div class="reward-box">
-          <span class="reward-label">Recompensa</span>
-          <strong>Nível Prata</strong>
-        </div>
+        <div class="reward-box"><span class="reward-label">Pontuação</span><strong>1250</strong></div>
+        <div class="reward-box"><span class="reward-label">Sequência</span><strong>7 dias</strong></div>
+        <div class="reward-box"><span class="reward-label">Meta semanal</span><strong>78%</strong></div>
+        <div class="reward-box"><span class="reward-label">Recompensa</span><strong>Nível Prata</strong></div>
       </div>
 
       <div class="card" style="margin-top:16px">
@@ -1007,36 +578,18 @@ const html = `<!DOCTYPE html>
         <div id="resultado" class="result">Aqui vai aparecer a explicação ou o cronograma da prova.</div>
 
         <div id="resultadoCards" class="resultado-cards" style="display:none;">
-          <div class="resultado-card">
-            <span class="resultado-tag">Temas prioritários</span>
-            <div id="cardTemas" class="resultado-texto"></div>
-          </div>
-
-          <div class="resultado-card">
-            <span class="resultado-tag">Chance de cair</span>
-            <div id="cardChance" class="resultado-texto"></div>
-          </div>
-
-          <div class="resultado-card">
-            <span class="resultado-tag">Cronograma</span>
-            <div id="cardCronograma" class="resultado-texto"></div>
-          </div>
-
-          <div class="resultado-card">
-            <span class="resultado-tag">Revisão e fixação</span>
-            <div id="cardRevisao" class="resultado-texto"></div>
-          </div>
-
-          <div class="resultado-card">
-            <span class="resultado-tag">Método mais eficiente</span>
-            <div id="cardMetodo" class="resultado-texto"></div>
-          </div>
-
-          <div class="resultado-card">
-            <span class="resultado-tag">Alerta final</span>
-            <div id="cardAlerta" class="resultado-texto"></div>
-          </div>
+          <div class="resultado-card"><span class="resultado-tag">Temas prioritários</span><div id="cardTemas" class="resultado-texto"></div></div>
+          <div class="resultado-card"><span class="resultado-tag">Chance de cair</span><div id="cardChance" class="resultado-texto"></div></div>
+          <div class="resultado-card"><span class="resultado-tag">Cronograma</span><div id="cardCronograma" class="resultado-texto"></div></div>
+          <div class="resultado-card"><span class="resultado-tag">Revisão e fixação</span><div id="cardRevisao" class="resultado-texto"></div></div>
+          <div class="resultado-card"><span class="resultado-tag">Método mais eficiente</span><div id="cardMetodo" class="resultado-texto"></div></div>
+          <div class="resultado-card"><span class="resultado-tag">Alerta final</span><div id="cardAlerta" class="resultado-texto"></div></div>
         </div>
+      </div>
+
+      <div class="card" style="margin-top:16px">
+        <h3>Conteúdos salvos para prova</h3>
+        <div id="listaConteudosSalvos" class="work-list"></div>
       </div>
     </section>
 
@@ -1126,12 +679,11 @@ const html = `<!DOCTYPE html>
   <script>
     let currentEmail = "";
     let paymentLink = ${JSON.stringify(paymentLink)};
+    let cacheConteudosSalvos = [];
 
     function irParaEstudo(){
       const secao = document.querySelector("#estudo");
-      if(secao){
-        secao.scrollIntoView({ behavior: "smooth" });
-      }
+      if(secao) secao.scrollIntoView({ behavior: "smooth" });
     }
 
     function limparResultadoCards(){
@@ -1240,7 +792,6 @@ const html = `<!DOCTYPE html>
 
       document.getElementById("resultado").textContent = "";
       document.getElementById("resultadoCards").style.display = "grid";
-
       document.getElementById("cardTemas").textContent = temas || "Não identificado.";
       document.getElementById("cardChance").textContent = chance || "Não identificado.";
       document.getElementById("cardCronograma").textContent = cronograma || "Não identificado.";
@@ -1277,6 +828,7 @@ const html = `<!DOCTYPE html>
         hideBlocked();
         setStatus("Acesso iniciado com sucesso.");
         carregarTrabalhos();
+        carregarConteudosSalvos();
       }catch{
         setStatus("Erro ao iniciar o acesso.");
       }
@@ -1309,6 +861,7 @@ const html = `<!DOCTYPE html>
           hideBlocked();
           setStatus("Acesso liberado.");
           carregarTrabalhos();
+          carregarConteudosSalvos();
         }
       }catch{
         setStatus("Erro ao consultar status.");
@@ -1459,6 +1012,143 @@ const html = `<!DOCTYPE html>
         }
       }catch{
         setResultado("Erro ao importar arquivo.");
+      }
+    }
+
+    async function salvarConteudoProva(){
+      if(!validarEmailAntes()) return;
+
+      const titulo = document.getElementById("tituloConteudo").value.trim();
+      const materia = document.getElementById("materia").value.trim();
+      const conteudo = document.getElementById("conteudo").value.trim();
+      const dataProva = document.getElementById("dataProva").value.trim();
+
+      if(!conteudo){
+        setResultado("Cole ou importe um conteúdo antes de salvar.");
+        return;
+      }
+
+      try{
+        const response = await fetch("/api/conteudos/salvar", {
+          method: "POST",
+          headers: getHeaders(),
+          body: JSON.stringify({
+            email: currentEmail,
+            titulo,
+            materia,
+            conteudo,
+            dataProva
+          })
+        });
+
+        const data = await response.json();
+
+        if(response.status === 403 && data.blocked){
+          showBlocked();
+          setResultado(data.mensagem || "Acesso bloqueado.");
+          return;
+        }
+
+        if(!data.ok){
+          setResultado(data.mensagem || "Não foi possível salvar o conteúdo.");
+          return;
+        }
+
+        setResultado("Conteúdo salvo com sucesso.");
+        carregarConteudosSalvos();
+      }catch{
+        setResultado("Erro ao salvar conteúdo.");
+      }
+    }
+
+    async function carregarConteudosSalvos(){
+      if(!currentEmail) return;
+
+      const box = document.getElementById("listaConteudosSalvos");
+      if(!box) return;
+
+      box.innerHTML = "<div class='status'>Carregando conteúdos...</div>";
+
+      try{
+        const response = await fetch("/api/conteudos?email=" + encodeURIComponent(currentEmail), {
+          headers: {
+            "x-user-email": currentEmail
+          }
+        });
+
+        const data = await response.json();
+
+        if(response.status === 403 && data.blocked){
+          showBlocked();
+          box.innerHTML = "";
+          return;
+        }
+
+        if(!data.ok){
+          box.innerHTML = "<div class='status'>Não foi possível carregar os conteúdos.</div>";
+          return;
+        }
+
+        cacheConteudosSalvos = data.conteudos || [];
+
+        if(!cacheConteudosSalvos.length){
+          box.innerHTML = "<div class='status'>Nenhum conteúdo salvo.</div>";
+          return;
+        }
+
+        box.innerHTML = cacheConteudosSalvos.map(item => 
+          '<div class="work-item">' +
+          '<div class="pill andamento">Conteúdo salvo</div>' +
+          '<strong>' + escapeHtml(item.titulo || "Conteúdo sem título") + '</strong>' +
+          '<div class="work-meta">' +
+          'Matéria: ' + escapeHtml(item.materia || "Não informada") + '<br>' +
+          'Data da prova: ' + escapeHtml(item.dataProva || "-") + '<br>' +
+          'Salvo em: ' + escapeHtml(new Date(item.createdAt).toLocaleString("pt-BR")) +
+          '</div>' +
+          '<div class="actions">' +
+          '<button class="btn-primary" onclick="usarConteudoSalvo(\\'' + item.id + '\\')">Usar no estudo</button>' +
+          '<button class="btn-secondary" onclick="excluirConteudoSalvo(\\'' + item.id + '\\')">Excluir</button>' +
+          '</div></div>'
+        ).join("");
+      }catch{
+        box.innerHTML = "<div class='status'>Erro ao carregar conteúdos.</div>";
+      }
+    }
+
+    function usarConteudoSalvo(id){
+      const item = cacheConteudosSalvos.find(x => x.id === id);
+      if(!item) return;
+
+      document.getElementById("tituloConteudo").value = item.titulo || "";
+      document.getElementById("materia").value = item.materia || "";
+      document.getElementById("dataProva").value = item.dataProva || "";
+      document.getElementById("conteudo").value = item.conteudo || "";
+
+      irParaEstudo();
+      setResultado("Conteúdo carregado na área de estudo.");
+    }
+
+    async function excluirConteudoSalvo(id){
+      if(!currentEmail) return;
+
+      try{
+        const response = await fetch("/api/conteudos/" + encodeURIComponent(id) + "?email=" + encodeURIComponent(currentEmail), {
+          method: "DELETE",
+          headers: {
+            "x-user-email": currentEmail
+          }
+        });
+
+        const data = await response.json();
+
+        if(!data.ok){
+          setResultado(data.mensagem || "Não foi possível excluir.");
+          return;
+        }
+
+        carregarConteudosSalvos();
+      }catch{
+        setResultado("Erro ao excluir conteúdo.");
       }
     }
 
@@ -1712,7 +1402,11 @@ app.post("/api/extract-file", requireAccess, upload.single("file"), async (req, 
     db.conteudos.unshift({
       id: makeId("content"),
       userEmail: req.user.email,
+      titulo: req.file.originalname,
+      materia: req.body?.materia || "",
+      dataProva: req.body?.dataProva || "",
       fileName: req.file.originalname,
+      conteudo: textoLimpo,
       extractedText: textoLimpo,
       createdAt: nowISO()
     });
@@ -1729,6 +1423,68 @@ app.post("/api/extract-file", requireAccess, upload.single("file"), async (req, 
       mensagem: error.message || "Erro ao extrair arquivo."
     });
   }
+});
+
+app.post("/api/conteudos/salvar", requireAccess, (req, res) => {
+  const db = loadDB();
+
+  const titulo = cortarTexto(req.body?.titulo || "", 160);
+  const materia = cortarTexto(req.body?.materia || "", 100);
+  const conteudo = cortarTexto(req.body?.conteudo || "", 20000);
+  const dataProva = cortarTexto(req.body?.dataProva || "", 40);
+
+  if (!conteudo) {
+    return res.status(400).json({
+      ok: false,
+      mensagem: "Conteúdo é obrigatório."
+    });
+  }
+
+  const item = {
+    id: makeId("conteudo"),
+    userEmail: req.user.email,
+    titulo: titulo || "Conteúdo sem título",
+    materia: materia || "Matéria não informada",
+    dataProva: dataProva || "",
+    conteudo,
+    createdAt: nowISO()
+  };
+
+  db.conteudos.unshift(item);
+  saveDB(db);
+
+  return res.json({
+    ok: true,
+    mensagem: "Conteúdo salvo com sucesso.",
+    item
+  });
+});
+
+app.get("/api/conteudos", requireAccess, (req, res) => {
+  const db = loadDB();
+  const lista = db.conteudos.filter((item) => item.userEmail === req.user.email);
+
+  return res.json({
+    ok: true,
+    conteudos: lista
+  });
+});
+
+app.delete("/api/conteudos/:id", requireAccess, (req, res) => {
+  const db = loadDB();
+  const id = String(req.params.id);
+  const antes = db.conteudos.length;
+
+  db.conteudos = db.conteudos.filter(
+    (item) => !(item.id === id && item.userEmail === req.user.email)
+  );
+
+  saveDB(db);
+
+  return res.json({
+    ok: true,
+    removido: antes !== db.conteudos.length
+  });
 });
 
 app.post("/api/study-ai", requireAccess, async (req, res) => {
@@ -1761,7 +1517,7 @@ app.post("/api/study-ai", requireAccess, async (req, res) => {
       input = "Responda apenas: conexão ok";
       max_output_tokens = 20;
     } else if (mode === "explain") {
-      input = `
+      input = \`
 Você é um professor particular claro e didático.
 
 Sua função é explicar o conteúdo enviado de forma simples, organizada e útil para estudo.
@@ -1787,14 +1543,14 @@ Regras:
 - organizar o conteúdo em partes curtas
 - explicar como professor
 
-Matéria: ${materia || "Não informada"}
+Matéria: \${materia || "Não informada"}
 
 Conteúdo:
-${conteudo}
-      `;
+\${conteudo}
+      \`;
       max_output_tokens = 850;
     } else if (mode === "plan") {
-      input = `
+      input = \`
 Você é um especialista em preparação para provas.
 
 Sua função NÃO é fazer resumo genérico.
@@ -1809,10 +1565,10 @@ Objetivo:
 - considerar como mais prováveis os conceitos centrais, definições, classificações, etapas, exceções, comparações e tópicos repetidos no material
 
 Dados do aluno:
-- Matéria: ${materia || "Não informada"}
-- Data da prova: ${dataProva || "Não informada"}
-- Dias por semana disponíveis: ${diasPorSemana || "Não informado"}
-- Horas por dia: ${horasPorDia || "Não informado"}
+- Matéria: \${materia || "Não informada"}
+- Data da prova: \${dataProva || "Não informada"}
+- Dias por semana disponíveis: \${diasPorSemana || "Não informado"}
+- Horas por dia: \${horasPorDia || "Não informado"}
 
 Quero a resposta neste formato exato:
 
@@ -1848,18 +1604,18 @@ Regras:
 - deixar visualmente fácil de ler
 
 Conteúdo:
-${conteudo}
-      `;
+\${conteudo}
+      \`;
       max_output_tokens = 1100;
     } else {
-      input = `
+      input = \`
 Explique o conteúdo abaixo de forma clara, objetiva e organizada em português do Brasil.
 
-Matéria: ${materia || "Não informada"}
+Matéria: \${materia || "Não informada"}
 
 Conteúdo:
-${conteudo}
-      `;
+\${conteudo}
+      \`;
       max_output_tokens = 700;
     }
 
@@ -1875,8 +1631,10 @@ ${conteudo}
     db.conteudos.unshift({
       id: makeId("ai"),
       userEmail: req.user.email,
+      titulo: req.body?.titulo || "Resultado de estudo",
       mode,
       materia,
+      dataProva,
       conteudo,
       resultado,
       createdAt: nowISO()
