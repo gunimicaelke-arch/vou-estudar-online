@@ -1,7 +1,7 @@
 {
   "name": "vou-estudar-online",
   "version": "1.0.0",
-  "description": "Plataforma de estudo com cronograma para prova, importação de arquivos e assinatura",
+  "description": "Plataforma de estudo com cronograma para prova e conteúdos salvos",
   "type": "module",
   "main": "server.js",
   "scripts": {
