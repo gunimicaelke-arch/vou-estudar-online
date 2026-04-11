@@ -3,20 +3,19 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Vou Estudar+ com IA real</title>
+  <title>Vou Estudar+ Inteligente</title>
 
   <style>
     :root{
       --bg:#050816;
       --bg2:#081126;
       --panel:#081120;
-      --panel2:#0a1429;
-      --card:#07101f;
-      --card-soft:rgba(255,255,255,0.04);
-      --line:rgba(255,255,255,0.09);
-      --line-strong:rgba(255,255,255,0.14);
+      --card:#070f1f;
+      --card-2:#0b162d;
+      --line:rgba(255,255,255,.09);
+      --line-strong:rgba(255,255,255,.14);
       --text:#f4f7ff;
-      --muted:#9aacc9;
+      --muted:#97abc9;
       --blue:#1fa2ff;
       --cyan:#20d7ff;
       --green:#28e0a1;
@@ -25,7 +24,7 @@
       --purple:#7b4dff;
       --pink:#cf4aa3;
       --danger:#ff5c7a;
-      --shadow:0 18px 40px rgba(0,0,0,.30);
+      --shadow:0 18px 42px rgba(0,0,0,.30);
       --radius-xl:30px;
       --radius-lg:24px;
       --radius-md:18px;
@@ -38,7 +37,7 @@
       margin:0;
       padding:0;
       min-height:100%;
-      font-family: Inter, Arial, sans-serif;
+      font-family:Inter, Arial, sans-serif;
       color:var(--text);
       background:
         radial-gradient(circle at top left, rgba(32,215,255,.14), transparent 26%),
@@ -107,8 +106,7 @@
       margin-bottom:14px;
     }
 
-    .field label,
-    .inline-label{
+    .field label{
       display:block;
       margin-bottom:8px;
       font-weight:800;
@@ -149,10 +147,12 @@
       margin:4px 0 20px;
     }
 
-    .hero-actions{
+    .hero-actions,
+    .file-row,
+    .item-actions{
       display:flex;
       flex-wrap:wrap;
-      gap:14px;
+      gap:12px;
     }
 
     .btn{
@@ -171,6 +171,13 @@
     .btn:hover{
       transform:translateY(-1px);
       filter:brightness(1.03);
+    }
+
+    .btn:disabled{
+      opacity:.65;
+      cursor:not-allowed;
+      transform:none;
+      filter:none;
     }
 
     .btn.secondary{
@@ -240,7 +247,7 @@
       font-size:28px;
       font-weight:900;
       margin:10px 0 8px;
-      color:#b7ffd6;
+      color:#f4f7ff;
     }
 
     .status-text{
@@ -311,30 +318,11 @@
       box-shadow:inset 0 0 0 1px rgba(255,255,255,.08);
     }
 
-    .metric-card.blue .metric-icon{
-      color:#70d0ff;
-      background:rgba(31,162,255,.12);
-    }
-
-    .metric-card.green .metric-icon{
-      color:#74ffc9;
-      background:rgba(40,224,161,.12);
-    }
-
-    .metric-card.yellow .metric-icon{
-      color:#ffe07b;
-      background:rgba(245,201,76,.12);
-    }
-
-    .metric-card.orange .metric-icon{
-      color:#ffb267;
-      background:rgba(255,150,66,.12);
-    }
-
-    .metric-card.purple .metric-icon{
-      color:#b99bff;
-      background:rgba(123,77,255,.12);
-    }
+    .metric-card.blue .metric-icon{ color:#70d0ff; background:rgba(31,162,255,.12); }
+    .metric-card.green .metric-icon{ color:#74ffc9; background:rgba(40,224,161,.12); }
+    .metric-card.yellow .metric-icon{ color:#ffe07b; background:rgba(245,201,76,.12); }
+    .metric-card.orange .metric-icon{ color:#ffb267; background:rgba(255,150,66,.12); }
+    .metric-card.purple .metric-icon{ color:#b99bff; background:rgba(123,77,255,.12); }
 
     .metric-label{
       font-size:12px;
@@ -463,7 +451,9 @@
       margin:0 0 16px;
     }
 
-    .grid-2, .grid-3, .grid-4{
+    .grid-2,
+    .grid-3,
+    .grid-4{
       display:grid;
       gap:14px;
       margin-bottom:14px;
@@ -477,14 +467,6 @@
       min-height:250px;
       resize:vertical;
       line-height:1.6;
-    }
-
-    .file-row{
-      display:flex;
-      flex-wrap:wrap;
-      gap:12px;
-      align-items:center;
-      margin-top:14px;
     }
 
     .file-label{
@@ -583,13 +565,6 @@
       line-height:1.6;
     }
 
-    .item-actions{
-      display:flex;
-      flex-wrap:wrap;
-      gap:10px;
-      margin-top:14px;
-    }
-
     .empty{
       text-align:center;
       padding:22px;
@@ -634,34 +609,34 @@
     <section class="hero">
       <div>
         <div class="brand">
-          <span class="logo">🤖</span>
-          <span>Vou Estudar+ com IA real</span>
+          <span class="logo">🧠</span>
+          <span>Vou Estudar+ Inteligente</span>
         </div>
 
         <p>
-          Analise conteúdo colado ou importado, gere plano com IA, acompanhe gráficos premium e salve cronogramas de prova e estudo por matéria.
+          Analise conteúdo colado ou importado, gere plano inteligente, acompanhe os gráficos e salve cronogramas de prova e estudo por matéria.
         </p>
 
         <div class="hero-grid">
           <div class="field">
-            <label for="aiEndpoint">Endpoint da IA</label>
+            <label for="aiEndpoint">Endpoint do sistema</label>
             <input id="aiEndpoint" class="input" type="text" value="/api/study-ai" placeholder="/api/study-ai" />
           </div>
 
           <div class="field">
-            <label for="aiModel">Modelo</label>
+            <label for="aiModel">Motor inteligente</label>
             <input id="aiModel" class="input" type="text" value="gpt-4.1-mini" placeholder="gpt-4.1-mini" />
           </div>
         </div>
 
         <div class="hint">
-          Use <strong>/api/study-ai</strong> para chamar sua IA no mesmo domínio do sistema.
+          Use <strong>/api/study-ai</strong> para o sistema consultar o motor inteligente no mesmo domínio.
         </div>
 
         <div class="hero-actions">
           <button class="btn secondary" id="testButton" type="button">Testar conexão</button>
-          <button class="btn" id="analyzeButton" type="button">Analisar conteúdo com IA</button>
-          <button class="btn" id="planButton" type="button">Gerar plano com IA</button>
+          <button class="btn" id="analyzeButton" type="button">Analisar conteúdo</button>
+          <button class="btn" id="planButton" type="button">Gerar plano inteligente</button>
         </div>
       </div>
 
@@ -673,7 +648,7 @@
 
           <div class="status-title" id="statusTitle">Pronto para uso</div>
           <div class="status-text" id="statusText">
-            Teste a conexão, gere o plano e acompanhe seus resultados no painel.
+            Preencha os dados e acompanhe tudo começando do zero.
           </div>
         </div>
 
@@ -690,7 +665,7 @@
           <div class="metric-label">Horas estudadas</div>
         </div>
         <div class="metric-value" id="metricHours">0h</div>
-        <div class="metric-sub" id="metricHoursSub">Registre suas horas de estudo.</div>
+        <div class="metric-sub" id="metricHoursSub">Comece a registrar seus estudos.</div>
       </div>
 
       <div class="metric-card green">
@@ -699,7 +674,7 @@
           <div class="metric-label">Progresso geral</div>
         </div>
         <div class="metric-value" id="metricProgress">0%</div>
-        <div class="metric-sub" id="metricProgressSub">Plano ainda não avançado.</div>
+        <div class="metric-sub" id="metricProgressSub">Nenhuma meta definida ainda.</div>
         <div class="progress-mini"><span id="metricProgressBar"></span></div>
       </div>
 
@@ -738,7 +713,7 @@
             <h2 class="card-title">🕘 Horas estudadas na semana</h2>
             <p class="card-sub">Seu ritmo diário de estudo</p>
           </div>
-          <div class="pill" id="weekGoalPill">Meta: 20h</div>
+          <div class="pill" id="weekGoalPill">Meta: 0h</div>
         </div>
         <div class="chart-wrap">
           <canvas id="graficoHorasSemana"></canvas>
@@ -749,7 +724,7 @@
         <div class="card-header">
           <div>
             <h2 class="card-title">🏆 Progresso da prova</h2>
-            <p class="card-sub" id="progressExamLabel">Plano atual</p>
+            <p class="card-sub" id="progressExamLabel">Sem data de prova</p>
           </div>
         </div>
         <div class="chart-wrap short">
@@ -761,7 +736,7 @@
         <div class="card-header">
           <div>
             <h2 class="card-title">📚 Matérias mais estudadas</h2>
-            <p class="card-sub">Distribuição do seu foco</p>
+            <p class="card-sub">As matérias aparecem conforme você preenche</p>
           </div>
         </div>
         <div class="chart-wrap short">
@@ -799,7 +774,7 @@
 
     <section class="workspace">
       <div class="section card">
-        <h2 class="section-title">Gerar plano com IA</h2>
+        <h2 class="section-title">Gerar plano inteligente</h2>
 
         <div class="grid-2">
           <div class="field">
@@ -827,7 +802,7 @@
 
         <div class="field">
           <label for="content">Conteúdo para analisar</label>
-          <textarea id="content" class="textarea" placeholder="Cole matéria, resumo, edital, apostila, roteiro ou questões para a IA analisar."></textarea>
+          <textarea id="content" class="textarea" placeholder="Cole matéria, resumo, edital, apostila, roteiro ou questões para o sistema analisar."></textarea>
         </div>
 
         <div class="file-row">
@@ -836,6 +811,7 @@
           <button class="btn secondary" id="clearButton" type="button">Limpar conteúdo</button>
           <button class="btn secondary" id="copyButton" type="button">Copiar resultado</button>
           <button class="btn success" id="saveScheduleButton" type="button">Salvar cronograma</button>
+          <button class="btn danger small" id="resetAllButton" type="button">Zerar tudo</button>
         </div>
 
         <div class="hint">
@@ -844,8 +820,8 @@
       </div>
 
       <div class="section card">
-        <h2 class="section-title">Resposta da IA</h2>
-        <div class="output-box" id="resultBox">A resposta da IA aparecerá aqui.</div>
+        <h2 class="section-title">Resposta inteligente</h2>
+        <div class="output-box" id="resultBox">A resposta aparecerá aqui.</div>
 
         <div style="height:14px;"></div>
 
@@ -926,16 +902,16 @@
       </div>
     </section>
 
-    <div class="footer-note">Vou Estudar+ • IA real • dashboard premium • cronogramas • lembretes • progresso visual</div>
+    <div class="footer-note">Vou Estudar+ • inteligente • cronogramas • lembretes • progresso visual</div>
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script>
     const $ = (id) => document.getElementById(id);
 
-    const METRICS_KEY = "vou_estudar_metricas_premium_v1";
-    const SCHEDULES_KEY = "vou_estudar_cronogramas_premium_v1";
-    const REMINDERS_KEY = "vou_estudar_lembretes_premium_v1";
+    const METRICS_KEY = "vou_estudar_metricas_premium_v2";
+    const SCHEDULES_KEY = "vou_estudar_cronogramas_premium_v2";
+    const REMINDERS_KEY = "vou_estudar_lembretes_premium_v2";
 
     const state = {
       loading: false,
@@ -973,6 +949,7 @@
       clearButton: $("clearButton"),
       copyButton: $("copyButton"),
       saveScheduleButton: $("saveScheduleButton"),
+      resetAllButton: $("resetAllButton"),
 
       remindersList: $("remindersList"),
       emptyReminderBox: $("emptyReminderBox"),
@@ -1006,18 +983,21 @@
 
     function getDefaultMetrics(){
       return {
-        horasSemana:[2, 3.5, 4, 2.5, 3, 1.5, 1],
-        evolucaoConteudos:[4, 6, 9, 5, 7, 3, 4],
+        horasSemana:[0, 0, 0, 0, 0, 0, 0],
+        evolucaoConteudos:[0, 0, 0, 0, 0, 0, 0],
         diasSemana:["Seg", "Ter", "Qua", "Qui", "Sex", "Sáb", "Dom"],
-        materias:["Matemática", "Português", "História", "Física", "Inglês"],
-        valoresMaterias:[38, 26, 18, 12, 8],
-        progressoConcluido:68,
-        progressoFaltando:32,
-        totalConteudos:38,
-        totalMeta:56,
-        sequencia:6,
+        materias:[],
+        valoresMaterias:[],
+        progressoConcluido:0,
+        progressoFaltando:0,
+        totalConteudos:0,
+        totalMeta:0,
+        sequencia:0,
         ultimaDataEstudo:"",
-        weekGoal:20
+        weekGoal:0,
+        manualCompleted:0,
+        planTarget:0,
+        planSubjectCounts:{}
       };
     }
 
@@ -1172,6 +1152,11 @@
       return counts;
     }
 
+    function updateWeekGoalFromInput(){
+      const value = parseFloat(String(els.hoursPerDay.value).replace(",", "."));
+      state.metrics.weekGoal = (!Number.isNaN(value) && value > 0) ? Math.round(value * 7 * 10) / 10 : 0;
+    }
+
     function updateStudyStreak(){
       const today = new Date();
       const todayStr = today.toISOString().slice(0,10);
@@ -1204,12 +1189,8 @@
       const current = new Date().getDay();
       const idx = current === 0 ? 6 : current - 1;
 
-      state.metrics.totalConteudos += 1;
+      state.metrics.manualCompleted += 1;
       state.metrics.evolucaoConteudos[idx] += 1;
-
-      if(state.metrics.valoresMaterias.length){
-        state.metrics.valoresMaterias[0] += 1;
-      }
 
       recalculateProgress();
       saveMetrics();
@@ -1217,24 +1198,45 @@
       setStatus("Conteúdo concluído", "Atualizei os gráficos de progresso.", "ok");
     }
 
-    function recalculateProgress(){
-      const meta = Number(state.metrics.totalMeta || 0);
-      const feitos = Number(state.metrics.totalConteudos || 0);
+    function recalculateSubjectData(){
+      const typedSubjects = splitSubjects(els.subjects.value).slice(0, 6);
+      const counts = new Map();
 
-      if(meta > 0){
-        state.metrics.progressoConcluido = Math.min(100, Math.round((feitos / meta) * 100));
-      }else{
-        state.metrics.progressoConcluido = feitos > 0 ? Math.min(100, feitos * 10) : 0;
-      }
+      typedSubjects.forEach(subject => counts.set(subject, 0));
 
-      state.metrics.progressoFaltando = Math.max(0, 100 - state.metrics.progressoConcluido);
+      const planCounts = state.metrics.planSubjectCounts || {};
+      Object.entries(planCounts).forEach(([subject, value]) => {
+        if(!subject) return;
+        if(!counts.has(subject) && counts.size < 6) counts.set(subject, 0);
+        if(counts.has(subject)) counts.set(subject, (counts.get(subject) || 0) + Number(value || 0));
+      });
+
+      state.reminders.forEach(reminder => {
+        const subject = String(reminder.subject || "").trim();
+        if(!subject) return;
+        if(!counts.has(subject) && counts.size < 6) counts.set(subject, 0);
+        if(counts.has(subject)) counts.set(subject, (counts.get(subject) || 0) + 1);
+      });
+
+      state.metrics.materias = Array.from(counts.keys()).slice(0, 6);
+      state.metrics.valoresMaterias = state.metrics.materias.map(subject => counts.get(subject) || 0);
     }
 
-    function ensureSubjectsDistribution(){
-      const subjects = splitSubjects(els.subjects.value);
-      if(subjects.length){
-        state.metrics.materias = subjects.slice(0, 6);
-        state.metrics.valoresMaterias = state.metrics.materias.map((_, i) => state.metrics.valoresMaterias[i] || 0);
+    function recalculateProgress(){
+      const completedReminders = state.reminders.filter(item => item.status === "concluido").length;
+      const reminderTarget = state.reminders.length;
+      const manualCompleted = Number(state.metrics.manualCompleted || 0);
+      const planTarget = Number(state.metrics.planTarget || 0);
+
+      state.metrics.totalConteudos = manualCompleted + completedReminders;
+      state.metrics.totalMeta = Math.max(planTarget, reminderTarget, 0);
+
+      if(state.metrics.totalMeta > 0){
+        state.metrics.progressoConcluido = Math.min(100, Math.round((state.metrics.totalConteudos / state.metrics.totalMeta) * 100));
+        state.metrics.progressoFaltando = Math.max(0, 100 - state.metrics.progressoConcluido);
+      } else {
+        state.metrics.progressoConcluido = 0;
+        state.metrics.progressoFaltando = 0;
       }
     }
 
@@ -1243,17 +1245,24 @@
       const reminderCounts = getReminderStatusCounts();
 
       els.metricHours.textContent = `${totalHoras}h`;
-      els.metricHoursSub.textContent = `Sequência atual: ${state.metrics.sequencia} dia(s)`;
+      els.metricHoursSub.textContent = totalHoras > 0
+        ? `Sequência atual: ${state.metrics.sequencia} dia(s)`
+        : "Comece a registrar seus estudos.";
+
       els.metricProgress.textContent = `${state.metrics.progressoConcluido}%`;
-      els.metricProgressSub.textContent = `${state.metrics.progressoFaltando}% faltando para a prova`;
+      els.metricProgressSub.textContent = state.metrics.totalMeta > 0
+        ? `${state.metrics.progressoFaltando}% faltando para a meta`
+        : "Nenhuma meta definida ainda.";
+
       els.metricProgressBar.style.width = `${state.metrics.progressoConcluido}%`;
       els.metricPending.textContent = reminderCounts.pendente;
       els.metricDoing.textContent = reminderCounts.em_andamento;
       els.metricDone.textContent = reminderCounts.concluido;
-      els.weekGoalPill.textContent = `Meta: ${state.metrics.weekGoal}h`;
+      els.weekGoalPill.textContent = `Meta: ${state.metrics.weekGoal || 0}h`;
+
       els.progressExamLabel.textContent = els.examDate.value
         ? `Prova em ${formatDate(els.examDate.value)}`
-        : "Plano atual";
+        : "Sem data de prova";
     }
 
     function destroyCharts(){
@@ -1267,6 +1276,18 @@
       destroyCharts();
 
       const reminderCounts = getReminderStatusCounts();
+
+      const labelsMaterias = state.metrics.materias.length
+        ? state.metrics.materias
+        : ["Sem matérias"];
+
+      const valoresMaterias = state.metrics.valoresMaterias.length
+        ? state.metrics.valoresMaterias
+        : [0];
+
+      const progressoData = state.metrics.totalMeta > 0
+        ? [state.metrics.progressoConcluido, state.metrics.progressoFaltando]
+        : [0, 100];
 
       state.charts.horas = new Chart(document.getElementById("graficoHorasSemana"), {
         type: "line",
@@ -1319,7 +1340,7 @@
         data: {
           labels: ["Concluído", "Faltando"],
           datasets: [{
-            data: [state.metrics.progressoConcluido, state.metrics.progressoFaltando],
+            data: progressoData,
             backgroundColor: ["#18d69b", "rgba(93,101,147,.35)"],
             borderWidth: 0
           }]
@@ -1340,10 +1361,10 @@
       state.charts.materias = new Chart(document.getElementById("graficoMaterias"), {
         type: "bar",
         data: {
-          labels: state.metrics.materias,
+          labels: labelsMaterias,
           datasets: [{
             label: "Foco",
-            data: state.metrics.valoresMaterias,
+            data: valoresMaterias,
             backgroundColor: ["#159fff", "#5d43ff", "#d94b9e", "#ff9438", "#f0c64d", "#28e0a1"],
             borderRadius: 10,
             borderSkipped: false
@@ -1444,6 +1465,9 @@
     }
 
     function refreshDashboard(){
+      updateWeekGoalFromInput();
+      recalculateSubjectData();
+      recalculateProgress();
       refreshTopMetrics();
       renderCharts();
     }
@@ -1486,21 +1510,14 @@
     }
 
     function applyPlanToMetrics(structured){
-      ensureSubjectsDistribution();
-
       if(!structured || !Array.isArray(structured.plano_diario)) return;
 
       const plano = structured.plano_diario;
       const totalTarefas = plano.reduce((sum, item) => sum + (Array.isArray(item.tarefas) ? item.tarefas.length : 0), 0);
+      state.metrics.planTarget = totalTarefas || plano.length || 0;
 
-      state.metrics.totalMeta = totalTarefas || plano.length || state.metrics.totalMeta;
-
-      const subjects = splitSubjects(els.subjects.value);
-      const counts = new Map();
-
-      if(subjects.length){
-        subjects.forEach(subject => counts.set(subject, 0));
-      }
+      const typedSubjects = splitSubjects(els.subjects.value);
+      const counts = {};
 
       plano.forEach((item, index) => {
         const foco = String(item.foco || `Dia ${index + 1}`).trim();
@@ -1509,28 +1526,23 @@
 
         let matched = false;
 
-        subjects.forEach(subject => {
+        typedSubjects.forEach(subject => {
           if(text.includes(subject.toLowerCase())){
-            counts.set(subject, (counts.get(subject) || 0) + 1);
+            counts[subject] = (counts[subject] || 0) + 1;
             matched = true;
           }
         });
 
-        if(!subjects.length || !matched){
-          const fallback = foco.length > 18 ? foco.slice(0, 18) + "..." : foco;
-          counts.set(fallback, (counts.get(fallback) || 0) + 1);
+        if(!typedSubjects.length && foco){
+          counts[foco] = (counts[foco] || 0) + 1;
+        }
+
+        if(typedSubjects.length && !matched && foco){
+          counts[foco] = (counts[foco] || 0) + 1;
         }
       });
 
-      const labels = Array.from(counts.keys()).slice(0, 6);
-      const values = labels.map(label => counts.get(label) || 0);
-
-      if(labels.length){
-        state.metrics.materias = labels;
-        state.metrics.valoresMaterias = values;
-      }
-
-      recalculateProgress();
+      state.metrics.planSubjectCounts = counts;
       saveMetrics();
       refreshDashboard();
     }
@@ -1582,7 +1594,13 @@
       els.content.value = item.content || "";
 
       setResult(item.aiResult || "Cronograma carregado.");
-      renderPlan(item.structured, false);
+
+      if(item.structured){
+        renderPlan(item.structured, true);
+      } else {
+        clearPlanCards(true);
+      }
+
       setStatus("Cronograma carregado", `Carreguei "${item.title}".`, "ok");
     }
 
@@ -1733,6 +1751,7 @@
 
       state.reminders.unshift(item);
       saveReminders();
+      saveMetrics();
       renderReminders();
       refreshDashboard();
       scheduleReminderNotifications();
@@ -1746,6 +1765,7 @@
 
       item.status = newStatus;
       saveReminders();
+      saveMetrics();
       renderReminders();
       refreshDashboard();
       scheduleReminderNotifications();
@@ -1755,6 +1775,7 @@
     function deleteReminder(id){
       state.reminders = state.reminders.filter(item => item.id !== id);
       saveReminders();
+      saveMetrics();
       renderReminders();
       refreshDashboard();
       scheduleReminderNotifications();
@@ -1811,12 +1832,39 @@
       });
     }
 
+    function resetAllData(){
+      localStorage.removeItem(METRICS_KEY);
+      localStorage.removeItem(SCHEDULES_KEY);
+      localStorage.removeItem(REMINDERS_KEY);
+
+      state.metrics = getDefaultMetrics();
+      state.schedules = [];
+      state.reminders = [];
+      state.currentStructuredPlan = null;
+      state.lastTextResult = "";
+
+      els.scheduleTitle.value = "";
+      els.subjects.value = "";
+      els.examDate.value = "";
+      els.hoursPerDay.value = "";
+      els.content.value = "";
+
+      clearReminderForm();
+      clearPlanCards(true);
+      setResult("A resposta aparecerá aqui.");
+
+      renderSchedules();
+      renderReminders();
+      refreshDashboard();
+      setStatus("Tudo zerado", "Os dados foram limpos e começaram do zero.", "ok");
+    }
+
     async function testConnection(){
       const endpoint = els.aiEndpoint.value.trim() || "/api/study-ai";
 
       try{
         setBusy(true);
-        setStatus("Testando conexão...", "Verificando servidor e configuração da IA.");
+        setStatus("Testando conexão...", "Verificando servidor e configuração do sistema.");
 
         const base = baseUrlFromEndpoint(endpoint);
         const resp = await fetch(base + "/api/health");
@@ -1829,7 +1877,7 @@
         const configured = data.openai_configured ? "sim" : "não";
         setStatus(
           "Conexão OK",
-          `Servidor ativo. OpenAI configurada: ${configured}. Modelo padrão: ${data.default_model || "não informado"}.`,
+          `Servidor ativo. Motor configurado: ${configured}. Modelo padrão: ${data.default_model || "não informado"}.`,
           "ok"
         );
       }catch(error){
@@ -1878,16 +1926,16 @@
       const model = els.aiModel.value.trim() || "gpt-4.1-mini";
 
       if(!content){
-        setStatus("Sem conteúdo", "Cole ou importe algum conteúdo antes de chamar a IA.", "err");
+        setStatus("Sem conteúdo", "Cole ou importe algum conteúdo antes de analisar.", "err");
         return;
       }
 
       try{
         setBusy(true);
         if(action === "plan") clearPlanCards();
-        setResult("Processando com IA...");
+        setResult("Processando...");
         setStatus(
-          action === "plan" ? "Gerando plano com IA..." : "Analisando conteúdo com IA...",
+          action === "plan" ? "Gerando plano inteligente..." : "Analisando conteúdo...",
           "Aguarde a resposta do servidor."
         );
 
@@ -1907,20 +1955,20 @@
         const data = await resp.json();
 
         if(!resp.ok || !data.ok){
-          throw new Error(data.error || "Falha ao processar IA.");
+          throw new Error(data.error || "Falha ao processar.");
         }
 
-        setResult(data.result || "Sem resposta da IA.");
-        setStatus("IA respondeu com sucesso", `Resposta recebida usando o modelo ${data.model || model}.`, "ok");
+        setResult(data.result || "Sem resposta.");
+        setStatus("Resposta recebida", `Processamento concluído usando o modelo ${data.model || model}.`, "ok");
 
         if(action === "plan" && data.structured){
           renderPlan(data.structured, true);
-        }else if(action !== "plan"){
+        } else if(action !== "plan"){
           state.currentStructuredPlan = null;
         }
       }catch(error){
-        setResult("Erro ao chamar IA.");
-        setStatus("Erro na IA", error.message || "Falha inesperada ao processar a solicitação.", "err");
+        setResult("Erro ao processar.");
+        setStatus("Erro no processamento", error.message || "Falha inesperada.", "err");
       }finally{
         setBusy(false);
       }
@@ -1942,8 +1990,12 @@
       els.examDate.value = "";
       els.hoursPerDay.value = "";
       els.content.value = "";
-      setResult("A resposta da IA aparecerá aqui.");
+      state.metrics.planSubjectCounts = {};
+      state.metrics.planTarget = 0;
+      saveMetrics();
+      setResult("A resposta aparecerá aqui.");
       clearPlanCards(true);
+      refreshDashboard();
       setStatus("Conteúdo limpo", "Preencha novos dados para gerar outro cronograma.");
     });
 
@@ -1951,18 +2003,32 @@
       if(!state.lastTextResult) return;
       try{
         await navigator.clipboard.writeText(state.lastTextResult);
-        setStatus("Resultado copiado", "A resposta da IA foi copiada.", "ok");
+        setStatus("Resultado copiado", "A resposta foi copiada.", "ok");
       }catch{
         setStatus("Não consegui copiar", "Copie manualmente o resultado.", "err");
       }
     });
 
     els.saveScheduleButton.addEventListener("click", saveCurrentSchedule);
+    els.resetAllButton.addEventListener("click", resetAllData);
     els.saveReminderButton.addEventListener("click", saveReminder);
     els.clearReminderFormButton.addEventListener("click", clearReminderForm);
     els.enableNotificationButton.addEventListener("click", enableNotifications);
     els.registerHourButton.addEventListener("click", registerStudyHour);
     els.registerContentButton.addEventListener("click", registerCompletedContent);
+
+    els.subjects.addEventListener("input", () => {
+      refreshDashboard();
+      saveMetrics();
+    });
+
+    els.hoursPerDay.addEventListener("input", () => {
+      updateWeekGoalFromInput();
+      refreshDashboard();
+      saveMetrics();
+    });
+
+    els.examDate.addEventListener("change", refreshDashboard);
 
     els.savedSchedulesList.addEventListener("click", (event) => {
       const button = event.target.closest("button[data-schedule-action]");
