@@ -1,7 +1,6 @@
 import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
-import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
 import multer from "multer";
@@ -14,754 +13,459 @@ dotenv.config();
 
 const app = express();
 const port = Number(process.env.PORT || 3000);
-const allowedOrigin = process.env.ALLOWED_ORIGIN || "*";
-const defaultModel = process.env.DEFAULT_MODEL || "gpt-4.1-mini";
-const paymentLink =
-  process.env.PAYMENT_LINK ||
-  "https://www.mercadopago.com.br/subscriptions/checkout?preapproval_plan_id=b27021920330458991fef9820c1acd53";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-const DATA_DIR = path.join(__dirname, "data");
-const DB_FILE = path.join(DATA_DIR, "db.json");
-const INDEX_FILE = path.join(__dirname, "index.html");
-const TRIAL_DAYS = 3;
-
-if (!fs.existsSync(DATA_DIR)) {
-  fs.mkdirSync(DATA_DIR, { recursive: true });
-}
-
-if (!fs.existsSync(DB_FILE)) {
-  fs.writeFileSync(
-    DB_FILE,
-    JSON.stringify(
-      {
-        users: [],
-        trabalhos: [],
-        conteudos: []
-      },
-      null,
-      2
-    ),
-    "utf-8"
-  );
-}
-
-function loadDB() {
-  try {
-    return JSON.parse(fs.readFileSync(DB_FILE, "utf-8"));
-  } catch {
-    return { users: [], trabalhos: [], conteudos: [] };
-  }
-}
-
-function saveDB(db) {
-  fs.writeFileSync(DB_FILE, JSON.stringify(db, null, 2), "utf-8");
-}
-
-function nowISO() {
-  return new Date().toISOString();
-}
-
-function makeId(prefix) {
-  return String(prefix || "id") + "_" + Date.now() + "_" + Math.floor(Math.random() * 100000);
-}
-
-function cortarTexto(texto, limite) {
-  if (typeof texto !== "string") return "";
-  return texto.trim().slice(0, Number(limite || 3000));
-}
-
-function normalizeEmail(email) {
-  return String(email || "").trim().toLowerCase();
-}
-
-function daysBetween(startISO, endDate) {
-  const start = new Date(startISO);
-  const end = endDate || new Date();
-  const diff = end.getTime() - start.getTime();
-  return diff / (1000 * 60 * 60 * 24);
-}
-
-function isTrialExpired(user) {
-  if (!user || !user.trialStartedAt) return false;
-  if (user.subscriptionActive) return false;
-  return daysBetween(user.trialStartedAt) >= TRIAL_DAYS;
-}
-
-function remainingTrialDays(user) {
-  if (!user || !user.trialStartedAt) return TRIAL_DAYS;
-  const used = daysBetween(user.trialStartedAt);
-  return Math.max(0, Math.ceil(TRIAL_DAYS - used));
-}
-
-function getOrCreateUser(email, name) {
-  const db = loadDB();
-  const normalizedEmail = normalizeEmail(email);
-
-  let user = db.users.find(function (u) {
-    return normalizeEmail(u.email) === normalizedEmail;
-  });
-
-  if (!user) {
-    user = {
-      id: makeId("user"),
-      name: String(name || "Aluno").trim() || "Aluno",
-      email: normalizedEmail,
-      createdAt: nowISO(),
-      trialStartedAt: nowISO(),
-      subscriptionActive: false,
-      plan: "teste"
-    };
-    db.users.push(user);
-    saveDB(db);
-  }
-
-  return user;
-}
-
-function updateUser(email, updater) {
-  const db = loadDB();
-  const normalizedEmail = normalizeEmail(email);
-
-  const index = db.users.findIndex(function (u) {
-    return normalizeEmail(u.email) === normalizedEmail;
-  });
-
-  if (index === -1) return null;
-
-  db.users[index] = Object.assign({}, db.users[index], updater || {});
-  saveDB(db);
-  return db.users[index];
-}
-
-function getEmailFromRequest(req) {
-  return normalizeEmail(
-    req.headers["x-user-email"] ||
-      (req.body ? req.body.email : "") ||
-      (req.query ? req.query.email : "") ||
-      ""
-  );
-}
-
-function requireAccess(req, res, next) {
-  const email = getEmailFromRequest(req);
-  const name = String(
-    (req.body ? req.body.name : "") ||
-      (req.query ? req.query.name : "") ||
-      "Aluno"
-  ).trim();
-
-  if (!email) {
-    return res.status(400).json({
-      ok: false,
-      mensagem: "Email do usuário não enviado."
-    });
-  }
-
-  const user = getOrCreateUser(email, name);
-
-  if (isTrialExpired(user)) {
-    return res.status(403).json({
-      ok: false,
-      blocked: true,
-      motivo: "trial_expired",
-      mensagem: "Seu período de teste terminou. Assine para continuar.",
-      trialRemainingDays: 0,
-      subscriptionActive: user.subscriptionActive,
-      paymentLink: paymentLink
-    });
-  }
-
-  req.user = user;
-  next();
-}
-
-function extrairTextoDoResponse(response) {
-  if (response && response.output_text) return response.output_text;
-
-  try {
-    const textos = [];
-    const output = response && response.output ? response.output : [];
-
-    for (const item of output) {
-      const content = item && item.content ? item.content : [];
-      for (const c of content) {
-        if (c && c.type === "output_text" && c.text) {
-          textos.push(c.text);
-        }
-      }
-    }
-
-    return textos.join("\n").trim();
-  } catch {
-    return "";
-  }
-}
-
-async function extrairTextoArquivo(file) {
-  const nome = String(file.originalname || "").toLowerCase();
-  const mime = String(file.mimetype || "").toLowerCase();
-  const buffer = file.buffer;
-
-  if (mime.includes("pdf") || nome.endsWith(".pdf")) {
-    const data = await pdfParse(buffer);
-    return data.text || "";
-  }
-
-  if (
-    mime.includes("word") ||
-    mime.includes("officedocument.wordprocessingml") ||
-    nome.endsWith(".docx")
-  ) {
-    const result = await mammoth.extractRawText({ buffer: buffer });
-    return result.value || "";
-  }
-
-  if (
-    mime.includes("sheet") ||
-    mime.includes("excel") ||
-    nome.endsWith(".xlsx") ||
-    nome.endsWith(".xls") ||
-    nome.endsWith(".csv")
-  ) {
-    const workbook = xlsx.read(buffer, { type: "buffer" });
-    const partes = [];
-
-    workbook.SheetNames.forEach(function (sheetName) {
-      const ws = workbook.Sheets[sheetName];
-      const rows = xlsx.utils.sheet_to_json(ws, { header: 1, defval: "" });
-      const text = rows.map(function (row) {
-        return row.join(" | ");
-      }).join("\n");
-      partes.push("Planilha: " + sheetName + "\n" + text);
-    });
-
-    return partes.join("\n\n");
-  }
-
-  if (
-    mime.startsWith("text/") ||
-    nome.endsWith(".txt") ||
-    nome.endsWith(".md")
-  ) {
-    return buffer.toString("utf-8");
-  }
-
-  throw new Error("Formato de arquivo não suportado.");
-}
-
-function tratarErroOpenAI(err, res) {
-  console.error("Erro OpenAI:", err);
-
-  const status = err && (err.status || err.code) ? (err.status || err.code) : 500;
-  const detalhe =
-    (err && err.error && err.error.message) ||
-    (err && err.message) ||
-    "Erro interno ao acessar o serviço.";
-
-  if (status === 429) {
-    return res.status(429).json({
-      ok: false,
-      tipo: "quota",
-      mensagem: "Limite de uso atingido no momento.",
-      detalhe: detalhe
-    });
-  }
-
-  if (status === 401) {
-    return res.status(401).json({
-      ok: false,
-      tipo: "auth",
-      mensagem: "Chave do serviço inválida ou ausente.",
-      detalhe: detalhe
-    });
-  }
-
-  return res.status(500).json({
-    ok: false,
-    tipo: "server",
-    mensagem: "Erro ao processar a solicitação.",
-    detalhe: detalhe
-  });
-}
+const DEFAULT_MODEL = process.env.DEFAULT_MODEL || "gpt-4.1-mini";
 
 const upload = multer({
   storage: multer.memoryStorage(),
-  limits: { fileSize: 10 * 1024 * 1024 }
+  limits: {
+    fileSize: 20 * 1024 * 1024, // 20 MB
+  },
 });
 
-app.use(cors({ origin: allowedOrigin === "*" ? true : allowedOrigin }));
-app.use(express.json({ limit: "8mb" }));
-app.use(express.urlencoded({ extended: true }));
+app.use(express.json({ limit: "20mb" }));
+app.use(express.urlencoded({ extended: true, limit: "20mb" }));
 
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY
-});
+app.use(
+  cors({
+    origin: process.env.ALLOWED_ORIGIN || "*",
+  })
+);
 
-app.get("/", function (req, res) {
-  if (fs.existsSync(INDEX_FILE)) {
-    return res.sendFile(INDEX_FILE);
+app.use(express.static(__dirname));
+
+function cleanText(text = "") {
+  return String(text)
+    .replace(/\r/g, "")
+    .replace(/\n{3,}/g, "\n\n")
+    .trim();
+}
+
+function safeJsonParse(text) {
+  try {
+    return JSON.parse(text);
+  } catch {
+    try {
+      const match = text.match(/\{[\s\S]*\}/);
+      if (match) return JSON.parse(match[0]);
+      return null;
+    } catch {
+      return null;
+    }
+  }
+}
+
+function formatStructuredResult(data) {
+  if (!data || typeof data !== "object") {
+    return "Não foi possível estruturar a resposta da IA.";
   }
 
-  const html = [
-    "<!DOCTYPE html>",
-    "<html lang=\"pt-BR\">",
-    "<head>",
-    "<meta charset=\"UTF-8\" />",
-    "<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\" />",
-    "<title>Vou Estudar+</title>",
-    "<style>",
-    "body{font-family:Arial,sans-serif;background:#081120;color:#eef6ff;margin:0;padding:40px}",
-    ".box{max-width:800px;margin:0 auto;background:#101c34;border:1px solid rgba(255,255,255,.08);border-radius:18px;padding:24px}",
-    "h1{margin-top:0}",
-    "a{color:#66ecff}",
-    "code{background:rgba(255,255,255,.08);padding:2px 6px;border-radius:6px}",
-    "</style>",
-    "</head>",
-    "<body>",
-    "<div class=\"box\">",
-    "<h1>Servidor no ar</h1>",
-    "<p>O backend está funcionando.</p>",
-    "<p>Se a tela principal não abriu, envie também um arquivo <code>index.html</code> para a raiz do projeto.</p>",
-    "<p>Teste de saúde: <a href=\"/api/health\">/api/health</a></p>",
-    "</div>",
-    "</body>",
-    "</html>"
-  ].join("");
+  const lines = [];
 
-  return res.type("html").send(html);
-});
-
-app.get("/api/health", function (req, res) {
-  const db = loadDB();
-  res.json({
-    ok: true,
-    status: "online",
-    users: db.users.length,
-    trabalhos: db.trabalhos.length,
-    conteudos: db.conteudos.length,
-    hasOpenAIKey: Boolean(process.env.OPENAI_API_KEY),
-    paymentLinkConfigured: paymentLink !== "#",
-    model: defaultModel
-  });
-});
-
-app.post("/api/trial/start", function (req, res) {
-  const email = normalizeEmail(req.body ? req.body.email : "");
-  const name = String((req.body ? req.body.name : "") || "Aluno").trim();
-
-  if (!email) {
-    return res.status(400).json({
-      ok: false,
-      mensagem: "Email é obrigatório."
-    });
+  if (data.titulo) {
+    lines.push(`# ${data.titulo}`);
+    lines.push("");
   }
 
-  const user = getOrCreateUser(email, name);
+  if (data.resumo) {
+    lines.push(`## Resumo`);
+    lines.push(data.resumo);
+    lines.push("");
+  }
 
+  if (Array.isArray(data.pontos_chave) && data.pontos_chave.length) {
+    lines.push(`## Pontos-chave`);
+    for (const item of data.pontos_chave) {
+      lines.push(`- ${item}`);
+    }
+    lines.push("");
+  }
+
+  if (Array.isArray(data.topicos_prioritarios) && data.topicos_prioritarios.length) {
+    lines.push(`## Tópicos prioritários`);
+    for (const item of data.topicos_prioritarios) {
+      lines.push(`- ${item}`);
+    }
+    lines.push("");
+  }
+
+  if (Array.isArray(data.cronograma_por_materia) && data.cronograma_por_materia.length) {
+    lines.push(`## Cronograma por matéria`);
+    for (const materia of data.cronograma_por_materia) {
+      lines.push(`### ${materia.materia || "Matéria"}`);
+      if (materia.objetivo) lines.push(`Objetivo: ${materia.objetivo}`);
+      if (materia.horas_sugeridas) lines.push(`Horas sugeridas: ${materia.horas_sugeridas}`);
+      if (Array.isArray(materia.topicos) && materia.topicos.length) {
+        lines.push(`Tópicos:`);
+        for (const topico of materia.topicos) {
+          lines.push(`- ${topico}`);
+        }
+      }
+      lines.push("");
+    }
+  }
+
+  if (Array.isArray(data.plano_de_estudo) && data.plano_de_estudo.length) {
+    lines.push(`## Plano de estudo`);
+    for (const etapa of data.plano_de_estudo) {
+      lines.push(`### ${etapa.dia || etapa.etapa || "Etapa"}`);
+      if (etapa.foco) lines.push(`Foco: ${etapa.foco}`);
+      if (etapa.tempo_estimado) lines.push(`Tempo estimado: ${etapa.tempo_estimado}`);
+      if (Array.isArray(etapa.tarefas) && etapa.tarefas.length) {
+        lines.push(`Tarefas:`);
+        for (const tarefa of etapa.tarefas) {
+          lines.push(`- ${tarefa}`);
+        }
+      }
+      lines.push("");
+    }
+  }
+
+  if (Array.isArray(data.revisoes) && data.revisoes.length) {
+    lines.push(`## Revisões`);
+    for (const item of data.revisoes) {
+      lines.push(`- ${item}`);
+    }
+    lines.push("");
+  }
+
+  if (Array.isArray(data.questoes_sugeridas) && data.questoes_sugeridas.length) {
+    lines.push(`## Questões sugeridas`);
+    for (const item of data.questoes_sugeridas) {
+      lines.push(`- ${item}`);
+    }
+    lines.push("");
+  }
+
+  if (data.dificuldade) {
+    lines.push(`## Nível de dificuldade`);
+    lines.push(String(data.dificuldade));
+    lines.push("");
+  }
+
+  if (data.observacoes_finais) {
+    lines.push(`## Observações finais`);
+    lines.push(String(data.observacoes_finais));
+    lines.push("");
+  }
+
+  return lines.join("\n").trim() || "A IA respondeu, mas não retornou conteúdo formatado.";
+}
+
+function detectMode(body = {}) {
+  const value = String(
+    body.mode ||
+    body.action ||
+    body.type ||
+    body.promptType ||
+    body.kind ||
+    ""
+  ).toLowerCase();
+
+  if (
+    value.includes("plan") ||
+    value.includes("plano") ||
+    value.includes("cronograma") ||
+    value.includes("study-plan")
+  ) {
+    return "plan";
+  }
+
+  return "analyze";
+}
+
+function buildUserPrompt(body = {}, content = "", mode = "analyze") {
+  const subject = body.subject || body.materia || body.materiaNome || "";
+  const examDate = body.examDate || body.provaData || body.dataProva || "";
+  const availableHours =
+    body.availableHours || body.horasPorDia || body.tempoDisponivel || "";
+  const customInstruction = body.customPrompt || body.instructions || "";
+
+  if (mode === "plan") {
+    return `
+Monte um plano de estudo inteligente com base no conteúdo abaixo.
+
+Regras:
+- Responda SOMENTE em JSON válido.
+- Escreva tudo em português do Brasil.
+- Organize a resposta para estudo prático.
+- Se existir data de prova, priorize os tópicos mais importantes.
+- Se existir matéria, use essa matéria.
+- Crie um plano realista.
+- Inclua revisões.
+- Inclua cronograma por matéria.
+- Inclua tarefas claras.
+
+Campos obrigatórios do JSON:
+{
+  "titulo": "string",
+  "resumo": "string",
+  "pontos_chave": ["string"],
+  "topicos_prioritarios": ["string"],
+  "cronograma_por_materia": [
+    {
+      "materia": "string",
+      "objetivo": "string",
+      "horas_sugeridas": "string",
+      "topicos": ["string"]
+    }
+  ],
+  "plano_de_estudo": [
+    {
+      "dia": "string",
+      "foco": "string",
+      "tempo_estimado": "string",
+      "tarefas": ["string"]
+    }
+  ],
+  "revisoes": ["string"],
+  "questoes_sugeridas": ["string"],
+  "dificuldade": "string",
+  "observacoes_finais": "string"
+}
+
+Dados extras:
+- Matéria: ${subject || "não informada"}
+- Data da prova: ${examDate || "não informada"}
+- Tempo disponível: ${availableHours || "não informado"}
+- Instrução extra: ${customInstruction || "nenhuma"}
+
+Conteúdo base:
+${content}
+    `.trim();
+  }
+
+  return `
+Analise o conteúdo abaixo para estudo.
+
+Regras:
+- Responda SOMENTE em JSON válido.
+- Escreva tudo em português do Brasil.
+- Faça uma análise clara e útil para quem vai estudar.
+- Destaque o que mais importa para prova.
+- Sugira revisões e questões.
+
+Campos obrigatórios do JSON:
+{
+  "titulo": "string",
+  "resumo": "string",
+  "pontos_chave": ["string"],
+  "topicos_prioritarios": ["string"],
+  "cronograma_por_materia": [],
+  "plano_de_estudo": [],
+  "revisoes": ["string"],
+  "questoes_sugeridas": ["string"],
+  "dificuldade": "string",
+  "observacoes_finais": "string"
+}
+
+Dados extras:
+- Matéria: ${subject || "não informada"}
+- Data da prova: ${examDate || "não informada"}
+- Instrução extra: ${customInstruction || "nenhuma"}
+
+Conteúdo base:
+${content}
+  `.trim();
+}
+
+async function extractTextFromBuffer(file) {
+  const originalName = file.originalname || "arquivo";
+  const ext = path.extname(originalName).toLowerCase();
+  const buffer = file.buffer;
+
+  if (!buffer || !buffer.length) {
+    throw new Error("Arquivo vazio.");
+  }
+
+  if (ext === ".pdf") {
+    const parsed = await pdfParse(buffer);
+    return cleanText(parsed.text);
+  }
+
+  if (ext === ".docx" || ext === ".doc") {
+    const result = await mammoth.extractRawText({ buffer });
+    return cleanText(result.value);
+  }
+
+  if (ext === ".xlsx" || ext === ".xls") {
+    const workbook = xlsx.read(buffer, { type: "buffer" });
+    const parts = [];
+
+    for (const sheetName of workbook.SheetNames) {
+      const sheet = workbook.Sheets[sheetName];
+      const rows = xlsx.utils.sheet_to_json(sheet, { header: 1, defval: "" });
+
+      parts.push(`Planilha: ${sheetName}`);
+      for (const row of rows) {
+        const line = row
+          .map((cell) => String(cell ?? "").trim())
+          .filter(Boolean)
+          .join(" | ");
+        if (line) parts.push(line);
+      }
+      parts.push("");
+    }
+
+    return cleanText(parts.join("\n"));
+  }
+
+  if (
+    [".txt", ".md", ".csv", ".json", ".html", ".htm", ".xml"].includes(ext)
+  ) {
+    return cleanText(buffer.toString("utf-8"));
+  }
+
+  try {
+    return cleanText(buffer.toString("utf-8"));
+  } catch {
+    throw new Error("Formato de arquivo não suportado para extração de texto.");
+  }
+}
+
+app.get("/api/health", async (_req, res) => {
   return res.json({
     ok: true,
-    user: user,
-    trialRemainingDays: remainingTrialDays(user),
-    subscriptionActive: user.subscriptionActive,
-    paymentLink: paymentLink
+    openai_configured: Boolean(process.env.OPENAI_API_KEY),
+    default_model: DEFAULT_MODEL,
+    server_time: new Date().toISOString(),
   });
 });
 
-app.get("/api/access-status", function (req, res) {
-  const email = normalizeEmail(req.query ? req.query.email : "");
-
-  if (!email) {
-    return res.status(400).json({
-      ok: false,
-      mensagem: "Email é obrigatório."
-    });
-  }
-
-  const user = getOrCreateUser(email);
-
-  return res.json({
-    ok: true,
-    email: user.email,
-    subscriptionActive: user.subscriptionActive,
-    plan: user.plan,
-    blocked: isTrialExpired(user),
-    trialRemainingDays: remainingTrialDays(user),
-    trialStartedAt: user.trialStartedAt,
-    paymentLink: paymentLink
-  });
-});
-
-app.post("/api/subscription/activate", function (req, res) {
-  const email = normalizeEmail(req.body ? req.body.email : "");
-  const plan = String((req.body ? req.body.plan : "") || "premium").trim();
-
-  if (!email) {
-    return res.status(400).json({
-      ok: false,
-      mensagem: "Email é obrigatório."
-    });
-  }
-
-  getOrCreateUser(email);
-  const updated = updateUser(email, {
-    subscriptionActive: true,
-    plan: plan
-  });
-
-  return res.json({
-    ok: true,
-    mensagem: "Assinatura ativada com sucesso.",
-    user: updated
-  });
-});
-
-app.post("/api/subscription/deactivate", function (req, res) {
-  const email = normalizeEmail(req.body ? req.body.email : "");
-
-  if (!email) {
-    return res.status(400).json({
-      ok: false,
-      mensagem: "Email é obrigatório."
-    });
-  }
-
-  const updated = updateUser(email, {
-    subscriptionActive: false,
-    plan: "teste"
-  });
-
-  return res.json({
-    ok: true,
-    mensagem: "Assinatura desativada.",
-    user: updated
-  });
-});
-
-app.post("/api/extract-file", requireAccess, upload.single("file"), async function (req, res) {
+app.post("/api/extract-file", upload.single("file"), async (req, res) => {
   try {
     if (!req.file) {
       return res.status(400).json({
         ok: false,
-        mensagem: "Nenhum arquivo enviado."
+        error: "Nenhum arquivo enviado.",
       });
     }
 
-    const texto = await extrairTextoArquivo(req.file);
-    const textoLimpo = cortarTexto(texto, 20000);
+    const text = await extractTextFromBuffer(req.file);
 
     return res.json({
       ok: true,
-      fileName: req.file.originalname,
-      extractedText: textoLimpo
+      filename: req.file.originalname,
+      text,
     });
   } catch (error) {
-    return res.status(400).json({
+    return res.status(500).json({
       ok: false,
-      mensagem: error.message || "Erro ao extrair arquivo."
+      error: error.message || "Erro ao extrair texto do arquivo.",
     });
   }
 });
 
-app.post("/api/conteudos/salvar", requireAccess, function (req, res) {
-  const db = loadDB();
-
-  const titulo = cortarTexto(req.body ? req.body.titulo : "", 160);
-  const materia = cortarTexto(req.body ? req.body.materia : "", 100);
-  const conteudo = cortarTexto(req.body ? req.body.conteudo : "", 20000);
-  const dataProva = cortarTexto(req.body ? req.body.dataProva : "", 40);
-
-  if (!conteudo) {
-    return res.status(400).json({
-      ok: false,
-      mensagem: "Conteúdo é obrigatório."
-    });
-  }
-
-  const item = {
-    id: makeId("conteudo"),
-    userEmail: req.user.email,
-    titulo: titulo || "Conteúdo sem título",
-    materia: materia || "Matéria não informada",
-    dataProva: dataProva || "",
-    conteudo: conteudo,
-    createdAt: nowISO()
-  };
-
-  db.conteudos.unshift(item);
-  saveDB(db);
-
-  return res.json({
-    ok: true,
-    mensagem: "Conteúdo salvo com sucesso.",
-    item: item
-  });
-});
-
-app.get("/api/conteudos", requireAccess, function (req, res) {
-  const db = loadDB();
-  const lista = db.conteudos.filter(function (item) {
-    return item.userEmail === req.user.email;
-  });
-
-  return res.json({
-    ok: true,
-    conteudos: lista
-  });
-});
-
-app.delete("/api/conteudos/:id", requireAccess, function (req, res) {
-  const db = loadDB();
-  const id = String(req.params.id);
-  const antes = db.conteudos.length;
-
-  db.conteudos = db.conteudos.filter(function (item) {
-    return !(item.id === id && item.userEmail === req.user.email);
-  });
-
-  saveDB(db);
-
-  return res.json({
-    ok: true,
-    removido: antes !== db.conteudos.length
-  });
-});
-
-app.post("/api/study-ai", requireAccess, async function (req, res) {
+app.post("/api/study-ai", async (req, res) => {
   try {
     if (!process.env.OPENAI_API_KEY) {
       return res.status(500).json({
         ok: false,
-        mensagem: "OPENAI_API_KEY não configurada."
+        error: "OPENAI_API_KEY não configurada no servidor.",
       });
     }
 
-    const mode = String((req.body ? req.body.mode : "") || "explain").toLowerCase();
-    const materia = cortarTexto(req.body ? req.body.materia : "", 100);
-    const conteudo = cortarTexto(req.body ? req.body.conteudo : "", 12000);
-    const dataProva = cortarTexto(req.body ? req.body.dataProva : "", 40);
-    const diasPorSemana = cortarTexto(String((req.body ? req.body.diasPorSemana : "") || ""), 20);
-    const horasPorDia = cortarTexto(String((req.body ? req.body.horasPorDia : "") || ""), 20);
+    const body = req.body || {};
+    const content = cleanText(
+      body.content || body.text || body.extractedText || body.material || ""
+    );
 
-    if (!conteudo && mode !== "test") {
+    if (!content) {
       return res.status(400).json({
         ok: false,
-        mensagem: "Conteúdo é obrigatório."
+        error: "Nenhum conteúdo foi enviado para análise.",
       });
     }
 
-    let input = "";
-    let max_output_tokens = 900;
+    const mode = detectMode(body);
+    const model = body.model || DEFAULT_MODEL;
 
-    if (mode === "test") {
-      input = "Responda apenas: conexão ok";
-      max_output_tokens = 20;
-    } else if (mode === "explain") {
-      input = [
-        "Você é um professor particular claro e didático.",
-        "",
-        "Sua função é explicar o conteúdo enviado de forma simples, organizada e útil para estudo.",
-        "",
-        "Objetivo:",
-        "- explicar os pontos principais",
-        "- mostrar os conceitos centrais",
-        "- organizar a resposta em blocos curtos",
-        "- evitar texto longo e bagunçado",
-        "",
-        "Quero a resposta neste formato:",
-        "1. VISÃO GERAL",
-        "2. PONTOS PRINCIPAIS",
-        "3. O QUE O ALUNO PRECISA ENTENDER DE VERDADE",
-        "4. EXPLICAÇÃO SIMPLES",
-        "5. DICA DE FIXAÇÃO",
-        "",
-        "Regras:",
-        "- usar português do Brasil",
-        "- ser claro e objetivo",
-        "- não fazer resumo genérico de livro",
-        "- organizar o conteúdo em partes curtas",
-        "- explicar como professor",
-        "",
-        "Matéria: " + (materia || "Não informada"),
-        "",
-        "Conteúdo:",
-        conteudo
-      ].join("\n");
-      max_output_tokens = 850;
-    } else if (mode === "plan") {
-      input = [
-        "Você é um especialista em preparação para provas.",
-        "",
-        "Sua função NÃO é fazer resumo genérico.",
-        "Sua função é analisar o conteúdo enviado e montar um cronograma de estudo estratégico.",
-        "",
-        "Objetivo:",
-        "- identificar os pontos mais importantes do material",
-        "- destacar os temas com maior chance de cair na prova",
-        "- organizar um cronograma de estudo prático",
-        "- mostrar o que estudar primeiro, depois e por último",
-        "- sugerir o melhor método de estudo para cada etapa",
-        "- considerar como mais prováveis os conceitos centrais, definições, classificações, etapas, exceções, comparações e tópicos repetidos no material",
-        "",
-        "Dados do aluno:",
-        "- Matéria: " + (materia || "Não informada"),
-        "- Data da prova: " + (dataProva || "Não informada"),
-        "- Dias por semana disponíveis: " + (diasPorSemana || "Não informado"),
-        "- Horas por dia: " + (horasPorDia || "Não informado"),
-        "",
-        "Quero a resposta neste formato exato:",
-        "",
-        "1. TEMAS PRIORITÁRIOS",
-        "- liste os tópicos mais importantes",
-        "",
-        "2. CHANCE DE CAIR NA PROVA",
-        "- Muito alta",
-        "- Alta",
-        "- Média",
-        "",
-        "3. CRONOGRAMA DE ESTUDO",
-        "- dividir por dias ou etapas",
-        "- organizar a sequência do estudo",
-        "",
-        "4. REVISÃO E FIXAÇÃO",
-        "- quando revisar",
-        "- como revisar",
-        "",
-        "5. MÉTODO MAIS EFICIENTE",
-        "- dizer como estudar esse conteúdo de forma mais forte para prova",
-        "",
-        "6. ALERTA FINAL",
-        "- o que o aluno não pode deixar de estudar",
-        "",
-        "Regras:",
-        "- não fazer texto longo e misturado",
-        "- ser objetivo e organizado",
-        "- focar em prova",
-        "- transformar o conteúdo em estratégia de estudo",
-        "- se o conteúdo for grande, priorizar os pontos centrais",
-        "- usar português do Brasil",
-        "- deixar visualmente fácil de ler",
-        "",
-        "Conteúdo:",
-        conteudo
-      ].join("\n");
-      max_output_tokens = 1100;
-    } else {
-      input = [
-        "Explique o conteúdo abaixo de forma clara, objetiva e organizada em português do Brasil.",
-        "",
-        "Matéria: " + (materia || "Não informada"),
-        "",
-        "Conteúdo:",
-        conteudo
-      ].join("\n");
-      max_output_tokens = 700;
-    }
+    const prompt = buildUserPrompt(body, content, mode);
 
-    const response = await openai.responses.create({
-      model: defaultModel,
-      input: input,
-      max_output_tokens: max_output_tokens
+    const openai = new OpenAI({
+      apiKey: process.env.OPENAI_API_KEY,
     });
 
-    const resultado = extrairTextoDoResponse(response);
+    let rawText = "";
+
+    try {
+      const completion = await openai.chat.completions.create({
+        model,
+        temperature: 0.4,
+        response_format: { type: "json_object" },
+        messages: [
+          {
+            role: "system",
+            content:
+              "Você é um especialista em aprendizagem, organização de estudos e preparação para provas. Responda apenas em JSON válido.",
+          },
+          {
+            role: "user",
+            content: prompt,
+          },
+        ],
+      });
+
+      rawText = completion.choices?.[0]?.message?.content || "";
+    } catch (firstError) {
+      const completion = await openai.chat.completions.create({
+        model,
+        temperature: 0.4,
+        messages: [
+          {
+            role: "system",
+            content:
+              "Você é um especialista em aprendizagem, organização de estudos e preparação para provas. Responda apenas em JSON válido.",
+          },
+          {
+            role: "user",
+            content: prompt,
+          },
+        ],
+      });
+
+      rawText = completion.choices?.[0]?.message?.content || "";
+    }
+
+    const structured =
+      safeJsonParse(rawText) || {
+        titulo: mode === "plan" ? "Plano de estudo" : "Análise do conteúdo",
+        resumo: rawText || "A IA respondeu sem JSON estruturado.",
+        pontos_chave: [],
+        topicos_prioritarios: [],
+        cronograma_por_materia: [],
+        plano_de_estudo: [],
+        revisoes: [],
+        questoes_sugeridas: [],
+        dificuldade: "não definida",
+        observacoes_finais: "",
+      };
+
+    const result = formatStructuredResult(structured);
 
     return res.json({
       ok: true,
-      resultado: resultado
+      mode,
+      model,
+      result,
+      structured,
     });
-  } catch (err) {
-    return tratarErroOpenAI(err, res);
-  }
-});
-
-app.post("/api/trabalhos", requireAccess, function (req, res) {
-  const db = loadDB();
-
-  const trabalho = {
-    id: makeId("work"),
-    userEmail: req.user.email,
-    titulo: cortarTexto(req.body ? req.body.titulo : "", 160),
-    materia: cortarTexto(req.body ? req.body.materia : "", 100),
-    data: cortarTexto(req.body ? req.body.data : "", 30),
-    hora: cortarTexto(req.body ? req.body.hora : "", 20),
-    lembrete: cortarTexto((req.body ? req.body.lembrete : "") || "Sem lembrete", 40),
-    status: cortarTexto((req.body ? req.body.status : "") || "Pendente", 40),
-    anexoNome: cortarTexto(req.body ? req.body.anexoNome : "", 200),
-    createdAt: nowISO()
-  };
-
-  if (!trabalho.titulo) {
-    return res.status(400).json({
+  } catch (error) {
+    return res.status(500).json({
       ok: false,
-      mensagem: "Título é obrigatório."
+      error:
+        error?.message || "Erro interno ao processar a solicitação da IA.",
     });
   }
-
-  db.trabalhos.unshift(trabalho);
-  saveDB(db);
-
-  return res.json({
-    ok: true,
-    trabalho: trabalho
-  });
 });
 
-app.get("/api/trabalhos", requireAccess, function (req, res) {
-  const db = loadDB();
-  const lista = db.trabalhos.filter(function (t) {
-    return t.userEmail === req.user.email;
-  });
-
-  return res.json({
-    ok: true,
-    trabalhos: lista
-  });
+app.get("*", (req, res) => {
+  res.sendFile(path.join(__dirname, "index.html"));
 });
 
-app.delete("/api/trabalhos/:id", requireAccess, function (req, res) {
-  const db = loadDB();
-  const id = String(req.params.id);
-  const antes = db.trabalhos.length;
-
-  db.trabalhos = db.trabalhos.filter(function (t) {
-    return !(t.id === id && t.userEmail === req.user.email);
-  });
-
-  saveDB(db);
-
-  return res.json({
-    ok: true,
-    removido: antes !== db.trabalhos.length
-  });
-});
-
-app.patch("/api/trabalhos/:id/concluir", requireAccess, function (req, res) {
-  const db = loadDB();
-  const id = String(req.params.id);
-
-  const index = db.trabalhos.findIndex(function (t) {
-    return t.id === id && t.userEmail === req.user.email;
-  });
-
-  if (index === -1) {
-    return res.status(404).json({
-      ok: false,
-      mensagem: "Trabalho não encontrado."
-    });
-  }
-
-  db.trabalhos[index].status = "Concluído";
-  saveDB(db);
-
-  return res.json({
-    ok: true,
-    trabalho: db.trabalhos[index]
-  });
-});
-
-app.listen(port, function () {
-  console.log("Servidor rodando na porta " + port);
+app.listen(port, () => {
+  console.log(`Servidor rodando na porta ${port}`);
 });
