@@ -21,6 +21,7 @@
       --green:#3de7a2;
       --danger:#ff6f91;
       --warning:#ffd36a;
+      --orange:#ffb14a;
       --shadow:0 18px 45px rgba(0,0,0,0.35);
       --radius-xl:28px;
       --radius-lg:20px;
@@ -57,7 +58,10 @@
     .grafico-card,
     .kpi-estudo,
     .saved-card,
-    .status-card{
+    .status-card,
+    .reminder-card,
+    .section-box,
+    .mini-stat{
       background:linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.025));
       border:1px solid var(--line);
       border-radius:var(--radius-xl);
@@ -122,7 +126,8 @@
 
     .panel,
     .output,
-    .days{
+    .days,
+    .section-box{
       padding:22px;
     }
 
@@ -130,14 +135,16 @@
     .output h2,
     .days h2,
     .saved-top h2,
-    .graficos-topo h2{
+    .graficos-topo h2,
+    .section-top h2{
       margin:0 0 16px 0;
       font-size:22px;
       font-weight:800;
     }
 
     .row-2,
-    .row-3{
+    .row-3,
+    .row-4{
       display:grid;
       gap:16px;
       margin-bottom:16px;
@@ -145,6 +152,7 @@
 
     .row-2{ grid-template-columns:1fr 1fr; }
     .row-3{ grid-template-columns:repeat(3, 1fr); }
+    .row-4{ grid-template-columns:repeat(4, 1fr); }
 
     label{
       display:block;
@@ -163,6 +171,7 @@
 
     input[type="text"],
     input[type="date"],
+    input[type="time"],
     textarea,
     select{
       width:100%;
@@ -182,6 +191,7 @@
 
     input[type="text"]:focus,
     input[type="date"]:focus,
+    input[type="time"]:focus,
     textarea:focus,
     select:focus{
       border-color:rgba(56,213,255,0.45);
@@ -201,7 +211,11 @@
       margin-top:10px;
     }
 
-    .button-row{
+    .button-row,
+    .saved-actions,
+    .chart-actions,
+    .reminder-actions,
+    .inline-actions{
       display:flex;
       flex-wrap:wrap;
       gap:12px;
@@ -261,6 +275,12 @@
       box-shadow:0 12px 28px rgba(255,111,145,0.18);
     }
 
+    .warning{
+      background:linear-gradient(135deg, #ffd36a, #ffb14a);
+      color:#281800;
+      box-shadow:0 12px 28px rgba(255,177,74,0.18);
+    }
+
     .mini-btn{
       padding:11px 14px;
       font-size:13px;
@@ -299,14 +319,18 @@
       color:#fff;
     }
 
-    .chip-row{
+    .chip-row,
+    .saved-meta,
+    .reminder-meta{
       display:flex;
       flex-wrap:wrap;
       gap:8px;
       margin-bottom:12px;
     }
 
-    .chip{
+    .chip,
+    .saved-badge,
+    .meta-badge{
       display:inline-flex;
       align-items:center;
       gap:6px;
@@ -317,6 +341,30 @@
       color:#dff5ff;
       font-size:12px;
       font-weight:700;
+    }
+
+    .badge-pendente{
+      background:rgba(255,211,106,0.12);
+      border-color:rgba(255,211,106,0.22);
+      color:#ffe7a8;
+    }
+
+    .badge-andamento{
+      background:rgba(255,177,74,0.12);
+      border-color:rgba(255,177,74,0.22);
+      color:#ffd4a0;
+    }
+
+    .badge-concluido{
+      background:rgba(61,231,162,0.12);
+      border-color:rgba(61,231,162,0.22);
+      color:#c6ffe8;
+    }
+
+    .badge-atrasado{
+      background:rgba(255,111,145,0.12);
+      border-color:rgba(255,111,145,0.22);
+      color:#ffc7d4;
     }
 
     ul{
@@ -334,28 +382,24 @@
       margin-bottom:18px;
     }
 
-    .graficos-topo{
+    .graficos-topo,
+    .saved-top,
+    .section-top{
       display:flex;
-      align-items:center;
+      align-items:flex-end;
       justify-content:space-between;
-      gap:12px;
+      gap:14px;
       margin-bottom:18px;
       flex-wrap:wrap;
     }
 
     .graficos-topo p,
-    .saved-top p{
+    .saved-top p,
+    .section-top p{
       margin:6px 0 0 0;
       color:rgba(255,255,255,.72);
       font-size:14px;
       line-height:1.5;
-    }
-
-    .chart-actions,
-    .saved-actions{
-      display:flex;
-      flex-wrap:wrap;
-      gap:10px;
     }
 
     .kpis-estudo{
@@ -419,17 +463,9 @@
       grid-column:span 2;
     }
 
-    .saved-schedules{
-      margin-top:6px;
-    }
-
-    .saved-top{
-      display:flex;
-      align-items:flex-end;
-      justify-content:space-between;
-      gap:14px;
+    .saved-schedules,
+    .reminders-area{
       margin-bottom:18px;
-      flex-wrap:wrap;
     }
 
     .saved-filter{
@@ -437,49 +473,36 @@
       max-width:320px;
     }
 
-    .saved-list{
+    .saved-list,
+    .reminders-list{
       display:grid;
       grid-template-columns:repeat(2, minmax(0, 1fr));
       gap:16px;
     }
 
-    .saved-card{
+    .saved-card,
+    .reminder-card{
       padding:18px;
       display:flex;
       flex-direction:column;
       gap:12px;
     }
 
-    .saved-card h3{
+    .saved-card h3,
+    .reminder-card h3{
       margin:0;
       font-size:19px;
     }
 
-    .saved-meta{
-      display:flex;
-      flex-wrap:wrap;
-      gap:8px;
-    }
-
-    .saved-badge{
-      display:inline-flex;
-      align-items:center;
-      padding:8px 12px;
-      border-radius:999px;
-      background:rgba(255,255,255,0.05);
-      border:1px solid rgba(255,255,255,0.10);
-      font-size:12px;
-      color:#dce9ff;
-      font-weight:700;
-    }
-
-    .saved-desc{
+    .saved-desc,
+    .reminder-desc{
       color:#d8e4f6;
       font-size:14px;
       line-height:1.55;
     }
 
-    .saved-buttons{
+    .saved-buttons,
+    .reminder-buttons{
       display:flex;
       flex-wrap:wrap;
       gap:10px;
@@ -495,6 +518,31 @@
       text-align:center;
     }
 
+    .mini-stats{
+      display:grid;
+      grid-template-columns:repeat(4, minmax(0, 1fr));
+      gap:14px;
+      margin-bottom:18px;
+    }
+
+    .mini-stat{
+      padding:16px;
+      border-radius:20px;
+    }
+
+    .mini-stat span{
+      display:block;
+      color:rgba(255,255,255,.68);
+      font-size:13px;
+      margin-bottom:6px;
+    }
+
+    .mini-stat strong{
+      font-size:22px;
+      font-weight:800;
+      color:#fff;
+    }
+
     .footer-note{
       text-align:center;
       margin-top:18px;
@@ -506,7 +554,8 @@
       .hero,
       .grid,
       .graficos-grid,
-      .saved-list{
+      .saved-list,
+      .reminders-list{
         grid-template-columns:1fr;
       }
 
@@ -515,10 +564,12 @@
       }
     }
 
-    @media (max-width: 900px){
-      .row-2,
+    @media (max-width: 980px){
+      .row-4,
       .row-3,
-      .kpis-estudo{
+      .row-2,
+      .kpis-estudo,
+      .mini-stats{
         grid-template-columns:1fr;
       }
     }
@@ -530,7 +581,7 @@
       <div>
         <div class="title">🤖 Vou Estudar+ com IA real</div>
         <div class="subtitle">
-          Analise conteúdo colado ou importado, gere plano com IA, acompanhe os gráficos e salve cronogramas de prova e estudo por matéria.
+          Analise conteúdo, gere plano com IA, salve cronogramas, cadastre lembretes de trabalho e estudo e acompanhe tudo em gráficos.
         </div>
 
         <div class="row-2">
@@ -557,7 +608,7 @@
 
       <div class="status-card">
         <div class="status-title" id="statusTitle">Pronto para uso</div>
-        <div class="status-text" id="statusText">Teste a conexão, cole seu conteúdo e gere o cronograma com IA.</div>
+        <div class="status-text" id="statusText">Teste a conexão, gere o plano e cadastre seus lembretes.</div>
       </div>
     </section>
 
@@ -619,7 +670,7 @@
       <div class="graficos-topo">
         <div>
           <h2>Andamento dos estudos</h2>
-          <p>Acompanhe horas estudadas, progresso do plano e evolução dos conteúdos.</p>
+          <p>Acompanhe horas estudadas, progresso do plano, matérias e status dos lembretes.</p>
         </div>
 
         <div class="chart-actions">
@@ -667,6 +718,12 @@
           <canvas id="graficoMaterias"></canvas>
         </div>
 
+        <div class="grafico-card">
+          <h3>Status dos lembretes</h3>
+          <p>Pendente, em andamento e concluído.</p>
+          <canvas id="graficoStatusLembretes"></canvas>
+        </div>
+
         <div class="grafico-card grafico-largo">
           <h3>Evolução dos conteúdos concluídos</h3>
           <p>Comparação dos últimos dias.</p>
@@ -679,7 +736,7 @@
       <div class="saved-top">
         <div>
           <h2>Cronogramas salvos</h2>
-          <p>Salve seus cronogramas por matéria e prova para carregar depois com um clique.</p>
+          <p>Salve seus cronogramas por matéria e prova para carregar depois.</p>
         </div>
 
         <div class="saved-actions">
@@ -696,23 +753,113 @@
       <div id="emptySavedBox" class="empty-box">Nenhum cronograma salvo ainda.</div>
     </section>
 
-    <div class="footer-note">Vou Estudar+ • IA real • cronograma salvo • gráficos • progresso visual</div>
+    <section class="reminders-area">
+      <div class="section-box">
+        <div class="section-top">
+          <div>
+            <h2>Lembretes de trabalho e estudo</h2>
+            <p>Cadastre matéria, data, hora e acompanhe status: pendente, em andamento e concluído.</p>
+          </div>
+
+          <div class="inline-actions">
+            <button class="secondary mini-btn" id="enableNotificationButton" type="button">Ativar aviso do navegador</button>
+          </div>
+        </div>
+
+        <div class="row-3">
+          <div>
+            <label for="reminderTitle">Título do lembrete</label>
+            <input id="reminderTitle" type="text" placeholder="Ex: Revisar capítulo 2" />
+          </div>
+          <div>
+            <label for="reminderSubject">Matéria / área</label>
+            <input id="reminderSubject" type="text" placeholder="Ex: Matemática ou Trabalho" />
+          </div>
+          <div>
+            <label for="reminderType">Tipo</label>
+            <select id="reminderType">
+              <option value="estudo">Estudo</option>
+              <option value="trabalho">Trabalho</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="row-4">
+          <div>
+            <label for="reminderDate">Data</label>
+            <input id="reminderDate" type="date" />
+          </div>
+          <div>
+            <label for="reminderTime">Hora</label>
+            <input id="reminderTime" type="time" />
+          </div>
+          <div>
+            <label for="reminderStatus">Status</label>
+            <select id="reminderStatus">
+              <option value="pendente">Pendente</option>
+              <option value="em_andamento">Em andamento</option>
+              <option value="concluido">Concluído</option>
+            </select>
+          </div>
+          <div>
+            <label for="reminderNotes">Observação curta</label>
+            <input id="reminderNotes" type="text" placeholder="Ex: Fazer antes do almoço" />
+          </div>
+        </div>
+
+        <div class="reminder-actions">
+          <button class="success" id="saveReminderButton" type="button">Salvar lembrete</button>
+          <button class="secondary" id="clearReminderFormButton" type="button">Limpar campos do lembrete</button>
+        </div>
+
+        <div class="hint">
+          O aviso é local no navegador. Para o alerta aparecer melhor, ative as notificações e mantenha o sistema acessível no aparelho.
+        </div>
+      </div>
+
+      <div class="mini-stats" style="margin-top:18px;">
+        <div class="mini-stat">
+          <span>Pendentes</span>
+          <strong id="miniPending">0</strong>
+        </div>
+        <div class="mini-stat">
+          <span>Em andamento</span>
+          <strong id="miniDoing">0</strong>
+        </div>
+        <div class="mini-stat">
+          <span>Concluídos</span>
+          <strong id="miniDone">0</strong>
+        </div>
+        <div class="mini-stat">
+          <span>Atrasados</span>
+          <strong id="miniLate">0</strong>
+        </div>
+      </div>
+
+      <div id="remindersList" class="reminders-list"></div>
+      <div id="emptyReminderBox" class="empty-box">Nenhum lembrete cadastrado ainda.</div>
+    </section>
+
+    <div class="footer-note">Vou Estudar+ • IA real • cronograma salvo • lembretes • gráficos • progresso visual</div>
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script>
     const $ = (id) => document.getElementById(id);
 
-    const METRICS_KEY = "vou_estudar_metricas_v3";
-    const SCHEDULES_KEY = "vou_estudar_cronogramas_v3";
+    const METRICS_KEY = "vou_estudar_metricas_v4";
+    const SCHEDULES_KEY = "vou_estudar_cronogramas_v4";
+    const REMINDERS_KEY = "vou_estudar_lembretes_v4";
 
     const state = {
       loading: false,
       lastTextResult: "",
       currentStructuredPlan: null,
       charts: {},
+      reminderTimers: [],
       metrics: loadMetrics(),
-      schedules: loadSchedules()
+      schedules: loadSchedules(),
+      reminders: loadReminders()
     };
 
     const els = {
@@ -741,6 +888,24 @@
       savedFilter: $("savedFilter"),
       savedSchedulesList: $("savedSchedulesList"),
       emptySavedBox: $("emptySavedBox"),
+
+      reminderTitle: $("reminderTitle"),
+      reminderSubject: $("reminderSubject"),
+      reminderType: $("reminderType"),
+      reminderDate: $("reminderDate"),
+      reminderTime: $("reminderTime"),
+      reminderStatus: $("reminderStatus"),
+      reminderNotes: $("reminderNotes"),
+      saveReminderButton: $("saveReminderButton"),
+      clearReminderFormButton: $("clearReminderFormButton"),
+      enableNotificationButton: $("enableNotificationButton"),
+      remindersList: $("remindersList"),
+      emptyReminderBox: $("emptyReminderBox"),
+      miniPending: $("miniPending"),
+      miniDoing: $("miniDoing"),
+      miniDone: $("miniDone"),
+      miniLate: $("miniLate"),
+
       kpiHorasSemana: $("kpiHorasSemana"),
       kpiConteudos: $("kpiConteudos"),
       kpiMeta: $("kpiMeta"),
@@ -791,6 +956,20 @@
       localStorage.setItem(SCHEDULES_KEY, JSON.stringify(state.schedules));
     }
 
+    function loadReminders() {
+      try {
+        const raw = localStorage.getItem(REMINDERS_KEY);
+        const parsed = raw ? JSON.parse(raw) : [];
+        return Array.isArray(parsed) ? parsed : [];
+      } catch {
+        return [];
+      }
+    }
+
+    function saveReminders() {
+      localStorage.setItem(REMINDERS_KEY, JSON.stringify(state.reminders));
+    }
+
     function createId() {
       return "id_" + Date.now() + "_" + Math.random().toString(36).slice(2, 9);
     }
@@ -833,7 +1012,8 @@
         els.testButton,
         els.addHourButton,
         els.completeContentButton,
-        els.saveScheduleButton
+        els.saveScheduleButton,
+        els.saveReminderButton
       ].forEach(btn => {
         if (btn) btn.disabled = isBusy;
       });
@@ -943,6 +1123,37 @@
       setStatus("Gráficos resetados", "Os dados dos gráficos foram zerados.", "ok");
     }
 
+    function getReminderDateTime(reminder) {
+      if (!reminder?.date || !reminder?.time) return null;
+      const date = new Date(`${reminder.date}T${reminder.time}:00`);
+      return Number.isNaN(date.getTime()) ? null : date;
+    }
+
+    function isReminderLate(reminder) {
+      const dt = getReminderDateTime(reminder);
+      if (!dt) return false;
+      if (reminder.status === "concluido") return false;
+      return dt.getTime() < Date.now();
+    }
+
+    function getReminderStatusCounts() {
+      const result = {
+        pendente: 0,
+        em_andamento: 0,
+        concluido: 0,
+        atrasado: 0
+      };
+
+      state.reminders.forEach(reminder => {
+        if (reminder.status === "pendente") result.pendente += 1;
+        if (reminder.status === "em_andamento") result.em_andamento += 1;
+        if (reminder.status === "concluido") result.concluido += 1;
+        if (isReminderLate(reminder)) result.atrasado += 1;
+      });
+
+      return result;
+    }
+
     function refreshKPIs() {
       const totalHoras = state.metrics.horasSemana.reduce((a, b) => a + b, 0);
       els.kpiHorasSemana.textContent = totalHoras + "h";
@@ -951,11 +1162,20 @@
       els.kpiSequencia.textContent = state.metrics.sequencia + " dias";
     }
 
+    function refreshReminderStats() {
+      const counts = getReminderStatusCounts();
+      els.miniPending.textContent = counts.pendente;
+      els.miniDoing.textContent = counts.em_andamento;
+      els.miniDone.textContent = counts.concluido;
+      els.miniLate.textContent = counts.atrasado;
+    }
+
     function renderCharts() {
       if (!window.Chart) return;
 
       const corTexto = "#ffffff";
       const corGrade = "rgba(255,255,255,0.08)";
+      const reminderCounts = getReminderStatusCounts();
 
       Object.values(state.charts).forEach(chart => chart.destroy());
       state.charts = {};
@@ -1036,6 +1256,33 @@
         }
       });
 
+      state.charts.statusLembretes = new Chart(document.getElementById("graficoStatusLembretes"), {
+        type: "doughnut",
+        data: {
+          labels: ["Pendente", "Em andamento", "Concluído"],
+          datasets: [{
+            data: [
+              reminderCounts.pendente,
+              reminderCounts.em_andamento,
+              reminderCounts.concluido
+            ],
+            backgroundColor: ["#ffd36a", "#ffb14a", "#3de7a2"],
+            borderWidth: 0
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          cutout: "62%",
+          plugins: {
+            legend: {
+              position: "bottom",
+              labels: { color: corTexto }
+            }
+          }
+        }
+      });
+
       state.charts.evolucao = new Chart(document.getElementById("graficoEvolucao"), {
         type: "bar",
         data: {
@@ -1064,6 +1311,7 @@
     function refreshDashboard() {
       ensureSubjectsDistribution();
       refreshKPIs();
+      refreshReminderStats();
       renderCharts();
     }
 
@@ -1193,7 +1441,7 @@
       refreshSavedFilters();
       renderSavedSchedules();
 
-      setStatus("Cronograma salvo", "Seu cronograma de prova/estudo foi salvo no navegador.", "ok");
+      setStatus("Cronograma salvo", "Seu cronograma foi salvo no navegador.", "ok");
     }
 
     function loadSchedule(id) {
@@ -1248,6 +1496,7 @@
         return;
       }
 
+      els.emptySavedBox.style.display = "block";
       els.emptySavedBox.style.display = "none";
 
       list.forEach(item => {
@@ -1281,6 +1530,189 @@
         `;
 
         els.savedSchedulesList.appendChild(card);
+      });
+    }
+
+    function clearReminderForm() {
+      els.reminderTitle.value = "";
+      els.reminderSubject.value = "";
+      els.reminderType.value = "estudo";
+      els.reminderDate.value = "";
+      els.reminderTime.value = "";
+      els.reminderStatus.value = "pendente";
+      els.reminderNotes.value = "";
+    }
+
+    async function enableNotifications() {
+      if (!("Notification" in window)) {
+        setStatus("Navegador sem suporte", "Esse navegador não suporta notificações.", "err");
+        return;
+      }
+
+      const permission = await Notification.requestPermission();
+
+      if (permission === "granted") {
+        setStatus("Notificações ativadas", "Os avisos locais do navegador foram liberados.", "ok");
+        scheduleReminderNotifications();
+      } else {
+        setStatus("Notificações bloqueadas", "Permita notificações do navegador para receber os avisos.", "err");
+      }
+    }
+
+    function showReminderNotification(reminder) {
+      if (!("Notification" in window) || Notification.permission !== "granted") return;
+
+      const bodyParts = [
+        reminder.subject ? `Matéria/Área: ${reminder.subject}` : "",
+        reminder.notes ? `Obs: ${reminder.notes}` : "",
+        reminder.time ? `Hora: ${reminder.time}` : ""
+      ].filter(Boolean);
+
+      new Notification(reminder.title || "Lembrete", {
+        body: bodyParts.join(" • ") || "Seu lembrete chegou.",
+        icon: ""
+      });
+    }
+
+    function clearReminderTimers() {
+      state.reminderTimers.forEach(timer => clearTimeout(timer));
+      state.reminderTimers = [];
+    }
+
+    function scheduleReminderNotifications() {
+      clearReminderTimers();
+
+      if (!("Notification" in window) || Notification.permission !== "granted") return;
+
+      const maxDelay = 2147483647;
+
+      state.reminders.forEach(reminder => {
+        if (reminder.status === "concluido") return;
+
+        const dt = getReminderDateTime(reminder);
+        if (!dt) return;
+
+        const delay = dt.getTime() - Date.now();
+        if (delay <= 0 || delay > maxDelay) return;
+
+        const timer = setTimeout(() => {
+          showReminderNotification(reminder);
+        }, delay);
+
+        state.reminderTimers.push(timer);
+      });
+    }
+
+    function saveReminder() {
+      const title = els.reminderTitle.value.trim();
+      const subject = els.reminderSubject.value.trim();
+      const type = els.reminderType.value;
+      const date = els.reminderDate.value;
+      const time = els.reminderTime.value;
+      const status = els.reminderStatus.value;
+      const notes = els.reminderNotes.value.trim();
+
+      if (!title) {
+        setStatus("Título obrigatório", "Preencha o título do lembrete.", "err");
+        return;
+      }
+
+      if (!date || !time) {
+        setStatus("Data e hora obrigatórias", "Preencha a data e a hora do lembrete.", "err");
+        return;
+      }
+
+      const item = {
+        id: createId(),
+        title,
+        subject,
+        type,
+        date,
+        time,
+        status,
+        notes,
+        createdAt: new Date().toISOString()
+      };
+
+      state.reminders.unshift(item);
+      saveReminders();
+      renderReminders();
+      refreshDashboard();
+      scheduleReminderNotifications();
+      clearReminderForm();
+
+      setStatus("Lembrete salvo", "Seu lembrete foi cadastrado com sucesso.", "ok");
+    }
+
+    function updateReminderStatus(id, newStatus) {
+      const item = state.reminders.find(reminder => reminder.id === id);
+      if (!item) return;
+
+      item.status = newStatus;
+      saveReminders();
+      renderReminders();
+      refreshDashboard();
+      scheduleReminderNotifications();
+      setStatus("Status atualizado", "O lembrete foi atualizado.", "ok");
+    }
+
+    function deleteReminder(id) {
+      state.reminders = state.reminders.filter(reminder => reminder.id !== id);
+      saveReminders();
+      renderReminders();
+      refreshDashboard();
+      scheduleReminderNotifications();
+      setStatus("Lembrete excluído", "O lembrete foi removido.", "ok");
+    }
+
+    function renderReminders() {
+      els.remindersList.innerHTML = "";
+
+      if (!state.reminders.length) {
+        els.emptyReminderBox.style.display = "block";
+        return;
+      }
+
+      els.emptyReminderBox.style.display = "none";
+
+      state.reminders.forEach(reminder => {
+        const late = isReminderLate(reminder);
+        const statusLabel = {
+          pendente: "Pendente",
+          em_andamento: "Em andamento",
+          concluido: "Concluído"
+        }[reminder.status] || "Pendente";
+
+        const statusClass = {
+          pendente: "badge-pendente",
+          em_andamento: "badge-andamento",
+          concluido: "badge-concluido"
+        }[reminder.status] || "badge-pendente";
+
+        const card = document.createElement("div");
+        card.className = "reminder-card";
+
+        card.innerHTML = `
+          <h3>${escapeHtml(reminder.title)}</h3>
+          <div class="reminder-meta">
+            <span class="meta-badge">${escapeHtml(reminder.type === "trabalho" ? "Trabalho" : "Estudo")}</span>
+            <span class="meta-badge">${escapeHtml(reminder.subject || "Sem matéria/área")}</span>
+            <span class="meta-badge">${escapeHtml(formatDate(reminder.date))} • ${escapeHtml(reminder.time)}</span>
+            <span class="meta-badge ${statusClass}">${escapeHtml(statusLabel)}</span>
+            ${late ? `<span class="meta-badge badge-atrasado">Atrasado</span>` : ""}
+          </div>
+          <div class="reminder-desc">
+            ${escapeHtml(reminder.notes || "Sem observação.")}
+          </div>
+          <div class="reminder-buttons">
+            <button class="secondary mini-btn" data-r-action="pendente" data-id="${reminder.id}" type="button">Pendente</button>
+            <button class="warning mini-btn" data-r-action="em_andamento" data-id="${reminder.id}" type="button">Em andamento</button>
+            <button class="success mini-btn" data-r-action="concluido" data-id="${reminder.id}" type="button">Concluído</button>
+            <button class="danger mini-btn" data-r-action="delete" data-id="${reminder.id}" type="button">Excluir</button>
+          </div>
+        `;
+
+        els.remindersList.appendChild(card);
       });
     }
 
@@ -1449,9 +1881,28 @@
       if (action === "delete") deleteSchedule(id);
     });
 
+    els.saveReminderButton.addEventListener("click", saveReminder);
+    els.clearReminderFormButton.addEventListener("click", clearReminderForm);
+    els.enableNotificationButton.addEventListener("click", enableNotifications);
+
+    els.remindersList.addEventListener("click", (event) => {
+      const button = event.target.closest("button[data-r-action]");
+      if (!button) return;
+
+      const id = button.dataset.id;
+      const action = button.dataset.rAction;
+
+      if (action === "delete") deleteReminder(id);
+      if (action === "pendente") updateReminderStatus(id, "pendente");
+      if (action === "em_andamento") updateReminderStatus(id, "em_andamento");
+      if (action === "concluido") updateReminderStatus(id, "concluido");
+    });
+
     refreshDashboard();
     refreshSavedFilters();
     renderSavedSchedules();
+    renderReminders();
+    scheduleReminderNotifications();
     testConnection();
   </script>
 </body>
