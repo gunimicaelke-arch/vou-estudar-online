@@ -1518,9 +1518,7 @@ app.post("/api/study-ai", requireAccess, async (req, res) => {
       max_output_tokens = 20;
     } else if (mode === "explain") {
       input = `
-      
-Você  um professor particular claro e didático.
-`;
+        Você  um professor particular claro e didático;
 Sua função é explicar o conteúdo enviado de forma simples, organizada e útil para estudo.
 
 Objetivo:
@@ -1528,7 +1526,7 @@ Objetivo:
 - mostrar os conceitos centrais
 - organizar a resposta em blocos curtos
 - evitar texto longo e bagunçado
-
+`;
 Quero a resposta neste formato:
 
 1. VISÃO GERAL
