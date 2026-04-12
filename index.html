@@ -21,13 +21,8 @@
       --yellow:#f5c94c;
       --orange:#ff9642;
       --purple:#7b4dff;
-      --pink:#cf4aa3;
       --danger:#ff5c7a;
       --shadow:0 18px 42px rgba(0,0,0,.30);
-      --radius-xl:30px;
-      --radius-lg:24px;
-      --radius-md:18px;
-      --radius-sm:14px;
     }
 
     *{ box-sizing:border-box; }
@@ -118,7 +113,9 @@
     }
 
     .input::placeholder,
-    .textarea::placeholder{ color:#89a0c3; }
+    .textarea::placeholder{
+      color:#89a0c3;
+    }
 
     .input:focus,
     .select:focus,
@@ -599,6 +596,20 @@
       line-height:1.6;
     }
 
+    .plan-comment{
+      width:100%;
+      min-height:90px;
+      resize:vertical;
+      border:1px solid rgba(255,255,255,.10);
+      background:rgba(255,255,255,.04);
+      color:#f4f7ff;
+      border-radius:16px;
+      padding:12px 14px;
+      outline:none;
+      font:inherit;
+      margin-top:10px;
+    }
+
     .empty{
       text-align:center;
       padding:22px;
@@ -673,6 +684,8 @@
           <button class="btn secondary" id="testButton" type="button">Testar conexão</button>
           <button class="btn" id="analyzeButton" type="button">Analisar conteúdo</button>
           <button class="btn" id="planButton" type="button">Gerar plano inteligente</button>
+          <button class="btn success" id="excellentPlanButton" type="button">Gerar plano excelente</button>
+          <button class="btn secondary" id="downloadPlanButton" type="button">Baixar plano</button>
         </div>
       </div>
 
@@ -974,8 +987,9 @@
   <script>
     const $ = (id) => document.getElementById(id);
 
-    const LOCAL_KEY = "vou_estudar_estado_unico_v1";
+    const LOCAL_KEY = "vou_estudar_estado_unico_v2";
     const APP_STATE_ENDPOINT = "/api/app-state";
+    const COMMENT_PREFIX = "vou_estudar_plan_comment_v2_";
 
     const state = {
       loading: false,
@@ -984,6 +998,7 @@
       charts: {},
       reminderTimers: [],
       syncMode: "local",
+      saveTimer: null,
       metrics: getDefaultMetrics(),
       schedules: [],
       reminders: [],
@@ -1016,6 +1031,8 @@
       testButton: $("testButton"),
       analyzeButton: $("analyzeButton"),
       planButton: $("planButton"),
+      excellentPlanButton: $("excellentPlanButton"),
+      downloadPlanButton: $("downloadPlanButton"),
       clearButton: $("clearButton"),
       copyButton: $("copyButton"),
       saveScheduleButton: $("saveScheduleButton"),
@@ -1133,6 +1150,15 @@
       ].join(":");
     }
 
+    function slugify(text){
+      return String(text || "plano")
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .replace(/[^a-zA-Z0-9]+/g, "-")
+        .replace(/^-+|-+$/g, "")
+        .toLowerCase() || "plano";
+    }
+
     function updateClock(){
       const now = new Date();
       els.liveClock.textContent = "📅 " + now.toLocaleString("pt-BR", {
@@ -1149,6 +1175,7 @@
         els.testButton,
         els.analyzeButton,
         els.planButton,
+        els.excellentPlanButton,
         els.saveScheduleButton,
         els.saveReminderButton,
         els.registerContentButton
@@ -1647,6 +1674,43 @@
       });
     }
 
+    function getPlanCommentKey(index){
+      const title = els.scheduleTitle.value.trim();
+      const subjects = els.subjects.value.trim();
+      const examDate = els.examDate.value.trim();
+      return `${COMMENT_PREFIX}${title}__${subjects}__${examDate}__${index}`;
+    }
+
+    function decoratePlanComments(){
+      const cards = els.planCards.querySelectorAll(".plan-card");
+      cards.forEach((card, index) => {
+        if(card.querySelector(".plan-comment")) return;
+
+        const savedComment = localStorage.getItem(getPlanCommentKey(index)) || "";
+
+        const wrap = document.createElement("div");
+        wrap.innerHTML = `
+          <label style="display:block;margin-top:12px;margin-bottom:8px;font-weight:800;">Comentário do dia</label>
+          <textarea class="plan-comment" data-plan-comment="${index}" placeholder="Ex: revisar mais este assunto, caiu em questão, reforçar leitura...">${escapeHtml(savedComment)}</textarea>
+          <div class="item-actions" style="margin-top:10px;">
+            <button class="btn secondary small" data-save-plan-comment="${index}" type="button">Salvar comentário</button>
+            <button class="btn danger small" data-clear-plan-comment="${index}" type="button">Limpar comentário</button>
+          </div>
+        `;
+        card.appendChild(wrap);
+      });
+    }
+
+    function refreshDashboard(){
+      updateWeekGoalFromInput();
+      recalculateSubjectData();
+      recalculateProgress();
+      refreshTopMetrics();
+      renderCharts();
+      renderSubjectTimers();
+      checkGoalReached();
+    }
+
     function renderSubjectTimers(){
       ensureTimerSubjects();
       els.subjectTimerList.innerHTML = "";
@@ -1698,16 +1762,6 @@
       }
     }
 
-    function refreshDashboard(){
-      updateWeekGoalFromInput();
-      recalculateSubjectData();
-      recalculateProgress();
-      refreshTopMetrics();
-      renderCharts();
-      renderSubjectTimers();
-      checkGoalReached();
-    }
-
     function renderPlan(structured, applyMetrics = true){
       clearPlanCards(false);
       state.currentStructuredPlan = structured || null;
@@ -1739,6 +1793,8 @@
 
         els.planCards.appendChild(card);
       });
+
+      decoratePlanComments();
 
       if(applyMetrics){
         applyPlanToMetrics(structured);
@@ -2066,6 +2122,88 @@
       });
     }
 
+    function getPlanCommentText(index){
+      return localStorage.getItem(getPlanCommentKey(index)) || "";
+    }
+
+    function getPlanAsText(){
+      const structured = state.currentStructuredPlan;
+      if(!structured || !Array.isArray(structured.plano_diario) || !structured.plano_diario.length){
+        return "Nenhum plano gerado.";
+      }
+
+      const title = els.scheduleTitle.value.trim() || "Plano de estudo";
+      const subjects = els.subjects.value.trim() || "Não informado";
+      const examDate = els.examDate.value ? formatDate(els.examDate.value) : "Não informada";
+      const hoursPerDay = els.hoursPerDay.value.trim() || "Não informado";
+
+      let output = "";
+      output += `${title}\n`;
+      output += `Matérias: ${subjects}\n`;
+      output += `Data da prova: ${examDate}\n`;
+      output += `Horas por dia: ${hoursPerDay}\n\n`;
+      output += `PLANO DIÁRIO ESTRUTURADO\n`;
+      output += `====================================\n\n`;
+
+      structured.plano_diario.forEach((item, index) => {
+        output += `Dia ${item.dia ?? index + 1} - ${item.foco || "Foco do dia"}\n`;
+        output += `Tempo: ${item.tempo_estimado || "não informado"}\n`;
+        output += `Revisão: ${item.revisao || "não informada"}\n`;
+        output += `Meta: ${item.meta || "não informada"}\n`;
+
+        if(Array.isArray(item.tarefas) && item.tarefas.length){
+          output += `Tarefas:\n`;
+          item.tarefas.forEach(task => {
+            output += `- ${task}\n`;
+          });
+        }
+
+        const comment = getPlanCommentText(index);
+        if(comment.trim()){
+          output += `Comentário: ${comment.trim()}\n`;
+        }
+
+        output += `\n`;
+      });
+
+      return output;
+    }
+
+    function downloadCurrentPlan(){
+      if(!state.currentStructuredPlan){
+        setStatus("Sem plano", "Gere um plano antes de baixar.", "err");
+        return;
+      }
+
+      const fileBase =
+        els.scheduleTitle.value.trim() ||
+        els.subjects.value.trim() ||
+        "plano-de-estudo";
+
+      const content = getPlanAsText();
+      const blob = new Blob([content], { type: "text/plain;charset=utf-8" });
+      const url = URL.createObjectURL(blob);
+
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `${slugify(fileBase)}.txt`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+
+      URL.revokeObjectURL(url);
+      setStatus("Plano baixado", "O plano foi baixado em arquivo TXT.", "ok");
+    }
+
+    function slugify(text){
+      return String(text || "plano")
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .replace(/[^a-zA-Z0-9]+/g, "-")
+        .replace(/^-+|-+$/g, "")
+        .toLowerCase() || "plano";
+    }
+
     function resetAllData(){
       localStorage.removeItem(LOCAL_KEY);
 
@@ -2162,11 +2300,9 @@
       }
     }
 
-    let saveTimer = null;
-
     function scheduleSaveState(){
-      if(saveTimer) clearTimeout(saveTimer);
-      saveTimer = setTimeout(saveAllState, 350);
+      if(state.saveTimer) clearTimeout(state.saveTimer);
+      state.saveTimer = setTimeout(saveAllState, 350);
     }
 
     async function saveAllState(){
@@ -2263,10 +2399,14 @@
 
       try{
         setBusy(true);
-        if(action === "plan") clearPlanCards();
-        setResult("Processando...");
+        if(action === "plan" || action === "excellent_plan") clearPlanCards();
+        setResult(action === "excellent_plan" ? "Gerando plano excelente..." : "Processando...");
         setStatus(
-          action === "plan" ? "Gerando plano inteligente..." : "Analisando conteúdo...",
+          action === "excellent_plan"
+            ? "Gerando plano excelente..."
+            : action === "plan"
+              ? "Gerando plano inteligente..."
+              : "Analisando conteúdo...",
           "Aguarde a resposta do servidor."
         );
 
@@ -2279,7 +2419,8 @@
             content,
             subjects: els.subjects.value.trim(),
             examDate: els.examDate.value,
-            hoursPerDay: els.hoursPerDay.value.trim()
+            hoursPerDay: els.hoursPerDay.value.trim(),
+            promptMode: action === "excellent_plan" ? "excellent" : "normal"
           })
         });
 
@@ -2292,14 +2433,21 @@
         setResult(data.result || "Sem resposta.");
         setStatus("Resposta recebida", `Processamento concluído usando o modelo ${data.model || model}.`, "ok");
 
-        if(action === "plan" && data.structured){
+        if((action === "plan" || action === "excellent_plan") && data.structured){
           renderPlan(data.structured, true);
-        } else if(action !== "plan"){
+        } else if(action === "analyze"){
           state.currentStructuredPlan = null;
         }
 
         scheduleSaveState();
       }catch(error){
+        if(action === "excellent_plan"){
+          try{
+            await callStudyAI("plan");
+            return;
+          }catch{}
+        }
+
         setResult("Erro ao processar.");
         setStatus("Erro no processamento", error.message || "Falha inesperada.", "err");
       }finally{
@@ -2310,6 +2458,8 @@
     els.testButton.addEventListener("click", testConnection);
     els.analyzeButton.addEventListener("click", () => callStudyAI("analyze"));
     els.planButton.addEventListener("click", () => callStudyAI("plan"));
+    els.excellentPlanButton.addEventListener("click", () => callStudyAI("excellent_plan"));
+    els.downloadPlanButton.addEventListener("click", downloadCurrentPlan);
 
     els.refreshDashboardButton.addEventListener("click", () => {
       refreshDashboard();
@@ -2420,6 +2570,30 @@
       if(action === "pause") pauseSubjectTimer();
     });
 
+    els.planCards.addEventListener("click", (event) => {
+      const saveBtn = event.target.closest("[data-save-plan-comment]");
+      const clearBtn = event.target.closest("[data-clear-plan-comment]");
+
+      if(saveBtn){
+        const index = saveBtn.dataset.savePlanComment;
+        const textarea = els.planCards.querySelector(`textarea[data-plan-comment="${index}"]`);
+        if(textarea){
+          localStorage.setItem(getPlanCommentKey(index), textarea.value || "");
+          setStatus("Comentário salvo", `Comentário do dia ${Number(index) + 1} salvo com sucesso.`, "ok");
+        }
+      }
+
+      if(clearBtn){
+        const index = clearBtn.dataset.clearPlanComment;
+        const textarea = els.planCards.querySelector(`textarea[data-plan-comment="${index}"]`);
+        if(textarea){
+          textarea.value = "";
+          localStorage.removeItem(getPlanCommentKey(index));
+          setStatus("Comentário limpo", `Comentário do dia ${Number(index) + 1} removido.`, "ok");
+        }
+      }
+    });
+
     setInterval(() => {
       updateClock();
       if(state.studyTimer.isRunning){
@@ -2465,383 +2639,4 @@
     init();
   </script>
 </body>
-
-  function escapeHtml(text) {
-    return String(text ?? "")
-      .replaceAll("&", "&amp;")
-      .replaceAll("<", "&lt;")
-      .replaceAll(">", "&gt;")
-      .replaceAll('"', "&quot;")
-      .replaceAll("'", "&#039;");
-  }
-
-  function slugify(text) {
-    return String(text || "plano")
-      .normalize("NFD")
-      .replace(/[\u0300-\u036f]/g, "")
-      .replace(/[^a-zA-Z0-9]+/g, "-")
-      .replace(/^-+|-+$/g, "")
-      .toLowerCase() || "plano";
-  }
-
-  function getCurrentPlanKey(structured) {
-    const titleInput = $("scheduleTitle");
-    const subjectsInput = $("subjects");
-    const examDateInput = $("examDate");
-
-    const title = titleInput?.value?.trim() || "";
-    const subjects = subjectsInput?.value?.trim() || "";
-    const examDate = examDateInput?.value?.trim() || "";
-    const planSize = structured?.plano_diario?.length || 0;
-
-    return `${title}__${subjects}__${examDate}__${planSize}`;
-  }
-
-  function getCommentStorageKey(planKey, index) {
-    return `${PLAN_COMMENT_PREFIX}${planKey}__${index}`;
-  }
-
-  function setStatusSafe(title, text, type = "normal") {
-    if (typeof window.setStatus === "function") {
-      window.setStatus(title, text, type);
-      return;
-    }
-
-    const statusTitle = $("statusTitle");
-    const statusText = $("statusText");
-
-    if (statusTitle) statusTitle.textContent = title;
-    if (statusText) statusText.textContent = text;
-  }
-
-  function getCurrentStructuredPlan() {
-    return window.state?.currentStructuredPlan || window.currentStructuredPlan || null;
-  }
-
-  function setCurrentStructuredPlan(plan) {
-    if (window.state) window.state.currentStructuredPlan = plan;
-    window.currentStructuredPlan = plan;
-  }
-
-  function getPlanAsText(structured) {
-    if (!structured || !Array.isArray(structured.plano_diario) || !structured.plano_diario.length) {
-      return "Nenhum plano gerado.";
-    }
-
-    const title = $("scheduleTitle")?.value?.trim() || "Plano de estudo";
-    const subjects = $("subjects")?.value?.trim() || "Não informado";
-    const examDate = $("examDate")?.value?.trim() || "Não informada";
-    const hoursPerDay = $("hoursPerDay")?.value?.trim() || "Não informado";
-    const planKey = getCurrentPlanKey(structured);
-
-    let output = "";
-    output += `${title}\n`;
-    output += `Matérias: ${subjects}\n`;
-    output += `Data da prova: ${examDate}\n`;
-    output += `Horas por dia: ${hoursPerDay}\n`;
-    output += `\nPLANO DIÁRIO ESTRUTURADO\n`;
-    output += `====================================\n\n`;
-
-    structured.plano_diario.forEach((item, index) => {
-      output += `Dia ${item.dia ?? index + 1} - ${item.foco || "Foco do dia"}\n`;
-      output += `Tempo: ${item.tempo_estimado || "não informado"}\n`;
-      output += `Revisão: ${item.revisao || "não informada"}\n`;
-      output += `Meta: ${item.meta || "não informada"}\n`;
-
-      if (Array.isArray(item.tarefas) && item.tarefas.length) {
-        output += `Tarefas:\n`;
-        item.tarefas.forEach((task) => {
-          output += `- ${task}\n`;
-        });
-      }
-
-      const comment = localStorage.getItem(getCommentStorageKey(planKey, index)) || "";
-      if (comment.trim()) {
-        output += `Comentário: ${comment.trim()}\n`;
-      }
-
-      output += `\n`;
-    });
-
-    return output;
-  }
-
-  function downloadCurrentPlan() {
-    const structured = getCurrentStructuredPlan();
-
-    if (!structured || !Array.isArray(structured.plano_diario) || !structured.plano_diario.length) {
-      setStatusSafe("Sem plano", "Gere um plano antes de baixar.", "err");
-      return;
-    }
-
-    const fileBase =
-      $("scheduleTitle")?.value?.trim() ||
-      $("subjects")?.value?.trim() ||
-      "plano-de-estudo";
-
-    const content = getPlanAsText(structured);
-    const blob = new Blob([content], { type: "text/plain;charset=utf-8" });
-    const url = URL.createObjectURL(blob);
-
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `${slugify(fileBase)}.txt`;
-    document.body.appendChild(a);
-    a.click();
-    a.remove();
-
-    URL.revokeObjectURL(url);
-    setStatusSafe("Plano baixado", "O plano foi baixado em arquivo TXT.", "ok");
-  }
-
-  function createExtraButtons() {
-    const planButton = $("planButton");
-    if (!planButton || $("excellentPlanButton")) return;
-
-    const excellentBtn = document.createElement("button");
-    excellentBtn.id = "excellentPlanButton";
-    excellentBtn.type = "button";
-    excellentBtn.className = "btn success";
-    excellentBtn.textContent = "Gerar plano excelente";
-
-    const downloadBtn = document.createElement("button");
-    downloadBtn.id = "downloadPlanButton";
-    downloadBtn.type = "button";
-    downloadBtn.className = "btn secondary";
-    downloadBtn.textContent = "Baixar plano";
-
-    planButton.insertAdjacentElement("afterend", excellentBtn);
-    excellentBtn.insertAdjacentElement("afterend", downloadBtn);
-
-    excellentBtn.addEventListener("click", async function () {
-      try {
-        if (typeof window.callStudyAI === "function") {
-          await window.callStudyAI("excellent_plan");
-          return;
-        }
-        setStatusSafe("Ação indisponível", "A função de gerar plano ainda não foi encontrada.", "err");
-      } catch (err) {
-        setStatusSafe("Erro", err?.message || "Não consegui gerar o plano excelente.", "err");
-      }
-    });
-
-    downloadBtn.addEventListener("click", downloadCurrentPlan);
-  }
-
-  function decoratePlanCards(structured) {
-    const planCards = $("planCards");
-    if (!planCards) return;
-    if (!structured || !Array.isArray(structured.plano_diario) || !structured.plano_diario.length) return;
-
-    const planKey = getCurrentPlanKey(structured);
-    const cards = planCards.querySelectorAll(".plan-card, .day-card");
-
-    cards.forEach((card, index) => {
-      if (card.querySelector(".plan-comment-box")) return;
-
-      const savedComment = localStorage.getItem(getCommentStorageKey(planKey, index)) || "";
-
-      const wrapper = document.createElement("div");
-      wrapper.className = "plan-comment-box";
-      wrapper.style.marginTop = "14px";
-
-      wrapper.innerHTML = `
-        <label style="display:block;margin-bottom:8px;font-weight:800;color:#eef4ff;">
-          Comentário do dia
-        </label>
-
-        <textarea
-          data-plan-comment="${index}"
-          placeholder="Ex: revisar mais este assunto, caiu em questão, reforçar leitura..."
-          style="
-            width:100%;
-            min-height:90px;
-            resize:vertical;
-            border:1px solid rgba(255,255,255,.10);
-            background:rgba(255,255,255,.04);
-            color:#f4f7ff;
-            border-radius:16px;
-            padding:12px 14px;
-            outline:none;
-            font:inherit;
-          "
-        >${escapeHtml(savedComment)}</textarea>
-
-        <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:10px;">
-          <button
-            type="button"
-            data-save-plan-comment="${index}"
-            style="
-              border:none;
-              border-radius:12px;
-              padding:10px 14px;
-              font-weight:800;
-              cursor:pointer;
-              background:rgba(255,255,255,.06);
-              color:#f4f7ff;
-              border:1px solid rgba(255,255,255,.10);
-            "
-          >
-            Salvar comentário
-          </button>
-
-          <button
-            type="button"
-            data-clear-plan-comment="${index}"
-            style="
-              border:none;
-              border-radius:12px;
-              padding:10px 14px;
-              font-weight:800;
-              cursor:pointer;
-              background:linear-gradient(135deg,#ff8aa2,#ff5c7a);
-              color:#300711;
-            "
-          >
-            Limpar comentário
-          </button>
-        </div>
-      `;
-
-      card.appendChild(wrapper);
-    });
-
-    planCards.onclick = function (event) {
-      const saveBtn = event.target.closest("[data-save-plan-comment]");
-      const clearBtn = event.target.closest("[data-clear-plan-comment]");
-
-      if (saveBtn) {
-        const index = saveBtn.getAttribute("data-save-plan-comment");
-        const input = planCards.querySelector(`textarea[data-plan-comment="${index}"]`);
-        if (!input) return;
-
-        localStorage.setItem(getCommentStorageKey(planKey, index), input.value || "");
-        setStatusSafe("Comentário salvo", `Comentário do dia ${Number(index) + 1} salvo com sucesso.`, "ok");
-      }
-
-      if (clearBtn) {
-        const index = clearBtn.getAttribute("data-clear-plan-comment");
-        const input = planCards.querySelector(`textarea[data-plan-comment="${index}"]`);
-        if (!input) return;
-
-        input.value = "";
-        localStorage.removeItem(getCommentStorageKey(planKey, index));
-        setStatusSafe("Comentário limpo", `Comentário do dia ${Number(index) + 1} removido.`, "ok");
-      }
-    };
-  }
-
-  function patchRenderPlan() {
-    if (typeof window.renderPlan !== "function") return;
-
-    const originalRenderPlan = window.renderPlan;
-
-    window.renderPlan = function (structured, applyMetrics = true) {
-      originalRenderPlan(structured, applyMetrics);
-      setCurrentStructuredPlan(structured);
-      setTimeout(() => decoratePlanCards(structured), 30);
-      setTimeout(createExtraButtons, 30);
-    };
-  }
-
-  function patchCallStudyAI() {
-    if (typeof window.callStudyAI !== "function") return;
-
-    const originalCallStudyAI = window.callStudyAI;
-
-    window.callStudyAI = async function (action) {
-      if (action !== "excellent_plan") {
-        return originalCallStudyAI(action);
-      }
-
-      try {
-        const endpoint = $("aiEndpoint")?.value?.trim() || "/api/study-ai";
-        const content = $("content")?.value?.trim() || "";
-        const model = $("aiModel")?.value?.trim() || "gpt-4.1-mini";
-
-        if (!content) {
-          setStatusSafe("Sem conteúdo", "Cole ou importe algum conteúdo antes de gerar o plano excelente.", "err");
-          return;
-        }
-
-        if (typeof window.setResult === "function") {
-          window.setResult("Gerando plano excelente...");
-        } else if ($("resultBox")) {
-          $("resultBox").textContent = "Gerando plano excelente...";
-        }
-
-        setStatusSafe("Gerando plano excelente...", "O sistema está montando um plano mais detalhado e estratégico.");
-
-        const payload = {
-          action: "excellent_plan",
-          model,
-          content,
-          subjects: $("subjects")?.value?.trim() || "",
-          examDate: $("examDate")?.value || "",
-          hoursPerDay: $("hoursPerDay")?.value?.trim() || "",
-          promptMode: "excellent"
-        };
-
-        const resp = await fetch(endpoint, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(payload)
-        });
-
-        const data = await resp.json();
-
-        if (!resp.ok || !data.ok) {
-          return originalCallStudyAI("plan");
-        }
-
-        if (typeof window.setResult === "function") {
-          window.setResult(data.result || "Plano excelente gerado.");
-        } else if ($("resultBox")) {
-          $("resultBox").textContent = data.result || "Plano excelente gerado.";
-        }
-
-        if (data.structured && typeof window.renderPlan === "function") {
-          window.renderPlan(data.structured, true);
-        }
-
-        setStatusSafe("Plano excelente pronto", "O plano excelente foi gerado com sucesso.", "ok");
-      } catch (error) {
-        try {
-          await originalCallStudyAI("plan");
-        } catch {
-          setStatusSafe("Erro", error?.message || "Não consegui gerar o plano excelente.", "err");
-        }
-      }
-    };
-  }
-
-  function boot() {
-    createExtraButtons();
-    patchRenderPlan();
-    patchCallStudyAI();
-
-    const existingPlan = getCurrentStructuredPlan();
-    if (existingPlan) {
-      decoratePlanCards(existingPlan);
-    }
-
-    const observer = new MutationObserver(() => {
-      createExtraButtons();
-      const plan = getCurrentStructuredPlan();
-      if (plan) decoratePlanCards(plan);
-    });
-
-    if (document.body) {
-      observer.observe(document.body, { childList: true, subtree: true });
-    }
-  }
-
-  if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", boot);
-  } else {
-    boot();
-  }
-})();
-</script>
 </html>
-
