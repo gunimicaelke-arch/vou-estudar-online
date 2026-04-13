@@ -7,200 +7,744 @@
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
     * { box-sizing: border-box; }
+
+    :root{
+      --bg: #f5f7fb;
+      --card: #ffffff;
+      --line: #e8ebf4;
+      --text: #1f2430;
+      --muted: #6f7890;
+      --primary: #5b61ff;
+      --primary-2: #7b80ff;
+      --success: #24c26a;
+      --warning: #ffb020;
+      --danger: #ff6b6b;
+      --shadow: 0 10px 30px rgba(31,36,48,0.08);
+      --radius: 20px;
+    }
+
     body {
       margin: 0;
       font-family: Arial, Helvetica, sans-serif;
-      background: #0b1020;
-      color: #fff;
+      background: var(--bg);
+      color: var(--text);
     }
+
     .hidden { display: none !important; }
-    .wrap {
-      max-width: 1200px;
-      margin: 0 auto;
-      padding: 16px;
-    }
-    .card {
-      background: #121933;
-      border: 1px solid rgba(255,255,255,0.08);
-      border-radius: 18px;
-      padding: 16px;
-      box-shadow: 0 8px 30px rgba(0,0,0,0.25);
-    }
-    .grid {
-      display: grid;
-      gap: 16px;
-    }
-    .grid-2 {
-      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-    }
-    .grid-3 {
-      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-    }
-    h1, h2, h3, p { margin-top: 0; }
-    input, textarea, button {
-      width: 100%;
-      border-radius: 12px;
-      border: none;
-      padding: 12px;
-      font-size: 15px;
-    }
-    input, textarea {
-      background: #0c1329;
-      color: #fff;
-      border: 1px solid rgba(255,255,255,0.08);
-      margin-bottom: 10px;
-    }
-    button {
-      cursor: pointer;
-      font-weight: bold;
-      background: linear-gradient(90deg, #6d5dfc, #8d7dff);
-      color: white;
-    }
-    button.secondary {
-      background: #1d284f;
-    }
-    .topbar {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 12px;
-      margin-bottom: 16px;
-      flex-wrap: wrap;
-    }
-    .small {
-      font-size: 13px;
-      opacity: 0.9;
-    }
-    .materia-item {
-      background: #0c1329;
-      border: 1px solid rgba(255,255,255,0.08);
-      padding: 10px 12px;
-      border-radius: 12px;
-      margin-bottom: 8px;
-    }
-    .row {
-      display: flex;
-      gap: 10px;
-      flex-wrap: wrap;
-    }
-    .row > * {
-      flex: 1;
-      min-width: 180px;
-    }
-    pre {
-      white-space: pre-wrap;
-      word-wrap: break-word;
-      background: #0c1329;
-      padding: 14px;
-      border-radius: 12px;
-      border: 1px solid rgba(255,255,255,0.08);
-      color: #dfe8ff;
-      min-height: 300px;
-    }
+
     .center {
       min-height: 100vh;
       display: grid;
       place-items: center;
-      padding: 16px;
+      padding: 24px;
     }
-    .login-box {
+
+    .login-shell {
       width: 100%;
-      max-width: 430px;
+      max-width: 1180px;
+      display: grid;
+      grid-template-columns: 1.1fr 0.9fr;
+      gap: 28px;
+      align-items: center;
     }
-    .danger { color: #ff8080; }
-    .success { color: #7CFFA1; }
-    .muted { color: #b8c4ff; }
+
+    .intro-box, .login-box, .main-card, .panel, .stat-card {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 24px;
+      box-shadow: var(--shadow);
+    }
+
+    .intro-box {
+      padding: 48px;
+      min-height: 420px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    .brand {
+      font-size: 58px;
+      font-weight: 800;
+      color: var(--primary);
+      margin: 0 0 8px 0;
+    }
+
+    .sub {
+      color: var(--muted);
+      font-size: 24px;
+      margin-bottom: 32px;
+    }
+
+    .feature {
+      display: flex;
+      gap: 16px;
+      align-items: flex-start;
+      margin-bottom: 24px;
+    }
+
+    .feature-icon {
+      width: 54px;
+      height: 54px;
+      border-radius: 16px;
+      background: #eef0ff;
+      color: var(--primary);
+      display: grid;
+      place-items: center;
+      font-size: 24px;
+      flex-shrink: 0;
+    }
+
+    .feature h3 {
+      margin: 0 0 4px 0;
+      font-size: 22px;
+    }
+
+    .feature p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 18px;
+    }
+
+    .login-box {
+      padding: 32px;
+      max-width: 460px;
+      width: 100%;
+      justify-self: center;
+    }
+
+    .login-box h2 {
+      margin: 0 0 8px 0;
+      font-size: 40px;
+      text-align: center;
+    }
+
+    .login-box .muted {
+      text-align: center;
+      margin-bottom: 24px;
+    }
+
+    input, textarea, select, button {
+      width: 100%;
+      border-radius: 14px;
+      border: 1px solid var(--line);
+      padding: 14px 16px;
+      font-size: 15px;
+      font-family: inherit;
+    }
+
+    input, textarea, select {
+      background: #fff;
+      color: var(--text);
+      margin-bottom: 12px;
+      outline: none;
+    }
+
+    textarea {
+      resize: vertical;
+      min-height: 120px;
+    }
+
+    button {
+      cursor: pointer;
+      border: none;
+      background: linear-gradient(90deg, var(--primary), var(--primary-2));
+      color: white;
+      font-weight: 700;
+      transition: 0.2s;
+    }
+
+    button:hover { transform: translateY(-1px); }
+    .secondary {
+      background: #eef1f9;
+      color: var(--text);
+      border: 1px solid var(--line);
+    }
+
+    .demo-box {
+      margin-top: 14px;
+      background: #f4f5ff;
+      border-radius: 16px;
+      padding: 14px;
+      color: var(--text);
+      border: 1px solid #e6e8ff;
+    }
+
+    .wrap {
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 18px;
+    }
+
+    .main-card {
+      overflow: hidden;
+    }
+
+    .top-nav {
+      background: white;
+      border-bottom: 1px solid var(--line);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+      flex-wrap: wrap;
+      padding: 14px 18px;
+    }
+
+    .logo-line {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 800;
+      font-size: 26px;
+    }
+
+    .logo-icon {
+      width: 42px;
+      height: 42px;
+      border-radius: 12px;
+      background: #eef0ff;
+      color: var(--primary);
+      display: grid;
+      place-items: center;
+      font-size: 22px;
+    }
+
+    .nav-tabs {
+      display: flex;
+      gap: 18px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    .tab {
+      padding: 10px 4px;
+      color: var(--muted);
+      font-weight: 700;
+      border-bottom: 3px solid transparent;
+      cursor: pointer;
+    }
+
+    .tab.active {
+      color: var(--primary);
+      border-bottom-color: var(--primary);
+    }
+
+    .user-box {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .avatar {
+      width: 42px;
+      height: 42px;
+      border-radius: 50%;
+      background: #eef0ff;
+      display: grid;
+      place-items: center;
+      color: var(--primary);
+      font-weight: 800;
+    }
+
+    .page-content {
+      padding: 26px;
+    }
+
+    .hero-title {
+      font-size: 28px;
+      font-weight: 800;
+      margin: 0 0 6px 0;
+    }
+
+    .hero-sub {
+      color: var(--muted);
+      margin-bottom: 22px;
+    }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 18px;
+      margin-bottom: 20px;
+    }
+
+    .stat-card {
+      padding: 18px;
+      display: flex;
+      gap: 14px;
+      align-items: center;
+    }
+
+    .stat-icon {
+      width: 58px;
+      height: 58px;
+      border-radius: 18px;
+      display: grid;
+      place-items: center;
+      font-size: 24px;
+      flex-shrink: 0;
+    }
+
+    .icon-blue { background: #eef0ff; color: var(--primary); }
+    .icon-green { background: #eaf9f0; color: var(--success); }
+    .icon-orange { background: #fff4e5; color: var(--warning); }
+
+    .stat-label {
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 700;
+      text-transform: uppercase;
+      margin-bottom: 4px;
+    }
+
+    .stat-value {
+      font-size: 18px;
+      font-weight: 800;
+      margin-bottom: 2px;
+    }
+
+    .stat-sub {
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .grid-3 {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 18px;
+      margin-bottom: 18px;
+    }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 18px;
+      margin-bottom: 18px;
+    }
+
+    .panel {
+      padding: 20px;
+    }
+
+    .panel-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 16px;
+      flex-wrap: wrap;
+    }
+
+    .panel-head h3 {
+      margin: 0;
+      font-size: 24px;
+    }
+
+    .panel-link {
+      color: var(--primary);
+      font-weight: 700;
+      font-size: 14px;
+      cursor: pointer;
+    }
+
+    .timer-box {
+      text-align: center;
+      padding-top: 6px;
+    }
+
+    .timer-display {
+      font-size: 62px;
+      font-weight: 800;
+      margin: 22px 0;
+      letter-spacing: 2px;
+    }
+
+    .list-item {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      align-items: center;
+      padding: 12px 0;
+      border-bottom: 1px solid var(--line);
+      flex-wrap: wrap;
+    }
+
+    .list-item:last-child { border-bottom: none; }
+
+    .badge-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      display: inline-block;
+      margin-right: 8px;
+      vertical-align: middle;
+    }
+
+    .dot-blue { background: #6370ff; }
+    .dot-green { background: #24c26a; }
+    .dot-yellow { background: #ffb020; }
+    .dot-red { background: #ff7b7b; }
+
+    .subject-actions, .row {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .row > * { flex: 1; min-width: 140px; }
+
+    .mini-btn {
+      width: auto;
+      padding: 8px 12px;
+      border-radius: 10px;
+      font-size: 13px;
+    }
+
+    .progress-panel {
+      min-height: 300px;
+    }
+
+    .saved-plan-item, .note-item {
+      background: #f8f9fd;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 12px;
+      margin-bottom: 10px;
+    }
+
+    .saved-plan-item h4, .note-item h4 {
+      margin: 0 0 8px 0;
+      font-size: 16px;
+    }
+
+    .saved-plan-item p, .note-item p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 14px;
+      white-space: pre-wrap;
+    }
+
+    .section-title {
+      font-size: 20px;
+      font-weight: 800;
+      margin: 0 0 12px 0;
+    }
+
+    .muted {
+      color: var(--muted);
+    }
+
+    .danger { color: var(--danger); }
+    .success { color: var(--success); }
+
+    .file-label {
+      display: inline-block;
+      width: 100%;
+      padding: 12px 14px;
+      background: #f7f8fc;
+      border: 1px dashed #ccd3ea;
+      border-radius: 14px;
+      color: var(--muted);
+      cursor: pointer;
+      text-align: center;
+      margin-bottom: 12px;
+    }
+
+    .tab-content { display: none; }
+    .tab-content.active { display: block; }
+
+    .empty {
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    @media (max-width: 1100px) {
+      .login-shell,
+      .stats,
+      .grid-3,
+      .grid-2 {
+        grid-template-columns: 1fr;
+      }
+
+      .brand { font-size: 42px; }
+      .sub { font-size: 20px; }
+    }
   </style>
 </head>
 <body>
   <div id="loginView" class="center">
-    <div class="login-box card">
-      <h1>Vou Estudar+</h1>
-      <p class="muted">Entre no sistema</p>
+    <div class="login-shell">
+      <div class="intro-box">
+        <h1 class="brand">Vou Estudar+</h1>
+        <div class="sub">Organize seus estudos. Alcance seus objetivos.</div>
 
-      <input id="loginEmail" type="email" placeholder="Email" value="admin@vouestudar.com" />
-      <input id="loginPassword" type="password" placeholder="Senha" value="123456" />
-      <button id="loginBtn">Entrar</button>
-      <p id="loginMsg" class="small"></p>
+        <div class="feature">
+          <div class="feature-icon">📘</div>
+          <div>
+            <h3>Plano de estudo inteligente</h3>
+            <p>Gere planos personalizados para cada prova e salve tudo.</p>
+          </div>
+        </div>
+
+        <div class="feature">
+          <div class="feature-icon">⏱️</div>
+          <div>
+            <h3>Timer de foco</h3>
+            <p>Estude com método prático e acompanhe seu tempo.</p>
+          </div>
+        </div>
+
+        <div class="feature">
+          <div class="feature-icon">📈</div>
+          <div>
+            <h3>Acompanhe seu progresso</h3>
+            <p>Veja sua evolução diária por matéria e por sessão.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="login-box">
+        <h2>Entrar</h2>
+        <p class="muted">Acesse sua conta para continuar</p>
+
+        <input id="loginEmail" type="email" placeholder="Email" value="admin@vouestudar.com" />
+        <input id="loginPassword" type="password" placeholder="Senha" value="123456" />
+        <button id="loginBtn">Entrar</button>
+
+        <div class="demo-box">
+          <strong>Login de demonstração:</strong><br>
+          Email: admin@vouestudar.com<br>
+          Senha: 123456
+        </div>
+
+        <p id="loginMsg" class="muted"></p>
+      </div>
     </div>
   </div>
 
   <div id="appView" class="hidden">
     <div class="wrap">
-      <div class="topbar">
-        <div>
-          <h1 style="margin-bottom:4px;">Vou Estudar+</h1>
-          <div class="small">Sistema com login, timer, gráficos e IA</div>
-        </div>
-        <div class="row" style="max-width:420px;">
-          <button class="secondary" id="logoutBtn">Sair</button>
-        </div>
-      </div>
-
-      <div class="grid grid-3">
-        <div class="card">
-          <h3>Tempo estudado hoje</h3>
-          <h2 id="tempoHoje">0 min</h2>
-          <p class="small">Atualizado automaticamente</p>
-        </div>
-        <div class="card">
-          <h3>Matérias cadastradas</h3>
-          <h2 id="qtdMaterias">0</h2>
-          <p class="small">Salvo no navegador</p>
-        </div>
-        <div class="card">
-          <h3>Sessões finalizadas</h3>
-          <h2 id="qtdSessoes">0</h2>
-          <p class="small">Cada sessão soma no gráfico</p>
-        </div>
-      </div>
-
-      <div class="grid grid-2" style="margin-top:16px;">
-        <div class="card">
-          <h2>Cadastrar matéria</h2>
-          <input id="materiaNome" placeholder="Nome da matéria" />
-          <input id="materiaData" type="date" />
-          <button id="addMateriaBtn">Salvar matéria</button>
-          <div id="listaMaterias" style="margin-top:12px;"></div>
-        </div>
-
-        <div class="card">
-          <h2>Timer de estudo</h2>
-          <div class="row">
-            <input id="timerMinutos" type="number" min="1" value="25" placeholder="Minutos" />
-            <button id="iniciarTimerBtn">Iniciar</button>
-            <button class="secondary" id="finalizarTimerBtn">Finalizar agora</button>
+      <div class="main-card">
+        <div class="top-nav">
+          <div class="logo-line">
+            <div class="logo-icon">📘</div>
+            <div>Vou Estudar+</div>
           </div>
-          <h2 id="timerDisplay" style="margin-top:12px;">25:00</h2>
-          <p id="timerStatus" class="small">Pronto para estudar</p>
-        </div>
-      </div>
 
-      <div class="grid grid-2" style="margin-top:16px;">
-        <div class="card">
-          <h2>Gráfico de estudo por dia</h2>
-          <canvas id="graficoTempo"></canvas>
-        </div>
+          <div class="nav-tabs">
+            <div class="tab active" data-tab="inicio">Início</div>
+            <div class="tab" data-tab="plano">Plano Inteligente</div>
+            <div class="tab" data-tab="materias">Matérias</div>
+            <div class="tab" data-tab="caderno">Caderno Diário</div>
+            <div class="tab" data-tab="progresso">Progresso</div>
+          </div>
 
-        <div class="card">
-          <h2>Gráfico por matéria</h2>
-          <canvas id="graficoMaterias"></canvas>
-        </div>
-      </div>
-
-      <div class="grid grid-2" style="margin-top:16px;">
-        <div class="card">
-          <h2>Plano de estudo com IA</h2>
-          <input id="iaMateria" placeholder="Matéria" />
-          <input id="iaData" type="date" />
-          <textarea id="iaConteudo" rows="10" placeholder="Cole o conteúdo, resumo, edital ou tema da prova"></textarea>
-          <button id="gerarPlanoBtn">Gerar plano com IA</button>
-          <p id="iaMsg" class="small"></p>
+          <div class="user-box">
+            <div id="olaAluno">Olá, Aluno!</div>
+            <div class="avatar">A</div>
+            <button class="secondary mini-btn" id="logoutBtn">Sair</button>
+          </div>
         </div>
 
-        <div class="card">
-          <h2>Resultado</h2>
-          <pre id="resultadoPlano">Seu plano aparecerá aqui.</pre>
+        <div class="page-content">
+          <div id="tab-inicio" class="tab-content active">
+            <h2 class="hero-title">Bom dia! 👋</h2>
+            <div class="hero-sub">Pronto para mais uma sessão de estudos?</div>
+
+            <div class="stats">
+              <div class="stat-card">
+                <div class="stat-icon icon-blue">🕒</div>
+                <div>
+                  <div class="stat-label">Tempo hoje</div>
+                  <div class="stat-value" id="tempoHoje">0 min</div>
+                  <div class="stat-sub">Meta prática diária</div>
+                </div>
+              </div>
+
+              <div class="stat-card">
+                <div class="stat-icon icon-green">📚</div>
+                <div>
+                  <div class="stat-label">Matérias</div>
+                  <div class="stat-value" id="qtdMaterias">0 cadastradas</div>
+                  <div class="stat-sub">Organizadas para estudar</div>
+                </div>
+              </div>
+
+              <div class="stat-card">
+                <div class="stat-icon icon-orange">🔥</div>
+                <div>
+                  <div class="stat-label">Sessões</div>
+                  <div class="stat-value" id="qtdSessoes">0 concluídas</div>
+                  <div class="stat-sub">Total acumulado</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="grid-3">
+              <div class="panel">
+                <div class="panel-head">
+                  <h3>Timer de Estudo</h3>
+                  <span class="panel-link">Foco</span>
+                </div>
+
+                <div class="row">
+                  <input id="timerMinutos" type="number" min="1" value="25" placeholder="Minutos" />
+                </div>
+
+                <div class="timer-box">
+                  <div class="timer-display" id="timerDisplay">25:00</div>
+                  <p class="muted" id="timerStatus">Pronto para estudar</p>
+                </div>
+
+                <div class="row">
+                  <button id="iniciarTimerBtn">Iniciar</button>
+                  <button class="secondary" id="finalizarTimerBtn">Finalizar</button>
+                </div>
+              </div>
+
+              <div class="panel">
+                <div class="panel-head">
+                  <h3>Próximas Matérias</h3>
+                  <span class="panel-link" onclick="abrirTab('materias')">Ver todas</span>
+                </div>
+                <div id="listaMateriasInicio"></div>
+              </div>
+
+              <div class="panel">
+                <div class="panel-head">
+                  <h3>Plano Inteligente</h3>
+                  <span class="panel-link" onclick="abrirTab('plano')">Abrir</span>
+                </div>
+                <p class="muted">Gere um plano personalizado e salve para revisar depois.</p>
+                <textarea id="atalhoConteudo" rows="5" placeholder="Ex: Preciso estudar funções para a prova..."></textarea>
+                <button id="atalhoPlanoBtn">Gerar Plano</button>
+              </div>
+            </div>
+
+            <div class="panel progress-panel">
+              <div class="panel-head">
+                <h3>Seu Progresso</h3>
+                <span class="panel-link" onclick="abrirTab('progresso')">Ver completo</span>
+              </div>
+              <canvas id="graficoTempo"></canvas>
+            </div>
+          </div>
+
+          <div id="tab-plano" class="tab-content">
+            <div class="grid-2">
+              <div class="panel">
+                <div class="panel-head">
+                  <h3>Plano de Estudo Inteligente</h3>
+                  <span class="panel-link">Prático</span>
+                </div>
+
+                <input id="iaMateria" placeholder="Matéria" />
+                <input id="iaData" type="date" />
+
+                <label class="file-label" for="importarPlanoArquivo">
+                  Importar conteúdo do plano de aula
+                </label>
+                <input id="importarPlanoArquivo" type="file" accept=".txt,.md,.json,.csv" class="hidden" />
+
+                <textarea id="iaConteudo" rows="10" placeholder="Cole ou importe o conteúdo da aula, resumo, edital ou tema da prova"></textarea>
+
+                <div class="row">
+                  <button id="gerarPlanoBtn">Gerar plano</button>
+                  <button class="secondary" id="salvarPlanoBtn">Salvar plano</button>
+                </div>
+
+                <p id="iaMsg" class="muted"></p>
+              </div>
+
+              <div class="panel">
+                <div class="panel-head">
+                  <h3>Resultado</h3>
+                  <span class="panel-link">Atual</span>
+                </div>
+                <textarea id="resultadoPlano" rows="18" placeholder="Seu plano aparecerá aqui."></textarea>
+              </div>
+            </div>
+
+            <div class="panel">
+              <div class="panel-head">
+                <h3>Planos Salvos</h3>
+                <span class="panel-link" id="limparPlanosBtn">Limpar tudo</span>
+              </div>
+              <div id="listaPlanosSalvos"></div>
+            </div>
+          </div>
+
+          <div id="tab-materias" class="tab-content">
+            <div class="grid-2">
+              <div class="panel">
+                <div class="panel-head">
+                  <h3>Cadastrar Matéria</h3>
+                  <span class="panel-link">Organização</span>
+                </div>
+                <input id="materiaNome" placeholder="Nome da matéria" />
+                <input id="materiaData" type="date" />
+                <button id="addMateriaBtn">Salvar matéria</button>
+              </div>
+
+              <div class="panel">
+                <div class="panel-head">
+                  <h3>Matérias Cadastradas</h3>
+                  <span class="panel-link">Lista</span>
+                </div>
+                <div id="listaMateriasCompleta"></div>
+              </div>
+            </div>
+          </div>
+
+          <div id="tab-caderno" class="tab-content">
+            <div class="grid-2">
+              <div class="panel">
+                <div class="panel-head">
+                  <h3>Caderno Diário</h3>
+                  <span class="panel-link">Anotações de aula</span>
+                </div>
+
+                <select id="notaMateria"></select>
+                <input id="notaTitulo" placeholder="Título da anotação" />
+                <textarea id="notaConteudo" rows="12" placeholder="Anote a aula, os pontos importantes, exemplos, dúvidas e resumos"></textarea>
+
+                <div class="row">
+                  <button id="salvarNotaBtn">Salvar anotação</button>
+                  <button class="secondary" id="limparNotaFormBtn">Limpar</button>
+                </div>
+              </div>
+
+              <div class="panel">
+                <div class="panel-head">
+                  <h3>Anotações Salvas</h3>
+                  <span class="panel-link" id="limparNotasBtn">Limpar tudo</span>
+                </div>
+                <div id="listaNotas"></div>
+              </div>
+            </div>
+          </div>
+
+          <div id="tab-progresso" class="tab-content">
+            <div class="grid-2">
+              <div class="panel">
+                <div class="panel-head">
+                  <h3>Estudo por dia</h3>
+                  <span class="panel-link">Últimos 7 dias</span>
+                </div>
+                <canvas id="graficoTempoCompleto"></canvas>
+              </div>
+
+              <div class="panel">
+                <div class="panel-head">
+                  <h3>Estudo por matéria</h3>
+                  <span class="panel-link">Distribuição</span>
+                </div>
+                <canvas id="graficoMaterias"></canvas>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -219,7 +763,6 @@
     const materiaNome = document.getElementById("materiaNome");
     const materiaData = document.getElementById("materiaData");
     const addMateriaBtn = document.getElementById("addMateriaBtn");
-    const listaMaterias = document.getElementById("listaMaterias");
 
     const qtdMaterias = document.getElementById("qtdMaterias");
     const qtdSessoes = document.getElementById("qtdSessoes");
@@ -235,10 +778,21 @@
     const iaData = document.getElementById("iaData");
     const iaConteudo = document.getElementById("iaConteudo");
     const gerarPlanoBtn = document.getElementById("gerarPlanoBtn");
+    const salvarPlanoBtn = document.getElementById("salvarPlanoBtn");
     const iaMsg = document.getElementById("iaMsg");
     const resultadoPlano = document.getElementById("resultadoPlano");
+    const importarPlanoArquivo = document.getElementById("importarPlanoArquivo");
+    const atalhoConteudo = document.getElementById("atalhoConteudo");
+    const atalhoPlanoBtn = document.getElementById("atalhoPlanoBtn");
+
+    const notaMateria = document.getElementById("notaMateria");
+    const notaTitulo = document.getElementById("notaTitulo");
+    const notaConteudo = document.getElementById("notaConteudo");
+    const salvarNotaBtn = document.getElementById("salvarNotaBtn");
+    const limparNotaFormBtn = document.getElementById("limparNotaFormBtn");
 
     let graficoTempo;
+    let graficoTempoCompleto;
     let graficoMaterias;
     let timerInterval = null;
 
@@ -248,7 +802,9 @@
         materias: [],
         sessoes: [],
         timer: null,
-        ultimoPlano: ""
+        ultimoPlano: "",
+        planosSalvos: [],
+        notas: []
       }));
     }
 
@@ -257,18 +813,48 @@
     }
 
     function isLogged() {
-      const data = getData();
-      return !!data.user;
+      return !!getData().user;
+    }
+
+    function hojeStr() {
+      return new Date().toISOString().slice(0, 10);
     }
 
     function formatMin(min) {
       return `${min} min`;
     }
 
-    function hojeStr() {
-      const d = new Date();
-      return d.toISOString().slice(0, 10);
+    function safe(str) {
+      return (str || "").replace(/[&<>"']/g, function(m) {
+        return ({
+          "&": "&amp;",
+          "<": "&lt;",
+          ">": "&gt;",
+          '"': "&quot;",
+          "'": "&#039;"
+        })[m];
+      });
     }
+
+    function abrirTab(nome) {
+      document.querySelectorAll(".tab").forEach(tab => {
+        tab.classList.toggle("active", tab.dataset.tab === nome);
+      });
+
+      document.querySelectorAll(".tab-content").forEach(content => {
+        content.classList.toggle("active", content.id === `tab-${nome}`);
+      });
+
+      if (nome === "progresso") {
+        setTimeout(renderCharts, 100);
+      }
+    }
+
+    window.abrirTab = abrirTab;
+
+    document.querySelectorAll(".tab").forEach(tab => {
+      tab.addEventListener("click", () => abrirTab(tab.dataset.tab));
+    });
 
     function showLogin() {
       loginView.classList.remove("hidden");
@@ -281,68 +867,9 @@
       renderApp();
     }
 
-    function renderApp() {
-      const data = getData();
-
-      qtdMaterias.textContent = data.materias.length;
-      qtdSessoes.textContent = data.sessoes.length;
-
-      const minutosHoje = data.sessoes
-        .filter(s => s.date === hojeStr())
-        .reduce((acc, s) => acc + Number(s.minutos || 0), 0);
-
-      tempoHoje.textContent = formatMin(minutosHoje);
-
-      listaMaterias.innerHTML = "";
-      if (data.materias.length === 0) {
-        listaMaterias.innerHTML = '<p class="small muted">Nenhuma matéria cadastrada.</p>';
-      } else {
-        data.materias.forEach((m, i) => {
-          const div = document.createElement("div");
-          div.className = "materia-item";
-          div.innerHTML = `
-            <strong>${m.nome}</strong><br>
-            <span class="small">Prova: ${m.data || "não informada"}</span><br>
-            <button style="margin-top:8px;" class="secondary" onclick="removerMateria(${i})">Remover</button>
-          `;
-          listaMaterias.appendChild(div);
-        });
-      }
-
-      resultadoPlano.textContent = data.ultimoPlano || "Seu plano aparecerá aqui.";
-
-      renderCharts();
-      restoreTimer();
-    }
-
-    window.removerMateria = function(index) {
-      const data = getData();
-      data.materias.splice(index, 1);
-      saveData(data);
-      renderApp();
-    };
-
-    addMateriaBtn.addEventListener("click", () => {
-      const nome = materiaNome.value.trim();
-      const dataProva = materiaData.value;
-
-      if (!nome) return;
-
-      const data = getData();
-      data.materias.push({
-        nome,
-        data: dataProva || ""
-      });
-
-      saveData(data);
-      materiaNome.value = "";
-      materiaData.value = "";
-      renderApp();
-    });
-
     loginBtn.addEventListener("click", async () => {
       loginMsg.textContent = "Entrando...";
-      loginMsg.className = "small";
+      loginMsg.className = "muted";
 
       try {
         const email = document.getElementById("loginEmail").value.trim();
@@ -358,7 +885,7 @@
 
         if (!resp.ok || !json.ok) {
           loginMsg.textContent = json.message || "Falha no login.";
-          loginMsg.className = "small danger";
+          loginMsg.className = "danger";
           return;
         }
 
@@ -368,7 +895,7 @@
         showApp();
       } catch (error) {
         loginMsg.textContent = "Erro ao conectar no servidor.";
-        loginMsg.className = "small danger";
+        loginMsg.className = "danger";
       }
     });
 
@@ -379,6 +906,35 @@
       saveData(data);
       showLogin();
     });
+
+    addMateriaBtn.addEventListener("click", () => {
+      const nome = materiaNome.value.trim();
+      const dataProva = materiaData.value;
+
+      if (!nome) return;
+
+      const data = getData();
+      data.materias.push({
+        id: Date.now(),
+        nome,
+        data: dataProva || ""
+      });
+
+      saveData(data);
+      materiaNome.value = "";
+      materiaData.value = "";
+      renderApp();
+      abrirTab("materias");
+    });
+
+    function removerMateria(id) {
+      const data = getData();
+      data.materias = data.materias.filter(m => m.id !== id);
+      saveData(data);
+      renderApp();
+    }
+
+    window.removerMateria = removerMateria;
 
     function restoreTimer() {
       clearInterval(timerInterval);
@@ -391,7 +947,6 @@
       }
 
       timerInterval = setInterval(() => {
-        const now = Date.now();
         const current = getData();
         if (!current.timer) {
           clearInterval(timerInterval);
@@ -400,7 +955,7 @@
           return;
         }
 
-        const diff = current.timer.endAt - now;
+        const diff = current.timer.endAt - Date.now();
 
         if (diff <= 0) {
           clearInterval(timerInterval);
@@ -411,6 +966,7 @@
         const totalSec = Math.floor(diff / 1000);
         const mm = String(Math.floor(totalSec / 60)).padStart(2, "0");
         const ss = String(totalSec % 60).padStart(2, "0");
+
         timerDisplay.textContent = `${mm}:${ss}`;
         timerStatus.textContent = `Estudando: ${current.timer.minutos} min`;
       }, 1000);
@@ -481,7 +1037,21 @@
       });
 
       if (graficoTempo) graficoTempo.destroy();
+      if (graficoTempoCompleto) graficoTempoCompleto.destroy();
       if (graficoMaterias) graficoMaterias.destroy();
+
+      const baseConfig = {
+        responsive: true,
+        plugins: {
+          legend: {
+            labels: { color: "#6f7890" }
+          }
+        },
+        scales: {
+          x: { ticks: { color: "#6f7890" }, grid: { color: "#eef1f7" } },
+          y: { ticks: { color: "#6f7890" }, grid: { color: "#eef1f7" } }
+        }
+      };
 
       graficoTempo = new Chart(document.getElementById("graficoTempo"), {
         type: "bar",
@@ -489,21 +1059,26 @@
           labels: dias,
           datasets: [{
             label: "Minutos estudados",
-            data: minutosPorDia
+            data: minutosPorDia,
+            backgroundColor: "#7b80ff",
+            borderRadius: 8
           }]
         },
-        options: {
-          responsive: true,
-          plugins: {
-            legend: {
-              labels: { color: "#fff" }
-            }
-          },
-          scales: {
-            x: { ticks: { color: "#fff" } },
-            y: { ticks: { color: "#fff" } }
-          }
-        }
+        options: baseConfig
+      });
+
+      graficoTempoCompleto = new Chart(document.getElementById("graficoTempoCompleto"), {
+        type: "bar",
+        data: {
+          labels: dias,
+          datasets: [{
+            label: "Minutos estudados",
+            data: minutosPorDia,
+            backgroundColor: "#7b80ff",
+            borderRadius: 8
+          }]
+        },
+        options: baseConfig
       });
 
       graficoMaterias = new Chart(document.getElementById("graficoMaterias"), {
@@ -511,15 +1086,14 @@
         data: {
           labels: Object.keys(mapaMaterias).length ? Object.keys(mapaMaterias) : ["Sem dados"],
           datasets: [{
-            data: Object.keys(mapaMaterias).length ? Object.values(mapaMaterias) : [1]
+            data: Object.keys(mapaMaterias).length ? Object.values(mapaMaterias) : [1],
+            backgroundColor: ["#6370ff", "#24c26a", "#ffb020", "#ff7b7b", "#8a7dff"]
           }]
         },
         options: {
           responsive: true,
           plugins: {
-            legend: {
-              labels: { color: "#fff" }
-            }
+            legend: { labels: { color: "#6f7890" } }
           }
         }
       });
@@ -527,7 +1101,7 @@
 
     gerarPlanoBtn.addEventListener("click", async () => {
       iaMsg.textContent = "Gerando plano...";
-      iaMsg.className = "small";
+      iaMsg.className = "muted";
 
       try {
         const resp = await fetch(`${API}/api/ia/plano`, {
@@ -544,23 +1118,260 @@
 
         if (!resp.ok || !json.ok) {
           iaMsg.textContent = json.message || "Erro ao gerar plano.";
-          iaMsg.className = "small danger";
+          iaMsg.className = "danger";
           return;
         }
 
-        resultadoPlano.textContent = json.plano;
+        resultadoPlano.value = json.plano;
 
         const data = getData();
         data.ultimoPlano = json.plano;
         saveData(data);
 
         iaMsg.textContent = "Plano gerado com sucesso.";
-        iaMsg.className = "small success";
+        iaMsg.className = "success";
       } catch (error) {
-        iaMsg.textContent = "Erro ao conectar com a IA.";
-        iaMsg.className = "small danger";
+        iaMsg.textContent = "Erro ao conectar com o sistema inteligente.";
+        iaMsg.className = "danger";
       }
     });
+
+    salvarPlanoBtn.addEventListener("click", () => {
+      const materia = iaMateria.value.trim();
+      const dataProva = iaData.value;
+      const plano = resultadoPlano.value.trim();
+
+      if (!plano) {
+        iaMsg.textContent = "Gere ou edite um plano antes de salvar.";
+        iaMsg.className = "danger";
+        return;
+      }
+
+      const data = getData();
+      data.planosSalvos.unshift({
+        id: Date.now(),
+        materia: materia || "Sem matéria",
+        dataProva: dataProva || "",
+        plano,
+        criadoEm: new Date().toLocaleString("pt-BR")
+      });
+
+      saveData(data);
+      renderPlanosSalvos();
+
+      iaMsg.textContent = "Plano salvo com sucesso.";
+      iaMsg.className = "success";
+    });
+
+    document.getElementById("limparPlanosBtn").addEventListener("click", () => {
+      const data = getData();
+      data.planosSalvos = [];
+      saveData(data);
+      renderPlanosSalvos();
+    });
+
+    function excluirPlano(id) {
+      const data = getData();
+      data.planosSalvos = data.planosSalvos.filter(p => p.id !== id);
+      saveData(data);
+      renderPlanosSalvos();
+    }
+
+    function carregarPlano(id) {
+      const data = getData();
+      const plano = data.planosSalvos.find(p => p.id === id);
+      if (!plano) return;
+
+      iaMateria.value = plano.materia || "";
+      iaData.value = plano.dataProva || "";
+      resultadoPlano.value = plano.plano || "";
+      abrirTab("plano");
+    }
+
+    window.excluirPlano = excluirPlano;
+    window.carregarPlano = carregarPlano;
+
+    function renderPlanosSalvos() {
+      const container = document.getElementById("listaPlanosSalvos");
+      const data = getData();
+
+      if (!data.planosSalvos.length) {
+        container.innerHTML = '<div class="empty">Nenhum plano salvo ainda.</div>';
+        return;
+      }
+
+      container.innerHTML = data.planosSalvos.map(p => `
+        <div class="saved-plan-item">
+          <h4>${safe(p.materia)} ${p.dataProva ? `- ${safe(p.dataProva)}` : ""}</h4>
+          <p>${safe((p.plano || "").slice(0, 250))}${(p.plano || "").length > 250 ? "..." : ""}</p>
+          <div class="subject-actions" style="margin-top:10px;">
+            <button class="secondary mini-btn" onclick="carregarPlano(${p.id})">Abrir</button>
+            <button class="secondary mini-btn" onclick="excluirPlano(${p.id})">Excluir</button>
+          </div>
+        </div>
+      `).join("");
+    }
+
+    importarPlanoArquivo.addEventListener("change", async (event) => {
+      const file = event.target.files?.[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        iaConteudo.value = e.target.result || "";
+      };
+      reader.readAsText(file, "UTF-8");
+    });
+
+    atalhoPlanoBtn.addEventListener("click", () => {
+      iaConteudo.value = atalhoConteudo.value.trim();
+      abrirTab("plano");
+      iaMsg.textContent = "Conteúdo enviado para o plano inteligente.";
+      iaMsg.className = "success";
+    });
+
+    function renderMaterias() {
+      const data = getData();
+
+      qtdMaterias.textContent = `${data.materias.length} cadastradas`;
+
+      const listaInicio = document.getElementById("listaMateriasInicio");
+      const listaCompleta = document.getElementById("listaMateriasCompleta");
+
+      if (!data.materias.length) {
+        listaInicio.innerHTML = '<div class="empty">Nenhuma matéria cadastrada.</div>';
+        listaCompleta.innerHTML = '<div class="empty">Nenhuma matéria cadastrada.</div>';
+      } else {
+        listaInicio.innerHTML = data.materias.slice(0, 4).map((m, i) => `
+          <div class="list-item">
+            <div>
+              <span class="badge-dot ${["dot-blue","dot-green","dot-yellow","dot-red"][i % 4]}"></span>
+              <strong>${safe(m.nome)}</strong>
+            </div>
+            <div class="muted">${safe(m.data || "Sem data")}</div>
+          </div>
+        `).join("");
+
+        listaCompleta.innerHTML = data.materias.map(m => `
+          <div class="saved-plan-item">
+            <h4>${safe(m.nome)}</h4>
+            <p>Prova: ${safe(m.data || "não informada")}</p>
+            <div class="subject-actions" style="margin-top:10px;">
+              <button class="secondary mini-btn" onclick="selecionarMateriaParaNota('${safe(m.nome).replace(/'/g, "\\'")}')">Anotar aula</button>
+              <button class="secondary mini-btn" onclick="removerMateria(${m.id})">Remover</button>
+            </div>
+          </div>
+        `).join("");
+      }
+
+      atualizarSelectMaterias();
+    }
+
+    function selecionarMateriaParaNota(nome) {
+      notaMateria.value = nome;
+      abrirTab("caderno");
+    }
+
+    window.selecionarMateriaParaNota = selecionarMateriaParaNota;
+
+    function atualizarSelectMaterias() {
+      const data = getData();
+
+      if (!data.materias.length) {
+        notaMateria.innerHTML = `<option value="">Cadastre uma matéria primeiro</option>`;
+        return;
+      }
+
+      notaMateria.innerHTML = data.materias.map(m =>
+        `<option value="${safe(m.nome)}">${safe(m.nome)}</option>`
+      ).join("");
+    }
+
+    salvarNotaBtn.addEventListener("click", () => {
+      const materia = notaMateria.value;
+      const titulo = notaTitulo.value.trim();
+      const conteudo = notaConteudo.value.trim();
+
+      if (!materia || !conteudo) return;
+
+      const data = getData();
+      data.notas.unshift({
+        id: Date.now(),
+        materia,
+        titulo: titulo || "Anotação sem título",
+        conteudo,
+        criadoEm: new Date().toLocaleString("pt-BR")
+      });
+
+      saveData(data);
+      notaTitulo.value = "";
+      notaConteudo.value = "";
+      renderNotas();
+    });
+
+    limparNotaFormBtn.addEventListener("click", () => {
+      notaTitulo.value = "";
+      notaConteudo.value = "";
+    });
+
+    document.getElementById("limparNotasBtn").addEventListener("click", () => {
+      const data = getData();
+      data.notas = [];
+      saveData(data);
+      renderNotas();
+    });
+
+    function excluirNota(id) {
+      const data = getData();
+      data.notas = data.notas.filter(n => n.id !== id);
+      saveData(data);
+      renderNotas();
+    }
+
+    window.excluirNota = excluirNota;
+
+    function renderNotas() {
+      const container = document.getElementById("listaNotas");
+      const data = getData();
+
+      if (!data.notas.length) {
+        container.innerHTML = '<div class="empty">Nenhuma anotação salva ainda.</div>';
+        return;
+      }
+
+      container.innerHTML = data.notas.map(n => `
+        <div class="note-item">
+          <h4>${safe(n.titulo)} - ${safe(n.materia)}</h4>
+          <p>${safe(n.conteudo)}</p>
+          <div class="subject-actions" style="margin-top:10px;">
+            <button class="secondary mini-btn" onclick="excluirNota(${n.id})">Excluir</button>
+          </div>
+        </div>
+      `).join("");
+    }
+
+    function renderResumo() {
+      const data = getData();
+
+      const minutosHoje = data.sessoes
+        .filter(s => s.date === hojeStr())
+        .reduce((acc, s) => acc + Number(s.minutos || 0), 0);
+
+      tempoHoje.textContent = formatMin(minutosHoje);
+      qtdSessoes.textContent = `${data.sessoes.length} concluídas`;
+
+      const nome = data.user?.name || "Aluno";
+      document.getElementById("olaAluno").textContent = `Olá, ${nome}!`;
+    }
+
+    function renderApp() {
+      renderResumo();
+      renderMaterias();
+      renderPlanosSalvos();
+      renderNotas();
+      restoreTimer();
+      renderCharts();
+    }
 
     if (isLogged()) {
       showApp();
