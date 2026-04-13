@@ -69,16 +69,7 @@
     }
     .small {
       font-size: 13px;
-      opacity: 0.85;
-    }
-    .pill {
-      display: inline-block;
-      padding: 8px 12px;
-      border-radius: 999px;
-      background: #1d284f;
-      font-size: 13px;
-      margin-right: 8px;
-      margin-bottom: 8px;
+      opacity: 0.9;
     }
     .materia-item {
       background: #0c1329;
@@ -104,6 +95,7 @@
       border-radius: 12px;
       border: 1px solid rgba(255,255,255,0.08);
       color: #dfe8ff;
+      min-height: 300px;
     }
     .center {
       min-height: 100vh;
@@ -124,7 +116,7 @@
   <div id="loginView" class="center">
     <div class="login-box card">
       <h1>Vou Estudar+</h1>
-      <p class="muted">Login para entrar no sistema</p>
+      <p class="muted">Entre no sistema</p>
 
       <input id="loginEmail" type="email" placeholder="Email" value="admin@vouestudar.com" />
       <input id="loginPassword" type="password" placeholder="Senha" value="123456" />
@@ -138,7 +130,7 @@
       <div class="topbar">
         <div>
           <h1 style="margin-bottom:4px;">Vou Estudar+</h1>
-          <div class="small">Organização, IA e progresso automático</div>
+          <div class="small">Sistema com login, timer, gráficos e IA</div>
         </div>
         <div class="row" style="max-width:420px;">
           <button class="secondary" id="logoutBtn">Sair</button>
@@ -154,12 +146,12 @@
         <div class="card">
           <h3>Matérias cadastradas</h3>
           <h2 id="qtdMaterias">0</h2>
-          <p class="small">Lista salva no navegador</p>
+          <p class="small">Salvo no navegador</p>
         </div>
         <div class="card">
           <h3>Sessões finalizadas</h3>
           <h2 id="qtdSessoes">0</h2>
-          <p class="small">Cada sessão concluída soma no gráfico</p>
+          <p class="small">Cada sessão soma no gráfico</p>
         </div>
       </div>
 
@@ -201,7 +193,7 @@
           <h2>Plano de estudo com IA</h2>
           <input id="iaMateria" placeholder="Matéria" />
           <input id="iaData" type="date" />
-          <textarea id="iaConteudo" rows="10" placeholder="Cole o conteúdo, resumo, edital ou assunto da prova"></textarea>
+          <textarea id="iaConteudo" rows="10" placeholder="Cole o conteúdo, resumo, edital ou tema da prova"></textarea>
           <button id="gerarPlanoBtn">Gerar plano com IA</button>
           <p id="iaMsg" class="small"></p>
         </div>
@@ -248,6 +240,7 @@
 
     let graficoTempo;
     let graficoMaterias;
+    let timerInterval = null;
 
     function getData() {
       return JSON.parse(localStorage.getItem("vou_estudar_data") || JSON.stringify({
@@ -275,6 +268,17 @@
     function hojeStr() {
       const d = new Date();
       return d.toISOString().slice(0, 10);
+    }
+
+    function showLogin() {
+      loginView.classList.remove("hidden");
+      appView.classList.add("hidden");
+    }
+
+    function showApp() {
+      loginView.classList.add("hidden");
+      appView.classList.remove("hidden");
+      renderApp();
     }
 
     function renderApp() {
@@ -316,7 +320,7 @@
       data.materias.splice(index, 1);
       saveData(data);
       renderApp();
-    }
+    };
 
     addMateriaBtn.addEventListener("click", () => {
       const nome = materiaNome.value.trim();
@@ -329,8 +333,8 @@
         nome,
         data: dataProva || ""
       });
-      saveData(data);
 
+      saveData(data);
       materiaNome.value = "";
       materiaData.value = "";
       renderApp();
@@ -338,6 +342,7 @@
 
     loginBtn.addEventListener("click", async () => {
       loginMsg.textContent = "Entrando...";
+      loginMsg.className = "small";
 
       try {
         const email = document.getElementById("loginEmail").value.trim();
@@ -360,7 +365,6 @@
         const data = getData();
         data.user = json.user;
         saveData(data);
-
         showApp();
       } catch (error) {
         loginMsg.textContent = "Erro ao conectar no servidor.";
@@ -376,19 +380,6 @@
       showLogin();
     });
 
-    function showLogin() {
-      loginView.classList.remove("hidden");
-      appView.classList.add("hidden");
-    }
-
-    function showApp() {
-      loginView.classList.add("hidden");
-      appView.classList.remove("hidden");
-      renderApp();
-    }
-
-    let timerInterval = null;
-
     function restoreTimer() {
       clearInterval(timerInterval);
 
@@ -401,11 +392,19 @@
 
       timerInterval = setInterval(() => {
         const now = Date.now();
-        const diff = data.timer.endAt - now;
+        const current = getData();
+        if (!current.timer) {
+          clearInterval(timerInterval);
+          timerDisplay.textContent = "00:00";
+          timerStatus.textContent = "Pronto para estudar";
+          return;
+        }
+
+        const diff = current.timer.endAt - now;
 
         if (diff <= 0) {
           clearInterval(timerInterval);
-          concluirSessao(data.timer.minutos, data.timer.materia || "Geral");
+          concluirSessao(current.timer.minutos, current.timer.materia || "Geral");
           return;
         }
 
@@ -413,7 +412,7 @@
         const mm = String(Math.floor(totalSec / 60)).padStart(2, "0");
         const ss = String(totalSec % 60).padStart(2, "0");
         timerDisplay.textContent = `${mm}:${ss}`;
-        timerStatus.textContent = `Estudando: ${data.timer.minutos} min`;
+        timerStatus.textContent = `Estudando: ${current.timer.minutos} min`;
       }, 1000);
     }
 
@@ -495,7 +494,11 @@
         },
         options: {
           responsive: true,
-          plugins: { legend: { labels: { color: "#fff" } } },
+          plugins: {
+            legend: {
+              labels: { color: "#fff" }
+            }
+          },
           scales: {
             x: { ticks: { color: "#fff" } },
             y: { ticks: { color: "#fff" } }
@@ -513,7 +516,11 @@
         },
         options: {
           responsive: true,
-          plugins: { legend: { labels: { color: "#fff" } } }
+          plugins: {
+            legend: {
+              labels: { color: "#fff" }
+            }
+          }
         }
       });
     }
@@ -542,6 +549,7 @@
         }
 
         resultadoPlano.textContent = json.plano;
+
         const data = getData();
         data.ultimoPlano = json.plano;
         saveData(data);
