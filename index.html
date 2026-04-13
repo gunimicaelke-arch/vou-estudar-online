@@ -20,7 +20,6 @@
       --warning: #ffb020;
       --danger: #ff6b6b;
       --shadow: 0 10px 30px rgba(31,36,48,0.08);
-      --radius: 20px;
     }
 
     body {
@@ -155,6 +154,7 @@
     }
 
     button:hover { transform: translateY(-1px); }
+
     .secondary {
       background: #eef1f9;
       color: var(--text);
@@ -426,12 +426,6 @@
       white-space: pre-wrap;
     }
 
-    .section-title {
-      font-size: 20px;
-      font-weight: 800;
-      margin: 0 0 12px 0;
-    }
-
     .muted {
       color: var(--muted);
     }
@@ -644,9 +638,9 @@
                 <input id="iaData" type="date" />
 
                 <label class="file-label" for="importarPlanoArquivo">
-                  Importar conteúdo do plano de aula
+                  Importar conteúdo do plano de aula, PDF, CSV ou Word
                 </label>
-                <input id="importarPlanoArquivo" type="file" accept=".txt,.md,.json,.csv" class="hidden" />
+                <input id="importarPlanoArquivo" type="file" accept=".pdf,.csv,.txt,.docx" class="hidden" />
 
                 <textarea id="iaConteudo" rows="10" placeholder="Cole ou importe o conteúdo da aula, resumo, edital ou tema da prova"></textarea>
 
@@ -1104,7 +1098,7 @@
       iaMsg.className = "muted";
 
       try {
-        const resp = await fetch(`${API}/api/ia/plano`, {
+        const resp = await fetch(`${API}/api/inteligente/plano`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
@@ -1216,11 +1210,33 @@
       const file = event.target.files?.[0];
       if (!file) return;
 
-      const reader = new FileReader();
-      reader.onload = function(e) {
-        iaConteudo.value = e.target.result || "";
-      };
-      reader.readAsText(file, "UTF-8");
+      iaMsg.textContent = "Importando arquivo...";
+      iaMsg.className = "muted";
+
+      try {
+        const formData = new FormData();
+        formData.append("arquivo", file);
+
+        const resp = await fetch(`${API}/api/importar-arquivo`, {
+          method: "POST",
+          body: formData
+        });
+
+        const json = await resp.json();
+
+        if (!resp.ok || !json.ok) {
+          iaMsg.textContent = json.message || "Erro ao importar arquivo.";
+          iaMsg.className = "danger";
+          return;
+        }
+
+        iaConteudo.value = json.conteudo || "";
+        iaMsg.textContent = `Arquivo importado com sucesso: ${json.nomeArquivo}`;
+        iaMsg.className = "success";
+      } catch (error) {
+        iaMsg.textContent = "Erro ao enviar arquivo para leitura.";
+        iaMsg.className = "danger";
+      }
     });
 
     atalhoPlanoBtn.addEventListener("click", () => {
