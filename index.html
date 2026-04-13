@@ -1,189 +1,564 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-<meta charset="UTF-8">
-<title>Vou Estudar+</title>
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
-<style>
-body { font-family: Arial; padding:20px; background:#f5f5f5 }
-.box { background:white; padding:15px; margin-bottom:15px; border-radius:10px }
-button { padding:8px 12px; cursor:pointer }
-input { padding:6px; margin:5px 0 }
-</style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Vou Estudar+</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: Arial, Helvetica, sans-serif;
+      background: #0b1020;
+      color: #fff;
+    }
+    .hidden { display: none !important; }
+    .wrap {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 16px;
+    }
+    .card {
+      background: #121933;
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 18px;
+      padding: 16px;
+      box-shadow: 0 8px 30px rgba(0,0,0,0.25);
+    }
+    .grid {
+      display: grid;
+      gap: 16px;
+    }
+    .grid-2 {
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    }
+    .grid-3 {
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    }
+    h1, h2, h3, p { margin-top: 0; }
+    input, textarea, button {
+      width: 100%;
+      border-radius: 12px;
+      border: none;
+      padding: 12px;
+      font-size: 15px;
+    }
+    input, textarea {
+      background: #0c1329;
+      color: #fff;
+      border: 1px solid rgba(255,255,255,0.08);
+      margin-bottom: 10px;
+    }
+    button {
+      cursor: pointer;
+      font-weight: bold;
+      background: linear-gradient(90deg, #6d5dfc, #8d7dff);
+      color: white;
+    }
+    button.secondary {
+      background: #1d284f;
+    }
+    .topbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 16px;
+      flex-wrap: wrap;
+    }
+    .small {
+      font-size: 13px;
+      opacity: 0.85;
+    }
+    .pill {
+      display: inline-block;
+      padding: 8px 12px;
+      border-radius: 999px;
+      background: #1d284f;
+      font-size: 13px;
+      margin-right: 8px;
+      margin-bottom: 8px;
+    }
+    .materia-item {
+      background: #0c1329;
+      border: 1px solid rgba(255,255,255,0.08);
+      padding: 10px 12px;
+      border-radius: 12px;
+      margin-bottom: 8px;
+    }
+    .row {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    .row > * {
+      flex: 1;
+      min-width: 180px;
+    }
+    pre {
+      white-space: pre-wrap;
+      word-wrap: break-word;
+      background: #0c1329;
+      padding: 14px;
+      border-radius: 12px;
+      border: 1px solid rgba(255,255,255,0.08);
+      color: #dfe8ff;
+    }
+    .center {
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      padding: 16px;
+    }
+    .login-box {
+      width: 100%;
+      max-width: 430px;
+    }
+    .danger { color: #ff8080; }
+    .success { color: #7CFFA1; }
+    .muted { color: #b8c4ff; }
+  </style>
 </head>
-
 <body>
+  <div id="loginView" class="center">
+    <div class="login-box card">
+      <h1>Vou Estudar+</h1>
+      <p class="muted">Login para entrar no sistema</p>
 
-<div id="auth" class="box">
-<h2>Cadastro</h2>
-<input id="nome" placeholder="Nome"><br>
-<input id="email" placeholder="Email"><br>
-<input id="senha" type="password" placeholder="Senha"><br>
-<button onclick="cadastrar()">Cadastrar</button>
+      <input id="loginEmail" type="email" placeholder="Email" value="admin@vouestudar.com" />
+      <input id="loginPassword" type="password" placeholder="Senha" value="123456" />
+      <button id="loginBtn">Entrar</button>
+      <p id="loginMsg" class="small"></p>
+    </div>
+  </div>
 
-<hr>
+  <div id="appView" class="hidden">
+    <div class="wrap">
+      <div class="topbar">
+        <div>
+          <h1 style="margin-bottom:4px;">Vou Estudar+</h1>
+          <div class="small">Organização, IA e progresso automático</div>
+        </div>
+        <div class="row" style="max-width:420px;">
+          <button class="secondary" id="logoutBtn">Sair</button>
+        </div>
+      </div>
 
-<h2>Login</h2>
-<input id="emailLogin" placeholder="Email"><br>
-<input id="senhaLogin" type="password" placeholder="Senha"><br>
-<button onclick="login()">Entrar</button>
-</div>
+      <div class="grid grid-3">
+        <div class="card">
+          <h3>Tempo estudado hoje</h3>
+          <h2 id="tempoHoje">0 min</h2>
+          <p class="small">Atualizado automaticamente</p>
+        </div>
+        <div class="card">
+          <h3>Matérias cadastradas</h3>
+          <h2 id="qtdMaterias">0</h2>
+          <p class="small">Lista salva no navegador</p>
+        </div>
+        <div class="card">
+          <h3>Sessões finalizadas</h3>
+          <h2 id="qtdSessoes">0</h2>
+          <p class="small">Cada sessão concluída soma no gráfico</p>
+        </div>
+      </div>
 
-<div id="app" style="display:none">
+      <div class="grid grid-2" style="margin-top:16px;">
+        <div class="card">
+          <h2>Cadastrar matéria</h2>
+          <input id="materiaNome" placeholder="Nome da matéria" />
+          <input id="materiaData" type="date" />
+          <button id="addMateriaBtn">Salvar matéria</button>
+          <div id="listaMaterias" style="margin-top:12px;"></div>
+        </div>
 
-<div class="box">
-<h2>Matérias</h2>
-<input id="materia" placeholder="Nome da matéria">
-<button onclick="salvarMateria()">Salvar</button>
-<ul id="lista"></ul>
-</div>
+        <div class="card">
+          <h2>Timer de estudo</h2>
+          <div class="row">
+            <input id="timerMinutos" type="number" min="1" value="25" placeholder="Minutos" />
+            <button id="iniciarTimerBtn">Iniciar</button>
+            <button class="secondary" id="finalizarTimerBtn">Finalizar agora</button>
+          </div>
+          <h2 id="timerDisplay" style="margin-top:12px;">25:00</h2>
+          <p id="timerStatus" class="small">Pronto para estudar</p>
+        </div>
+      </div>
 
-<div class="box">
-<h2>Timer de estudo</h2>
-<button onclick="iniciar()">Iniciar</button>
-<button onclick="parar()">Parar</button>
-<p id="tempo">0 min</p>
-</div>
+      <div class="grid grid-2" style="margin-top:16px;">
+        <div class="card">
+          <h2>Gráfico de estudo por dia</h2>
+          <canvas id="graficoTempo"></canvas>
+        </div>
 
-<div class="box">
-<h2>Gráfico</h2>
-<canvas id="grafico"></canvas>
-</div>
+        <div class="card">
+          <h2>Gráfico por matéria</h2>
+          <canvas id="graficoMaterias"></canvas>
+        </div>
+      </div>
 
-<div class="box">
-<h2>IA - Plano de estudo</h2>
-<button onclick="gerarIA()">Gerar plano</button>
-<pre id="ia"></pre>
-</div>
+      <div class="grid grid-2" style="margin-top:16px;">
+        <div class="card">
+          <h2>Plano de estudo com IA</h2>
+          <input id="iaMateria" placeholder="Matéria" />
+          <input id="iaData" type="date" />
+          <textarea id="iaConteudo" rows="10" placeholder="Cole o conteúdo, resumo, edital ou assunto da prova"></textarea>
+          <button id="gerarPlanoBtn">Gerar plano com IA</button>
+          <p id="iaMsg" class="small"></p>
+        </div>
 
-</div>
+        <div class="card">
+          <h2>Resultado</h2>
+          <pre id="resultadoPlano">Seu plano aparecerá aqui.</pre>
+        </div>
+      </div>
+    </div>
+  </div>
 
-<script type="module">
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
+  <script>
+    const API = "";
 
-// 🔥 SUA CONFIGURAÇÃO
-const supabase = createClient(
-'https://mcyzxwtpjoqiioeqemrv.supabase.co',
-'sb_publishable_G1DmNZdvjDl0-3N2onqD4Q_SZM1M6f1'
-)
+    const loginView = document.getElementById("loginView");
+    const appView = document.getElementById("appView");
+    const loginMsg = document.getElementById("loginMsg");
 
-let startTime = null
-let chart
+    const loginBtn = document.getElementById("loginBtn");
+    const logoutBtn = document.getElementById("logoutBtn");
 
-window.cadastrar = async () => {
-const nome = document.getElementById('nome').value
-const email = document.getElementById('email').value
-const senha = document.getElementById('senha').value
+    const materiaNome = document.getElementById("materiaNome");
+    const materiaData = document.getElementById("materiaData");
+    const addMateriaBtn = document.getElementById("addMateriaBtn");
+    const listaMaterias = document.getElementById("listaMaterias");
 
-const { data, error } = await supabase.auth.signUp({ email, password: senha })
-if (error) return alert(error.message)
+    const qtdMaterias = document.getElementById("qtdMaterias");
+    const qtdSessoes = document.getElementById("qtdSessoes");
+    const tempoHoje = document.getElementById("tempoHoje");
 
-await supabase.from("profiles").insert({
-id: data.user.id,
-nome,
-email
-})
+    const timerMinutos = document.getElementById("timerMinutos");
+    const iniciarTimerBtn = document.getElementById("iniciarTimerBtn");
+    const finalizarTimerBtn = document.getElementById("finalizarTimerBtn");
+    const timerDisplay = document.getElementById("timerDisplay");
+    const timerStatus = document.getElementById("timerStatus");
 
-alert("Cadastro feito!")
-}
+    const iaMateria = document.getElementById("iaMateria");
+    const iaData = document.getElementById("iaData");
+    const iaConteudo = document.getElementById("iaConteudo");
+    const gerarPlanoBtn = document.getElementById("gerarPlanoBtn");
+    const iaMsg = document.getElementById("iaMsg");
+    const resultadoPlano = document.getElementById("resultadoPlano");
 
-window.login = async () => {
-const email = document.getElementById('emailLogin').value
-const senha = document.getElementById('senhaLogin').value
+    let graficoTempo;
+    let graficoMaterias;
 
-const { error } = await supabase.auth.signInWithPassword({ email, password: senha })
-if (error) return alert(error.message)
+    function getData() {
+      return JSON.parse(localStorage.getItem("vou_estudar_data") || JSON.stringify({
+        user: null,
+        materias: [],
+        sessoes: [],
+        timer: null,
+        ultimoPlano: ""
+      }));
+    }
 
-document.getElementById('auth').style.display='none'
-document.getElementById('app').style.display='block'
+    function saveData(data) {
+      localStorage.setItem("vou_estudar_data", JSON.stringify(data));
+    }
 
-carregarMaterias()
-carregarGrafico()
-}
+    function isLogged() {
+      const data = getData();
+      return !!data.user;
+    }
 
-window.salvarMateria = async () => {
-const materia = document.getElementById('materia').value
-const { data:user } = await supabase.auth.getUser()
+    function formatMin(min) {
+      return `${min} min`;
+    }
 
-await supabase.from("subjects").insert({
-user_id: user.user.id,
-nome: materia
-})
+    function hojeStr() {
+      const d = new Date();
+      return d.toISOString().slice(0, 10);
+    }
 
-carregarMaterias()
-}
+    function renderApp() {
+      const data = getData();
 
-async function carregarMaterias(){
-const { data:user } = await supabase.auth.getUser()
-const { data } = await supabase.from("subjects").select("*").eq("user_id", user.user.id)
+      qtdMaterias.textContent = data.materias.length;
+      qtdSessoes.textContent = data.sessoes.length;
 
-const lista = document.getElementById('lista')
-lista.innerHTML=''
+      const minutosHoje = data.sessoes
+        .filter(s => s.date === hojeStr())
+        .reduce((acc, s) => acc + Number(s.minutos || 0), 0);
 
-data.forEach(m=>{
-const li=document.createElement('li')
-li.textContent=m.nome
-lista.appendChild(li)
-})
-}
+      tempoHoje.textContent = formatMin(minutosHoje);
 
-window.iniciar = () => {
-startTime = Date.now()
-}
+      listaMaterias.innerHTML = "";
+      if (data.materias.length === 0) {
+        listaMaterias.innerHTML = '<p class="small muted">Nenhuma matéria cadastrada.</p>';
+      } else {
+        data.materias.forEach((m, i) => {
+          const div = document.createElement("div");
+          div.className = "materia-item";
+          div.innerHTML = `
+            <strong>${m.nome}</strong><br>
+            <span class="small">Prova: ${m.data || "não informada"}</span><br>
+            <button style="margin-top:8px;" class="secondary" onclick="removerMateria(${i})">Remover</button>
+          `;
+          listaMaterias.appendChild(div);
+        });
+      }
 
-window.parar = async () => {
-const end = Date.now()
-const minutos = Math.floor((end-startTime)/60000)
-document.getElementById('tempo').innerText = minutos + " min"
+      resultadoPlano.textContent = data.ultimoPlano || "Seu plano aparecerá aqui.";
 
-const { data:user } = await supabase.auth.getUser()
+      renderCharts();
+      restoreTimer();
+    }
 
-await supabase.from("study_sessions").insert({
-user_id: user.user.id,
-subject_id:1,
-duration_minutes: minutos
-})
+    window.removerMateria = function(index) {
+      const data = getData();
+      data.materias.splice(index, 1);
+      saveData(data);
+      renderApp();
+    }
 
-carregarGrafico()
-}
+    addMateriaBtn.addEventListener("click", () => {
+      const nome = materiaNome.value.trim();
+      const dataProva = materiaData.value;
 
-async function carregarGrafico(){
-const { data:user } = await supabase.auth.getUser()
+      if (!nome) return;
 
-const { data } = await supabase
-.from("study_sessions")
-.select("duration_minutes")
+      const data = getData();
+      data.materias.push({
+        nome,
+        data: dataProva || ""
+      });
+      saveData(data);
 
-const total = data.map(d=>d.duration_minutes)
+      materiaNome.value = "";
+      materiaData.value = "";
+      renderApp();
+    });
 
-const ctx = document.getElementById('grafico')
+    loginBtn.addEventListener("click", async () => {
+      loginMsg.textContent = "Entrando...";
 
-if(chart) chart.destroy()
+      try {
+        const email = document.getElementById("loginEmail").value.trim();
+        const password = document.getElementById("loginPassword").value.trim();
 
-chart = new Chart(ctx,{
-type:'bar',
-data:{
-labels: total.map((_,i)=>'Dia '+(i+1)),
-datasets:[{
-label:'Minutos estudados',
-data: total
-}]
-}
-})
-}
+        const resp = await fetch(`${API}/api/login`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email, password })
+        });
 
-window.gerarIA = async () => {
-const res = await fetch('/api/ia',{
-method:'POST',
-headers:{'Content-Type':'application/json'},
-body: JSON.stringify({texto:"Crie plano de estudo inteligente"})
-})
+        const json = await resp.json();
 
-const data = await res.json()
-document.getElementById('ia').innerText = data.resposta
-}
+        if (!resp.ok || !json.ok) {
+          loginMsg.textContent = json.message || "Falha no login.";
+          loginMsg.className = "small danger";
+          return;
+        }
 
-</script>
+        const data = getData();
+        data.user = json.user;
+        saveData(data);
+
+        showApp();
+      } catch (error) {
+        loginMsg.textContent = "Erro ao conectar no servidor.";
+        loginMsg.className = "small danger";
+      }
+    });
+
+    logoutBtn.addEventListener("click", () => {
+      const data = getData();
+      data.user = null;
+      data.timer = null;
+      saveData(data);
+      showLogin();
+    });
+
+    function showLogin() {
+      loginView.classList.remove("hidden");
+      appView.classList.add("hidden");
+    }
+
+    function showApp() {
+      loginView.classList.add("hidden");
+      appView.classList.remove("hidden");
+      renderApp();
+    }
+
+    let timerInterval = null;
+
+    function restoreTimer() {
+      clearInterval(timerInterval);
+
+      const data = getData();
+      if (!data.timer || !data.timer.endAt) {
+        timerDisplay.textContent = `${String(Number(timerMinutos.value || 25)).padStart(2, "0")}:00`;
+        timerStatus.textContent = "Pronto para estudar";
+        return;
+      }
+
+      timerInterval = setInterval(() => {
+        const now = Date.now();
+        const diff = data.timer.endAt - now;
+
+        if (diff <= 0) {
+          clearInterval(timerInterval);
+          concluirSessao(data.timer.minutos, data.timer.materia || "Geral");
+          return;
+        }
+
+        const totalSec = Math.floor(diff / 1000);
+        const mm = String(Math.floor(totalSec / 60)).padStart(2, "0");
+        const ss = String(totalSec % 60).padStart(2, "0");
+        timerDisplay.textContent = `${mm}:${ss}`;
+        timerStatus.textContent = `Estudando: ${data.timer.minutos} min`;
+      }, 1000);
+    }
+
+    function concluirSessao(minutos, materia) {
+      const data = getData();
+
+      data.sessoes.push({
+        date: hojeStr(),
+        minutos: Number(minutos),
+        materia: materia || "Geral"
+      });
+
+      data.timer = null;
+      saveData(data);
+
+      timerDisplay.textContent = "00:00";
+      timerStatus.textContent = "Sessão concluída";
+      renderApp();
+      alert("Sessão concluída com sucesso.");
+    }
+
+    iniciarTimerBtn.addEventListener("click", () => {
+      const min = Number(timerMinutos.value || 25);
+      const data = getData();
+
+      data.timer = {
+        minutos: min,
+        endAt: Date.now() + min * 60 * 1000,
+        materia: data.materias[0]?.nome || "Geral"
+      };
+
+      saveData(data);
+      restoreTimer();
+    });
+
+    finalizarTimerBtn.addEventListener("click", () => {
+      const data = getData();
+      if (!data.timer) return;
+      concluirSessao(data.timer.minutos, data.timer.materia || "Geral");
+    });
+
+    function ultimos7Dias() {
+      const arr = [];
+      for (let i = 6; i >= 0; i--) {
+        const d = new Date();
+        d.setDate(d.getDate() - i);
+        arr.push(d.toISOString().slice(0, 10));
+      }
+      return arr;
+    }
+
+    function renderCharts() {
+      const data = getData();
+
+      const dias = ultimos7Dias();
+      const minutosPorDia = dias.map(d =>
+        data.sessoes
+          .filter(s => s.date === d)
+          .reduce((acc, s) => acc + Number(s.minutos || 0), 0)
+      );
+
+      const mapaMaterias = {};
+      data.sessoes.forEach(s => {
+        const m = s.materia || "Geral";
+        mapaMaterias[m] = (mapaMaterias[m] || 0) + Number(s.minutos || 0);
+      });
+
+      if (graficoTempo) graficoTempo.destroy();
+      if (graficoMaterias) graficoMaterias.destroy();
+
+      graficoTempo = new Chart(document.getElementById("graficoTempo"), {
+        type: "bar",
+        data: {
+          labels: dias,
+          datasets: [{
+            label: "Minutos estudados",
+            data: minutosPorDia
+          }]
+        },
+        options: {
+          responsive: true,
+          plugins: { legend: { labels: { color: "#fff" } } },
+          scales: {
+            x: { ticks: { color: "#fff" } },
+            y: { ticks: { color: "#fff" } }
+          }
+        }
+      });
+
+      graficoMaterias = new Chart(document.getElementById("graficoMaterias"), {
+        type: "doughnut",
+        data: {
+          labels: Object.keys(mapaMaterias).length ? Object.keys(mapaMaterias) : ["Sem dados"],
+          datasets: [{
+            data: Object.keys(mapaMaterias).length ? Object.values(mapaMaterias) : [1]
+          }]
+        },
+        options: {
+          responsive: true,
+          plugins: { legend: { labels: { color: "#fff" } } }
+        }
+      });
+    }
+
+    gerarPlanoBtn.addEventListener("click", async () => {
+      iaMsg.textContent = "Gerando plano...";
+      iaMsg.className = "small";
+
+      try {
+        const resp = await fetch(`${API}/api/ia/plano`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            materia: iaMateria.value.trim(),
+            provaData: iaData.value,
+            conteudo: iaConteudo.value.trim()
+          })
+        });
+
+        const json = await resp.json();
+
+        if (!resp.ok || !json.ok) {
+          iaMsg.textContent = json.message || "Erro ao gerar plano.";
+          iaMsg.className = "small danger";
+          return;
+        }
+
+        resultadoPlano.textContent = json.plano;
+        const data = getData();
+        data.ultimoPlano = json.plano;
+        saveData(data);
+
+        iaMsg.textContent = "Plano gerado com sucesso.";
+        iaMsg.className = "small success";
+      } catch (error) {
+        iaMsg.textContent = "Erro ao conectar com a IA.";
+        iaMsg.className = "small danger";
+      }
+    });
+
+    if (isLogged()) {
+      showApp();
+    } else {
+      showLogin();
+    }
+  </script>
 </body>
 </html>
