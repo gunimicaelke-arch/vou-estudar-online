@@ -1,1077 +1,189 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Vou Estudar+</title>
-  <style>
-    :root {
-      --bg: #0b1020;
-      --panel: #121933;
-      --panel-2: #182242;
-      --line: rgba(255,255,255,0.08);
-      --text: #eef2ff;
-      --muted: #aab4d6;
-      --primary: #6d5efc;
-      --primary-2: #8f84ff;
-      --success: #19c37d;
-      --danger: #ef4444;
-      --warning: #f59e0b;
-      --shadow: 0 18px 60px rgba(0,0,0,0.35);
-      --radius: 20px;
-    }
+<meta charset="UTF-8">
+<title>Vou Estudar+</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-    * { box-sizing: border-box; }
-
-    body {
-      margin: 0;
-      font-family: Inter, Arial, Helvetica, sans-serif;
-      background:
-        radial-gradient(circle at top right, rgba(109,94,252,0.22), transparent 28%),
-        radial-gradient(circle at top left, rgba(25,195,125,0.12), transparent 24%),
-        var(--bg);
-      color: var(--text);
-    }
-
-    .app-shell {
-      min-height: 100vh;
-      padding: 24px;
-    }
-
-    .container {
-      max-width: 1360px;
-      margin: 0 auto;
-    }
-
-    .topbar {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 16px;
-      margin-bottom: 22px;
-      flex-wrap: wrap;
-    }
-
-    .brand h1 {
-      margin: 0;
-      font-size: 34px;
-      line-height: 1.1;
-    }
-
-    .brand p {
-      margin: 6px 0 0;
-      color: var(--muted);
-    }
-
-    .top-actions {
-      display: flex;
-      gap: 12px;
-      align-items: center;
-      flex-wrap: wrap;
-    }
-
-    .badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      background: rgba(255,255,255,0.06);
-      border: 1px solid var(--line);
-      border-radius: 999px;
-      padding: 10px 14px;
-      color: var(--muted);
-    }
-
-    .layout {
-      display: grid;
-      grid-template-columns: 1.05fr 1.35fr;
-      gap: 18px;
-    }
-
-    .panel {
-      background: linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.02));
-      border: 1px solid var(--line);
-      box-shadow: var(--shadow);
-      border-radius: var(--radius);
-      padding: 20px;
-    }
-
-    .panel h2, .panel h3 {
-      margin-top: 0;
-    }
-
-    .auth-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 16px;
-    }
-
-    .field {
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-      margin-bottom: 14px;
-    }
-
-    .field label {
-      font-size: 13px;
-      color: var(--muted);
-      font-weight: 600;
-    }
-
-    input, textarea, select, button {
-      font: inherit;
-    }
-
-    input, textarea, select {
-      width: 100%;
-      border: 1px solid var(--line);
-      background: var(--panel-2);
-      color: var(--text);
-      border-radius: 14px;
-      padding: 13px 14px;
-      outline: none;
-    }
-
-    textarea {
-      resize: vertical;
-      min-height: 110px;
-    }
-
-    button {
-      border: none;
-      border-radius: 14px;
-      padding: 12px 16px;
-      cursor: pointer;
-      transition: 0.2s ease;
-      font-weight: 700;
-    }
-
-    .btn-primary {
-      background: linear-gradient(135deg, var(--primary), var(--primary-2));
-      color: white;
-    }
-
-    .btn-primary:hover { transform: translateY(-1px); }
-
-    .btn-secondary {
-      background: rgba(255,255,255,0.06);
-      color: var(--text);
-      border: 1px solid var(--line);
-    }
-
-    .btn-success {
-      background: var(--success);
-      color: white;
-    }
-
-    .btn-danger {
-      background: var(--danger);
-      color: white;
-    }
-
-    .btn-warning {
-      background: var(--warning);
-      color: white;
-    }
-
-    .actions {
-      display: flex;
-      gap: 10px;
-      flex-wrap: wrap;
-      margin-top: 10px;
-    }
-
-    .hidden {
-      display: none !important;
-    }
-
-    .dashboard {
-      display: flex;
-      flex-direction: column;
-      gap: 18px;
-    }
-
-    .stats {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 14px;
-    }
-
-    .stat-card {
-      background: var(--panel);
-      border: 1px solid var(--line);
-      border-radius: 18px;
-      padding: 18px;
-    }
-
-    .stat-card small {
-      color: var(--muted);
-      display: block;
-      margin-bottom: 8px;
-    }
-
-    .stat-card strong {
-      font-size: 28px;
-    }
-
-    .dashboard-grid {
-      display: grid;
-      grid-template-columns: 1.2fr 0.8fr;
-      gap: 18px;
-    }
-
-    .stack {
-      display: flex;
-      flex-direction: column;
-      gap: 18px;
-    }
-
-    .list {
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-    }
-
-    .item {
-      background: rgba(255,255,255,0.04);
-      border: 1px solid var(--line);
-      border-radius: 16px;
-      padding: 14px;
-    }
-
-    .item-title {
-      font-weight: 700;
-      margin-bottom: 4px;
-    }
-
-    .item-meta {
-      color: var(--muted);
-      font-size: 13px;
-      margin-bottom: 8px;
-    }
-
-    .split {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 18px;
-    }
-
-    .status-box {
-      margin-bottom: 14px;
-      padding: 12px 14px;
-      border-radius: 14px;
-      font-weight: 600;
-      display: none;
-    }
-
-    .status-box.ok {
-      display: block;
-      background: rgba(25,195,125,0.15);
-      color: #98f0c8;
-      border: 1px solid rgba(25,195,125,0.22);
-    }
-
-    .status-box.error {
-      display: block;
-      background: rgba(239,68,68,0.14);
-      color: #ffb3b3;
-      border: 1px solid rgba(239,68,68,0.24);
-    }
-
-    .status-box.warn {
-      display: block;
-      background: rgba(245,158,11,0.14);
-      color: #ffd48a;
-      border: 1px solid rgba(245,158,11,0.24);
-    }
-
-    canvas.chart {
-      width: 100%;
-      height: 260px;
-      background: rgba(255,255,255,0.02);
-      border: 1px solid var(--line);
-      border-radius: 16px;
-      padding: 8px;
-    }
-
-    .kicker {
-      display: inline-block;
-      font-size: 12px;
-      color: #cbd5ff;
-      background: rgba(109,94,252,0.14);
-      border: 1px solid rgba(109,94,252,0.25);
-      padding: 6px 10px;
-      border-radius: 999px;
-      margin-bottom: 12px;
-    }
-
-    .muted {
-      color: var(--muted);
-    }
-
-    .timer-box {
-      display: flex;
-      gap: 12px;
-      align-items: center;
-      flex-wrap: wrap;
-      margin-bottom: 12px;
-    }
-
-    .timer-display {
-      font-size: 32px;
-      font-weight: 800;
-      letter-spacing: 1px;
-      min-width: 140px;
-    }
-
-    .study-plan {
-      white-space: pre-wrap;
-      line-height: 1.6;
-      color: #edf2ff;
-    }
-
-    @media (max-width: 1100px) {
-      .layout, .dashboard-grid, .split, .auth-grid {
-        grid-template-columns: 1fr;
-      }
-
-      .stats {
-        grid-template-columns: repeat(2, 1fr);
-      }
-    }
-
-    @media (max-width: 700px) {
-      .app-shell {
-        padding: 14px;
-      }
-
-      .stats {
-        grid-template-columns: 1fr;
-      }
-
-      .brand h1 {
-        font-size: 28px;
-      }
-    }
-  </style>
+<style>
+body { font-family: Arial; padding:20px; background:#f5f5f5 }
+.box { background:white; padding:15px; margin-bottom:15px; border-radius:10px }
+button { padding:8px 12px; cursor:pointer }
+input { padding:6px; margin:5px 0 }
+</style>
 </head>
+
 <body>
-  <div class="app-shell">
-    <div class="container">
-      <div class="topbar">
-        <div class="brand">
-          <h1>Vou Estudar+</h1>
-          <p>Estudo inteligente, foco real e progresso automático.</p>
-        </div>
-        <div class="top-actions">
-          <div id="userBadge" class="badge hidden"></div>
-          <button id="logoutBtn" class="btn-danger hidden">Sair</button>
-        </div>
-      </div>
-
-      <div id="statusBox" class="status-box"></div>
-
-      <div id="authScreen" class="layout">
-        <div class="panel">
-          <span class="kicker">Acesso</span>
-          <h2>Entre no sistema</h2>
-          <p class="muted">Cadastre-se e entre para acessar o painel completo.</p>
-
-          <div class="auth-grid">
-            <div class="panel" style="padding:16px;">
-              <h3>Cadastrar</h3>
-              <div class="field">
-                <label>Nome</label>
-                <input id="signupName" type="text" placeholder="Seu nome" />
-              </div>
-              <div class="field">
-                <label>Email</label>
-                <input id="signupEmail" type="email" placeholder="seuemail@gmail.com" />
-              </div>
-              <div class="field">
-                <label>Senha</label>
-                <input id="signupPassword" type="password" placeholder="Sua senha" />
-              </div>
-              <button class="btn-primary" id="signupBtn">Cadastrar</button>
-            </div>
-
-            <div class="panel" style="padding:16px;">
-              <h3>Login</h3>
-              <div class="field">
-                <label>Email</label>
-                <input id="loginEmail" type="email" placeholder="seuemail@gmail.com" />
-              </div>
-              <div class="field">
-                <label>Senha</label>
-                <input id="loginPassword" type="password" placeholder="Sua senha" />
-              </div>
-              <button class="btn-primary" id="loginBtn">Entrar</button>
-            </div>
-          </div>
-        </div>
-
-        <div class="panel">
-          <span class="kicker">Recursos</span>
-          <h2>O que o sistema faz</h2>
-          <div class="list">
-            <div class="item">
-              <div class="item-title">Cadastro de matérias</div>
-              <div class="item-meta">Organize tudo por prova e prioridade.</div>
-            </div>
-            <div class="item">
-              <div class="item-title">Estudo inteligente com IA</div>
-              <div class="item-meta">Monte planos automáticos com base no conteúdo.</div>
-            </div>
-            <div class="item">
-              <div class="item-title">Timer e gráficos automáticos</div>
-              <div class="item-meta">Seu tempo estudado vira histórico e métricas.</div>
-            </div>
-            <div class="item">
-              <div class="item-title">Persistência real</div>
-              <div class="item-meta">Abra em outro computador e continue de onde parou.</div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div id="dashboardScreen" class="dashboard hidden">
-        <div class="stats">
-          <div class="stat-card">
-            <small>Matérias</small>
-            <strong id="statSubjects">0</strong>
-          </div>
-          <div class="stat-card">
-            <small>Tempo hoje</small>
-            <strong id="statToday">0 min</strong>
-          </div>
-          <div class="stat-card">
-            <small>Tempo total</small>
-            <strong id="statTotal">0 min</strong>
-          </div>
-          <div class="stat-card">
-            <small>Sessões</small>
-            <strong id="statSessions">0</strong>
-          </div>
-        </div>
-
-        <div class="dashboard-grid">
-          <div class="stack">
-            <div class="panel">
-              <span class="kicker">Matérias</span>
-              <h2>Cadastrar matéria</h2>
-              <div class="split">
-                <div>
-                  <div class="field">
-                    <label>Nome da matéria</label>
-                    <input id="subjectName" type="text" placeholder="Ex: Direito Penal" />
-                  </div>
-                  <div class="field">
-                    <label>Data da prova</label>
-                    <input id="subjectExamDate" type="date" />
-                  </div>
-                  <div class="field">
-                    <label>Prioridade</label>
-                    <select id="subjectPriority">
-                      <option value="alta">Alta</option>
-                      <option value="media">Média</option>
-                      <option value="baixa">Baixa</option>
-                    </select>
-                  </div>
-                  <div class="field">
-                    <label>Anotações rápidas</label>
-                    <textarea id="subjectNotes" placeholder="Resumo, pontos fracos, observações..."></textarea>
-                  </div>
-                  <button class="btn-primary" id="saveSubjectBtn">Salvar matéria</button>
-                </div>
-
-                <div>
-                  <h3>Suas matérias</h3>
-                  <div id="subjectsList" class="list"></div>
-                </div>
-              </div>
-            </div>
-
-            <div class="panel">
-              <span class="kicker">Estudo para prova</span>
-              <h2>Plano inteligente com IA</h2>
-              <div class="field">
-                <label>Matéria</label>
-                <select id="aiSubjectSelect"></select>
-              </div>
-              <div class="field">
-                <label>Conteúdo para estudar</label>
-                <textarea id="aiContent" placeholder="Cole aqui o conteúdo, tópicos da prova, edital, resumo da aula..."></textarea>
-              </div>
-              <div class="field">
-                <label>Data da prova</label>
-                <input id="aiExamDate" type="date" />
-              </div>
-              <div class="field">
-                <label>Horas por dia disponíveis</label>
-                <input id="aiHoursPerDay" type="number" min="1" max="12" value="2" />
-              </div>
-              <div class="actions">
-                <button class="btn-primary" id="generateAiPlanBtn">Gerar plano inteligente</button>
-                <button class="btn-secondary" id="clearAiPlanBtn">Limpar</button>
-              </div>
-              <div class="panel" style="margin-top:16px; padding:16px;">
-                <h3>Plano gerado</h3>
-                <div id="aiPlanOutput" class="study-plan muted">Seu plano aparecerá aqui.</div>
-              </div>
-            </div>
-          </div>
-
-          <div class="stack">
-            <div class="panel">
-              <span class="kicker">Timer</span>
-              <h2>Tempo de estudo automático</h2>
-              <div class="field">
-                <label>Matéria da sessão</label>
-                <select id="sessionSubjectSelect"></select>
-              </div>
-              <div class="timer-box">
-                <div id="timerDisplay" class="timer-display">00:00:00</div>
-                <div class="actions">
-                  <button class="btn-success" id="startTimerBtn">Iniciar</button>
-                  <button class="btn-warning" id="pauseTimerBtn">Pausar</button>
-                  <button class="btn-primary" id="finishTimerBtn">Finalizar e salvar</button>
-                </div>
-              </div>
-              <p class="muted">Ao finalizar, o sistema salva a sessão e atualiza os gráficos.</p>
-            </div>
-
-            <div class="panel">
-              <span class="kicker">Gráficos</span>
-              <h2>Últimos 7 dias</h2>
-              <canvas id="studyChart" class="chart" width="540" height="260"></canvas>
-            </div>
-
-            <div class="panel">
-              <span class="kicker">Histórico</span>
-              <h2>Sessões recentes</h2>
-              <div id="sessionsList" class="list"></div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <script type="module">
-    import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
-
-    const SUPABASE_URL = 'https://mcyzxwtpjoqiioeqemrv.supabase.co'
-    const SUPABASE_KEY = 'COLE_AQUI_SUA_SB_PUBLISHABLE'
-    const AI_API_URL = '/api/ai-study-plan'
-
-    const supabase = createClient(SUPABASE_URL, SUPABASE_KEY)
-
-    let currentUser = null
-    let subjects = []
-    let sessions = []
-    let timerInterval = null
-    let timerSeconds = 0
-    let timerRunning = false
-
-    const el = (id) => document.getElementById(id)
-
-    function showStatus(message, type = 'ok') {
-      const box = el('statusBox')
-      box.className = `status-box ${type}`
-      box.textContent = message
-    }
-
-    function clearStatus() {
-      const box = el('statusBox')
-      box.className = 'status-box'
-      box.textContent = ''
-    }
-
-    function formatMinutes(totalMinutes) {
-      return `${totalMinutes} min`
-    }
-
-    function formatDate(value) {
-      if (!value) return 'Sem data'
-      const d = new Date(value + 'T00:00:00')
-      return d.toLocaleDateString('pt-BR')
-    }
-
-    function formatDateTime(value) {
-      const d = new Date(value)
-      return d.toLocaleString('pt-BR')
-    }
-
-    function setAuthView() {
-      el('authScreen').classList.remove('hidden')
-      el('dashboardScreen').classList.add('hidden')
-      el('userBadge').classList.add('hidden')
-      el('logoutBtn').classList.add('hidden')
-    }
-
-    function setDashboardView(user) {
-      el('authScreen').classList.add('hidden')
-      el('dashboardScreen').classList.remove('hidden')
-      el('userBadge').classList.remove('hidden')
-      el('logoutBtn').classList.remove('hidden')
-      el('userBadge').textContent = user.email
-    }
-
-    function renderSubjects() {
-      const list = el('subjectsList')
-      list.innerHTML = ''
-
-      if (!subjects.length) {
-        list.innerHTML = '<div class="item muted">Nenhuma matéria cadastrada.</div>'
-      } else {
-        subjects.forEach(subject => {
-          const node = document.createElement('div')
-          node.className = 'item'
-          node.innerHTML = `
-            <div class="item-title">${subject.nome}</div>
-            <div class="item-meta">Prova: ${formatDate(subject.data_prova)} • Prioridade: ${subject.prioridade || 'media'}</div>
-            <div class="muted">${subject.notas || ''}</div>
-          `
-          list.appendChild(node)
-        })
-      }
-
-      const selects = [el('aiSubjectSelect'), el('sessionSubjectSelect')]
-      selects.forEach(select => {
-        select.innerHTML = '<option value="">Selecione</option>'
-        subjects.forEach(subject => {
-          const option = document.createElement('option')
-          option.value = subject.id
-          option.textContent = subject.nome
-          select.appendChild(option)
-        })
-      })
-
-      el('statSubjects').textContent = String(subjects.length)
-    }
-
-    function renderSessions() {
-      const list = el('sessionsList')
-      list.innerHTML = ''
-
-      if (!sessions.length) {
-        list.innerHTML = '<div class="item muted">Nenhuma sessão registrada.</div>'
-      } else {
-        sessions.slice(0, 8).forEach(session => {
-          const subject = subjects.find(s => s.id === session.subject_id)
-          const node = document.createElement('div')
-          node.className = 'item'
-          node.innerHTML = `
-            <div class="item-title">${subject?.nome || 'Matéria não encontrada'}</div>
-            <div class="item-meta">${formatDateTime(session.created_at)}</div>
-            <div class="muted">Tempo estudado: ${session.duration_minutes} min</div>
-          `
-          list.appendChild(node)
-        })
-      }
-
-      const totalMinutes = sessions.reduce((sum, s) => sum + Number(s.duration_minutes || 0), 0)
-      const todayKey = new Date().toISOString().slice(0, 10)
-      const todayMinutes = sessions
-        .filter(s => String(s.created_at).slice(0, 10) === todayKey)
-        .reduce((sum, s) => sum + Number(s.duration_minutes || 0), 0)
-
-      el('statToday').textContent = formatMinutes(todayMinutes)
-      el('statTotal').textContent = formatMinutes(totalMinutes)
-      el('statSessions').textContent = String(sessions.length)
-
-      drawChart()
-    }
-
-    function drawChart() {
-      const canvas = el('studyChart')
-      const ctx = canvas.getContext('2d')
-      const width = canvas.width
-      const height = canvas.height
-
-      ctx.clearRect(0, 0, width, height)
-
-      const days = []
-      const today = new Date()
-
-      for (let i = 6; i >= 0; i--) {
-        const d = new Date(today)
-        d.setDate(today.getDate() - i)
-        const key = d.toISOString().slice(0, 10)
-        const label = d.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' })
-        const minutes = sessions
-          .filter(s => String(s.created_at).slice(0, 10) === key)
-          .reduce((sum, s) => sum + Number(s.duration_minutes || 0), 0)
-
-        days.push({ key, label, minutes })
-      }
-
-      const max = Math.max(...days.map(d => d.minutes), 30)
-      const left = 48
-      const right = 18
-      const top = 18
-      const bottom = 42
-      const chartW = width - left - right
-      const chartH = height - top - bottom
-      const step = chartW / days.length
-      const barW = Math.max(24, step * 0.58)
-
-      ctx.strokeStyle = 'rgba(255,255,255,0.12)'
-      ctx.lineWidth = 1
-
-      for (let i = 0; i <= 4; i++) {
-        const y = top + (chartH / 4) * i
-        ctx.beginPath()
-        ctx.moveTo(left, y)
-        ctx.lineTo(width - right, y)
-        ctx.stroke()
-      }
-
-      ctx.fillStyle = '#aab4d6'
-      ctx.font = '12px Arial'
-      ctx.textAlign = 'right'
-
-      for (let i = 0; i <= 4; i++) {
-        const value = Math.round(max - (max / 4) * i)
-        const y = top + (chartH / 4) * i + 4
-        ctx.fillText(String(value), left - 8, y)
-      }
-
-      days.forEach((day, index) => {
-        const x = left + step * index + step / 2 - barW / 2
-        const barH = (day.minutes / max) * chartH
-        const y = top + chartH - barH
-
-        const gradient = ctx.createLinearGradient(0, y, 0, top + chartH)
-        gradient.addColorStop(0, '#8f84ff')
-        gradient.addColorStop(1, '#19c37d')
-
-        ctx.fillStyle = gradient
-        ctx.beginPath()
-        ctx.roundRect(x, y, barW, Math.max(barH, 4), 10)
-        ctx.fill()
-
-        ctx.fillStyle = '#dfe5ff'
-        ctx.textAlign = 'center'
-        ctx.fillText(day.label, x + barW / 2, height - 16)
-
-        ctx.fillStyle = '#aab4d6'
-        ctx.fillText(String(day.minutes), x + barW / 2, y - 8)
-      })
-    }
-
-    function updateTimerDisplay() {
-      const h = String(Math.floor(timerSeconds / 3600)).padStart(2, '0')
-      const m = String(Math.floor((timerSeconds % 3600) / 60)).padStart(2, '0')
-      const s = String(timerSeconds % 60).padStart(2, '0')
-      el('timerDisplay').textContent = `${h}:${m}:${s}`
-    }
-
-    function startTimer() {
-      if (timerRunning) return
-      timerRunning = true
-      timerInterval = setInterval(() => {
-        timerSeconds += 1
-        updateTimerDisplay()
-      }, 1000)
-    }
-
-    function pauseTimer() {
-      timerRunning = false
-      clearInterval(timerInterval)
-      timerInterval = null
-    }
-
-    async function finishTimerAndSave() {
-      pauseTimer()
-
-      if (!currentUser) {
-        showStatus('Faça login novamente.', 'error')
-        return
-      }
-
-      const subjectId = el('sessionSubjectSelect').value
-      if (!subjectId) {
-        showStatus('Selecione a matéria da sessão.', 'warn')
-        return
-      }
-
-      const minutes = Math.max(1, Math.round(timerSeconds / 60))
-      if (minutes <= 0) {
-        showStatus('O timer precisa ter pelo menos 1 minuto.', 'warn')
-        return
-      }
-
-      const { error } = await supabase
-        .from('study_sessions')
-        .insert({
-          user_id: currentUser.id,
-          subject_id: Number(subjectId),
-          duration_minutes: minutes
-        })
-
-      if (error) {
-        showStatus('Erro ao salvar sessão: ' + error.message, 'error')
-        return
-      }
-
-      timerSeconds = 0
-      updateTimerDisplay()
-      showStatus('Sessão salva com sucesso.', 'ok')
-      await loadSessions()
-    }
-
-    async function loadSubjects() {
-      if (!currentUser) return
-
-      const { data, error } = await supabase
-        .from('subjects')
-        .select('*')
-        .eq('user_id', currentUser.id)
-        .order('created_at', { ascending: false })
-
-      if (error) {
-        showStatus('Erro ao carregar matérias: ' + error.message, 'error')
-        return
-      }
-
-      subjects = data || []
-      renderSubjects()
-    }
-
-    async function loadSessions() {
-      if (!currentUser) return
-
-      const { data, error } = await supabase
-        .from('study_sessions')
-        .select('*')
-        .eq('user_id', currentUser.id)
-        .order('created_at', { ascending: false })
-
-      if (error) {
-        showStatus('Erro ao carregar sessões: ' + error.message, 'error')
-        return
-      }
-
-      sessions = data || []
-      renderSessions()
-    }
-
-    async function signUp() {
-      clearStatus()
-
-      const nome = el('signupName').value.trim()
-      const email = el('signupEmail').value.trim()
-      const password = el('signupPassword').value.trim()
-
-      if (!nome || !email || !password) {
-        showStatus('Preencha nome, email e senha.', 'warn')
-        return
-      }
-
-      const { data, error } = await supabase.auth.signUp({
-        email,
-        password
-      })
-
-      if (error) {
-        showStatus('Erro no cadastro: ' + error.message, 'error')
-        return
-      }
-
-      if (!data.user) {
-        showStatus('Usuário criado, mas sem retorno do Supabase.', 'warn')
-        return
-      }
-
-      const { error: profileError } = await supabase
-        .from('profiles')
-        .upsert({
-          id: data.user.id,
-          nome,
-          email
-        })
-
-      if (profileError) {
-        showStatus('Cadastro feito, mas houve erro ao salvar perfil: ' + profileError.message, 'error')
-        return
-      }
-
-      showStatus('Cadastro realizado com sucesso. Agora entre no sistema.', 'ok')
-    }
-
-    async function login() {
-      clearStatus()
-
-      const email = el('loginEmail').value.trim()
-      const password = el('loginPassword').value.trim()
-
-      if (!email || !password) {
-        showStatus('Preencha email e senha.', 'warn')
-        return
-      }
-
-      const { data, error } = await supabase.auth.signInWithPassword({
-        email,
-        password
-      })
-
-      if (error) {
-        showStatus('Erro no login: ' + error.message, 'error')
-        return
-      }
-
-      currentUser = data.user
-      setDashboardView(currentUser)
-      showStatus('Login realizado com sucesso.', 'ok')
-      await initializeDashboard()
-    }
-
-    async function logout() {
-      await supabase.auth.signOut()
-      currentUser = null
-      pauseTimer()
-      timerSeconds = 0
-      updateTimerDisplay()
-      setAuthView()
-      showStatus('Você saiu da conta.', 'ok')
-    }
-
-    async function saveSubject() {
-      clearStatus()
-
-      if (!currentUser) {
-        showStatus('Faça login primeiro.', 'warn')
-        return
-      }
-
-      const nome = el('subjectName').value.trim()
-      const dataProva = el('subjectExamDate').value || null
-      const prioridade = el('subjectPriority').value
-      const notas = el('subjectNotes').value.trim()
-
-      if (!nome) {
-        showStatus('Digite o nome da matéria.', 'warn')
-        return
-      }
-
-      const { error } = await supabase
-        .from('subjects')
-        .insert({
-          user_id: currentUser.id,
-          nome,
-          data_prova: dataProva,
-          prioridade,
-          notas
-        })
-
-      if (error) {
-        showStatus('Erro ao salvar matéria: ' + error.message, 'error')
-        return
-      }
-
-      el('subjectName').value = ''
-      el('subjectExamDate').value = ''
-      el('subjectPriority').value = 'alta'
-      el('subjectNotes').value = ''
-
-      showStatus('Matéria salva com sucesso.', 'ok')
-      await loadSubjects()
-    }
-
-    async function generateAiStudyPlan() {
-      clearStatus()
-
-      const subjectId = el('aiSubjectSelect').value
-      const content = el('aiContent').value.trim()
-      const examDate = el('aiExamDate').value
-      const hoursPerDay = el('aiHoursPerDay').value
-
-      if (!subjectId || !content || !examDate || !hoursPerDay) {
-        showStatus('Preencha todos os campos da IA.', 'warn')
-        return
-      }
-
-      el('aiPlanOutput').textContent = 'Gerando plano inteligente...'
-
-      try {
-        const subject = subjects.find(s => String(s.id) === String(subjectId))
-
-        const response = await fetch(AI_API_URL, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({
-            subjectName: subject?.nome || 'Matéria',
-            content,
-            examDate,
-            hoursPerDay
-          })
-        })
-
-        const result = await response.json()
-
-        if (!response.ok) {
-          throw new Error(result.error || 'Erro ao gerar plano.')
-        }
-
-        el('aiPlanOutput').textContent = result.plan
-        showStatus('Plano inteligente gerado com sucesso.', 'ok')
-      } catch (error) {
-        el('aiPlanOutput').textContent = 'Não foi possível gerar o plano.'
-        showStatus('Erro na IA: ' + error.message, 'error')
-      }
-    }
-
-    function clearAiPlan() {
-      el('aiContent').value = ''
-      el('aiExamDate').value = ''
-      el('aiHoursPerDay').value = 2
-      el('aiPlanOutput').textContent = 'Seu plano aparecerá aqui.'
-      clearStatus()
-    }
-
-    async function initializeDashboard() {
-      await loadSubjects()
-      await loadSessions()
-    }
-
-    async function restoreSession() {
-      const { data } = await supabase.auth.getSession()
-
-      if (data.session?.user) {
-        currentUser = data.session.user
-        setDashboardView(currentUser)
-        await initializeDashboard()
-      } else {
-        setAuthView()
-      }
-
-      updateTimerDisplay()
-    }
-
-    el('signupBtn').addEventListener('click', signUp)
-    el('loginBtn').addEventListener('click', login)
-    el('logoutBtn').addEventListener('click', logout)
-    el('saveSubjectBtn').addEventListener('click', saveSubject)
-    el('generateAiPlanBtn').addEventListener('click', generateAiStudyPlan)
-    el('clearAiPlanBtn').addEventListener('click', clearAiPlan)
-    el('startTimerBtn').addEventListener('click', startTimer)
-    el('pauseTimerBtn').addEventListener('click', pauseTimer)
-    el('finishTimerBtn').addEventListener('click', finishTimerAndSave)
-
-    supabase.auth.onAuthStateChange((_event, session) => {
-      if (session?.user) {
-        currentUser = session.user
-        setDashboardView(currentUser)
-      } else {
-        currentUser = null
-        setAuthView()
-      }
-    })
-
-    restoreSession()
-  </script>
+
+<div id="auth" class="box">
+<h2>Cadastro</h2>
+<input id="nome" placeholder="Nome"><br>
+<input id="email" placeholder="Email"><br>
+<input id="senha" type="password" placeholder="Senha"><br>
+<button onclick="cadastrar()">Cadastrar</button>
+
+<hr>
+
+<h2>Login</h2>
+<input id="emailLogin" placeholder="Email"><br>
+<input id="senhaLogin" type="password" placeholder="Senha"><br>
+<button onclick="login()">Entrar</button>
+</div>
+
+<div id="app" style="display:none">
+
+<div class="box">
+<h2>Matérias</h2>
+<input id="materia" placeholder="Nome da matéria">
+<button onclick="salvarMateria()">Salvar</button>
+<ul id="lista"></ul>
+</div>
+
+<div class="box">
+<h2>Timer de estudo</h2>
+<button onclick="iniciar()">Iniciar</button>
+<button onclick="parar()">Parar</button>
+<p id="tempo">0 min</p>
+</div>
+
+<div class="box">
+<h2>Gráfico</h2>
+<canvas id="grafico"></canvas>
+</div>
+
+<div class="box">
+<h2>IA - Plano de estudo</h2>
+<button onclick="gerarIA()">Gerar plano</button>
+<pre id="ia"></pre>
+</div>
+
+</div>
+
+<script type="module">
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
+
+// 🔥 SUA CONFIGURAÇÃO
+const supabase = createClient(
+'https://mcyzxwtpjoqiioeqemrv.supabase.co',
+'sb_publishable_G1DmNZdvjDl0-3N2onqD4Q_SZM1M6f1'
+)
+
+let startTime = null
+let chart
+
+window.cadastrar = async () => {
+const nome = document.getElementById('nome').value
+const email = document.getElementById('email').value
+const senha = document.getElementById('senha').value
+
+const { data, error } = await supabase.auth.signUp({ email, password: senha })
+if (error) return alert(error.message)
+
+await supabase.from("profiles").insert({
+id: data.user.id,
+nome,
+email
+})
+
+alert("Cadastro feito!")
+}
+
+window.login = async () => {
+const email = document.getElementById('emailLogin').value
+const senha = document.getElementById('senhaLogin').value
+
+const { error } = await supabase.auth.signInWithPassword({ email, password: senha })
+if (error) return alert(error.message)
+
+document.getElementById('auth').style.display='none'
+document.getElementById('app').style.display='block'
+
+carregarMaterias()
+carregarGrafico()
+}
+
+window.salvarMateria = async () => {
+const materia = document.getElementById('materia').value
+const { data:user } = await supabase.auth.getUser()
+
+await supabase.from("subjects").insert({
+user_id: user.user.id,
+nome: materia
+})
+
+carregarMaterias()
+}
+
+async function carregarMaterias(){
+const { data:user } = await supabase.auth.getUser()
+const { data } = await supabase.from("subjects").select("*").eq("user_id", user.user.id)
+
+const lista = document.getElementById('lista')
+lista.innerHTML=''
+
+data.forEach(m=>{
+const li=document.createElement('li')
+li.textContent=m.nome
+lista.appendChild(li)
+})
+}
+
+window.iniciar = () => {
+startTime = Date.now()
+}
+
+window.parar = async () => {
+const end = Date.now()
+const minutos = Math.floor((end-startTime)/60000)
+document.getElementById('tempo').innerText = minutos + " min"
+
+const { data:user } = await supabase.auth.getUser()
+
+await supabase.from("study_sessions").insert({
+user_id: user.user.id,
+subject_id:1,
+duration_minutes: minutos
+})
+
+carregarGrafico()
+}
+
+async function carregarGrafico(){
+const { data:user } = await supabase.auth.getUser()
+
+const { data } = await supabase
+.from("study_sessions")
+.select("duration_minutes")
+
+const total = data.map(d=>d.duration_minutes)
+
+const ctx = document.getElementById('grafico')
+
+if(chart) chart.destroy()
+
+chart = new Chart(ctx,{
+type:'bar',
+data:{
+labels: total.map((_,i)=>'Dia '+(i+1)),
+datasets:[{
+label:'Minutos estudados',
+data: total
+}]
+}
+})
+}
+
+window.gerarIA = async () => {
+const res = await fetch('/api/ia',{
+method:'POST',
+headers:{'Content-Type':'application/json'},
+body: JSON.stringify({texto:"Crie plano de estudo inteligente"})
+})
+
+const data = await res.json()
+document.getElementById('ia').innerText = data.resposta
+}
+
+</script>
 </body>
 </html>
