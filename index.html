@@ -558,6 +558,7 @@
       border-radius: 18px;
       margin-bottom: 12px;
       border: 1px solid var(--line);
+      flex-wrap: wrap;
     }
 
     .schedule-time {
@@ -768,6 +769,7 @@
           <div class="menu-item active" data-page="hoje">🏠 Hoje</div>
           <div class="menu-item" data-page="plano">✨ Plano Inteligente</div>
           <div class="menu-item" data-page="materias">📚 Matérias</div>
+          <div class="menu-item" data-page="trabalhos">📌 Trabalhos e Atividades <span class="menu-badge" id="badgeTrabalhos">0</span></div>
           <div class="menu-item" data-page="cronograma">🗓️ Cronograma</div>
           <div class="menu-item" data-page="revisoes">🔄 Revisões <span class="menu-badge" id="badgeRevisoes">0</span></div>
           <div class="menu-item" data-page="caderno">📝 Caderno Diário</div>
@@ -859,11 +861,11 @@
               </div>
 
               <div class="stat-card card">
-                <div class="stat-icon blue-soft">🎯</div>
+                <div class="stat-icon red-soft">📌</div>
                 <div>
-                  <div class="stat-title">Sessões</div>
-                  <div class="stat-value" id="qtdSessoes">0 concluídas</div>
-                  <div class="stat-sub">Total acumulado</div>
+                  <div class="stat-title">Trabalhos</div>
+                  <div class="stat-value" id="trabalhosPendentesCard">0 pendentes</div>
+                  <div class="stat-sub" id="trabalhoMaisProximoCard">Sem prazo próximo</div>
                 </div>
               </div>
             </div>
@@ -962,6 +964,37 @@
                   <span class="link-action">Lista</span>
                 </div>
                 <div id="listaMateriasCompleta"></div>
+              </div>
+            </div>
+          </section>
+
+          <section id="page-trabalhos" class="tab-page">
+            <div class="grid-2">
+              <div class="card">
+                <div class="card-head">
+                  <h3>Adicionar Trabalho ou Atividade</h3>
+                  <span class="link-action">Organize seus prazos</span>
+                </div>
+
+                <select id="trabMateria"></select>
+                <input id="trabTitulo" placeholder="Título do trabalho ou atividade" />
+                <textarea id="trabDescricao" rows="6" placeholder="Descrição, orientações, pontos importantes..."></textarea>
+                <input id="trabDataEntrega" type="date" />
+                <select id="trabStatus">
+                  <option value="Pendente">Pendente</option>
+                  <option value="Em andamento">Em andamento</option>
+                  <option value="Concluído">Concluído</option>
+                </select>
+
+                <button id="addTrabalhoBtn">Salvar trabalho</button>
+              </div>
+
+              <div class="card">
+                <div class="card-head">
+                  <h3>Lista de Trabalhos e Atividades</h3>
+                  <span class="link-action">Pendentes e concluídos</span>
+                </div>
+                <div id="listaTrabalhos"></div>
               </div>
             </div>
           </section>
@@ -1097,9 +1130,6 @@
     const materiaData = document.getElementById("materiaData");
     const addMateriaBtn = document.getElementById("addMateriaBtn");
 
-    const timerMinutos = document.createElement("input");
-    timerMinutos.value = 25;
-
     const iaMateria = document.getElementById("iaMateria");
     const iaData = document.getElementById("iaData");
     const iaConteudo = document.getElementById("iaConteudo");
@@ -1130,7 +1160,8 @@
         planosSalvos: [],
         notas: [],
         cronograma: [],
-        revisoes: []
+        revisoes: [],
+        trabalhos: []
       }));
     }
 
@@ -1259,7 +1290,8 @@
       };
 
       saveData(data);
-      clearInterval(timerInterval);
+
+      if (timerInterval) clearTimeout(timerInterval);
       timerInterval = setTimeout(() => {
         concluirSessao(25, materia);
       }, 25 * 60 * 1000);
@@ -1553,6 +1585,7 @@
 
       document.getElementById("notaMateria").innerHTML = options;
       document.getElementById("revMateria").innerHTML = options;
+      document.getElementById("trabMateria").innerHTML = options;
     }
 
     function renderMaterias() {
@@ -1654,6 +1687,98 @@
           <p>${safe(n.materia)} • ${safe(n.criadoEm)}</p>
         </div>
       `).join("");
+    }
+
+    document.getElementById("addTrabalhoBtn").addEventListener("click", () => {
+      const materia = document.getElementById("trabMateria").value;
+      const titulo = document.getElementById("trabTitulo").value.trim();
+      const descricao = document.getElementById("trabDescricao").value.trim();
+      const dataEntrega = document.getElementById("trabDataEntrega").value;
+      const status = document.getElementById("trabStatus").value;
+
+      if (!titulo || !dataEntrega) return;
+
+      const data = getData();
+      data.trabalhos.unshift({
+        id: Date.now(),
+        materia: materia || "Sem matéria",
+        titulo,
+        descricao,
+        dataEntrega,
+        status
+      });
+
+      saveData(data);
+
+      document.getElementById("trabTitulo").value = "";
+      document.getElementById("trabDescricao").value = "";
+      document.getElementById("trabDataEntrega").value = "";
+      document.getElementById("trabStatus").value = "Pendente";
+
+      renderTrabalhos();
+    });
+
+    function alterarStatusTrabalho(id) {
+      const data = getData();
+      const item = data.trabalhos.find(t => t.id === id);
+      if (!item) return;
+
+      if (item.status === "Pendente") item.status = "Em andamento";
+      else if (item.status === "Em andamento") item.status = "Concluído";
+      else item.status = "Pendente";
+
+      saveData(data);
+      renderTrabalhos();
+    }
+
+    function excluirTrabalho(id) {
+      const data = getData();
+      data.trabalhos = data.trabalhos.filter(t => t.id !== id);
+      saveData(data);
+      renderTrabalhos();
+    }
+
+    window.alterarStatusTrabalho = alterarStatusTrabalho;
+    window.excluirTrabalho = excluirTrabalho;
+
+    function renderTrabalhos() {
+      const data = getData();
+      const container = document.getElementById("listaTrabalhos");
+      const badge = document.getElementById("badgeTrabalhos");
+
+      const pendentes = data.trabalhos.filter(t => t.status !== "Concluído").length;
+      badge.textContent = pendentes;
+      document.getElementById("trabalhosPendentesCard").textContent = `${pendentes} pendentes`;
+
+      const proximos = data.trabalhos
+        .filter(t => t.status !== "Concluído" && t.dataEntrega)
+        .sort((a, b) => a.dataEntrega.localeCompare(b.dataEntrega));
+
+      if (proximos.length) {
+        const prox = proximos[0];
+        document.getElementById("trabalhoMaisProximoCard").textContent = `${prox.titulo} - ${prox.dataEntrega}`;
+      } else {
+        document.getElementById("trabalhoMaisProximoCard").textContent = "Sem prazo próximo";
+      }
+
+      if (!data.trabalhos.length) {
+        container.innerHTML = '<div class="empty">Nenhum trabalho ou atividade cadastrado.</div>';
+        return;
+      }
+
+      container.innerHTML = data.trabalhos
+        .sort((a, b) => a.dataEntrega.localeCompare(b.dataEntrega))
+        .map(t => `
+          <div class="note-item">
+            <h4>${safe(t.titulo)} - ${safe(t.materia)}</h4>
+            <p>${safe(t.descricao || "Sem descrição")}</p>
+            <p style="margin-top:8px;"><strong>Entrega:</strong> ${safe(t.dataEntrega)} | <strong>Status:</strong> ${safe(t.status)}</p>
+            <div class="subject-actions">
+              <button class="secondary mini-btn" onclick="alterarStatusTrabalho(${t.id})">Mudar status</button>
+              <button class="secondary mini-btn" onclick="excluirTrabalho(${t.id})">Excluir</button>
+            </div>
+          </div>
+        `).join("");
     }
 
     document.getElementById("addCronogramaBtn").addEventListener("click", () => {
@@ -1813,7 +1938,6 @@
         .reduce((acc, s) => acc + Number(s.minutos || 0), 0);
 
       document.getElementById("tempoHoje").textContent = minToHourText(minutosHoje);
-      document.getElementById("qtdSessoes").textContent = `${data.sessoes.length} concluídas`;
       document.getElementById("metaMinutosHoje").textContent = minToHourText(minutosHoje);
 
       const percentual = Math.min(100, Math.round((minutosHoje / META_DIARIA_MIN) * 100));
@@ -1870,10 +1994,6 @@
       }).join("");
     }
 
-    function renderPlanosSalvosHoje() {
-      renderPlanosSalvos();
-    }
-
     function renderApp() {
       atualizarSelectMaterias();
       renderResumoHoje();
@@ -1881,8 +2001,9 @@
       renderNotas();
       renderCronograma();
       renderRevisoes();
+      renderTrabalhos();
       renderMateriasEmFoco();
-      renderPlanosSalvosHoje();
+      renderPlanosSalvos();
       renderCharts();
     }
 
