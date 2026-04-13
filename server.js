@@ -6,6 +6,12 @@ const app = express()
 app.use(cors())
 app.use(express.json())
 
+// ✅ ROTA OBRIGATÓRIA PARA O RENDER
+app.get('/api/health', (req, res) => {
+  res.status(200).send("OK")
+})
+
+// IA
 app.post('/api/ia', async (req,res)=>{
 
 try{
@@ -34,4 +40,6 @@ res.json({resposta:"Erro IA"})
 
 })
 
-app.listen(3000,()=>console.log("rodando"))
+// 🔥 IMPORTANTE: usar PORT do Render
+const PORT = process.env.PORT || 3000
+app.listen(PORT, ()=> console.log("rodando na porta " + PORT))
