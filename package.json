@@ -1,7 +1,7 @@
 {
   "name": "vou-estudar-online",
   "version": "1.0.0",
-  "description": "Sistema de estudos com login e IA",
+  "description": "Sistema de estudos com login e inteligente",
   "main": "server.js",
   "type": "module",
   "scripts": {
@@ -11,6 +11,9 @@
     "cors": "^2.8.5",
     "dotenv": "^16.4.5",
     "express": "^4.18.2",
-    "openai": "^4.104.0"
+    "multer": "^1.4.5-lts.1",
+    "mammoth": "^1.8.0",
+    "openai": "^4.104.0",
+    "pdf-parse": "^1.1.1"
   }
 }
