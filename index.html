@@ -6,32 +6,51 @@
 </head>
 <body>
 
-<h2>Cadastro</h2>
-<input id="nome" placeholder="Nome"><br><br>
-<input id="email" placeholder="Email"><br><br>
-<input id="senha" type="password" placeholder="Senha"><br><br>
-<button onclick="cadastrar()">Cadastrar</button>
+<div id="blocoCadastro">
+  <h2>Cadastro</h2>
+  <input id="nome" placeholder="Nome"><br><br>
+  <input id="email" placeholder="Email"><br><br>
+  <input id="senha" type="password" placeholder="Senha"><br><br>
+  <button onclick="cadastrar()">Cadastrar</button>
+</div>
 
 <hr>
 
-<h2>Login</h2>
-<input id="emailLogin" placeholder="Email"><br><br>
-<input id="senhaLogin" type="password" placeholder="Senha"><br><br>
-<button onclick="login()">Entrar</button>
+<div id="blocoLogin">
+  <h2>Login</h2>
+  <input id="emailLogin" placeholder="Email"><br><br>
+  <input id="senhaLogin" type="password" placeholder="Senha"><br><br>
+  <button onclick="login()">Entrar</button>
+</div>
 
-<hr>
-
-<h2>Salvar matéria</h2>
-<input id="materia" placeholder="Nome da matéria"><br><br>
-<button onclick="salvar()">Salvar matéria</button>
+<div id="areaMateria" style="display:none;">
+  <hr>
+  <h2>Salvar matéria</h2>
+  <input id="materia" placeholder="Nome da matéria"><br><br>
+  <button onclick="salvar()">Salvar matéria</button>
+  <br><br>
+  <button onclick="sair()">Sair</button>
+</div>
 
 <script type="module">
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 
 const supabase = createClient(
   'https://mcyzxwtpjoqiioeqemrv.supabase.co',
-  'sb_publishable_G1DmNZdvjDl0-3N2onqD4Q_SZM1M6f1'
+  'SUA_CHAVE_PUBLISHABLE_AQUI'
 )
+
+function mostrarAreaLogada() {
+  document.getElementById('blocoCadastro').style.display = 'none'
+  document.getElementById('blocoLogin').style.display = 'none'
+  document.getElementById('areaMateria').style.display = 'block'
+}
+
+function mostrarAreaPublica() {
+  document.getElementById('blocoCadastro').style.display = 'block'
+  document.getElementById('blocoLogin').style.display = 'block'
+  document.getElementById('areaMateria').style.display = 'none'
+}
 
 window.cadastrar = async () => {
   const nome = document.getElementById('nome').value
@@ -43,13 +62,26 @@ window.cadastrar = async () => {
     password: senha
   })
 
-  if (error) return alert(error.message)
+  if (error) {
+    alert("Erro no cadastro: " + error.message)
+    return
+  }
 
-  await supabase.from("profiles").insert({
+  if (!data.user) {
+    alert("Usuário criado, mas sem retorno do user.")
+    return
+  }
+
+  const { error: profileError } = await supabase.from("profiles").insert({
     id: data.user.id,
     nome,
     email
   })
+
+  if (profileError) {
+    alert("Erro ao salvar perfil: " + profileError.message)
+    return
+  }
 
   alert("Cadastro feito!")
 }
@@ -63,25 +95,54 @@ window.login = async () => {
     password: senha
   })
 
-  if (error) return alert(error.message)
+  if (error) {
+    alert("Erro no login: " + error.message)
+    return
+  }
 
   alert("Login OK!")
+  mostrarAreaLogada()
 }
 
 window.salvar = async () => {
   const materia = document.getElementById('materia').value
 
-  const { data: userData } = await supabase.auth.getUser()
+  const { data: userData, error: userError } = await supabase.auth.getUser()
+
+  if (userError || !userData.user) {
+    alert("Faça login primeiro.")
+    return
+  }
 
   const { error } = await supabase.from("materias").insert({
     user_id: userData.user.id,
     nome: materia
   })
 
-  if (error) return alert(error.message)
+  if (error) {
+    alert("Erro ao salvar matéria: " + error.message)
+    return
+  }
 
   alert("Matéria salva!")
 }
+
+window.sair = async () => {
+  await supabase.auth.signOut()
+  mostrarAreaPublica()
+}
+
+async function verificarSessao() {
+  const { data } = await supabase.auth.getSession()
+
+  if (data.session?.user) {
+    mostrarAreaLogada()
+  } else {
+    mostrarAreaPublica()
+  }
+}
+
+verificarSessao()
 </script>
 
 </body>
