@@ -8,6 +8,7 @@ import OpenAI from "openai";
 dotenv.config();
 
 const app = express();
+
 app.use(cors());
 app.use(express.json({ limit: "2mb" }));
 
@@ -23,10 +24,8 @@ const openai = process.env.OPENAI_API_KEY
   ? new OpenAI({ apiKey: process.env.OPENAI_API_KEY })
   : null;
 
-app.use(express.static(path.join(__dirname, "public")));
-
 app.get("/api/health", (req, res) => {
-  res.status(200).json({
+  return res.status(200).json({
     ok: true,
     message: "Servidor funcionando",
     hasOpenAI: !!process.env.OPENAI_API_KEY
@@ -84,15 +83,15 @@ Plano de estudo gerado localmente
 Matéria: ${materia}
 Data da prova: ${provaData || "não informada"}
 
-1. Leia todo o conteúdo e separe os tópicos principais.
-2. Estude 3 blocos de 25 minutos com 5 minutos de pausa.
-3. Faça resumo curto dos pontos mais importantes.
-4. Crie 10 perguntas sobre o conteúdo.
+1. Leia o conteúdo inteiro e separe os tópicos principais.
+2. Estude em 3 blocos de 25 minutos com 5 minutos de pausa.
+3. Faça um resumo curto dos pontos centrais.
+4. Crie 10 perguntas de revisão.
 5. Revise em 24 horas.
 6. Revise novamente em 3 dias.
-7. Faça simulado final antes da prova.
+7. Faça um simulado final antes da prova.
 
-Resumo do foco:
+Trecho do conteúdo analisado:
 ${conteudo.slice(0, 1200)}
       `.trim();
 
@@ -103,22 +102,24 @@ ${conteudo.slice(0, 1200)}
     }
 
     const prompt = `
-Você é um tutor de estudos objetivo e didático.
-Monte um plano de estudo em português do Brasil.
+Você é um tutor especialista em estudos.
+Responda em português do Brasil, de forma prática, didática e organizada.
+
+Monte um plano de estudo com base nestes dados:
 
 Matéria: ${materia}
 Data da prova: ${provaData || "não informada"}
 
-Conteúdo do aluno:
+Conteúdo:
 ${conteudo}
 
 Entregue:
-1. visão geral do que estudar
-2. plano diário
-3. tópicos prioritários
+1. visão geral
+2. tópicos prioritários
+3. plano diário
 4. perguntas de revisão
 5. estratégia de memorização
-6. versão simples e prática
+6. versão simples e objetiva
 `;
 
     const response = await openai.chat.completions.create({
@@ -126,7 +127,7 @@ Entregue:
       messages: [
         {
           role: "system",
-          content: "Você cria planos de estudo claros, práticos e motivadores."
+          content: "Você cria planos de estudo claros, práticos e objetivos."
         },
         {
           role: "user",
@@ -136,7 +137,9 @@ Entregue:
       temperature: 0.7
     });
 
-    const plano = response.choices?.[0]?.message?.content || "Não foi possível gerar o plano.";
+    const plano =
+      response.choices?.[0]?.message?.content ||
+      "Não foi possível gerar o plano.";
 
     return res.json({
       ok: true,
@@ -151,8 +154,12 @@ Entregue:
   }
 });
 
+app.get("/", (req, res) => {
+  res.sendFile(path.join(__dirname, "index.html"));
+});
+
 app.get("*", (req, res) => {
-  res.sendFile(path.join(__dirname, "public", "index.html"));
+  res.sendFile(path.join(__dirname, "index.html"));
 });
 
 app.listen(PORT, () => {
