@@ -3,8 +3,9 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Vou Estudar+ Versão 2</title>
+  <title>Vou Estudar+ Online</title>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
     * { box-sizing: border-box; }
 
@@ -34,7 +35,6 @@
     }
 
     .hidden { display: none !important; }
-
     .center {
       min-height: 100vh;
       display: grid;
@@ -51,7 +51,7 @@
       align-items: center;
     }
 
-    .intro-box, .login-box, .shell, .card, .sidebar {
+    .intro-box, .auth-box, .shell, .card, .sidebar {
       background: var(--card);
       border: 1px solid var(--line);
       border-radius: 24px;
@@ -109,22 +109,45 @@
       font-size: 18px;
     }
 
-    .login-box {
+    .auth-box {
       padding: 32px;
-      max-width: 460px;
+      max-width: 480px;
       width: 100%;
       justify-self: center;
     }
 
-    .login-box h2 {
+    .auth-tabs {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+
+    .auth-tab {
+      flex: 1;
+      padding: 12px;
+      border-radius: 14px;
+      text-align: center;
+      cursor: pointer;
+      font-weight: 700;
+      border: 1px solid var(--line);
+      background: #f7f8fd;
+    }
+
+    .auth-tab.active {
+      background: linear-gradient(90deg, var(--primary), var(--primary-2));
+      color: #fff;
+      border-color: transparent;
+    }
+
+    .auth-box h2 {
       margin: 0 0 8px 0;
-      font-size: 40px;
+      font-size: 34px;
       text-align: center;
     }
 
-    .login-box .muted {
+    .auth-box .muted {
       text-align: center;
-      margin-bottom: 24px;
+      margin-bottom: 18px;
     }
 
     input, textarea, select, button {
@@ -172,6 +195,11 @@
       font-size: 13px;
     }
 
+    .muted { color: var(--muted); }
+    .danger { color: #ff6b6b; }
+    .success { color: #29b36a; }
+    .empty { color: var(--muted); font-size: 14px; }
+
     .demo-box {
       margin-top: 14px;
       background: #f4f5ff;
@@ -180,11 +208,6 @@
       color: var(--text);
       border: 1px solid #e6e8ff;
     }
-
-    .muted { color: var(--muted); }
-    .danger { color: #ff6b6b; }
-    .success { color: #29b36a; }
-    .empty { color: var(--muted); font-size: 14px; }
 
     .app-wrap {
       display: grid;
@@ -294,9 +317,7 @@
       color: #fff;
     }
 
-    .shell {
-      overflow: hidden;
-    }
+    .shell { overflow: hidden; }
 
     .topbar {
       padding: 18px 22px;
@@ -523,9 +544,7 @@
       margin-bottom: 18px;
     }
 
-    .card {
-      padding: 20px;
-    }
+    .card { padding: 20px; }
 
     .card-head {
       display: flex;
@@ -678,6 +697,12 @@
       margin-bottom: 12px;
     }
 
+    .loader {
+      padding: 18px;
+      color: var(--muted);
+      font-weight: 700;
+    }
+
     @media (max-width: 1220px) {
       .app-wrap {
         grid-template-columns: 1fr;
@@ -729,29 +754,42 @@
         </div>
 
         <div class="feature">
-          <div class="feature-icon">📈</div>
+          <div class="feature-icon">☁️</div>
           <div>
-            <h3>Acompanhe seu progresso</h3>
-            <p>Veja evolução diária, matérias em foco e próximas provas.</p>
+            <h3>Tudo salvo online</h3>
+            <p>Abra no celular ou no computador sem perder seus dados.</p>
           </div>
         </div>
       </div>
 
-      <div class="login-box">
-        <h2>Entrar</h2>
-        <p class="muted">Acesse sua conta para continuar</p>
-
-        <input id="loginEmail" type="email" placeholder="Email" value="admin@vouestudar.com" />
-        <input id="loginPassword" type="password" placeholder="Senha" value="123456" />
-        <button id="loginBtn">Entrar</button>
-
-        <div class="demo-box">
-          <strong>Login de demonstração:</strong><br>
-          Email: admin@vouestudar.com<br>
-          Senha: 123456
+      <div class="auth-box">
+        <div class="auth-tabs">
+          <div class="auth-tab active" id="tabLogin">Entrar</div>
+          <div class="auth-tab" id="tabCadastro">Criar conta</div>
         </div>
 
-        <p id="loginMsg" class="muted"></p>
+        <h2 id="authTitle">Entrar</h2>
+        <p class="muted" id="authSubtitle">Acesse sua conta para continuar</p>
+
+        <div id="loginForm">
+          <input id="loginEmail" type="email" placeholder="Email" />
+          <input id="loginPassword" type="password" placeholder="Senha" />
+          <button id="loginBtn">Entrar</button>
+          <button class="secondary" id="resetBtn" style="margin-top:10px;">Enviar recuperação de senha</button>
+        </div>
+
+        <div id="cadastroForm" class="hidden">
+          <input id="signupEmail" type="email" placeholder="Email" />
+          <input id="signupPassword" type="password" placeholder="Senha" />
+          <button id="signupBtn">Criar conta</button>
+        </div>
+
+        <div class="demo-box">
+          <strong>Configuração necessária:</strong><br>
+          Cole sua URL e sua Publishable Key do Supabase no script deste arquivo.
+        </div>
+
+        <p id="authMsg" class="muted"></p>
       </div>
     </div>
   </div>
@@ -762,7 +800,7 @@
         <div class="logo">
           <div class="logo-box">📘</div>
           <span>Vou Estudar+</span>
-          <span class="version-pill">Versão 2.0</span>
+          <span class="version-pill">Online</span>
         </div>
 
         <div class="menu">
@@ -773,7 +811,6 @@
           <div class="menu-item" data-page="cronograma">🗓️ Cronograma</div>
           <div class="menu-item" data-page="revisoes">🔄 Revisões <span class="menu-badge" id="badgeRevisoes">0</span></div>
           <div class="menu-item" data-page="caderno">📝 Caderno Diário</div>
-          <div class="menu-item" data-page="simulados">🧪 Simulados</div>
           <div class="menu-item" data-page="progresso">📊 Progresso</div>
         </div>
 
@@ -795,13 +832,12 @@
 
           <div class="top-actions">
             <div class="icon-btn">🔔 <span class="notif-dot" id="notifCount">0</span></div>
-            <div class="icon-btn">🗓️</div>
 
             <div class="profile-box">
               <div class="avatar">A</div>
               <div class="profile-meta">
                 <strong id="profileName">Acadêmico</strong>
-                <span>Acadêmico</span>
+                <span id="profileEmail">email</span>
               </div>
             </div>
 
@@ -813,7 +849,7 @@
           <section id="page-hoje" class="tab-page active">
             <div class="hero">
               <div>
-                <h1 id="heroSaudacao">Bom dia, Acadêmico! 👋</h1>
+                <h1 id="heroSaudacao">Bom dia! 👋</h1>
                 <p>Vamos focar e conquistar seus objetivos hoje.</p>
               </div>
 
@@ -939,7 +975,7 @@
             <div class="card" style="margin-top:18px;">
               <div class="card-head">
                 <h3>Planos Salvos</h3>
-                <span class="link-action" id="limparPlanosBtn">Limpar tudo</span>
+                <span class="link-action" id="recarregarPlanosBtn">Atualizar</span>
               </div>
               <div id="listaPlanosSalvos"></div>
             </div>
@@ -961,7 +997,7 @@
               <div class="card">
                 <div class="card-head">
                   <h3>Matérias Cadastradas</h3>
-                  <span class="link-action">Lista</span>
+                  <span class="link-action" id="recarregarMateriasBtn">Atualizar</span>
                 </div>
                 <div id="listaMateriasCompleta"></div>
               </div>
@@ -992,7 +1028,7 @@
               <div class="card">
                 <div class="card-head">
                   <h3>Lista de Trabalhos e Atividades</h3>
-                  <span class="link-action">Pendentes e concluídos</span>
+                  <span class="link-action" id="recarregarTrabalhosBtn">Atualizar</span>
                 </div>
                 <div id="listaTrabalhos"></div>
               </div>
@@ -1044,7 +1080,7 @@
               <div class="card">
                 <div class="card-head">
                   <h3>Revisões Pendentes</h3>
-                  <span class="link-action">Hoje e próximas</span>
+                  <span class="link-action" id="recarregarRevisoesBtn">Atualizar</span>
                 </div>
                 <div id="listaRevisoes"></div>
               </div>
@@ -1072,21 +1108,9 @@
               <div class="card">
                 <div class="card-head">
                   <h3>Anotações Salvas</h3>
-                  <span class="link-action" id="limparNotasBtn">Limpar tudo</span>
+                  <span class="link-action" id="recarregarNotasBtn">Atualizar</span>
                 </div>
                 <div id="listaNotas"></div>
-              </div>
-            </div>
-          </section>
-
-          <section id="page-simulados" class="tab-page">
-            <div class="card">
-              <div class="card-head">
-                <h3>Simulados</h3>
-                <span class="link-action">Próxima etapa da plataforma</span>
-              </div>
-              <div class="empty">
-                Esta área já está pronta para receber a próxima fase: geração de perguntas, quiz e simulados por matéria.
               </div>
             </div>
           </section>
@@ -1116,14 +1140,47 @@
   </div>
 
   <script>
+    // ==============================
+    // CONFIGURAÇÃO SUPABASE
+    // ==============================
+    const SUPABASE_URL = "COLE_AQUI_SUA_SUPABASE_URL";
+    const SUPABASE_KEY = "COLE_AQUI_SUA_SUPABASE_PUBLISHABLE_KEY";
     const API = "";
     const META_DIARIA_MIN = 210;
 
+    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+    // ==============================
+    // ESTADO
+    // ==============================
+    const state = {
+      user: null,
+      materias: [],
+      trabalhos: [],
+      revisoes: [],
+      cronograma: [],
+      notas: [],
+      planos: [],
+      sessoes: []
+    };
+
+    // ==============================
+    // ELEMENTOS
+    // ==============================
     const loginView = document.getElementById("loginView");
     const appView = document.getElementById("appView");
-    const loginMsg = document.getElementById("loginMsg");
+    const authMsg = document.getElementById("authMsg");
+
+    const tabLogin = document.getElementById("tabLogin");
+    const tabCadastro = document.getElementById("tabCadastro");
+    const loginForm = document.getElementById("loginForm");
+    const cadastroForm = document.getElementById("cadastroForm");
+    const authTitle = document.getElementById("authTitle");
+    const authSubtitle = document.getElementById("authSubtitle");
 
     const loginBtn = document.getElementById("loginBtn");
+    const signupBtn = document.getElementById("signupBtn");
+    const resetBtn = document.getElementById("resetBtn");
     const logoutBtn = document.getElementById("logoutBtn");
 
     const materiaNome = document.getElementById("materiaNome");
@@ -1148,31 +1205,10 @@
     let graficoTempoHoje;
     let graficoTempoCompleto;
     let graficoMaterias;
-    let timerInterval = null;
 
-    function getData() {
-      return JSON.parse(localStorage.getItem("vou_estudar_data") || JSON.stringify({
-        user: null,
-        materias: [],
-        sessoes: [],
-        timer: null,
-        ultimoPlano: "",
-        planosSalvos: [],
-        notas: [],
-        cronograma: [],
-        revisoes: [],
-        trabalhos: []
-      }));
-    }
-
-    function saveData(data) {
-      localStorage.setItem("vou_estudar_data", JSON.stringify(data));
-    }
-
-    function isLogged() {
-      return !!getData().user;
-    }
-
+    // ==============================
+    // UTIL
+    // ==============================
     function hojeStr() {
       return new Date().toISOString().slice(0, 10);
     }
@@ -1201,6 +1237,39 @@
       });
     }
 
+    function setAuthMessage(text, kind = "muted") {
+      authMsg.textContent = text;
+      authMsg.className = kind;
+    }
+
+    function setIAMessage(text, kind = "muted") {
+      iaMsg.textContent = text;
+      iaMsg.className = kind;
+    }
+
+    function showLogin() {
+      loginView.classList.remove("hidden");
+      appView.classList.add("hidden");
+    }
+
+    function showApp() {
+      loginView.classList.add("hidden");
+      appView.classList.remove("hidden");
+    }
+
+    function openAuthTab(mode) {
+      const isLogin = mode === "login";
+      tabLogin.classList.toggle("active", isLogin);
+      tabCadastro.classList.toggle("active", !isLogin);
+      loginForm.classList.toggle("hidden", !isLogin);
+      cadastroForm.classList.toggle("hidden", isLogin);
+      authTitle.textContent = isLogin ? "Entrar" : "Criar conta";
+      authSubtitle.textContent = isLogin
+        ? "Acesse sua conta para continuar"
+        : "Crie sua conta para salvar tudo online";
+      setAuthMessage("");
+    }
+
     function abrirPagina(nome) {
       document.querySelectorAll(".menu-item").forEach(item => {
         item.classList.toggle("active", item.dataset.page === nome);
@@ -1221,149 +1290,949 @@
       item.addEventListener("click", () => abrirPagina(item.dataset.page));
     });
 
-    function showLogin() {
-      loginView.classList.remove("hidden");
-      appView.classList.add("hidden");
+    tabLogin.addEventListener("click", () => openAuthTab("login"));
+    tabCadastro.addEventListener("click", () => openAuthTab("signup"));
+
+    // ==============================
+    // AUTH SUPABASE
+    // ==============================
+    async function loginSupabase(email, password) {
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email,
+        password
+      });
+      if (error) throw error;
+      return data;
     }
 
-    function showApp() {
-      loginView.classList.add("hidden");
-      appView.classList.remove("hidden");
-      renderApp();
+    async function signupSupabase(email, password) {
+      const { data, error } = await supabase.auth.signUp({
+        email,
+        password
+      });
+      if (error) throw error;
+      return data;
     }
 
+    async function resetPasswordSupabase(email) {
+      const { error } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: window.location.origin
+      });
+      if (error) throw error;
+    }
+
+    async function getCurrentUser() {
+      const { data, error } = await supabase.auth.getUser();
+      if (error) throw error;
+      return data.user;
+    }
+
+    async function logoutSupabase() {
+      const { error } = await supabase.auth.signOut();
+      if (error) throw error;
+    }
+
+    // ==============================
+    // LOADERS
+    // ==============================
+    async function loadMaterias() {
+      const { data, error } = await supabase
+        .from("materias")
+        .select("*")
+        .order("created_at", { ascending: false });
+
+      if (error) throw error;
+      state.materias = data || [];
+    }
+
+    async function loadTrabalhos() {
+      const { data, error } = await supabase
+        .from("trabalhos")
+        .select("*")
+        .order("data_entrega", { ascending: true });
+
+      if (error) throw error;
+      state.trabalhos = data || [];
+    }
+
+    async function loadRevisoes() {
+      const { data, error } = await supabase
+        .from("revisoes")
+        .select("*")
+        .order("data", { ascending: true });
+
+      if (error) throw error;
+      state.revisoes = data || [];
+    }
+
+    async function loadCronograma() {
+      const { data, error } = await supabase
+        .from("cronograma")
+        .select("*")
+        .order("data", { ascending: true })
+        .order("horario", { ascending: true });
+
+      if (error) throw error;
+      state.cronograma = data || [];
+    }
+
+    async function loadNotas() {
+      const { data, error } = await supabase
+        .from("notas")
+        .select("*")
+        .order("created_at", { ascending: false });
+
+      if (error) throw error;
+      state.notas = data || [];
+    }
+
+    async function loadPlanos() {
+      const { data, error } = await supabase
+        .from("planos")
+        .select("*")
+        .order("created_at", { ascending: false });
+
+      if (error) throw error;
+      state.planos = data || [];
+    }
+
+    async function loadSessoes() {
+      const { data, error } = await supabase
+        .from("sessoes_estudo")
+        .select("*")
+        .order("data", { ascending: true });
+
+      if (error) throw error;
+      state.sessoes = data || [];
+    }
+
+    async function loadAllData() {
+      await Promise.all([
+        loadMaterias(),
+        loadTrabalhos(),
+        loadRevisoes(),
+        loadCronograma(),
+        loadNotas(),
+        loadPlanos(),
+        loadSessoes()
+      ]);
+    }
+
+    // ==============================
+    // AUTH EVENTS
+    // ==============================
     loginBtn.addEventListener("click", async () => {
-      loginMsg.textContent = "Entrando...";
-      loginMsg.className = "muted";
+      setAuthMessage("Entrando...", "muted");
 
       try {
         const email = document.getElementById("loginEmail").value.trim();
         const password = document.getElementById("loginPassword").value.trim();
 
-        const resp = await fetch(`${API}/api/login`, {
+        await loginSupabase(email, password);
+        setAuthMessage("Login realizado com sucesso.", "success");
+      } catch (error) {
+        setAuthMessage(error.message || "Erro no login.", "danger");
+      }
+    });
+
+    signupBtn.addEventListener("click", async () => {
+      setAuthMessage("Criando conta...", "muted");
+
+      try {
+        const email = document.getElementById("signupEmail").value.trim();
+        const password = document.getElementById("signupPassword").value.trim();
+
+        await signupSupabase(email, password);
+        setAuthMessage("Conta criada. Verifique seu email se a confirmação estiver ativa.", "success");
+      } catch (error) {
+        setAuthMessage(error.message || "Erro ao criar conta.", "danger");
+      }
+    });
+
+    resetBtn.addEventListener("click", async () => {
+      setAuthMessage("Enviando recuperação...", "muted");
+
+      try {
+        const email = document.getElementById("loginEmail").value.trim();
+        if (!email) throw new Error("Informe seu email.");
+        await resetPasswordSupabase(email);
+        setAuthMessage("Email de recuperação enviado.", "success");
+      } catch (error) {
+        setAuthMessage(error.message || "Erro na recuperação.", "danger");
+      }
+    });
+
+    logoutBtn.addEventListener("click", async () => {
+      try {
+        await logoutSupabase();
+      } catch (error) {
+        alert(error.message || "Erro ao sair.");
+      }
+    });
+
+    supabase.auth.onAuthStateChange(async (_event, session) => {
+      if (session?.user) {
+        state.user = session.user;
+        await initApp();
+      } else {
+        state.user = null;
+        showLogin();
+      }
+    });
+
+    // ==============================
+    // CRUD MATERIAS
+    // ==============================
+    addMateriaBtn.addEventListener("click", async () => {
+      try {
+        const nome = materiaNome.value.trim();
+        const dataProva = materiaData.value || null;
+
+        if (!nome) throw new Error("Informe o nome da matéria.");
+
+        const { error } = await supabase
+          .from("materias")
+          .insert([{
+            user_id: state.user.id,
+            nome,
+            data_prova: dataProva
+          }]);
+
+        if (error) throw error;
+
+        materiaNome.value = "";
+        materiaData.value = "";
+        await loadMaterias();
+        renderMaterias();
+        renderResumoHoje();
+        renderMateriasEmFoco();
+        atualizarSelectMaterias();
+        abrirPagina("materias");
+      } catch (error) {
+        alert(error.message || "Erro ao salvar matéria.");
+      }
+    });
+
+    async function removerMateria(id) {
+      try {
+        const { error } = await supabase
+          .from("materias")
+          .delete()
+          .eq("id", id);
+
+        if (error) throw error;
+
+        await loadMaterias();
+        renderMaterias();
+        renderResumoHoje();
+        renderMateriasEmFoco();
+        atualizarSelectMaterias();
+      } catch (error) {
+        alert(error.message || "Erro ao remover matéria.");
+      }
+    }
+    window.removerMateria = removerMateria;
+
+    // ==============================
+    // CRUD TRABALHOS
+    // ==============================
+    document.getElementById("addTrabalhoBtn").addEventListener("click", async () => {
+      try {
+        const materia = document.getElementById("trabMateria").value;
+        const titulo = document.getElementById("trabTitulo").value.trim();
+        const descricao = document.getElementById("trabDescricao").value.trim();
+        const dataEntrega = document.getElementById("trabDataEntrega").value;
+        const status = document.getElementById("trabStatus").value;
+
+        if (!titulo || !dataEntrega) {
+          throw new Error("Informe título e data de entrega.");
+        }
+
+        const { error } = await supabase
+          .from("trabalhos")
+          .insert([{
+            user_id: state.user.id,
+            materia: materia || null,
+            titulo,
+            descricao: descricao || null,
+            data_entrega: dataEntrega,
+            status
+          }]);
+
+        if (error) throw error;
+
+        document.getElementById("trabTitulo").value = "";
+        document.getElementById("trabDescricao").value = "";
+        document.getElementById("trabDataEntrega").value = "";
+        document.getElementById("trabStatus").value = "Pendente";
+
+        await loadTrabalhos();
+        renderTrabalhos();
+      } catch (error) {
+        alert(error.message || "Erro ao salvar trabalho.");
+      }
+    });
+
+    async function alterarStatusTrabalho(id, currentStatus) {
+      try {
+        let novoStatus = "Pendente";
+        if (currentStatus === "Pendente") novoStatus = "Em andamento";
+        else if (currentStatus === "Em andamento") novoStatus = "Concluído";
+        else novoStatus = "Pendente";
+
+        const { error } = await supabase
+          .from("trabalhos")
+          .update({ status: novoStatus })
+          .eq("id", id);
+
+        if (error) throw error;
+
+        await loadTrabalhos();
+        renderTrabalhos();
+      } catch (error) {
+        alert(error.message || "Erro ao atualizar trabalho.");
+      }
+    }
+    window.alterarStatusTrabalho = alterarStatusTrabalho;
+
+    async function excluirTrabalho(id) {
+      try {
+        const { error } = await supabase
+          .from("trabalhos")
+          .delete()
+          .eq("id", id);
+
+        if (error) throw error;
+
+        await loadTrabalhos();
+        renderTrabalhos();
+      } catch (error) {
+        alert(error.message || "Erro ao excluir trabalho.");
+      }
+    }
+    window.excluirTrabalho = excluirTrabalho;
+
+    // ==============================
+    // CRUD REVISOES
+    // ==============================
+    document.getElementById("addRevisaoBtn").addEventListener("click", async () => {
+      try {
+        const materia = document.getElementById("revMateria").value;
+        const descricao = document.getElementById("revDescricao").value.trim();
+        const dataRev = document.getElementById("revData").value;
+
+        if (!materia || !dataRev) {
+          throw new Error("Informe matéria e data.");
+        }
+
+        const { error } = await supabase
+          .from("revisoes")
+          .insert([{
+            user_id: state.user.id,
+            materia,
+            descricao: descricao || "Revisão programada",
+            data: dataRev,
+            concluida: false
+          }]);
+
+        if (error) throw error;
+
+        document.getElementById("revDescricao").value = "";
+        document.getElementById("revData").value = "";
+
+        await loadRevisoes();
+        renderRevisoes();
+      } catch (error) {
+        alert(error.message || "Erro ao salvar revisão.");
+      }
+    });
+
+    async function toggleRevisao(id, concluidaAtual) {
+      try {
+        const { error } = await supabase
+          .from("revisoes")
+          .update({ concluida: !concluidaAtual })
+          .eq("id", id);
+
+        if (error) throw error;
+
+        await loadRevisoes();
+        renderRevisoes();
+      } catch (error) {
+        alert(error.message || "Erro ao atualizar revisão.");
+      }
+    }
+    window.toggleRevisao = toggleRevisao;
+
+    async function excluirRevisao(id) {
+      try {
+        const { error } = await supabase
+          .from("revisoes")
+          .delete()
+          .eq("id", id);
+
+        if (error) throw error;
+
+        await loadRevisoes();
+        renderRevisoes();
+      } catch (error) {
+        alert(error.message || "Erro ao excluir revisão.");
+      }
+    }
+    window.excluirRevisao = excluirRevisao;
+
+    // ==============================
+    // CRUD CRONOGRAMA
+    // ==============================
+    document.getElementById("addCronogramaBtn").addEventListener("click", async () => {
+      try {
+        const horario = document.getElementById("cronHorario").value;
+        const materia = document.getElementById("cronMateria").value.trim();
+        const descricao = document.getElementById("cronDescricao").value.trim();
+        const tipo = document.getElementById("cronTipo").value;
+        const duracao = document.getElementById("cronDuracao").value.trim();
+
+        if (!horario || !materia) {
+          throw new Error("Informe horário e matéria.");
+        }
+
+        const { error } = await supabase
+          .from("cronograma")
+          .insert([{
+            user_id: state.user.id,
+            data: hojeStr(),
+            horario,
+            materia,
+            descricao: descricao || null,
+            tipo,
+            duracao: duracao || "25min"
+          }]);
+
+        if (error) throw error;
+
+        document.getElementById("cronHorario").value = "";
+        document.getElementById("cronMateria").value = "";
+        document.getElementById("cronDescricao").value = "";
+        document.getElementById("cronTipo").value = "Estudar";
+        document.getElementById("cronDuracao").value = "";
+
+        await loadCronograma();
+        renderCronograma();
+      } catch (error) {
+        alert(error.message || "Erro ao salvar cronograma.");
+      }
+    });
+
+    async function excluirCronograma(id) {
+      try {
+        const { error } = await supabase
+          .from("cronograma")
+          .delete()
+          .eq("id", id);
+
+        if (error) throw error;
+
+        await loadCronograma();
+        renderCronograma();
+      } catch (error) {
+        alert(error.message || "Erro ao excluir cronograma.");
+      }
+    }
+    window.excluirCronograma = excluirCronograma;
+
+    // ==============================
+    // CRUD NOTAS
+    // ==============================
+    document.getElementById("salvarNotaBtn").addEventListener("click", async () => {
+      try {
+        const materia = notaMateria.value;
+        const titulo = notaTitulo.value.trim();
+        const conteudo = notaConteudo.value.trim();
+
+        if (!materia || !conteudo) {
+          throw new Error("Informe matéria e conteúdo.");
+        }
+
+        const { error } = await supabase
+          .from("notas")
+          .insert([{
+            user_id: state.user.id,
+            materia,
+            titulo: titulo || "Anotação sem título",
+            conteudo,
+            criado_em: new Date().toLocaleString("pt-BR")
+          }]);
+
+        if (error) throw error;
+
+        notaTitulo.value = "";
+        notaConteudo.value = "";
+
+        await loadNotas();
+        renderNotas();
+      } catch (error) {
+        alert(error.message || "Erro ao salvar anotação.");
+      }
+    });
+
+    limparNotaFormBtn.addEventListener("click", () => {
+      notaTitulo.value = "";
+      notaConteudo.value = "";
+    });
+
+    async function excluirNota(id) {
+      try {
+        const { error } = await supabase
+          .from("notas")
+          .delete()
+          .eq("id", id);
+
+        if (error) throw error;
+
+        await loadNotas();
+        renderNotas();
+      } catch (error) {
+        alert(error.message || "Erro ao excluir anotação.");
+      }
+    }
+    window.excluirNota = excluirNota;
+
+    // ==============================
+    // PLANOS + BACKEND
+    // ==============================
+    gerarPlanoBtn.addEventListener("click", async () => {
+      setIAMessage("Gerando plano...", "muted");
+
+      try {
+        const resp = await fetch(`${API}/api/inteligente/plano`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ email, password })
+          body: JSON.stringify({
+            materia: iaMateria.value.trim(),
+            provaData: iaData.value,
+            conteudo: iaConteudo.value.trim()
+          })
         });
 
         const json = await resp.json();
 
         if (!resp.ok || !json.ok) {
-          loginMsg.textContent = json.message || "Falha no login.";
-          loginMsg.className = "danger";
-          return;
+          throw new Error(json.message || "Erro ao gerar plano.");
         }
 
-        const data = getData();
-        data.user = json.user;
-        saveData(data);
-        showApp();
+        resultadoPlano.value = json.plano;
+        setIAMessage("Plano gerado com sucesso.", "success");
       } catch (error) {
-        loginMsg.textContent = "Erro ao conectar no servidor.";
-        loginMsg.className = "danger";
+        setIAMessage(error.message || "Erro ao gerar plano.", "danger");
       }
     });
 
-    logoutBtn.addEventListener("click", () => {
-      const data = getData();
-      data.user = null;
-      data.timer = null;
-      saveData(data);
-      showLogin();
+    salvarPlanoBtn.addEventListener("click", async () => {
+      try {
+        const materia = iaMateria.value.trim();
+        const dataProva = iaData.value || null;
+        const plano = resultadoPlano.value.trim();
+
+        if (!plano) {
+          throw new Error("Gere ou edite um plano antes de salvar.");
+        }
+
+        const { error } = await supabase
+          .from("planos")
+          .insert([{
+            user_id: state.user.id,
+            materia: materia || null,
+            data_prova: dataProva,
+            plano,
+            criado_em: new Date().toLocaleString("pt-BR")
+          }]);
+
+        if (error) throw error;
+
+        await loadPlanos();
+        renderPlanosSalvos();
+        setIAMessage("Plano salvo com sucesso.", "success");
+      } catch (error) {
+        setIAMessage(error.message || "Erro ao salvar plano.", "danger");
+      }
     });
 
-    document.getElementById("btnNovaMateria").addEventListener("click", () => abrirPagina("materias"));
-    document.getElementById("btnNovaAnotacao").addEventListener("click", () => abrirPagina("caderno"));
+    async function carregarPlano(id) {
+      const plano = state.planos.find(p => p.id === id);
+      if (!plano) return;
+
+      iaMateria.value = plano.materia || "";
+      iaData.value = plano.data_prova || "";
+      resultadoPlano.value = plano.plano || "";
+      abrirPagina("plano");
+    }
+    window.carregarPlano = carregarPlano;
+
+    async function excluirPlano(id) {
+      try {
+        const { error } = await supabase
+          .from("planos")
+          .delete()
+          .eq("id", id);
+
+        if (error) throw error;
+
+        await loadPlanos();
+        renderPlanosSalvos();
+      } catch (error) {
+        alert(error.message || "Erro ao excluir plano.");
+      }
+    }
+    window.excluirPlano = excluirPlano;
+
+    importarPlanoArquivo.addEventListener("change", async (event) => {
+      const file = event.target.files?.[0];
+      if (!file) return;
+
+      setIAMessage("Importando arquivo...", "muted");
+
+      try {
+        const formData = new FormData();
+        formData.append("arquivo", file);
+
+        const resp = await fetch(`${API}/api/importar-arquivo`, {
+          method: "POST",
+          body: formData
+        });
+
+        const json = await resp.json();
+
+        if (!resp.ok || !json.ok) {
+          throw new Error(json.message || "Erro ao importar arquivo.");
+        }
+
+        iaConteudo.value = json.conteudo || "";
+        setIAMessage(`Arquivo importado com sucesso: ${json.nomeArquivo}`, "success");
+      } catch (error) {
+        setIAMessage(error.message || "Erro ao importar arquivo.", "danger");
+      }
+    });
+
+    // ==============================
+    // SESSOES DE ESTUDO
+    // ==============================
     document.getElementById("btnEstudoAgora").addEventListener("click", iniciarEstudoAgora);
     document.getElementById("btnIniciarEstudoAgora2").addEventListener("click", iniciarEstudoAgora);
 
-    function iniciarEstudoAgora() {
-      const data = getData();
-      const materia = data.cronograma.find(c => c.data === hojeStr())?.materia
-        || data.materias[0]?.nome
-        || "Geral";
+    async function iniciarEstudoAgora() {
+      try {
+        const materia =
+          state.cronograma.find(c => c.data === hojeStr())?.materia ||
+          state.materias[0]?.nome ||
+          "Geral";
 
-      data.timer = {
-        minutos: 25,
-        endAt: Date.now() + 25 * 60 * 1000,
-        materia
-      };
+        alert(`Sessão iniciada para ${materia} por 25 minutos.`);
 
-      saveData(data);
+        setTimeout(async () => {
+          try {
+            const { error } = await supabase
+              .from("sessoes_estudo")
+              .insert([{
+                user_id: state.user.id,
+                data: hojeStr(),
+                minutos: 25,
+                materia
+              }]);
 
-      if (timerInterval) clearTimeout(timerInterval);
-      timerInterval = setTimeout(() => {
-        concluirSessao(25, materia);
-      }, 25 * 60 * 1000);
+            if (error) throw error;
 
-      alert(`Sessão iniciada para ${materia} por 25 minutos.`);
-    }
-
-    addMateriaBtn.addEventListener("click", () => {
-      const nome = materiaNome.value.trim();
-      const dataProva = materiaData.value;
-      if (!nome) return;
-
-      const data = getData();
-      data.materias.push({
-        id: Date.now(),
-        nome,
-        data: dataProva || ""
-      });
-
-      saveData(data);
-      materiaNome.value = "";
-      materiaData.value = "";
-      renderApp();
-      abrirPagina("materias");
-    });
-
-    function removerMateria(id) {
-      const data = getData();
-      data.materias = data.materias.filter(m => m.id !== id);
-      saveData(data);
-      renderApp();
-    }
-
-    window.removerMateria = removerMateria;
-
-    function concluirSessao(minutos, materia) {
-      const data = getData();
-
-      data.sessoes.push({
-        date: hojeStr(),
-        minutos: Number(minutos),
-        materia: materia || "Geral"
-      });
-
-      data.timer = null;
-      saveData(data);
-      renderApp();
-      alert("Sessão concluída com sucesso.");
-    }
-
-    function ultimos7Dias() {
-      const arr = [];
-      for (let i = 6; i >= 0; i--) {
-        const d = new Date();
-        d.setDate(d.getDate() - i);
-        arr.push(d.toISOString().slice(0, 10));
+            await loadSessoes();
+            renderResumoHoje();
+            renderCharts();
+          } catch (error) {
+            console.error(error);
+          }
+        }, 25 * 60 * 1000);
+      } catch (error) {
+        alert(error.message || "Erro ao iniciar estudo.");
       }
-      return arr;
+    }
+
+    // ==============================
+    // RENDERS
+    // ==============================
+    function atualizarSelectMaterias() {
+      const options = state.materias.length
+        ? state.materias.map(m => `<option value="${safe(m.nome)}">${safe(m.nome)}</option>`).join("")
+        : `<option value="">Cadastre uma matéria primeiro</option>`;
+
+      document.getElementById("notaMateria").innerHTML = options;
+      document.getElementById("revMateria").innerHTML = options;
+      document.getElementById("trabMateria").innerHTML = options;
+    }
+
+    function renderMaterias() {
+      const lista = document.getElementById("listaMateriasCompleta");
+
+      if (!state.materias.length) {
+        lista.innerHTML = '<div class="empty">Nenhuma matéria cadastrada.</div>';
+      } else {
+        lista.innerHTML = state.materias.map(m => `
+          <div class="subject-item">
+            <h4>${safe(m.nome)}</h4>
+            <p>Prova: ${safe(m.data_prova || "não informada")}</p>
+            <div class="subject-actions">
+              <button class="secondary mini-btn" onclick="selecionarMateriaParaNota('${safe(m.nome).replace(/'/g, "\\'")}')">Anotar aula</button>
+              <button class="secondary mini-btn" onclick="removerMateria('${m.id}')">Remover</button>
+            </div>
+          </div>
+        `).join("");
+      }
+
+      atualizarSelectMaterias();
+    }
+
+    function selecionarMateriaParaNota(nome) {
+      document.getElementById("notaMateria").value = nome;
+      abrirPagina("caderno");
+    }
+    window.selecionarMateriaParaNota = selecionarMateriaParaNota;
+
+    function renderNotas() {
+      const container = document.getElementById("listaNotas");
+      const inicioContainer = document.getElementById("ultimasNotas");
+
+      if (!state.notas.length) {
+        container.innerHTML = '<div class="empty">Nenhuma anotação salva ainda.</div>';
+        inicioContainer.innerHTML = '<div class="empty">Nenhuma anotação recente.</div>';
+        return;
+      }
+
+      container.innerHTML = state.notas.map(n => `
+        <div class="note-item">
+          <h4>${safe(n.titulo)} - ${safe(n.materia)}</h4>
+          <p>${safe(n.conteudo)}</p>
+          <div class="subject-actions">
+            <button class="secondary mini-btn" onclick="excluirNota('${n.id}')">Excluir</button>
+          </div>
+        </div>
+      `).join("");
+
+      inicioContainer.innerHTML = state.notas.slice(0, 3).map(n => `
+        <div class="note-item">
+          <h4>${safe(n.titulo)}</h4>
+          <p>${safe(n.materia)} • ${safe(n.criado_em || "")}</p>
+        </div>
+      `).join("");
+    }
+
+    function renderPlanosSalvos() {
+      const container = document.getElementById("listaPlanosSalvos");
+
+      if (!state.planos.length) {
+        container.innerHTML = '<div class="empty">Nenhum plano salvo ainda.</div>';
+        return;
+      }
+
+      container.innerHTML = state.planos.map(p => `
+        <div class="saved-plan-item">
+          <h4>${safe(p.materia || "Sem matéria")} ${p.data_prova ? `- ${safe(p.data_prova)}` : ""}</h4>
+          <p>${safe((p.plano || "").slice(0, 250))}${(p.plano || "").length > 250 ? "..." : ""}</p>
+          <div class="subject-actions">
+            <button class="secondary mini-btn" onclick="carregarPlano('${p.id}')">Abrir</button>
+            <button class="secondary mini-btn" onclick="excluirPlano('${p.id}')">Excluir</button>
+          </div>
+        </div>
+      `).join("");
+    }
+
+    function renderTrabalhos() {
+      const container = document.getElementById("listaTrabalhos");
+      const badge = document.getElementById("badgeTrabalhos");
+
+      const pendentes = state.trabalhos.filter(t => t.status !== "Concluído").length;
+      badge.textContent = pendentes;
+      document.getElementById("trabalhosPendentesCard").textContent = `${pendentes} pendentes`;
+
+      const proximos = state.trabalhos
+        .filter(t => t.status !== "Concluído" && t.data_entrega)
+        .sort((a, b) => a.data_entrega.localeCompare(b.data_entrega));
+
+      if (proximos.length) {
+        const prox = proximos[0];
+        document.getElementById("trabalhoMaisProximoCard").textContent =
+          `${prox.titulo} - ${prox.data_entrega}`;
+      } else {
+        document.getElementById("trabalhoMaisProximoCard").textContent = "Sem prazo próximo";
+      }
+
+      if (!state.trabalhos.length) {
+        container.innerHTML = '<div class="empty">Nenhum trabalho ou atividade cadastrado.</div>';
+        return;
+      }
+
+      container.innerHTML = state.trabalhos.map(t => `
+        <div class="note-item">
+          <h4>${safe(t.titulo)} - ${safe(t.materia || "Sem matéria")}</h4>
+          <p>${safe(t.descricao || "Sem descrição")}</p>
+          <p style="margin-top:8px;"><strong>Entrega:</strong> ${safe(t.data_entrega)} | <strong>Status:</strong> ${safe(t.status)}</p>
+          <div class="subject-actions">
+            <button class="secondary mini-btn" onclick="alterarStatusTrabalho('${t.id}', '${safe(t.status)}')">Mudar status</button>
+            <button class="secondary mini-btn" onclick="excluirTrabalho('${t.id}')">Excluir</button>
+          </div>
+        </div>
+      `).join("");
+    }
+
+    function renderRevisoes() {
+      const container = document.getElementById("listaRevisoes");
+
+      if (!state.revisoes.length) {
+        container.innerHTML = '<div class="empty">Nenhuma revisão cadastrada.</div>';
+      } else {
+        container.innerHTML = state.revisoes.map(r => `
+          <div class="note-item">
+            <h4>${safe(r.materia || "Sem matéria")} - ${safe(r.data)}</h4>
+            <p>${safe(r.descricao || "")}</p>
+            <div class="subject-actions">
+              <button class="secondary mini-btn" onclick="toggleRevisao('${r.id}', ${r.concluida})">${r.concluida ? "Desmarcar" : "Concluir"}</button>
+              <button class="secondary mini-btn" onclick="excluirRevisao('${r.id}')">Excluir</button>
+            </div>
+          </div>
+        `).join("");
+      }
+
+      const hoje = state.revisoes.filter(r => r.data === hojeStr());
+      const pendentesHoje = hoje.filter(r => !r.concluida).length;
+      const concluidasHoje = hoje.filter(r => r.concluida).length;
+
+      document.getElementById("revisoesHojeCard").textContent = `${pendentesHoje} pendentes`;
+      document.getElementById("revisoesHojeSub").textContent = `${concluidasHoje} concluídas`;
+      document.getElementById("badgeRevisoes").textContent = pendentesHoje;
+      document.getElementById("notifCount").textContent = pendentesHoje;
+    }
+
+    function renderCronograma() {
+      const hoje = state.cronograma
+        .filter(c => c.data === hojeStr())
+        .sort((a, b) => (a.horario || "").localeCompare(b.horario || ""));
+
+      const inicio = document.getElementById("cronogramaHojeLista");
+      const completo = document.getElementById("cronogramaCompletoLista");
+
+      if (!hoje.length) {
+        const vazio = '<div class="empty">Nenhum bloco de estudo programado para hoje.</div>';
+        inicio.innerHTML = vazio;
+        completo.innerHTML = vazio;
+        return;
+      }
+
+      const html = hoje.map(item => {
+        const dotClass = item.tipo === "Revisão"
+          ? "background:#29b36a;"
+          : item.tipo === "Praticar"
+          ? "background:#f3b33d;"
+          : "background:#5863f8;";
+
+        const tagClass = item.tipo === "Revisão"
+          ? "tag-review"
+          : item.tipo === "Praticar"
+          ? "tag-practice"
+          : "tag-study";
+
+        return `
+          <div class="schedule-item">
+            <div class="schedule-time">${safe(item.horario || "--:--")}</div>
+            <div class="schedule-dot" style="${dotClass}"></div>
+            <div class="schedule-main">
+              <strong>${safe(item.materia)}</strong>
+              <span>${safe(item.descricao || "Sem descrição")}</span>
+            </div>
+            <div class="schedule-tag ${tagClass}">${safe(item.tipo || "Estudar")}</div>
+            <div class="schedule-duration">${safe(item.duracao || "25min")}</div>
+            <button class="secondary mini-btn" onclick="excluirCronograma('${item.id}')">Excluir</button>
+          </div>
+        `;
+      }).join("");
+
+      inicio.innerHTML = html;
+      completo.innerHTML = html;
+    }
+
+    function renderResumoHoje() {
+      const minutosHoje = state.sessoes
+        .filter(s => s.data === hojeStr())
+        .reduce((acc, s) => acc + Number(s.minutos || 0), 0);
+
+      document.getElementById("tempoHoje").textContent = minToHourText(minutosHoje);
+      document.getElementById("metaMinutosHoje").textContent = minToHourText(minutosHoje);
+
+      const percentual = Math.min(100, Math.round((minutosHoje / META_DIARIA_MIN) * 100));
+      document.getElementById("metaDiariaBarra").style.width = `${percentual}%`;
+      document.getElementById("metaPercentual").textContent = `${percentual}%`;
+
+      const nome = state.user?.email?.split("@")[0] || "Acadêmico";
+      document.getElementById("heroSaudacao").textContent = `Bom dia, ${nome}! 👋`;
+      document.getElementById("profileName").textContent = nome;
+      document.getElementById("profileEmail").textContent = state.user?.email || "";
+
+      const materiasComData = state.materias
+        .filter(m => m.data_prova)
+        .sort((a, b) => a.data_prova.localeCompare(b.data_prova));
+
+      if (materiasComData.length) {
+        const prox = materiasComData[0];
+        const hoje = new Date(hojeStr());
+        const prova = new Date(prox.data_prova);
+        const diff = Math.max(0, Math.ceil((prova - hoje) / (1000 * 60 * 60 * 24)));
+
+        document.getElementById("proximaProvaCard").textContent = `${prox.data_prova} - ${diff} dias`;
+        document.getElementById("proximaProvaMateria").textContent = prox.nome;
+      } else {
+        document.getElementById("proximaProvaCard").textContent = "Nenhuma";
+        document.getElementById("proximaProvaMateria").textContent = "Cadastre uma matéria";
+      }
+
+      document.getElementById("metaHojeSub").textContent = `de ${minToHourText(META_DIARIA_MIN)}`;
+      document.getElementById("metaDiariaTexto").textContent = minToHourText(META_DIARIA_MIN);
+    }
+
+    function renderMateriasEmFoco() {
+      const container = document.getElementById("materiasEmFoco");
+
+      if (!state.materias.length) {
+        container.innerHTML = '<div class="empty">Nenhuma matéria cadastrada.</div>';
+        return;
+      }
+
+      const top = state.materias.slice(0, 4);
+
+      container.innerHTML = top.map((m, i) => {
+        const progresso = [68, 45, 32, 54][i % 4];
+        return `
+          <div class="subject-item">
+            <h4>${safe(m.nome)}</h4>
+            <p>${m.data_prova ? `Prova em ${safe(m.data_prova)}` : "Sem data de prova"}</p>
+            <div class="subject-progress">
+              <div class="progress-bar"><div style="width:${progresso}%;"></div></div>
+              <strong>${progresso}%</strong>
+            </div>
+          </div>
+        `;
+      }).join("");
     }
 
     function renderCharts() {
-      const data = getData();
+      const dias = [];
+      for (let i = 6; i >= 0; i--) {
+        const d = new Date();
+        d.setDate(d.getDate() - i);
+        dias.push(d.toISOString().slice(0, 10));
+      }
 
-      const dias = ultimos7Dias();
       const minutosPorDia = dias.map(d =>
-        data.sessoes
-          .filter(s => s.date === d)
+        state.sessoes
+          .filter(s => s.data === d)
           .reduce((acc, s) => acc + Number(s.minutos || 0), 0)
       );
 
       const mapaMaterias = {};
-      data.sessoes.forEach(s => {
+      state.sessoes.forEach(s => {
         const m = s.materia || "Geral";
         mapaMaterias[m] = (mapaMaterias[m] || 0) + Number(s.minutos || 0);
       });
@@ -1430,570 +2299,6 @@
       });
     }
 
-    gerarPlanoBtn.addEventListener("click", async () => {
-      iaMsg.textContent = "Gerando plano...";
-      iaMsg.className = "muted";
-
-      try {
-        const resp = await fetch(`${API}/api/inteligente/plano`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            materia: iaMateria.value.trim(),
-            provaData: iaData.value,
-            conteudo: iaConteudo.value.trim()
-          })
-        });
-
-        const json = await resp.json();
-
-        if (!resp.ok || !json.ok) {
-          iaMsg.textContent = json.message || "Erro ao gerar plano.";
-          iaMsg.className = "danger";
-          return;
-        }
-
-        resultadoPlano.value = json.plano;
-
-        const data = getData();
-        data.ultimoPlano = json.plano;
-        saveData(data);
-
-        iaMsg.textContent = "Plano gerado com sucesso.";
-        iaMsg.className = "success";
-      } catch (error) {
-        iaMsg.textContent = "Erro ao conectar com o sistema inteligente.";
-        iaMsg.className = "danger";
-      }
-    });
-
-    salvarPlanoBtn.addEventListener("click", () => {
-      const materia = iaMateria.value.trim();
-      const dataProva = iaData.value;
-      const plano = resultadoPlano.value.trim();
-
-      if (!plano) {
-        iaMsg.textContent = "Gere ou edite um plano antes de salvar.";
-        iaMsg.className = "danger";
-        return;
-      }
-
-      const data = getData();
-      data.planosSalvos.unshift({
-        id: Date.now(),
-        materia: materia || "Sem matéria",
-        dataProva: dataProva || "",
-        plano,
-        criadoEm: new Date().toLocaleString("pt-BR")
-      });
-
-      saveData(data);
-      renderPlanosSalvos();
-
-      iaMsg.textContent = "Plano salvo com sucesso.";
-      iaMsg.className = "success";
-    });
-
-    document.getElementById("limparPlanosBtn").addEventListener("click", () => {
-      const data = getData();
-      data.planosSalvos = [];
-      saveData(data);
-      renderPlanosSalvos();
-    });
-
-    function excluirPlano(id) {
-      const data = getData();
-      data.planosSalvos = data.planosSalvos.filter(p => p.id !== id);
-      saveData(data);
-      renderPlanosSalvos();
-    }
-
-    function carregarPlano(id) {
-      const data = getData();
-      const plano = data.planosSalvos.find(p => p.id === id);
-      if (!plano) return;
-
-      iaMateria.value = plano.materia || "";
-      iaData.value = plano.dataProva || "";
-      resultadoPlano.value = plano.plano || "";
-      abrirPagina("plano");
-    }
-
-    window.excluirPlano = excluirPlano;
-    window.carregarPlano = carregarPlano;
-
-    function renderPlanosSalvos() {
-      const container = document.getElementById("listaPlanosSalvos");
-      const data = getData();
-
-      if (!data.planosSalvos.length) {
-        container.innerHTML = '<div class="empty">Nenhum plano salvo ainda.</div>';
-        return;
-      }
-
-      container.innerHTML = data.planosSalvos.map(p => `
-        <div class="saved-plan-item">
-          <h4>${safe(p.materia)} ${p.dataProva ? `- ${safe(p.dataProva)}` : ""}</h4>
-          <p>${safe((p.plano || "").slice(0, 250))}${(p.plano || "").length > 250 ? "..." : ""}</p>
-          <div class="subject-actions">
-            <button class="secondary mini-btn" onclick="carregarPlano(${p.id})">Abrir</button>
-            <button class="secondary mini-btn" onclick="excluirPlano(${p.id})">Excluir</button>
-          </div>
-        </div>
-      `).join("");
-    }
-
-    importarPlanoArquivo.addEventListener("change", async (event) => {
-      const file = event.target.files?.[0];
-      if (!file) return;
-
-      iaMsg.textContent = "Importando arquivo...";
-      iaMsg.className = "muted";
-
-      try {
-        const formData = new FormData();
-        formData.append("arquivo", file);
-
-        const resp = await fetch(`${API}/api/importar-arquivo`, {
-          method: "POST",
-          body: formData
-        });
-
-        const json = await resp.json();
-
-        if (!resp.ok || !json.ok) {
-          iaMsg.textContent = json.message || "Erro ao importar arquivo.";
-          iaMsg.className = "danger";
-          return;
-        }
-
-        iaConteudo.value = json.conteudo || "";
-        iaMsg.textContent = `Arquivo importado com sucesso: ${json.nomeArquivo}`;
-        iaMsg.className = "success";
-      } catch (error) {
-        iaMsg.textContent = "Erro ao enviar arquivo para leitura.";
-        iaMsg.className = "danger";
-      }
-    });
-
-    function atualizarSelectMaterias() {
-      const data = getData();
-
-      const options = data.materias.length
-        ? data.materias.map(m => `<option value="${safe(m.nome)}">${safe(m.nome)}</option>`).join("")
-        : `<option value="">Cadastre uma matéria primeiro</option>`;
-
-      document.getElementById("notaMateria").innerHTML = options;
-      document.getElementById("revMateria").innerHTML = options;
-      document.getElementById("trabMateria").innerHTML = options;
-    }
-
-    function renderMaterias() {
-      const data = getData();
-      const lista = document.getElementById("listaMateriasCompleta");
-
-      if (!data.materias.length) {
-        lista.innerHTML = '<div class="empty">Nenhuma matéria cadastrada.</div>';
-      } else {
-        lista.innerHTML = data.materias.map(m => `
-          <div class="subject-item">
-            <h4>${safe(m.nome)}</h4>
-            <p>Prova: ${safe(m.data || "não informada")}</p>
-            <div class="subject-actions">
-              <button class="secondary mini-btn" onclick="selecionarMateriaParaNota('${safe(m.nome).replace(/'/g, "\\'")}')">Anotar aula</button>
-              <button class="secondary mini-btn" onclick="removerMateria(${m.id})">Remover</button>
-            </div>
-          </div>
-        `).join("");
-      }
-
-      atualizarSelectMaterias();
-    }
-
-    function selecionarMateriaParaNota(nome) {
-      document.getElementById("notaMateria").value = nome;
-      abrirPagina("caderno");
-    }
-
-    window.selecionarMateriaParaNota = selecionarMateriaParaNota;
-
-    salvarNotaBtn.addEventListener("click", () => {
-      const materia = notaMateria.value;
-      const titulo = notaTitulo.value.trim();
-      const conteudo = notaConteudo.value.trim();
-
-      if (!materia || !conteudo) return;
-
-      const data = getData();
-      data.notas.unshift({
-        id: Date.now(),
-        materia,
-        titulo: titulo || "Anotação sem título",
-        conteudo,
-        criadoEm: new Date().toLocaleString("pt-BR")
-      });
-
-      saveData(data);
-      notaTitulo.value = "";
-      notaConteudo.value = "";
-      renderNotas();
-    });
-
-    limparNotaFormBtn.addEventListener("click", () => {
-      notaTitulo.value = "";
-      notaConteudo.value = "";
-    });
-
-    document.getElementById("limparNotasBtn").addEventListener("click", () => {
-      const data = getData();
-      data.notas = [];
-      saveData(data);
-      renderNotas();
-    });
-
-    function excluirNota(id) {
-      const data = getData();
-      data.notas = data.notas.filter(n => n.id !== id);
-      saveData(data);
-      renderNotas();
-    }
-
-    window.excluirNota = excluirNota;
-
-    function renderNotas() {
-      const container = document.getElementById("listaNotas");
-      const inicioContainer = document.getElementById("ultimasNotas");
-      const data = getData();
-
-      if (!data.notas.length) {
-        container.innerHTML = '<div class="empty">Nenhuma anotação salva ainda.</div>';
-        inicioContainer.innerHTML = '<div class="empty">Nenhuma anotação recente.</div>';
-        return;
-      }
-
-      container.innerHTML = data.notas.map(n => `
-        <div class="note-item">
-          <h4>${safe(n.titulo)} - ${safe(n.materia)}</h4>
-          <p>${safe(n.conteudo)}</p>
-          <div class="subject-actions">
-            <button class="secondary mini-btn" onclick="excluirNota(${n.id})">Excluir</button>
-          </div>
-        </div>
-      `).join("");
-
-      inicioContainer.innerHTML = data.notas.slice(0, 3).map(n => `
-        <div class="note-item">
-          <h4>${safe(n.titulo)}</h4>
-          <p>${safe(n.materia)} • ${safe(n.criadoEm)}</p>
-        </div>
-      `).join("");
-    }
-
-    document.getElementById("addTrabalhoBtn").addEventListener("click", () => {
-      const materia = document.getElementById("trabMateria").value;
-      const titulo = document.getElementById("trabTitulo").value.trim();
-      const descricao = document.getElementById("trabDescricao").value.trim();
-      const dataEntrega = document.getElementById("trabDataEntrega").value;
-      const status = document.getElementById("trabStatus").value;
-
-      if (!titulo || !dataEntrega) return;
-
-      const data = getData();
-      data.trabalhos.unshift({
-        id: Date.now(),
-        materia: materia || "Sem matéria",
-        titulo,
-        descricao,
-        dataEntrega,
-        status
-      });
-
-      saveData(data);
-
-      document.getElementById("trabTitulo").value = "";
-      document.getElementById("trabDescricao").value = "";
-      document.getElementById("trabDataEntrega").value = "";
-      document.getElementById("trabStatus").value = "Pendente";
-
-      renderTrabalhos();
-    });
-
-    function alterarStatusTrabalho(id) {
-      const data = getData();
-      const item = data.trabalhos.find(t => t.id === id);
-      if (!item) return;
-
-      if (item.status === "Pendente") item.status = "Em andamento";
-      else if (item.status === "Em andamento") item.status = "Concluído";
-      else item.status = "Pendente";
-
-      saveData(data);
-      renderTrabalhos();
-    }
-
-    function excluirTrabalho(id) {
-      const data = getData();
-      data.trabalhos = data.trabalhos.filter(t => t.id !== id);
-      saveData(data);
-      renderTrabalhos();
-    }
-
-    window.alterarStatusTrabalho = alterarStatusTrabalho;
-    window.excluirTrabalho = excluirTrabalho;
-
-    function renderTrabalhos() {
-      const data = getData();
-      const container = document.getElementById("listaTrabalhos");
-      const badge = document.getElementById("badgeTrabalhos");
-
-      const pendentes = data.trabalhos.filter(t => t.status !== "Concluído").length;
-      badge.textContent = pendentes;
-      document.getElementById("trabalhosPendentesCard").textContent = `${pendentes} pendentes`;
-
-      const proximos = data.trabalhos
-        .filter(t => t.status !== "Concluído" && t.dataEntrega)
-        .sort((a, b) => a.dataEntrega.localeCompare(b.dataEntrega));
-
-      if (proximos.length) {
-        const prox = proximos[0];
-        document.getElementById("trabalhoMaisProximoCard").textContent = `${prox.titulo} - ${prox.dataEntrega}`;
-      } else {
-        document.getElementById("trabalhoMaisProximoCard").textContent = "Sem prazo próximo";
-      }
-
-      if (!data.trabalhos.length) {
-        container.innerHTML = '<div class="empty">Nenhum trabalho ou atividade cadastrado.</div>';
-        return;
-      }
-
-      container.innerHTML = data.trabalhos
-        .sort((a, b) => a.dataEntrega.localeCompare(b.dataEntrega))
-        .map(t => `
-          <div class="note-item">
-            <h4>${safe(t.titulo)} - ${safe(t.materia)}</h4>
-            <p>${safe(t.descricao || "Sem descrição")}</p>
-            <p style="margin-top:8px;"><strong>Entrega:</strong> ${safe(t.dataEntrega)} | <strong>Status:</strong> ${safe(t.status)}</p>
-            <div class="subject-actions">
-              <button class="secondary mini-btn" onclick="alterarStatusTrabalho(${t.id})">Mudar status</button>
-              <button class="secondary mini-btn" onclick="excluirTrabalho(${t.id})">Excluir</button>
-            </div>
-          </div>
-        `).join("");
-    }
-
-    document.getElementById("addCronogramaBtn").addEventListener("click", () => {
-      const horario = document.getElementById("cronHorario").value;
-      const materia = document.getElementById("cronMateria").value.trim();
-      const descricao = document.getElementById("cronDescricao").value.trim();
-      const tipo = document.getElementById("cronTipo").value;
-      const duracao = document.getElementById("cronDuracao").value.trim();
-
-      if (!horario || !materia) return;
-
-      const data = getData();
-      data.cronograma.push({
-        id: Date.now(),
-        data: hojeStr(),
-        horario,
-        materia,
-        descricao,
-        tipo,
-        duracao: duracao || "25min"
-      });
-
-      saveData(data);
-
-      document.getElementById("cronHorario").value = "";
-      document.getElementById("cronMateria").value = "";
-      document.getElementById("cronDescricao").value = "";
-      document.getElementById("cronTipo").value = "Estudar";
-      document.getElementById("cronDuracao").value = "";
-
-      renderCronograma();
-    });
-
-    function excluirCronograma(id) {
-      const data = getData();
-      data.cronograma = data.cronograma.filter(c => c.id !== id);
-      saveData(data);
-      renderCronograma();
-    }
-
-    window.excluirCronograma = excluirCronograma;
-
-    function renderCronograma() {
-      const data = getData();
-      const hoje = data.cronograma
-        .filter(c => c.data === hojeStr())
-        .sort((a, b) => a.horario.localeCompare(b.horario));
-
-      const inicio = document.getElementById("cronogramaHojeLista");
-      const completo = document.getElementById("cronogramaCompletoLista");
-
-      if (!hoje.length) {
-        const vazio = '<div class="empty">Nenhum bloco de estudo programado para hoje.</div>';
-        inicio.innerHTML = vazio;
-        completo.innerHTML = vazio;
-        return;
-      }
-
-      const html = hoje.map(item => {
-        const dotClass = item.tipo === "Revisão" ? "background:#29b36a;" : item.tipo === "Praticar" ? "background:#f3b33d;" : "background:#5863f8;";
-        const tagClass = item.tipo === "Revisão" ? "tag-review" : item.tipo === "Praticar" ? "tag-practice" : "tag-study";
-        return `
-          <div class="schedule-item">
-            <div class="schedule-time">${safe(item.horario)}</div>
-            <div class="schedule-dot" style="${dotClass}"></div>
-            <div class="schedule-main">
-              <strong>${safe(item.materia)}</strong>
-              <span>${safe(item.descricao || "Sem descrição")}</span>
-            </div>
-            <div class="schedule-tag ${tagClass}">${safe(item.tipo)}</div>
-            <div class="schedule-duration">${safe(item.duracao)}</div>
-            <button class="secondary mini-btn" onclick="excluirCronograma(${item.id})">Excluir</button>
-          </div>
-        `;
-      }).join("");
-
-      inicio.innerHTML = html;
-      completo.innerHTML = html;
-    }
-
-    document.getElementById("addRevisaoBtn").addEventListener("click", () => {
-      const materia = document.getElementById("revMateria").value;
-      const descricao = document.getElementById("revDescricao").value.trim();
-      const dataRev = document.getElementById("revData").value;
-
-      if (!materia || !dataRev) return;
-
-      const data = getData();
-      data.revisoes.push({
-        id: Date.now(),
-        materia,
-        descricao: descricao || "Revisão programada",
-        data: dataRev,
-        concluida: false
-      });
-
-      saveData(data);
-
-      document.getElementById("revDescricao").value = "";
-      document.getElementById("revData").value = "";
-      renderRevisoes();
-    });
-
-    function toggleRevisao(id) {
-      const data = getData();
-      const item = data.revisoes.find(r => r.id === id);
-      if (item) item.concluida = !item.concluida;
-      saveData(data);
-      renderRevisoes();
-    }
-
-    function excluirRevisao(id) {
-      const data = getData();
-      data.revisoes = data.revisoes.filter(r => r.id !== id);
-      saveData(data);
-      renderRevisoes();
-    }
-
-    window.toggleRevisao = toggleRevisao;
-    window.excluirRevisao = excluirRevisao;
-
-    function renderRevisoes() {
-      const data = getData();
-      const container = document.getElementById("listaRevisoes");
-
-      if (!data.revisoes.length) {
-        container.innerHTML = '<div class="empty">Nenhuma revisão cadastrada.</div>';
-      } else {
-        container.innerHTML = data.revisoes
-          .sort((a, b) => a.data.localeCompare(b.data))
-          .map(r => `
-            <div class="note-item">
-              <h4>${safe(r.materia)} - ${safe(r.data)}</h4>
-              <p>${safe(r.descricao)}</p>
-              <div class="subject-actions">
-                <button class="secondary mini-btn" onclick="toggleRevisao(${r.id})">${r.concluida ? "Desmarcar" : "Concluir"}</button>
-                <button class="secondary mini-btn" onclick="excluirRevisao(${r.id})">Excluir</button>
-              </div>
-            </div>
-          `).join("");
-      }
-
-      const hoje = data.revisoes.filter(r => r.data === hojeStr());
-      const pendentesHoje = hoje.filter(r => !r.concluida).length;
-      const concluidasHoje = hoje.filter(r => r.concluida).length;
-
-      document.getElementById("revisoesHojeCard").textContent = `${pendentesHoje} pendentes`;
-      document.getElementById("revisoesHojeSub").textContent = `${concluidasHoje} concluídas`;
-      document.getElementById("badgeRevisoes").textContent = pendentesHoje;
-      document.getElementById("notifCount").textContent = pendentesHoje;
-    }
-
-    function renderResumoHoje() {
-      const data = getData();
-      const minutosHoje = data.sessoes
-        .filter(s => s.date === hojeStr())
-        .reduce((acc, s) => acc + Number(s.minutos || 0), 0);
-
-      document.getElementById("tempoHoje").textContent = minToHourText(minutosHoje);
-      document.getElementById("metaMinutosHoje").textContent = minToHourText(minutosHoje);
-
-      const percentual = Math.min(100, Math.round((minutosHoje / META_DIARIA_MIN) * 100));
-      document.getElementById("metaDiariaBarra").style.width = `${percentual}%`;
-      document.getElementById("metaPercentual").textContent = `${percentual}%`;
-
-      const nome = data.user?.name || "Acadêmico";
-      document.getElementById("heroSaudacao").textContent = `Bom dia, ${nome}! 👋`;
-      document.getElementById("profileName").textContent = nome;
-
-      const materiasComData = data.materias
-        .filter(m => m.data)
-        .sort((a, b) => a.data.localeCompare(b.data));
-
-      if (materiasComData.length) {
-        const prox = materiasComData[0];
-        const hoje = new Date(hojeStr());
-        const prova = new Date(prox.data);
-        const diff = Math.max(0, Math.ceil((prova - hoje) / (1000 * 60 * 60 * 24)));
-        document.getElementById("proximaProvaCard").textContent = `${prox.data} - ${diff} dias`;
-        document.getElementById("proximaProvaMateria").textContent = prox.nome;
-      } else {
-        document.getElementById("proximaProvaCard").textContent = "Nenhuma";
-        document.getElementById("proximaProvaMateria").textContent = "Cadastre uma matéria";
-      }
-
-      document.getElementById("metaHojeSub").textContent = `de ${minToHourText(META_DIARIA_MIN)}`;
-      document.getElementById("metaDiariaTexto").textContent = minToHourText(META_DIARIA_MIN);
-    }
-
-    function renderMateriasEmFoco() {
-      const data = getData();
-      const container = document.getElementById("materiasEmFoco");
-
-      if (!data.materias.length) {
-        container.innerHTML = '<div class="empty">Nenhuma matéria cadastrada.</div>';
-        return;
-      }
-
-      const top = data.materias.slice(0, 4);
-
-      container.innerHTML = top.map((m, i) => {
-        const progresso = [68, 45, 32, 54][i % 4];
-        return `
-          <div class="subject-item">
-            <h4>${safe(m.nome)}</h4>
-            <p>${m.data ? `Prova em ${safe(m.data)}` : "Sem data de prova"}</p>
-            <div class="subject-progress">
-              <div class="progress-bar"><div style="width:${progresso}%;"></div></div>
-              <strong>${progresso}%</strong>
-            </div>
-          </div>
-        `;
-      }).join("");
-    }
-
     function renderApp() {
       atualizarSelectMaterias();
       renderResumoHoje();
@@ -2007,11 +2312,71 @@
       renderCharts();
     }
 
-    if (isLogged()) {
-      showApp();
-    } else {
-      showLogin();
+    // ==============================
+    // BOTÕES DE ATUALIZAÇÃO
+    // ==============================
+    document.getElementById("recarregarMateriasBtn").addEventListener("click", async () => {
+      await loadMaterias();
+      renderMaterias();
+      renderMateriasEmFoco();
+      renderResumoHoje();
+      atualizarSelectMaterias();
+    });
+
+    document.getElementById("recarregarTrabalhosBtn").addEventListener("click", async () => {
+      await loadTrabalhos();
+      renderTrabalhos();
+    });
+
+    document.getElementById("recarregarRevisoesBtn").addEventListener("click", async () => {
+      await loadRevisoes();
+      renderRevisoes();
+    });
+
+    document.getElementById("recarregarNotasBtn").addEventListener("click", async () => {
+      await loadNotas();
+      renderNotas();
+    });
+
+    document.getElementById("recarregarPlanosBtn").addEventListener("click", async () => {
+      await loadPlanos();
+      renderPlanosSalvos();
+    });
+
+    document.getElementById("btnNovaMateria").addEventListener("click", () => abrirPagina("materias"));
+    document.getElementById("btnNovaAnotacao").addEventListener("click", () => abrirPagina("caderno"));
+
+    // ==============================
+    // INICIALIZAÇÃO
+    // ==============================
+    async function initApp() {
+      try {
+        showApp();
+        document.querySelector(".content").classList.add("loader");
+        await loadAllData();
+        renderApp();
+        document.querySelector(".content").classList.remove("loader");
+      } catch (error) {
+        document.querySelector(".content").classList.remove("loader");
+        alert(error.message || "Erro ao carregar dados online.");
+      }
     }
+
+    async function boot() {
+      try {
+        const user = await getCurrentUser();
+        if (user) {
+          state.user = user;
+          await initApp();
+        } else {
+          showLogin();
+        }
+      } catch (error) {
+        showLogin();
+      }
+    }
+
+    boot();
   </script>
 </body>
 </html>
