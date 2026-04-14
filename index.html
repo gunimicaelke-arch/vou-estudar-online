@@ -649,6 +649,17 @@
           </div>
         </div>
 
+        <!-- ─── LEMBRETES ─── -->
+        <div class="card card-pad" style="margin-bottom:18px">
+          <div class="card-head">
+            <h3>🔔 Lembretes</h3>
+            <button class="mini-btn" style="width:auto" onclick="abrirModalLembrete()">➕ Novo</button>
+          </div>
+          <div id="listaLembretes">
+            <div class="empty-state"><div class="empty-icon">🔔</div>Nenhum lembrete ainda.</div>
+          </div>
+        </div>
+
         <div class="grid-2">
           <div class="card card-pad">
             <div class="card-head">
@@ -665,6 +676,16 @@
             </div>
             <div id="dashNotas"></div>
           </div>
+        </div>
+      </div>
+
+      <!-- ─── MODAL LEMBRETE ─── -->
+      <div id="modalLembrete" class="hidden" style="position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:9999;align-items:center;justify-content:center">
+        <div class="card card-pad" style="width:100%;max-width:420px;margin:20px">
+          <div class="card-head"><h3>🔔 Novo Lembrete</h3><button class="btn-secondary mini-btn" style="width:auto" onclick="fecharModalLembrete()">✕</button></div>
+          <input type="text" id="lembreteTexto" placeholder="Ex: Revisar Direito Penal" style="margin-bottom:10px" />
+          <input type="datetime-local" id="lembreteData" style="margin-bottom:10px" />
+          <button onclick="salvarLembrete()">💾 Salvar Lembrete</button>
         </div>
       </div>
 
@@ -1061,7 +1082,8 @@ async function carregarApp() {
     carregarNotas(),
     carregarPlanos(),
     carregarPrioridades(),
-    carregarPlanosInteligentes()
+    carregarPlanosInteligentes(),
+    carregarLembretes()
   ]);
 
   atualizarDashboard();
@@ -2140,6 +2162,57 @@ function reiniciarProgressivo() {
 }
 
 // ═══════════════════════════════════════
+// ══ LEMBRETES ══
+function abrirModalLembrete() {
+  const m = document.getElementById('modalLembrete');
+  m.classList.remove('hidden');
+  m.style.display = 'flex';
+}
+function fecharModalLembrete() {
+  const m = document.getElementById('modalLembrete');
+  m.classList.add('hidden');
+  m.style.display = 'none';
+}
+async function salvarLembrete() {
+  const texto = document.getElementById('lembreteTexto').value.trim();
+  const data = document.getElementById('lembreteData').value;
+  if (!texto) return toast('⚠️ Digite o texto do lembrete!');
+  const { error } = await db.from('lembretes').insert([{
+    user_id: currentUser.id,
+    texto,
+    data_hora: data || null
+  }]);
+  if (error) return toast('❌ Erro ao salvar: ' + error.message);
+  toast('✅ Lembrete salvo!');
+  fecharModalLembrete();
+  document.getElementById('lembreteTexto').value = '';
+  document.getElementById('lembreteData').value = '';
+  await carregarLembretes();
+}
+async function carregarLembretes() {
+  const { data } = await db.from('lembretes').select('*').eq('user_id', currentUser.id).order('data_hora', { ascending: true });
+  const el = document.getElementById('listaLembretes');
+  if (!el) return;
+  if (!data || !data.length) {
+    el.innerHTML = '<div class="empty-state"><div class="empty-icon">🔔</div>Nenhum lembrete ainda.</div>';
+    return;
+  }
+  el.innerHTML = data.map(l => `
+    <div class="item-card" style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+      <div>
+        <div style="font-weight:600;font-size:14px">${l.texto}</div>
+        ${l.data_hora ? `<div style="font-size:12px;color:var(--muted)">${new Date(l.data_hora).toLocaleString('pt-BR')}</div>` : ''}
+      </div>
+      <button class="mini-btn btn-danger" style="width:auto" onclick="deletarLembrete('${l.id}')">🗑️</button>
+    </div>
+  `).join('');
+}
+async function deletarLembrete(id) {
+  await db.from('lembretes').delete().eq('id', id);
+  toast('🗑️ Lembrete removido.');
+  await carregarLembretes();
+}
+
 // START
 // ═══════════════════════════════════════
 init();
