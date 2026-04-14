@@ -1285,7 +1285,38 @@
       item.addEventListener("click", () => abrirPagina(item.dataset.page));
     });
 
-    tabLogin.addEventListener("click", () => openAuthTab("login"));
+    loginBtn.addEventListener("click", async () => {
+  setAuthMessage("Tentando entrar...", "muted");
+
+  try {
+    const email = document.getElementById("loginEmail").value.trim();
+    const password = document.getElementById("loginPassword").value.trim();
+
+    if (!email || !password) {
+      setAuthMessage("Preencha email e senha.", "danger");
+      return;
+    }
+
+    const { data, error } = await supabase.auth.signInWithPassword({
+      email,
+      password
+    });
+
+    if (error) {
+      setAuthMessage(error.message, "danger");
+      return;
+    }
+
+    setAuthMessage("Login feito com sucesso.", "success");
+
+    if (data?.user) {
+      state.user = data.user;
+      await initApp();
+    }
+  } catch (err) {
+    setAuthMessage("Erro real: " + (err.message || err), "danger");
+  }
+});
     tabCadastro.addEventListener("click", () => openAuthTab("signup"));
 
     // ==============================
