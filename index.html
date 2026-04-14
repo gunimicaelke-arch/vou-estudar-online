@@ -624,6 +624,10 @@
         <span class="icon">✨</span> Plano Inteligente
         <span class="menu-badge" id="badgePlanosInt" style="background:var(--green)">NEW</span>
       </div>
+      <div class="menu-item hidden" id="menuAdmin" onclick="goTab('admin')">
+        <span class="icon">🛡️</span> Admin
+        <span class="menu-badge" id="badgeAdmin" style="background:#f59e0b">ADM</span>
+      </div>
     </div>
 
     <div class="sidebar-footer">
@@ -1101,6 +1105,52 @@
         </div>
       </div>
 
+      <!-- ─── ADMIN ─── -->
+      <div class="tab-page" id="tab-admin">
+        <div class="section-title">🛡️ Painel Administrativo</div>
+
+        <!-- Estatísticas -->
+        <div class="card card-pad" style="margin-bottom:20px">
+          <div class="card-head"><h3>📊 Visão Geral</h3></div>
+          <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px">
+            <div style="background:#f0f9ff;border:1px solid #cffafe;border-radius:12px;padding:16px;text-align:center">
+              <div style="font-size:28px;font-weight:700;color:#0891b2" id="adminTotalUsers">—</div>
+              <div style="font-size:12px;color:#0369a1;font-weight:600;margin-top:4px">Total de Usuários</div>
+            </div>
+            <div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:12px;padding:16px;text-align:center">
+              <div style="font-size:28px;font-weight:700;color:#059669" id="adminAtivos">—</div>
+              <div style="font-size:12px;color:#047857;font-weight:600;margin-top:4px">Assinaturas Ativas</div>
+            </div>
+            <div style="background:#fffbeb;border:1px solid #fde68a;border-radius:12px;padding:16px;text-align:center">
+              <div style="font-size:28px;font-weight:700;color:#d97706" id="adminTrial">—</div>
+              <div style="font-size:12px;color:#b45309;font-weight:600;margin-top:4px">Em Trial</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Ativar assinatura -->
+        <div class="card card-pad" style="margin-bottom:20px">
+          <div class="card-head"><h3>✅ Ativar Assinatura</h3></div>
+          <p style="font-size:13px;color:var(--muted);margin-bottom:14px">Digite o e-mail do usuário que realizou o pagamento para liberar o acesso.</p>
+          <div style="display:flex;gap:10px;flex-wrap:wrap">
+            <input type="email" id="adminEmail" placeholder="email@exemplo.com" style="flex:1;margin-bottom:0" />
+            <button onclick="adminAtivarAssinatura()" style="width:auto;padding:11px 20px">✅ Ativar</button>
+          </div>
+          <div id="adminMsg" style="margin-top:10px;font-size:13px;display:none"></div>
+        </div>
+
+        <!-- Lista de usuários -->
+        <div class="card card-pad">
+          <div class="card-head">
+            <h3>👥 Usuários</h3>
+            <button onclick="adminCarregarUsuarios()" class="mini-btn btn-secondary" style="width:auto">🔄 Atualizar</button>
+          </div>
+          <div id="adminListaUsuarios">
+            <div class="empty-state"><div class="empty-icon">👥</div>Clique em Atualizar para carregar.</div>
+          </div>
+        </div>
+      </div>
+
     </div><!-- /content -->
   </div><!-- /main-area -->
 </div><!-- /appScreen -->
@@ -1229,6 +1279,7 @@ async function carregarApp() {
 
   atualizarDashboard();
   mostrarBadgeTrial();
+  mostrarMenuAdmin();
 }
 
 async function mostrarBadgeTrial() {
@@ -1332,6 +1383,7 @@ function traduzirErro(msg) {
 const tabTitles = {
   dashboard: ['Dashboard', 'Visão geral dos seus estudos'],
   materias: ['Matérias', 'Gerencie suas matérias e progresso'],
+    admin: ['Admin', 'Painel administrativo'],
   notas: ['Notas', 'Suas anotações de estudo'],
   planos: ['Planos de Estudo', 'Organize sua rotina de estudos'],
   prioridades: ['Prioridades', 'O que estudar primeiro'],
@@ -2688,6 +2740,128 @@ async function deletarLembrete(id) {
   await db.from('lembretes').delete().eq('id', id);
   toast('🗑️ Lembrete removido.');
   await carregarLembretes();
+}
+
+// ══ ADMIN ══
+const ADMIN_EMAIL = 'gunimicaelke@gmail.com';
+
+function verificarAdmin() {
+  if (!currentUser) return false;
+  return currentUser.email === ADMIN_EMAIL;
+}
+
+function mostrarMenuAdmin() {
+  if (verificarAdmin()) {
+    document.getElementById('menuAdmin').classList.remove('hidden');
+  }
+}
+
+async function adminAtivarAssinatura() {
+  const email = document.getElementById('adminEmail').value.trim();
+  const msg = document.getElementById('adminMsg');
+  if (!email) { mostrarAdminMsg('Digite o e-mail do usuário.', 'error'); return; }
+
+  // Busca user_id pelo email via assinaturas + auth (usa service via RPC ou busca direta)
+  const { data: users, error: errUsers } = await db
+    .from('assinaturas')
+    .select('user_id, ativa, trial_fim');
+
+  if (errUsers) { mostrarAdminMsg('Erro ao buscar dados.', 'error'); return; }
+
+  // Busca pelo email na tabela auth.users via função RPC
+  const { data: rpcData, error: rpcErr } = await db.rpc('get_user_id_by_email', { p_email: email });
+
+  if (rpcErr || !rpcData) {
+    mostrarAdminMsg('Usuário não encontrado. Verifique o e-mail.', 'error');
+    return;
+  }
+
+  const userId = rpcData;
+
+  // Verifica se já tem registro
+  const { data: existing } = await db.from('assinaturas').select('*').eq('user_id', userId).maybeSingle();
+
+  if (existing) {
+    const { error } = await db.from('assinaturas').update({ ativa: true }).eq('user_id', userId);
+    if (error) { mostrarAdminMsg('Erro ao ativar: ' + error.message, 'error'); return; }
+  } else {
+    const { error } = await db.from('assinaturas').insert([{ user_id: userId, ativa: true }]);
+    if (error) { mostrarAdminMsg('Erro ao criar: ' + error.message, 'error'); return; }
+  }
+
+  mostrarAdminMsg('✅ Assinatura ativada para ' + email, 'success');
+  document.getElementById('adminEmail').value = '';
+  await adminCarregarUsuarios();
+}
+
+function mostrarAdminMsg(txt, tipo) {
+  const el = document.getElementById('adminMsg');
+  el.textContent = txt;
+  el.style.display = 'block';
+  el.style.color = tipo === 'success' ? '#059669' : '#dc2626';
+  el.style.background = tipo === 'success' ? '#f0fdf4' : '#fef2f2';
+  el.style.padding = '10px 14px';
+  el.style.borderRadius = '8px';
+  el.style.border = '1px solid ' + (tipo === 'success' ? '#bbf7d0' : '#fecaca');
+  setTimeout(() => { el.style.display = 'none'; }, 4000);
+}
+
+async function adminCarregarUsuarios() {
+  const el = document.getElementById('adminListaUsuarios');
+  el.innerHTML = '<div class="empty-state"><div class="empty-icon">⏳</div>Carregando...</div>';
+
+  const { data, error } = await db.from('assinaturas').select('*').order('created_at', { ascending: false });
+
+  if (error || !data) {
+    el.innerHTML = '<div class="empty-state">Erro ao carregar usuários.</div>';
+    return;
+  }
+
+  // Atualiza stats
+  document.getElementById('adminTotalUsers').textContent = data.length;
+  document.getElementById('adminAtivos').textContent = data.filter(u => u.ativa).length;
+  document.getElementById('adminTrial').textContent = data.filter(u => !u.ativa && u.trial_fim && new Date(u.trial_fim) > new Date()).length;
+
+  if (!data.length) {
+    el.innerHTML = '<div class="empty-state"><div class="empty-icon">👥</div>Nenhum usuário cadastrado.</div>';
+    return;
+  }
+
+  el.innerHTML = data.map(u => {
+    const trialFim = u.trial_fim ? new Date(u.trial_fim) : null;
+    const trialExpirou = trialFim && trialFim < new Date();
+    const diasTrial = trialFim ? Math.ceil((trialFim - new Date()) / 86400000) : null;
+    let status, statusColor, statusBg;
+    if (u.ativa) { status = '✅ Ativo'; statusColor = '#059669'; statusBg = '#f0fdf4'; }
+    else if (trialExpirou) { status = '❌ Expirado'; statusColor = '#dc2626'; statusBg = '#fef2f2'; }
+    else if (diasTrial !== null) { status = '⏳ Trial (' + diasTrial + 'd)'; statusColor = '#d97706'; statusBg = '#fffbeb'; }
+    else { status = '—'; statusColor = '#64748b'; statusBg = '#f8fafc'; }
+
+    return `
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 0;border-bottom:1px solid var(--border)">
+      <div>
+        <div style="font-size:13px;font-weight:600;color:var(--text)">${u.user_id.substring(0,8)}...</div>
+        <div style="font-size:11px;color:var(--muted);margin-top:1px">${trialFim ? 'Trial até: ' + trialFim.toLocaleDateString('pt-BR') : 'Sem trial'}</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px">
+        <span style="font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px;background:${statusBg};color:${statusColor}">${status}</span>
+        ${!u.ativa ? `<button onclick="adminAtivarPorId('${u.user_id}')" class="mini-btn" style="width:auto;padding:4px 10px;font-size:11px">Ativar</button>` : `<button onclick="adminDesativarPorId('${u.user_id}')" class="mini-btn btn-secondary" style="width:auto;padding:4px 10px;font-size:11px">Desativar</button>`}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+async function adminAtivarPorId(userId) {
+  await db.from('assinaturas').update({ ativa: true }).eq('user_id', userId);
+  toast('✅ Assinatura ativada!');
+  await adminCarregarUsuarios();
+}
+
+async function adminDesativarPorId(userId) {
+  if (!confirm('Desativar esta assinatura?')) return;
+  await db.from('assinaturas').update({ ativa: false }).eq('user_id', userId);
+  toast('🔒 Assinatura desativada.');
+  await adminCarregarUsuarios();
 }
 
 // START
