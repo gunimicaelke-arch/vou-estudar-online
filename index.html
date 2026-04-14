@@ -443,6 +443,12 @@
       .sidebar { display: none; }
       .stats-grid { grid-template-columns: 1fr 1fr; }
     }
+
+    .active-tab-btn {
+      background: linear-gradient(90deg, var(--primary), var(--primary-2)) !important;
+      color: #fff !important;
+      border-color: transparent !important;
+    }
   </style>
 </head>
 <body>
@@ -759,46 +765,147 @@
       <div class="tab-page" id="tab-planointeligente">
         <div class="section-title">✨ Plano Inteligente de Estudos</div>
 
-        <div class="card card-pad" style="margin-bottom:20px">
-          <div class="card-head"><h3>📄 Importar PDF</h3></div>
-          <p style="color:var(--muted);font-size:13px;margin-bottom:16px">Faça upload do seu edital, ementa ou material. O sistema vai analisar e montar um plano completo com os tópicos mais prováveis de cair na prova, resumo e exercícios.</p>
-          <label class="file-label" for="pdfInput">
-            📎 Clique para selecionar o PDF
-            <span id="pdfNome" style="display:block;font-size:12px;margin-top:4px;color:var(--primary)"></span>
-          </label>
-          <input type="file" id="pdfInput" accept=".pdf" class="hidden" onchange="selecionarPDF(this)" />
-          <input type="text" id="planoIATitulo" placeholder="Nome do plano (ex: Direito Civil - OAB)" style="margin-top:4px" />
-          <button onclick="gerarPlanoInteligente()" id="btnGerarPlano">🚀 Gerar Plano Inteligente</button>
+        <!-- Layout 2 colunas -->
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-bottom:18px">
+
+          <!-- Coluna Esquerda: Upload + Pomodoro -->
+          <div>
+            <div class="card card-pad" style="margin-bottom:14px">
+              <div class="card-head"><h3>📄 Importar PDF</h3></div>
+              <p style="color:var(--muted);font-size:12px;margin-bottom:12px">Faça upload do edital, ementa ou material de estudo.</p>
+              <label class="file-label" for="pdfInput">
+                📎 Clique para selecionar o PDF
+                <span id="pdfNome" style="display:block;font-size:12px;margin-top:4px;color:var(--primary)"></span>
+              </label>
+              <input type="file" id="pdfInput" accept=".pdf" class="hidden" onchange="selecionarPDF(this)" />
+              <input type="text" id="planoIATitulo" placeholder="Nome do plano (ex: Direito Civil)" style="margin-top:4px" />
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px">
+                <div>
+                  <label class="field-label">📅 Início dos estudos</label>
+                  <input type="date" id="planoDataInicioInt" />
+                </div>
+                <div>
+                  <label class="field-label">🏁 Data da prova</label>
+                  <input type="date" id="planoDataProva" />
+                </div>
+              </div>
+              <button onclick="gerarPlanoInteligente()" id="btnGerarPlano">🚀 Gerar Plano Inteligente</button>
+            </div>
+
+            <!-- Pomodoro -->
+            <div class="card card-pad">
+              <div class="card-head"><h3>⏱️ Pomodoro</h3></div>
+              <div style="text-align:center;padding:10px 0">
+                <div id="pomTimer" style="font-size:48px;font-weight:800;color:var(--primary);letter-spacing:2px">25:00</div>
+                <div id="pomLabel" style="color:var(--muted);font-size:13px;margin-top:4px">Foco — pronto para começar</div>
+              </div>
+              <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:12px">
+                <button class="btn-secondary mini-btn" style="width:100%" onclick="setPomTimer(25,'Foco')">25min</button>
+                <button class="btn-secondary mini-btn" style="width:100%" onclick="setPomTimer(5,'Pausa curta')">5min</button>
+                <button class="btn-secondary mini-btn" style="width:100%" onclick="setPomTimer(15,'Pausa longa')">15min</button>
+              </div>
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+                <button id="btnPomStart" onclick="togglePomodoro()">▶ Iniciar</button>
+                <button class="btn-secondary" onclick="resetPomodoro()">↺ Resetar</button>
+              </div>
+              <div style="margin-top:12px">
+                <div style="display:flex;justify-content:space-between;font-size:12px;color:var(--muted);margin-bottom:4px">
+                  <span>Sessões hoje</span><span id="pomSessoes">0 / 4</span>
+                </div>
+                <div class="progress-bar"><div id="pomBar" style="width:0%"></div></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Coluna Direita: Stats + Tópicos -->
+          <div>
+            <!-- Stats -->
+            <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:14px">
+              <div class="card" style="padding:14px;text-align:center">
+                <div style="font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;margin-bottom:4px">Tópicos</div>
+                <div id="statTopicos" style="font-size:24px;font-weight:800">0</div>
+                <div style="font-size:11px;color:var(--muted)">identificados</div>
+              </div>
+              <div class="card" style="padding:14px;text-align:center">
+                <div style="font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;margin-bottom:4px">Progresso</div>
+                <div id="statProgInt" style="font-size:24px;font-weight:800;color:var(--green)">0%</div>
+                <div style="font-size:11px;color:var(--muted)">concluído</div>
+              </div>
+              <div class="card" style="padding:14px;text-align:center">
+                <div style="font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;margin-bottom:4px">Dias</div>
+                <div id="statDiasProva" style="font-size:24px;font-weight:800;color:var(--orange)">—</div>
+                <div style="font-size:11px;color:var(--muted)">até a prova</div>
+              </div>
+            </div>
+
+            <!-- Tópicos mais prováveis -->
+            <div class="card card-pad">
+              <div class="card-head"><h3>🎯 Mais prováveis de cair</h3></div>
+              <div id="topicosProvaveis">
+                <div class="empty-state" style="padding:20px"><div class="empty-icon">🎯</div>Gere um plano para ver os tópicos.</div>
+              </div>
+            </div>
+          </div>
         </div>
 
-        <!-- Resultado -->
+        <!-- Resultado completo com abas -->
         <div id="resultadoPlanoIA" class="hidden">
-          <div class="card card-pad" style="margin-bottom:20px;border-left:4px solid var(--primary)">
+          <div class="card card-pad" style="margin-bottom:18px;border-left:4px solid var(--primary)">
             <div class="card-head">
               <h3 id="planoIATituloResult">Plano Gerado</h3>
               <button class="mini-btn" onclick="salvarPlanoInteligente()" style="width:auto">💾 Salvar Plano</button>
             </div>
 
-            <div style="margin-bottom:20px">
-              <h4 style="font-size:14px;font-weight:700;color:var(--primary);margin-bottom:12px">🎯 Tópicos com maior chance de cair (90%+)</h4>
-              <div id="topicosProvaveis"></div>
+            <!-- Abas -->
+            <div style="display:flex;gap:8px;margin-bottom:18px;flex-wrap:wrap">
+              <button class="mini-btn active-tab-btn" id="tabBtnPlano" onclick="switchPlanoTab('plano')" style="width:auto">📚 Plano Semanal</button>
+              <button class="mini-btn btn-secondary" id="tabBtnFlash" onclick="switchPlanoTab('flash')" style="width:auto">🧠 Flashcards</button>
+              <button class="mini-btn btn-secondary" id="tabBtnSimulado" onclick="switchPlanoTab('simulado')" style="width:auto">💡 Simulado</button>
+              <button class="mini-btn btn-secondary" id="tabBtnResumo" onclick="switchPlanoTab('resumo')" style="width:auto">📝 Resumo</button>
+              <button class="mini-btn btn-secondary" id="tabBtnCrono" onclick="switchPlanoTab('crono')" style="width:auto">📅 Cronograma</button>
             </div>
 
-            <div style="margin-bottom:20px">
-              <h4 style="font-size:14px;font-weight:700;color:var(--primary);margin-bottom:12px">📚 Plano de Estudos Detalhado</h4>
-              <div id="planoDetalhado" style="white-space:pre-wrap;font-size:13px;line-height:1.8;color:var(--text)"></div>
+            <!-- Aba: Plano Semanal -->
+            <div id="tabPlano">
+              <div id="planoDetalhado" style="white-space:pre-wrap;font-size:13px;line-height:1.9;color:var(--text)"></div>
             </div>
 
-            <div style="margin-bottom:20px">
-              <h4 style="font-size:14px;font-weight:700;color:var(--primary);margin-bottom:12px">📝 Resumo dos Principais Temas</h4>
-              <div id="resumoTemas" style="white-space:pre-wrap;font-size:13px;line-height:1.8;color:var(--text)"></div>
+            <!-- Aba: Flashcards -->
+            <div id="tabFlash" class="hidden">
+              <div id="flashcardsGerados"></div>
+              <div id="flashNav" style="display:flex;gap:8px;margin-top:14px;justify-content:center" class="hidden">
+                <button class="btn-secondary mini-btn" style="width:auto" onclick="flashAnterior()">← Anterior</button>
+                <span id="flashCounter" style="font-size:13px;color:var(--muted);align-self:center">1 / 1</span>
+                <button class="mini-btn" style="width:auto" onclick="flashProximo()">Próximo →</button>
+              </div>
             </div>
 
-            <div>
-              <h4 style="font-size:14px;font-weight:700;color:var(--primary);margin-bottom:12px">💡 Exercícios Práticos</h4>
+            <!-- Aba: Simulado -->
+            <div id="tabSimulado" class="hidden">
               <div id="exerciciosGerados"></div>
+              <div id="resultadoSimulado" class="hidden" style="margin-top:14px;padding:14px;border-radius:12px;background:var(--blue-soft);text-align:center">
+                <div style="font-size:20px;font-weight:800" id="notaSimulado">0/0</div>
+                <div style="font-size:13px;color:var(--muted)">questões corretas</div>
+              </div>
+              <button id="btnVerGabarito" onclick="verGabarito()" class="hidden" style="margin-top:10px">📋 Ver Gabarito Completo</button>
+            </div>
+
+            <!-- Aba: Resumo -->
+            <div id="tabResumo" class="hidden">
+              <div id="resumoTemas" style="white-space:pre-wrap;font-size:13px;line-height:1.9;color:var(--text)"></div>
+            </div>
+
+            <!-- Aba: Cronograma -->
+            <div id="tabCrono" class="hidden">
+              <div id="cronogramaGerado"></div>
             </div>
           </div>
+        </div>
+
+        <!-- Progresso por tópico -->
+        <div id="progressoTopicosCard" class="card card-pad hidden" style="margin-bottom:18px">
+          <div class="card-head"><h3>📊 Progresso por Tópico</h3></div>
+          <div id="progressoTopicos"></div>
         </div>
 
         <!-- Planos salvos -->
@@ -1419,17 +1526,85 @@ function fmtData(d) {
 // ═══════════════════════════════════════
 let pdfTextoExtraido = '';
 let planoGeradoAtual = null;
+let flashcardAtual = 0;
+let flashcards = [];
+let progressoTopicosLocal = {};
+
+// Pomodoro
+let pomInterval = null;
+let pomSegundos = 25 * 60;
+let pomRodando = false;
+let pomSessoes = 0;
+let pomTipoAtual = 'Foco';
+
+function setPomTimer(min, tipo) {
+  resetPomodoro();
+  pomSegundos = min * 60;
+  pomTipoAtual = tipo;
+  atualizarDisplayPom();
+}
+
+function atualizarDisplayPom() {
+  const m = Math.floor(pomSegundos / 60).toString().padStart(2, '0');
+  const s = (pomSegundos % 60).toString().padStart(2, '0');
+  document.getElementById('pomTimer').textContent = m + ':' + s;
+  document.getElementById('pomLabel').textContent = pomTipoAtual + (pomRodando ? ' — em andamento' : ' — pronto para começar');
+}
+
+function togglePomodoro() {
+  const btn = document.getElementById('btnPomStart');
+  if (pomRodando) {
+    clearInterval(pomInterval);
+    pomRodando = false;
+    btn.textContent = '▶ Continuar';
+  } else {
+    pomRodando = true;
+    btn.textContent = '⏸ Pausar';
+    pomInterval = setInterval(() => {
+      pomSegundos--;
+      atualizarDisplayPom();
+      if (pomSegundos <= 0) {
+        clearInterval(pomInterval);
+        pomRodando = false;
+        pomSessoes++;
+        document.getElementById('pomSessoes').textContent = pomSessoes + ' / 4';
+        document.getElementById('pomBar').style.width = Math.min(pomSessoes / 4 * 100, 100) + '%';
+        toast('✅ Pomodoro concluído! Sessão ' + pomSessoes);
+        document.getElementById('btnPomStart').textContent = '▶ Iniciar';
+      }
+    }, 1000);
+  }
+}
+
+function resetPomodoro() {
+  clearInterval(pomInterval);
+  pomRodando = false;
+  pomSegundos = 25 * 60;
+  pomTipoAtual = 'Foco';
+  document.getElementById('btnPomStart').textContent = '▶ Iniciar';
+  atualizarDisplayPom();
+}
+
+function atualizarDiasProva() {
+  const val = document.getElementById('planoDataProva').value;
+  if (!val) return;
+  const dias = Math.ceil((new Date(val) - new Date()) / (1000 * 60 * 60 * 24));
+  document.getElementById('statDiasProva').textContent = dias > 0 ? dias : '0';
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  const dp = document.getElementById('planoDataProva');
+  if (dp) dp.addEventListener('change', atualizarDiasProva);
+});
 
 function selecionarPDF(input) {
   const file = input.files[0];
   if (!file) return;
   document.getElementById('pdfNome').textContent = '✅ ' + file.name;
-
   const reader = new FileReader();
-  reader.onload = async function(e) {
-    toast('📄 PDF carregado! Clique em Gerar Plano.');
-    // Armazena base64 para enviar à IA
+  reader.onload = (e) => {
     pdfTextoExtraido = e.target.result;
+    toast('📄 PDF carregado! Clique em Gerar Plano.');
   };
   reader.readAsDataURL(file);
 }
@@ -1437,15 +1612,17 @@ function selecionarPDF(input) {
 async function gerarPlanoInteligente() {
   if (!pdfTextoExtraido) return toast('⚠️ Selecione um PDF primeiro!');
   const titulo = document.getElementById('planoIATitulo').value.trim() || 'Plano Inteligente';
+  const dataProva = document.getElementById('planoDataProva').value;
+  const dataInicio = document.getElementById('planoDataInicioInt').value;
 
   const btn = document.getElementById('btnGerarPlano');
   btn.innerHTML = '<span class="spinner"></span> Analisando PDF...';
   btn.disabled = true;
 
   try {
-    // Extrai base64 puro
     const base64 = pdfTextoExtraido.split(',')[1];
     const mediaType = pdfTextoExtraido.split(';')[0].split(':')[1];
+    const diasTexto = dataProva ? `A prova é em ${dataProva} e o estudo começa em ${dataInicio || 'hoje'}.` : '';
 
     const response = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
@@ -1456,26 +1633,17 @@ async function gerarPlanoInteligente() {
         messages: [{
           role: 'user',
           content: [
-            {
-              type: 'document',
-              source: { type: 'base64', media_type: mediaType, data: base64 }
-            },
-            {
-              type: 'text',
-              text: `Você é um especialista em concursos e provas de Direito. Analise este documento e responda APENAS em JSON válido, sem texto fora do JSON, no seguinte formato:
+            { type: 'document', source: { type: 'base64', media_type: mediaType, data: base64 } },
+            { type: 'text', text: `Você é um especialista em provas de Direito para faculdade. ${diasTexto} Analise este documento e responda APENAS em JSON válido sem texto fora do JSON:
 {
-  "topicos": [
-    {"tema": "nome do tema", "probabilidade": 95, "justificativa": "motivo de cair na prova"},
-    ...pelo menos 8 tópicos ordenados por probabilidade...
-  ],
-  "plano": "Plano de estudos semanal detalhado em texto, com dias e horários sugeridos",
-  "resumo": "Resumo dos principais temas e conceitos mais importantes do material",
-  "exercicios": [
-    {"pergunta": "texto da pergunta", "resposta": "resposta correta com explicação"},
-    ...pelo menos 5 exercícios...
-  ]
-}`
-            }
+  "topicos": [{"tema":"string","probabilidade":number,"justificativa":"string","progresso":0}],
+  "plano": "string com plano semanal detalhado por dias",
+  "resumo": "string com resumo dos temas principais",
+  "flashcards": [{"pergunta":"string","resposta":"string"}],
+  "exercicios": [{"pergunta":"string","alternativas":["A)...","B)...","C)...","D)..."],"correta":0,"explicacao":"string"}],
+  "cronograma": [{"semana":"Semana 1","tema":"string","atividades":"string","horas":number}]
+}
+Gere pelo menos 8 topicos, 8 flashcards, 5 exercicios com alternativas, 6 semanas de cronograma.` }
           ]
         }]
       })
@@ -1483,10 +1651,10 @@ async function gerarPlanoInteligente() {
 
     const data = await response.json();
     const texto = data.content?.map(i => i.text || '').join('');
-    const clean = texto.replace(/\`\`\`json|\`\`\`/g, '').trim();
+    const clean = texto.replace(/```json|```/g, '').trim();
     const resultado = JSON.parse(clean);
 
-    planoGeradoAtual = { titulo, resultado };
+    planoGeradoAtual = { titulo, resultado, dataProva };
     renderPlanoInteligente(titulo, resultado);
 
   } catch(err) {
@@ -1502,15 +1670,18 @@ function renderPlanoInteligente(titulo, r) {
   document.getElementById('resultadoPlanoIA').classList.remove('hidden');
   document.getElementById('planoIATituloResult').textContent = '✨ ' + titulo;
 
+  // Stats
+  document.getElementById('statTopicos').textContent = r.topicos.length;
+
   // Tópicos
   const topEl = document.getElementById('topicosProvaveis');
-  topEl.innerHTML = r.topicos.map(t => `
+  topEl.innerHTML = r.topicos.slice(0,5).map(t => `
     <div class="item-card" style="margin-bottom:8px;border-left:4px solid ${t.probabilidade >= 90 ? 'var(--green)' : t.probabilidade >= 75 ? 'var(--orange)' : 'var(--primary)'}">
       <div style="display:flex;justify-content:space-between;align-items:center">
-        <h4 style="font-size:14px">${t.tema}</h4>
-        <span class="tag ${t.probabilidade >= 90 ? 'tag-green' : t.probabilidade >= 75 ? 'tag-orange' : 'tag-blue'}">${t.probabilidade}% chance</span>
+        <h4 style="font-size:13px">${t.tema}</h4>
+        <span class="tag ${t.probabilidade >= 90 ? 'tag-green' : t.probabilidade >= 75 ? 'tag-orange' : 'tag-blue'}">${t.probabilidade}%</span>
       </div>
-      <p style="font-size:12px;margin-top:4px">${t.justificativa}</p>
+      <p style="font-size:11px;margin-top:3px">${t.justificativa}</p>
     </div>
   `).join('');
 
@@ -1520,25 +1691,142 @@ function renderPlanoInteligente(titulo, r) {
   // Resumo
   document.getElementById('resumoTemas').textContent = r.resumo;
 
-  // Exercícios
-  const exEl = document.getElementById('exerciciosGerados');
-  exEl.innerHTML = r.exercicios.map((e, i) => `
-    <div class="item-card" style="margin-bottom:10px">
-      <h4 style="font-size:13px;margin-bottom:8px">📌 ${i+1}. ${e.pergunta}</h4>
-      <details>
-        <summary style="cursor:pointer;color:var(--primary);font-size:13px;font-weight:700">Ver resposta</summary>
-        <p style="margin-top:8px;font-size:13px;background:var(--green-soft);padding:10px;border-radius:10px">${e.resposta}</p>
-      </details>
+  // Flashcards
+  flashcards = r.flashcards || [];
+  flashcardAtual = 0;
+  renderFlashcard();
+
+  // Exercícios simulado
+  renderSimulado(r.exercicios || []);
+
+  // Cronograma
+  renderCronograma(r.cronograma || []);
+
+  // Progresso por tópico
+  renderProgressoTopicos(r.topicos);
+
+  switchPlanoTab('plano');
+  document.getElementById('resultadoPlanoIA').scrollIntoView({ behavior: 'smooth' });
+}
+
+function renderFlashcard() {
+  const el = document.getElementById('flashcardsGerados');
+  const nav = document.getElementById('flashNav');
+  if (!flashcards.length) { el.innerHTML = '<div class="empty-state">Sem flashcards.</div>'; return; }
+  nav.classList.remove('hidden');
+  const f = flashcards[flashcardAtual];
+  el.innerHTML = `
+    <div style="background:var(--blue-soft);border-radius:16px;padding:24px;text-align:center;min-height:140px;cursor:pointer" onclick="this.querySelector('.flash-resp').classList.toggle('hidden')">
+      <div style="font-size:13px;font-weight:700;color:var(--primary);margin-bottom:8px">🧠 Pergunta ${flashcardAtual+1} de ${flashcards.length}</div>
+      <div style="font-size:15px;font-weight:700;color:var(--text);margin-bottom:16px">${f.pergunta}</div>
+      <div class="flash-resp hidden" style="background:#fff;border-radius:10px;padding:12px;font-size:13px;color:var(--text)">${f.resposta}</div>
+      <div style="font-size:11px;color:var(--muted);margin-top:8px">Clique para revelar a resposta</div>
+    </div>`;
+  document.getElementById('flashCounter').textContent = (flashcardAtual+1) + ' / ' + flashcards.length;
+}
+
+function flashProximo() { if (flashcardAtual < flashcards.length-1) { flashcardAtual++; renderFlashcard(); } }
+function flashAnterior() { if (flashcardAtual > 0) { flashcardAtual--; renderFlashcard(); } }
+
+function renderSimulado(exercicios) {
+  const el = document.getElementById('exerciciosGerados');
+  let respostas = new Array(exercicios.length).fill(-1);
+  el.innerHTML = exercicios.map((e, i) => `
+    <div class="item-card" style="margin-bottom:12px" id="ex${i}">
+      <h4 style="font-size:13px;margin-bottom:10px">📌 ${i+1}. ${e.pergunta}</h4>
+      ${(e.alternativas||[]).map((a, j) => `
+        <label style="display:flex;align-items:flex-start;gap:8px;padding:6px;border-radius:8px;cursor:pointer;font-size:13px;margin-bottom:4px">
+          <input type="radio" name="ex${i}" value="${j}" onchange="respostas_sim[${i}]=${j}" style="margin-top:2px;width:auto;margin-bottom:0" />
+          ${a}
+        </label>
+      `).join('')}
     </div>
   `).join('');
+  window.respostas_sim = respostas;
+  window.exercicios_sim = exercicios;
+  document.getElementById('btnVerGabarito').classList.remove('hidden');
+}
 
-  document.getElementById('resultadoPlanoIA').scrollIntoView({ behavior: 'smooth' });
+function verGabarito() {
+  const exercicios = window.exercicios_sim || [];
+  const respostas = window.respostas_sim || [];
+  let acertos = 0;
+  exercicios.forEach((e, i) => {
+    const marcado = respostas[i];
+    const correto = e.correta;
+    if (marcado === correto) acertos++;
+    const exEl = document.getElementById('ex' + i);
+    if (exEl) {
+      const exp = document.createElement('div');
+      exp.style.cssText = 'margin-top:8px;padding:10px;border-radius:10px;font-size:12px;';
+      exp.style.background = marcado === correto ? 'var(--green-soft)' : 'var(--red-soft)';
+      exp.style.color = marcado === correto ? 'var(--green)' : 'var(--red)';
+      exp.textContent = (marcado === correto ? '✅ Correto! ' : '❌ Errado. ') + (e.explicacao || '');
+      exEl.appendChild(exp);
+    }
+  });
+  document.getElementById('notaSimulado').textContent = acertos + '/' + exercicios.length;
+  document.getElementById('resultadoSimulado').classList.remove('hidden');
+  document.getElementById('statProgInt').textContent = Math.round(acertos/exercicios.length*100) + '%';
+}
+
+function renderCronograma(crono) {
+  const el = document.getElementById('cronogramaGerado');
+  if (!crono.length) { el.innerHTML = '<div class="empty-state">Sem cronograma.</div>'; return; }
+  el.innerHTML = crono.map((s, i) => `
+    <div class="item-card" style="margin-bottom:10px;border-left:4px solid var(--primary)">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+        <h4 style="font-size:14px">${s.semana}</h4>
+        <span class="tag tag-blue">${s.horas || 0}h</span>
+      </div>
+      <p style="font-size:13px;font-weight:700;margin-bottom:4px">${s.tema}</p>
+      <p style="font-size:12px;color:var(--muted)">${s.atividades}</p>
+      <div class="progress-bar" style="margin-top:8px"><div style="width:0%;height:100%;background:var(--primary);border-radius:999px" id="cronoBar${i}"></div></div>
+    </div>
+  `).join('');
+}
+
+function renderProgressoTopicos(topicos) {
+  const el = document.getElementById('progressoTopicos');
+  document.getElementById('progressoTopicosCard').classList.remove('hidden');
+  el.innerHTML = topicos.map((t, i) => `
+    <div style="margin-bottom:12px">
+      <div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:4px">
+        <span style="font-weight:700">${t.tema}</span>
+        <span style="color:var(--muted)" id="progTopVal${i}">${progressoTopicosLocal[t.tema] || 0}%</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px">
+        <div class="progress-bar" style="flex:1;margin:0"><div id="progTopBar${i}" style="width:${progressoTopicosLocal[t.tema]||0}%;height:100%;background:${t.probabilidade>=90?'var(--green)':t.probabilidade>=75?'var(--orange)':'var(--primary)'};border-radius:999px;transition:width .3s"></div></div>
+        <input type="range" min="0" max="100" value="${progressoTopicosLocal[t.tema]||0}" step="5" style="width:80px;margin-bottom:0"
+          oninput="atualizarProgTopic('${t.tema}',${i},this.value)" />
+      </div>
+    </div>
+  `).join('');
+}
+
+function atualizarProgTopic(tema, idx, val) {
+  progressoTopicosLocal[tema] = parseInt(val);
+  document.getElementById('progTopVal'+idx).textContent = val + '%';
+  document.getElementById('progTopBar'+idx).style.width = val + '%';
+  const vals = Object.values(progressoTopicosLocal);
+  const media = vals.length ? Math.round(vals.reduce((a,b)=>a+b,0)/vals.length) : 0;
+  document.getElementById('statProgInt').textContent = media + '%';
+}
+
+function switchPlanoTab(tab) {
+  ['plano','flash','simulado','resumo','crono'].forEach(t => {
+    document.getElementById('tab' + t.charAt(0).toUpperCase() + t.slice(1)).classList.add('hidden');
+    const btn = document.getElementById('tabBtn' + t.charAt(0).toUpperCase() + t.slice(1));
+    if (btn) { btn.classList.remove('active-tab-btn'); btn.classList.add('btn-secondary'); }
+  });
+  document.getElementById('tab' + tab.charAt(0).toUpperCase() + tab.slice(1)).classList.remove('hidden');
+  const activeBtn = document.getElementById('tabBtn' + tab.charAt(0).toUpperCase() + tab.slice(1));
+  if (activeBtn) { activeBtn.classList.add('active-tab-btn'); activeBtn.classList.remove('btn-secondary'); }
 }
 
 async function salvarPlanoInteligente() {
   if (!planoGeradoAtual) return;
   const { titulo, resultado } = planoGeradoAtual;
-
   const { error } = await db.from('planos_ia').insert([{
     user_id: currentUser.id,
     titulo,
@@ -1546,22 +1834,17 @@ async function salvarPlanoInteligente() {
     analise: resultado,
     plano_gerado: resultado.plano
   }]);
-
   if (error) return toast('❌ Erro ao salvar: ' + error.message);
   toast('✅ Plano salvo com sucesso!');
   await carregarPlanosInteligentes();
 }
 
 async function carregarPlanosInteligentes() {
-  const { data, error } = await db
-    .from('planos_ia')
-    .select('*')
-    .eq('user_id', currentUser.id)
-    .order('created_at', { ascending: false });
-
+  const { data, error } = await db.from('planos_ia').select('*').eq('user_id', currentUser.id).order('created_at', { ascending: false });
   if (error) return;
   renderListaPlanosInt(data || []);
-  document.getElementById('badgePlanosInt').textContent = (data || []).length || 'NEW';
+  const badge = document.getElementById('badgePlanosInt');
+  if (badge) badge.textContent = (data||[]).length || 'NEW';
 }
 
 function renderListaPlanosInt(lista) {
@@ -1575,7 +1858,7 @@ function renderListaPlanosInt(lista) {
       <div style="display:flex;justify-content:space-between;align-items:flex-start">
         <div>
           <h4>${p.titulo}</h4>
-          <p style="font-size:12px;margin-top:2px">${p.pdf_nome || ''} — ${new Date(p.created_at).toLocaleDateString('pt-BR')}</p>
+          <p style="font-size:12px;margin-top:2px">${p.pdf_nome||''} — ${new Date(p.created_at).toLocaleDateString('pt-BR')}</p>
         </div>
         <div style="display:flex;gap:6px">
           <button class="mini-btn" onclick="verPlanoSalvo('${p.id}')">👁️ Ver</button>
@@ -1587,7 +1870,6 @@ function renderListaPlanosInt(lista) {
 }
 
 function verPlanoSalvo(id) {
-  // Recarrega da lista local
   db.from('planos_ia').select('*').eq('id', id).single().then(({ data }) => {
     if (!data) return;
     planoGeradoAtual = { titulo: data.titulo, resultado: data.analise };
