@@ -559,6 +559,36 @@
 </div>
 
 <!-- ═══════════════════════════════════════
+     PAYWALL
+═══════════════════════════════════════ -->
+<div id="paywallScreen" class="auth-screen hidden" style="background:linear-gradient(160deg,#0c1a2e 0%,#0a1f3d 100%)">
+  <div style="width:100%;max-width:480px;text-align:center;padding:20px">
+    <div style="width:60px;height:60px;border-radius:16px;background:linear-gradient(135deg,#0891b2,#22d3ee);display:grid;place-items:center;font-size:28px;margin:0 auto 24px;box-shadow:0 0 24px rgba(34,211,238,0.4)">✦</div>
+    <h1 style="font-size:28px;font-weight:700;color:#fff;letter-spacing:-0.5px;margin-bottom:8px">Seu período de teste encerrou</h1>
+    <p style="font-size:15px;color:rgba(255,255,255,0.45);margin-bottom:32px;line-height:1.6">Assine agora por <strong style="color:#22d3ee">R$ 15,00/mês</strong> e continue estudando com inteligência artificial.</p>
+
+    <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(34,211,238,0.15);border-radius:16px;padding:24px;margin-bottom:24px;text-align:left">
+      <div style="font-size:12px;font-weight:700;color:rgba(255,255,255,0.3);text-transform:uppercase;letter-spacing:1px;margin-bottom:16px">O que você terá acesso</div>
+      <div style="display:flex;flex-direction:column;gap:10px">
+        <div style="display:flex;align-items:center;gap:10px;font-size:14px;color:rgba(255,255,255,0.8)"><span style="color:#22d3ee;font-size:16px">✓</span> Matérias, Notas e Planos ilimitados</div>
+        <div style="display:flex;align-items:center;gap:10px;font-size:14px;color:rgba(255,255,255,0.8)"><span style="color:#22d3ee;font-size:16px">✓</span> Plano Inteligente com IA</div>
+        <div style="display:flex;align-items:center;gap:10px;font-size:14px;color:rgba(255,255,255,0.8)"><span style="color:#22d3ee;font-size:16px">✓</span> Flashcards e Simulados automáticos</div>
+        <div style="display:flex;align-items:center;gap:10px;font-size:14px;color:rgba(255,255,255,0.8)"><span style="color:#22d3ee;font-size:16px">✓</span> Modo Véspera de Prova</div>
+        <div style="display:flex;align-items:center;gap:10px;font-size:14px;color:rgba(255,255,255,0.8)"><span style="color:#22d3ee;font-size:16px">✓</span> Cronômetro e histórico de estudo</div>
+      </div>
+    </div>
+
+    <a href="https://www.mercadopago.com.br/subscriptions/checkout?preapproval_plan_id=c44dc3e2e0544c35a6f91f3323e69159" target="_blank"
+      style="display:block;width:100%;padding:16px;border-radius:12px;background:linear-gradient(135deg,#0891b2,#22d3ee);color:#fff;font-size:16px;font-weight:700;text-decoration:none;letter-spacing:0.2px;box-shadow:0 4px 20px rgba(34,211,238,0.35);margin-bottom:12px">
+      Assinar por R$ 15,00/mês →
+    </a>
+    <button onclick="handleLogout()" style="background:transparent;color:rgba(255,255,255,0.3);font-size:13px;border:none;cursor:pointer;padding:8px;width:auto">Sair da conta</button>
+
+    <div id="paywallTimer" style="margin-top:20px;font-size:12px;color:rgba(255,255,255,0.2)"></div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════
      APP
 ═══════════════════════════════════════ -->
 <div id="appScreen" class="app-screen hidden">
@@ -1130,10 +1160,48 @@ async function init() {
 function mostrarAuth() {
   document.getElementById('authScreen').classList.remove('hidden');
   document.getElementById('appScreen').classList.add('hidden');
+  document.getElementById('paywallScreen').classList.add('hidden');
+}
+
+async function verificarAssinatura() {
+  // Verifica se usuário tem assinatura ativa ou está no período de teste
+  const { data } = await db.from('assinaturas').select('*').eq('user_id', currentUser.id).single().catch(() => ({ data: null }));
+  
+  const agora = new Date();
+  
+  if (data && data.ativa) return true; // assinatura ativa
+  
+  if (data && data.trial_fim) {
+    const trialFim = new Date(data.trial_fim);
+    if (agora < trialFim) return true; // ainda no trial
+    return false; // trial expirado
+  }
+  
+  // Primeira vez — cria registro de trial (2 dias)
+  const trialFim = new Date(agora.getTime() + 2 * 24 * 60 * 60 * 1000);
+  await db.from('assinaturas').insert([{
+    user_id: currentUser.id,
+    trial_fim: trialFim.toISOString(),
+    ativa: false
+  }]).catch(() => {});
+  
+  return true; // recém criado, ainda no trial
+}
+
+function mostrarPaywall() {
+  document.getElementById('authScreen').classList.add('hidden');
+  document.getElementById('appScreen').classList.add('hidden');
+  document.getElementById('paywallScreen').classList.remove('hidden');
 }
 
 async function carregarApp() {
+  const liberado = await verificarAssinatura();
+  if (!liberado) {
+    mostrarPaywall();
+    return;
+  }
   document.getElementById('authScreen').classList.add('hidden');
+  document.getElementById('paywallScreen').classList.add('hidden');
   document.getElementById('appScreen').classList.remove('hidden');
 
   // Perfil do usuário
@@ -1156,6 +1224,16 @@ async function carregarApp() {
   ]);
 
   atualizarDashboard();
+  mostrarBadgeTrial();
+}
+
+async function mostrarBadgeTrial() {
+  const { data } = await db.from('assinaturas').select('*').eq('user_id', currentUser.id).single().catch(() => ({ data: null }));
+  if (!data || data.ativa) return;
+  if (!data.trial_fim) return;
+  const dias = Math.ceil((new Date(data.trial_fim) - new Date()) / 86400000);
+  if (dias <= 0) return;
+  toast('🎉 Teste grátis: ' + dias + (dias === 1 ? ' dia restante' : ' dias restantes'));
 }
 
 // ═══════════════════════════════════════
