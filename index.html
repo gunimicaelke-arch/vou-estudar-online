@@ -1164,28 +1164,32 @@ function mostrarAuth() {
 }
 
 async function verificarAssinatura() {
-  // Verifica se usuário tem assinatura ativa ou está no período de teste
-  const { data } = await db.from('assinaturas').select('*').eq('user_id', currentUser.id).single().catch(() => ({ data: null }));
-  
-  const agora = new Date();
-  
-  if (data && data.ativa) return true; // assinatura ativa
-  
-  if (data && data.trial_fim) {
-    const trialFim = new Date(data.trial_fim);
-    if (agora < trialFim) return true; // ainda no trial
-    return false; // trial expirado
+  try {
+    const agora = new Date();
+
+    const { data, error } = await db.from('assinaturas').select('*').eq('user_id', currentUser.id).maybeSingle();
+
+    if (error) return true; // erro na consulta — libera para não travar
+
+    if (data && data.ativa) return true; // assinatura ativa
+
+    if (data && data.trial_fim) {
+      const trialFim = new Date(data.trial_fim);
+      return agora < trialFim; // true se ainda no trial
+    }
+
+    // Primeira vez — cria registro de trial (2 dias)
+    const trialFim = new Date(agora.getTime() + 2 * 24 * 60 * 60 * 1000);
+    await db.from('assinaturas').insert([{
+      user_id: currentUser.id,
+      trial_fim: trialFim.toISOString(),
+      ativa: false
+    }]);
+
+    return true; // recém criado, ainda no trial
+  } catch(e) {
+    return true; // fallback — libera em caso de erro
   }
-  
-  // Primeira vez — cria registro de trial (2 dias)
-  const trialFim = new Date(agora.getTime() + 2 * 24 * 60 * 60 * 1000);
-  await db.from('assinaturas').insert([{
-    user_id: currentUser.id,
-    trial_fim: trialFim.toISOString(),
-    ativa: false
-  }]).catch(() => {});
-  
-  return true; // recém criado, ainda no trial
 }
 
 function mostrarPaywall() {
