@@ -1,118 +1,48 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Vou Estudar+</title>
-
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
-<style>
-body {
-  font-family: Arial;
-  background: #f3f4f6;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  height: 100vh;
-}
-
-.card {
-  background: white;
-  padding: 30px;
-  border-radius: 16px;
-  width: 300px;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-}
-
-input {
-  width: 100%;
-  padding: 10px;
-  margin-top: 10px;
-  border-radius: 8px;
-  border: 1px solid #ccc;
-}
-
-button {
-  width: 100%;
-  padding: 12px;
-  margin-top: 15px;
-  border: none;
-  border-radius: 10px;
-  background: linear-gradient(45deg,#6366f1,#8b5cf6);
-  color: white;
-  cursor: pointer;
-}
-
-.msg {
-  margin-top: 10px;
-  font-size: 14px;
-}
-</style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Teste Supabase</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
+<body style="font-family: Arial; padding: 30px;">
 
-<body>
+  <h2>Teste de clique</h2>
 
-<div class="card">
-  <h2>Entrar</h2>
+  <input id="email" placeholder="Email" style="display:block; margin-bottom:10px; padding:10px; width:300px;">
+  <input id="senha" type="password" placeholder="Senha" style="display:block; margin-bottom:10px; padding:10px; width:300px;">
 
-  <input id="email" placeholder="Email">
-  <input id="senha" type="password" placeholder="Senha">
+  <button id="btnTeste" style="padding:10px 20px;">Testar clique</button>
 
-  <button id="loginBtn">Entrar</button>
-  <button id="signupBtn">Criar conta</button>
+  <p id="msg"></p>
 
-  <div id="msg" class="msg"></div>
-</div>
+  <script>
+    alert("SCRIPT CARREGOU");
 
-<script>
-const SUPABASE_URL = "https://mcyzxwtpjoqioeqemrv.supabase.co";
-const SUPABASE_KEY = "sb_publishable_G1DmNZdvjDl0-3N2onqD4Q_SZM1M6f1";
+    const SUPABASE_URL = "https://mcyzxwtpjoqioeqemrv.supabase.co";
+    const SUPABASE_KEY = "sb_publishable_G1DmNZdvjDl0-3N2onqD4Q_SZM1M6f1";
 
-const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-const msg = document.getElementById("msg");
+    document.getElementById("btnTeste").addEventListener("click", async () => {
+      alert("BOTÃO CLICOU");
 
-function mostrar(msgText, cor="black"){
-  msg.innerText = msgText;
-  msg.style.color = cor;
-}
+      const email = document.getElementById("email").value.trim();
+      const senha = document.getElementById("senha").value.trim();
 
-document.getElementById("signupBtn").addEventListener("click", async () => {
-  const email = document.getElementById("email").value;
-  const senha = document.getElementById("senha").value;
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email,
+        password: senha
+      });
 
-  const { error } = await supabase.auth.signUp({
-    email,
-    password: senha
-  });
+      if (error) {
+        document.getElementById("msg").innerText = "ERRO: " + error.message;
+        return;
+      }
 
-  if (error) return mostrar(error.message,"red");
-
-  mostrar("Conta criada! Agora faça login.","green");
-});
-
-document.getElementById("loginBtn").addEventListener("click", async () => {
-  mostrar("Entrando...");
-
-  const email = document.getElementById("email").value;
-  const senha = document.getElementById("senha").value;
-
-  const { data, error } = await supabase.auth.signInWithPassword({
-    email,
-    password: senha
-  });
-
-  if (error) return mostrar(error.message,"red");
-
-  mostrar("Login realizado com sucesso!","green");
-
-  // TESTE DE TROCA DE TELA
-  setTimeout(()=>{
-    document.body.innerHTML = "<h1 style='text-align:center'>Entrou no sistema 🚀</h1>";
-  },1000);
-});
-</script>
-
+      document.getElementById("msg").innerText = "LOGIN OK: " + data.user.email;
+    });
+  </script>
 </body>
 </html>
