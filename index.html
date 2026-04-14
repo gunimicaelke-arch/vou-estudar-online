@@ -3,24 +3,27 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Vou Estudar+</title>
+  <title>Vou Estudar+ Versão 2</title>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
     * { box-sizing: border-box; }
 
     :root{
-      --bg: #f5f7fb;
+      --bg: #f6f7fc;
+      --sidebar: #f0f1fb;
       --card: #ffffff;
-      --line: #e8ebf4;
-      --text: #1f2430;
+      --line: #e6e9f5;
+      --text: #202634;
       --muted: #6f7890;
-      --primary: #5b61ff;
-      --primary-2: #7b80ff;
-      --success: #24c26a;
-      --warning: #ffb020;
-      --danger: #ff6b6b;
-      --shadow: 0 10px 30px rgba(31,36,48,0.08);
-      --radius: 20px;
+      --primary: #5863f8;
+      --primary-2: #7882ff;
+      --green: #29b36a;
+      --orange: #f3b33d;
+      --blue-soft: #eef1ff;
+      --green-soft: #eaf8ef;
+      --orange-soft: #fff4df;
+      --red-soft: #fff0f0;
+      --shadow: 0 10px 28px rgba(22, 29, 45, 0.06);
     }
 
     body {
@@ -48,7 +51,7 @@
       align-items: center;
     }
 
-    .intro-box, .login-box, .main-card, .panel, .stat-card {
+    .intro-box, .login-box, .shell, .card, .sidebar {
       background: var(--card);
       border: 1px solid var(--line);
       border-radius: 24px;
@@ -64,7 +67,7 @@
     }
 
     .brand {
-      font-size: 58px;
+      font-size: 54px;
       font-weight: 800;
       color: var(--primary);
       margin: 0 0 8px 0;
@@ -72,8 +75,8 @@
 
     .sub {
       color: var(--muted);
-      font-size: 24px;
-      margin-bottom: 32px;
+      font-size: 23px;
+      margin-bottom: 30px;
     }
 
     .feature {
@@ -155,10 +158,18 @@
     }
 
     button:hover { transform: translateY(-1px); }
+
     .secondary {
       background: #eef1f9;
       color: var(--text);
       border: 1px solid var(--line);
+    }
+
+    .mini-btn {
+      width: auto;
+      padding: 8px 12px;
+      border-radius: 10px;
+      font-size: 13px;
     }
 
     .demo-box {
@@ -170,111 +181,298 @@
       border: 1px solid #e6e8ff;
     }
 
-    .wrap {
-      max-width: 1280px;
-      margin: 0 auto;
+    .muted { color: var(--muted); }
+    .danger { color: #ff6b6b; }
+    .success { color: #29b36a; }
+    .empty { color: var(--muted); font-size: 14px; }
+
+    .app-wrap {
+      display: grid;
+      grid-template-columns: 280px 1fr;
+      min-height: 100vh;
+      gap: 18px;
       padding: 18px;
     }
 
-    .main-card {
+    .sidebar {
+      background: var(--sidebar);
+      padding: 18px;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-weight: 800;
+      font-size: 18px;
+      margin-bottom: 22px;
+      color: var(--primary);
+    }
+
+    .logo-box {
+      width: 44px;
+      height: 44px;
+      border-radius: 14px;
+      background: var(--blue-soft);
+      display: grid;
+      place-items: center;
+      font-size: 22px;
+    }
+
+    .version-pill {
+      display: inline-block;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: var(--blue-soft);
+      color: var(--primary);
+      font-size: 12px;
+      font-weight: 700;
+      margin-left: auto;
+    }
+
+    .menu {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .menu-item {
+      padding: 14px 16px;
+      border-radius: 16px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      color: var(--text);
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .menu-item.active {
+      background: #e7e9fb;
+      color: var(--primary);
+    }
+
+    .menu-badge {
+      margin-left: auto;
+      min-width: 24px;
+      height: 24px;
+      padding: 0 8px;
+      border-radius: 999px;
+      background: var(--blue-soft);
+      color: var(--primary);
+      display: inline-grid;
+      place-items: center;
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .sidebar-actions {
+      margin-top: auto;
+      padding-top: 18px;
+      border-top: 1px solid #dfe3f3;
+    }
+
+    .side-title {
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 1px;
+      margin: 8px 0 14px;
+      text-transform: uppercase;
+    }
+
+    .quick-btn {
+      margin-bottom: 10px;
+      border-radius: 16px;
+      padding: 16px;
+    }
+
+    .quick-primary {
+      background: linear-gradient(90deg, var(--primary), var(--primary-2));
+      color: #fff;
+    }
+
+    .shell {
       overflow: hidden;
     }
 
-    .top-nav {
-      background: white;
+    .topbar {
+      padding: 18px 22px;
       border-bottom: 1px solid var(--line);
       display: flex;
       justify-content: space-between;
       align-items: center;
       gap: 16px;
       flex-wrap: wrap;
-      padding: 14px 18px;
+      background: #fff;
     }
 
-    .logo-line {
+    .search-box {
+      flex: 1;
+      min-width: 280px;
+      max-width: 620px;
+      position: relative;
+    }
+
+    .search-box input {
+      margin: 0;
+      padding-left: 44px;
+      padding-right: 90px;
+      border-radius: 16px;
+    }
+
+    .search-icon {
+      position: absolute;
+      left: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--muted);
+    }
+
+    .search-shortcut {
+      position: absolute;
+      right: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 12px;
+      color: var(--muted);
+      background: #f5f6fb;
+      border: 1px solid var(--line);
+      padding: 6px 8px;
+      border-radius: 10px;
+    }
+
+    .top-actions {
       display: flex;
       align-items: center;
-      gap: 10px;
-      font-weight: 800;
-      font-size: 26px;
+      gap: 14px;
+      flex-wrap: wrap;
     }
 
-    .logo-icon {
+    .icon-btn {
       width: 42px;
       height: 42px;
-      border-radius: 12px;
-      background: #eef0ff;
-      color: var(--primary);
+      border-radius: 14px;
+      background: #f5f6fb;
+      border: 1px solid var(--line);
+      display: grid;
+      place-items: center;
+      position: relative;
+    }
+
+    .notif-dot {
+      position: absolute;
+      top: -4px;
+      right: -4px;
+      width: 20px;
+      height: 20px;
+      border-radius: 999px;
+      background: #ff5757;
+      color: #fff;
+      font-size: 11px;
+      display: grid;
+      place-items: center;
+      font-weight: 700;
+    }
+
+    .profile-box {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .avatar {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      background: linear-gradient(90deg, var(--primary), var(--primary-2));
+      color: #fff;
+      display: grid;
+      place-items: center;
+      font-weight: 800;
+    }
+
+    .profile-meta strong { display: block; }
+    .profile-meta span { color: var(--muted); font-size: 14px; }
+
+    .content {
+      padding: 24px;
+      background: #fff;
+    }
+
+    .tab-page { display: none; }
+    .tab-page.active { display: block; }
+
+    .hero {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 18px;
+      flex-wrap: wrap;
+      margin-bottom: 20px;
+    }
+
+    .hero h1 {
+      margin: 0 0 8px 0;
+      font-size: 36px;
+    }
+
+    .hero p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 16px;
+    }
+
+    .goal-card {
+      min-width: 320px;
+      background: #f8f8ff;
+      border: 1px solid var(--line);
+      border-radius: 20px;
+      padding: 16px;
+      display: flex;
+      gap: 14px;
+      align-items: flex-start;
+    }
+
+    .goal-icon {
+      width: 48px;
+      height: 48px;
+      border-radius: 14px;
+      background: #fff2d9;
       display: grid;
       place-items: center;
       font-size: 22px;
     }
 
-    .nav-tabs {
-      display: flex;
-      gap: 18px;
-      flex-wrap: wrap;
-      align-items: center;
+    .progress-bar {
+      width: 100%;
+      height: 8px;
+      background: #e9ebf7;
+      border-radius: 999px;
+      overflow: hidden;
+      margin: 10px 0 8px;
     }
 
-    .tab {
-      padding: 10px 4px;
-      color: var(--muted);
-      font-weight: 700;
-      border-bottom: 3px solid transparent;
-      cursor: pointer;
+    .progress-bar > div {
+      height: 100%;
+      background: linear-gradient(90deg, var(--primary), var(--primary-2));
+      border-radius: 999px;
     }
 
-    .tab.active {
-      color: var(--primary);
-      border-bottom-color: var(--primary);
-    }
-
-    .user-box {
-      display: flex;
-      gap: 10px;
-      align-items: center;
-      flex-wrap: wrap;
-    }
-
-    .avatar {
-      width: 42px;
-      height: 42px;
-      border-radius: 50%;
-      background: #eef0ff;
+    .stats-grid {
       display: grid;
-      place-items: center;
-      color: var(--primary);
-      font-weight: 800;
-    }
-
-    .page-content {
-      padding: 26px;
-    }
-
-    .hero-title {
-      font-size: 28px;
-      font-weight: 800;
-      margin: 0 0 6px 0;
-    }
-
-    .hero-sub {
-      color: var(--muted);
-      margin-bottom: 22px;
-    }
-
-    .stats {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 18px;
-      margin-bottom: 20px;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+      margin-bottom: 18px;
     }
 
     .stat-card {
       padding: 18px;
       display: flex;
-      gap: 14px;
       align-items: center;
+      gap: 14px;
     }
 
     .stat-icon {
@@ -287,11 +485,12 @@
       flex-shrink: 0;
     }
 
-    .icon-blue { background: #eef0ff; color: var(--primary); }
-    .icon-green { background: #eaf9f0; color: var(--success); }
-    .icon-orange { background: #fff4e5; color: var(--warning); }
+    .blue-soft { background: var(--blue-soft); color: var(--primary); }
+    .green-soft { background: var(--green-soft); color: var(--green); }
+    .orange-soft { background: var(--orange-soft); color: var(--orange); }
+    .red-soft { background: var(--red-soft); color: #ff6b6b; }
 
-    .stat-label {
+    .stat-title {
       color: var(--muted);
       font-size: 13px;
       font-weight: 700;
@@ -310,134 +509,160 @@
       font-size: 14px;
     }
 
-    .grid-3 {
-      display: grid;
-      grid-template-columns: 1fr 1fr 1fr;
-      gap: 18px;
-      margin-bottom: 18px;
-    }
-
     .grid-2 {
       display: grid;
-      grid-template-columns: 1fr 1fr;
+      grid-template-columns: 1.6fr 1fr;
       gap: 18px;
       margin-bottom: 18px;
     }
 
-    .panel {
+    .grid-bottom {
+      display: grid;
+      grid-template-columns: 1.6fr 1fr;
+      gap: 18px;
+      margin-bottom: 18px;
+    }
+
+    .card {
       padding: 20px;
     }
 
-    .panel-head {
+    .card-head {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      gap: 10px;
-      margin-bottom: 16px;
+      gap: 12px;
       flex-wrap: wrap;
+      margin-bottom: 16px;
     }
 
-    .panel-head h3 {
+    .card-head h3 {
       margin: 0;
-      font-size: 24px;
+      font-size: 18px;
+      font-weight: 800;
+      letter-spacing: 0.2px;
     }
 
-    .panel-link {
+    .link-action {
       color: var(--primary);
       font-weight: 700;
-      font-size: 14px;
       cursor: pointer;
+      font-size: 14px;
     }
 
-    .timer-box {
-      text-align: center;
-      padding-top: 6px;
-    }
-
-    .timer-display {
-      font-size: 62px;
-      font-weight: 800;
-      margin: 22px 0;
-      letter-spacing: 2px;
-    }
-
-    .list-item {
+    .schedule-item {
       display: flex;
-      justify-content: space-between;
-      gap: 10px;
       align-items: center;
-      padding: 12px 0;
-      border-bottom: 1px solid var(--line);
-      flex-wrap: wrap;
-    }
-
-    .list-item:last-child { border-bottom: none; }
-
-    .badge-dot {
-      width: 10px;
-      height: 10px;
-      border-radius: 50%;
-      display: inline-block;
-      margin-right: 8px;
-      vertical-align: middle;
-    }
-
-    .dot-blue { background: #6370ff; }
-    .dot-green { background: #24c26a; }
-    .dot-yellow { background: #ffb020; }
-    .dot-red { background: #ff7b7b; }
-
-    .subject-actions, .row {
-      display: flex;
-      gap: 10px;
-      flex-wrap: wrap;
-    }
-
-    .row > * { flex: 1; min-width: 140px; }
-
-    .mini-btn {
-      width: auto;
-      padding: 8px 12px;
-      border-radius: 10px;
-      font-size: 13px;
-    }
-
-    .progress-panel {
-      min-height: 300px;
-    }
-
-    .saved-plan-item, .note-item {
-      background: #f8f9fd;
+      gap: 14px;
+      padding: 14px;
+      border-radius: 18px;
+      margin-bottom: 12px;
       border: 1px solid var(--line);
-      border-radius: 14px;
-      padding: 12px;
-      margin-bottom: 10px;
     }
 
-    .saved-plan-item h4, .note-item h4 {
-      margin: 0 0 8px 0;
+    .schedule-time {
+      width: 66px;
+      font-weight: 700;
+      color: var(--muted);
+      flex-shrink: 0;
+    }
+
+    .schedule-dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    .schedule-main {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .schedule-main strong {
+      display: block;
+      font-size: 16px;
+      margin-bottom: 4px;
+    }
+
+    .schedule-main span {
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .schedule-tag {
+      padding: 6px 12px;
+      border-radius: 999px;
+      font-size: 13px;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    .tag-study { background: #ececff; color: var(--primary); }
+    .tag-review { background: #eaf8ef; color: var(--green); }
+    .tag-practice { background: #fff4df; color: #cc8a00; }
+
+    .schedule-duration {
+      white-space: nowrap;
+      color: var(--muted);
+      font-weight: 700;
+      margin-left: 6px;
+    }
+
+    .big-action {
+      margin-top: 10px;
+      border-radius: 14px;
+      padding: 16px;
+      font-size: 18px;
+    }
+
+    .note-item, .subject-item, .saved-plan-item {
+      border: 1px solid var(--line);
+      background: #fafbff;
+      border-radius: 16px;
+      padding: 14px;
+      margin-bottom: 12px;
+    }
+
+    .note-item h4, .subject-item h4, .saved-plan-item h4 {
+      margin: 0 0 6px 0;
       font-size: 16px;
     }
 
-    .saved-plan-item p, .note-item p {
+    .note-item p, .subject-item p, .saved-plan-item p {
       margin: 0;
       color: var(--muted);
       font-size: 14px;
       white-space: pre-wrap;
     }
 
-    .section-title {
-      font-size: 20px;
-      font-weight: 800;
-      margin: 0 0 12px 0;
+    .subject-progress {
+      margin-top: 10px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
     }
 
-    .muted {
-      color: var(--muted);
+    .subject-progress .progress-bar {
+      margin: 0;
+      flex: 1;
+      height: 7px;
     }
 
-    .danger { color: var(--danger); }
-    .success { color: var(--success); }
+    .subject-progress strong {
+      min-width: 44px;
+      text-align: right;
+      font-size: 14px;
+    }
+
+    .subject-actions, .row {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 10px;
+    }
+
+    .row > * { flex: 1; min-width: 140px; }
 
     .file-label {
       display: inline-block;
@@ -452,19 +677,25 @@
       margin-bottom: 12px;
     }
 
-    .tab-content { display: none; }
-    .tab-content.active { display: block; }
+    @media (max-width: 1220px) {
+      .app-wrap {
+        grid-template-columns: 1fr;
+      }
 
-    .empty {
-      color: var(--muted);
-      font-size: 14px;
+      .sidebar {
+        order: 2;
+      }
+
+      .shell {
+        order: 1;
+      }
     }
 
     @media (max-width: 1100px) {
       .login-shell,
-      .stats,
-      .grid-3,
-      .grid-2 {
+      .stats-grid,
+      .grid-2,
+      .grid-bottom {
         grid-template-columns: 1fr;
       }
 
@@ -484,7 +715,7 @@
           <div class="feature-icon">📘</div>
           <div>
             <h3>Plano de estudo inteligente</h3>
-            <p>Gere planos personalizados para cada prova e salve tudo.</p>
+            <p>Gere planos personalizados, cronogramas e revisões.</p>
           </div>
         </div>
 
@@ -492,7 +723,7 @@
           <div class="feature-icon">⏱️</div>
           <div>
             <h3>Timer de foco</h3>
-            <p>Estude com método prático e acompanhe seu tempo.</p>
+            <p>Estude com método prático e acompanhe suas sessões.</p>
           </div>
         </div>
 
@@ -500,7 +731,7 @@
           <div class="feature-icon">📈</div>
           <div>
             <h3>Acompanhe seu progresso</h3>
-            <p>Veja sua evolução diária por matéria e por sessão.</p>
+            <p>Veja evolução diária, matérias em foco e próximas provas.</p>
           </div>
         </div>
       </div>
@@ -525,190 +756,279 @@
   </div>
 
   <div id="appView" class="hidden">
-    <div class="wrap">
-      <div class="main-card">
-        <div class="top-nav">
-          <div class="logo-line">
-            <div class="logo-icon">📘</div>
-            <div>Vou Estudar+</div>
+    <div class="app-wrap">
+      <aside class="sidebar">
+        <div class="logo">
+          <div class="logo-box">📘</div>
+          <span>Vou Estudar+</span>
+          <span class="version-pill">Versão 2.0</span>
+        </div>
+
+        <div class="menu">
+          <div class="menu-item active" data-page="hoje">🏠 Hoje</div>
+          <div class="menu-item" data-page="plano">✨ Plano Inteligente</div>
+          <div class="menu-item" data-page="materias">📚 Matérias</div>
+          <div class="menu-item" data-page="cronograma">🗓️ Cronograma</div>
+          <div class="menu-item" data-page="revisoes">🔄 Revisões <span class="menu-badge" id="badgeRevisoes">0</span></div>
+          <div class="menu-item" data-page="caderno">📝 Caderno Diário</div>
+          <div class="menu-item" data-page="simulados">🧪 Simulados</div>
+          <div class="menu-item" data-page="progresso">📊 Progresso</div>
+        </div>
+
+        <div class="sidebar-actions">
+          <div class="side-title">Atalhos</div>
+          <button class="quick-btn quick-primary" id="btnEstudoAgora">▶ Iniciar Estudo<br><span style="font-weight:400;">25:00</span></button>
+          <button class="quick-btn secondary" id="btnNovaMateria">＋ Nova Matéria</button>
+          <button class="quick-btn secondary" id="btnNovaAnotacao">✎ Nova Anotação</button>
+        </div>
+      </aside>
+
+      <main class="shell">
+        <div class="topbar">
+          <div class="search-box">
+            <span class="search-icon">🔎</span>
+            <input type="text" placeholder="Buscar matérias, planos, anotações..." />
+            <span class="search-shortcut">CTRL + K</span>
           </div>
 
-          <div class="nav-tabs">
-            <div class="tab active" data-tab="inicio">Início</div>
-            <div class="tab" data-tab="plano">Plano Inteligente</div>
-            <div class="tab" data-tab="materias">Matérias</div>
-            <div class="tab" data-tab="caderno">Caderno Diário</div>
-            <div class="tab" data-tab="progresso">Progresso</div>
-          </div>
+          <div class="top-actions">
+            <div class="icon-btn">🔔 <span class="notif-dot" id="notifCount">0</span></div>
+            <div class="icon-btn">🗓️</div>
 
-          <div class="user-box">
-            <div id="olaAluno">Olá, Aluno!</div>
-            <div class="avatar">A</div>
+            <div class="profile-box">
+              <div class="avatar">A</div>
+              <div class="profile-meta">
+                <strong id="profileName">Acadêmico</strong>
+                <span>Acadêmico</span>
+              </div>
+            </div>
+
             <button class="secondary mini-btn" id="logoutBtn">Sair</button>
           </div>
         </div>
 
-        <div class="page-content">
-          <div id="tab-inicio" class="tab-content active">
-            <h2 class="hero-title">Bom dia! 👋</h2>
-            <div class="hero-sub">Pronto para mais uma sessão de estudos?</div>
+        <div class="content">
+          <section id="page-hoje" class="tab-page active">
+            <div class="hero">
+              <div>
+                <h1 id="heroSaudacao">Bom dia, Acadêmico! 👋</h1>
+                <p>Vamos focar e conquistar seus objetivos hoje.</p>
+              </div>
 
-            <div class="stats">
-              <div class="stat-card">
-                <div class="stat-icon icon-blue">🕒</div>
+              <div class="goal-card">
+                <div class="goal-icon">🏆</div>
+                <div style="flex:1;">
+                  <strong>Meta diária: <span id="metaDiariaTexto">3h 30min</span></strong>
+                  <div class="progress-bar">
+                    <div id="metaDiariaBarra" style="width:0%;"></div>
+                  </div>
+                  <div style="display:flex; justify-content:space-between; gap:10px; font-size:14px;">
+                    <span><strong id="metaMinutosHoje">0 min</strong> estudados</span>
+                    <span id="metaPercentual">0%</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="stats-grid">
+              <div class="stat-card card">
+                <div class="stat-icon blue-soft">🕒</div>
                 <div>
-                  <div class="stat-label">Tempo hoje</div>
+                  <div class="stat-title">Tempo hoje</div>
                   <div class="stat-value" id="tempoHoje">0 min</div>
-                  <div class="stat-sub">Meta prática diária</div>
+                  <div class="stat-sub" id="metaHojeSub">de 3h 30min</div>
                 </div>
               </div>
 
-              <div class="stat-card">
-                <div class="stat-icon icon-green">📚</div>
+              <div class="stat-card card">
+                <div class="stat-icon green-soft">📅</div>
                 <div>
-                  <div class="stat-label">Matérias</div>
-                  <div class="stat-value" id="qtdMaterias">0 cadastradas</div>
-                  <div class="stat-sub">Organizadas para estudar</div>
+                  <div class="stat-title">Próxima prova</div>
+                  <div class="stat-value" id="proximaProvaCard">Nenhuma</div>
+                  <div class="stat-sub" id="proximaProvaMateria">Cadastre uma matéria</div>
                 </div>
               </div>
 
-              <div class="stat-card">
-                <div class="stat-icon icon-orange">🔥</div>
+              <div class="stat-card card">
+                <div class="stat-icon orange-soft">📒</div>
                 <div>
-                  <div class="stat-label">Sessões</div>
+                  <div class="stat-title">Revisões hoje</div>
+                  <div class="stat-value" id="revisoesHojeCard">0 pendentes</div>
+                  <div class="stat-sub" id="revisoesHojeSub">0 concluídas</div>
+                </div>
+              </div>
+
+              <div class="stat-card card">
+                <div class="stat-icon blue-soft">🎯</div>
+                <div>
+                  <div class="stat-title">Sessões</div>
                   <div class="stat-value" id="qtdSessoes">0 concluídas</div>
                   <div class="stat-sub">Total acumulado</div>
                 </div>
               </div>
             </div>
 
-            <div class="grid-3">
-              <div class="panel">
-                <div class="panel-head">
-                  <h3>Timer de Estudo</h3>
-                  <span class="panel-link">Foco</span>
-                </div>
-
-                <div class="row">
-                  <input id="timerMinutos" type="number" min="1" value="25" placeholder="Minutos" />
-                </div>
-
-                <div class="timer-box">
-                  <div class="timer-display" id="timerDisplay">25:00</div>
-                  <p class="muted" id="timerStatus">Pronto para estudar</p>
-                </div>
-
-                <div class="row">
-                  <button id="iniciarTimerBtn">Iniciar</button>
-                  <button class="secondary" id="finalizarTimerBtn">Finalizar</button>
-                </div>
-              </div>
-
-              <div class="panel">
-                <div class="panel-head">
-                  <h3>Próximas Matérias</h3>
-                  <span class="panel-link" onclick="abrirTab('materias')">Ver todas</span>
-                </div>
-                <div id="listaMateriasInicio"></div>
-              </div>
-
-              <div class="panel">
-                <div class="panel-head">
-                  <h3>Plano Inteligente</h3>
-                  <span class="panel-link" onclick="abrirTab('plano')">Abrir</span>
-                </div>
-                <p class="muted">Gere um plano personalizado e salve para revisar depois.</p>
-                <textarea id="atalhoConteudo" rows="5" placeholder="Ex: Preciso estudar funções para a prova..."></textarea>
-                <button id="atalhoPlanoBtn">Gerar Plano</button>
-              </div>
-            </div>
-
-            <div class="panel progress-panel">
-              <div class="panel-head">
-                <h3>Seu Progresso</h3>
-                <span class="panel-link" onclick="abrirTab('progresso')">Ver completo</span>
-              </div>
-              <canvas id="graficoTempo"></canvas>
-            </div>
-          </div>
-
-          <div id="tab-plano" class="tab-content">
             <div class="grid-2">
-              <div class="panel">
-                <div class="panel-head">
-                  <h3>Plano de Estudo Inteligente</h3>
-                  <span class="panel-link">Prático</span>
+              <div class="card">
+                <div class="card-head">
+                  <h3>O que estudar hoje?</h3>
+                  <span class="link-action" onclick="abrirPagina('cronograma')">Ver cronograma completo →</span>
                 </div>
+                <div id="cronogramaHojeLista"></div>
+                <button class="big-action" id="btnIniciarEstudoAgora2">▶ Iniciar Estudo Agora</button>
+              </div>
 
+              <div class="card">
+                <div class="card-head">
+                  <h3>Últimas Anotações</h3>
+                  <span class="link-action" onclick="abrirPagina('caderno')">Ver todas →</span>
+                </div>
+                <div id="ultimasNotas"></div>
+              </div>
+            </div>
+
+            <div class="grid-bottom">
+              <div class="card">
+                <div class="card-head">
+                  <h3>Progresso Semanal</h3>
+                  <span class="link-action" onclick="abrirPagina('progresso')">Ver progresso completo →</span>
+                </div>
+                <canvas id="graficoTempoHoje"></canvas>
+              </div>
+
+              <div class="card">
+                <div class="card-head">
+                  <h3>Matérias em Foco</h3>
+                  <span class="link-action" onclick="abrirPagina('materias')">Gerenciar matérias →</span>
+                </div>
+                <div id="materiasEmFoco"></div>
+              </div>
+            </div>
+          </section>
+
+          <section id="page-plano" class="tab-page">
+            <div class="card">
+              <div class="card-head">
+                <h3>Plano de Estudo Inteligente</h3>
+                <span class="link-action">Prático e personalizado</span>
+              </div>
+
+              <div class="row">
                 <input id="iaMateria" placeholder="Matéria" />
                 <input id="iaData" type="date" />
-
-                <label class="file-label" for="importarPlanoArquivo">
-                  Importar conteúdo do plano de aula
-                </label>
-                <input id="importarPlanoArquivo" type="file" accept=".txt,.md,.json,.csv" class="hidden" />
-
-                <textarea id="iaConteudo" rows="10" placeholder="Cole ou importe o conteúdo da aula, resumo, edital ou tema da prova"></textarea>
-
-                <div class="row">
-                  <button id="gerarPlanoBtn">Gerar plano</button>
-                  <button class="secondary" id="salvarPlanoBtn">Salvar plano</button>
-                </div>
-
-                <p id="iaMsg" class="muted"></p>
               </div>
 
-              <div class="panel">
-                <div class="panel-head">
-                  <h3>Resultado</h3>
-                  <span class="panel-link">Atual</span>
-                </div>
-                <textarea id="resultadoPlano" rows="18" placeholder="Seu plano aparecerá aqui."></textarea>
+              <label class="file-label" for="importarPlanoArquivo">
+                Importar conteúdo do plano de aula, PDF, CSV ou Word
+              </label>
+              <input id="importarPlanoArquivo" type="file" accept=".pdf,.csv,.txt,.docx" class="hidden" />
+
+              <textarea id="iaConteudo" rows="10" placeholder="Cole ou importe o conteúdo da aula, resumo, edital ou tema da prova"></textarea>
+
+              <div class="row">
+                <button id="gerarPlanoBtn">Gerar plano</button>
+                <button class="secondary" id="salvarPlanoBtn">Salvar plano</button>
               </div>
+
+              <p id="iaMsg" class="muted"></p>
+              <textarea id="resultadoPlano" rows="18" placeholder="Seu plano aparecerá aqui."></textarea>
             </div>
 
-            <div class="panel">
-              <div class="panel-head">
+            <div class="card" style="margin-top:18px;">
+              <div class="card-head">
                 <h3>Planos Salvos</h3>
-                <span class="panel-link" id="limparPlanosBtn">Limpar tudo</span>
+                <span class="link-action" id="limparPlanosBtn">Limpar tudo</span>
               </div>
               <div id="listaPlanosSalvos"></div>
             </div>
-          </div>
+          </section>
 
-          <div id="tab-materias" class="tab-content">
+          <section id="page-materias" class="tab-page">
             <div class="grid-2">
-              <div class="panel">
-                <div class="panel-head">
+              <div class="card">
+                <div class="card-head">
                   <h3>Cadastrar Matéria</h3>
-                  <span class="panel-link">Organização</span>
+                  <span class="link-action">Organização acadêmica</span>
                 </div>
+
                 <input id="materiaNome" placeholder="Nome da matéria" />
                 <input id="materiaData" type="date" />
                 <button id="addMateriaBtn">Salvar matéria</button>
               </div>
 
-              <div class="panel">
-                <div class="panel-head">
+              <div class="card">
+                <div class="card-head">
                   <h3>Matérias Cadastradas</h3>
-                  <span class="panel-link">Lista</span>
+                  <span class="link-action">Lista</span>
                 </div>
                 <div id="listaMateriasCompleta"></div>
               </div>
             </div>
-          </div>
+          </section>
 
-          <div id="tab-caderno" class="tab-content">
+          <section id="page-cronograma" class="tab-page">
+            <div class="card">
+              <div class="card-head">
+                <h3>Cronograma do Dia</h3>
+                <span class="link-action">Organize seus blocos de estudo</span>
+              </div>
+
+              <div class="row">
+                <input id="cronHorario" type="time" />
+                <input id="cronMateria" placeholder="Matéria" />
+                <input id="cronDescricao" placeholder="Descrição" />
+              </div>
+
+              <div class="row">
+                <select id="cronTipo">
+                  <option value="Estudar">Estudar</option>
+                  <option value="Revisão">Revisão</option>
+                  <option value="Praticar">Praticar</option>
+                </select>
+                <input id="cronDuracao" placeholder="Duração ex: 1h 30min" />
+              </div>
+
+              <button id="addCronogramaBtn">Adicionar ao cronograma</button>
+
+              <div style="margin-top:18px;" id="cronogramaCompletoLista"></div>
+            </div>
+          </section>
+
+          <section id="page-revisoes" class="tab-page">
             <div class="grid-2">
-              <div class="panel">
-                <div class="panel-head">
+              <div class="card">
+                <div class="card-head">
+                  <h3>Criar Revisão</h3>
+                  <span class="link-action">24h, 3 dias, 7 dias</span>
+                </div>
+
+                <select id="revMateria"></select>
+                <input id="revDescricao" placeholder="Descrição da revisão" />
+                <input id="revData" type="date" />
+                <button id="addRevisaoBtn">Salvar revisão</button>
+              </div>
+
+              <div class="card">
+                <div class="card-head">
+                  <h3>Revisões Pendentes</h3>
+                  <span class="link-action">Hoje e próximas</span>
+                </div>
+                <div id="listaRevisoes"></div>
+              </div>
+            </div>
+          </section>
+
+          <section id="page-caderno" class="tab-page">
+            <div class="grid-2">
+              <div class="card">
+                <div class="card-head">
                   <h3>Caderno Diário</h3>
-                  <span class="panel-link">Anotações de aula</span>
+                  <span class="link-action">Anotações por matéria</span>
                 </div>
 
                 <select id="notaMateria"></select>
                 <input id="notaTitulo" placeholder="Título da anotação" />
-                <textarea id="notaConteudo" rows="12" placeholder="Anote a aula, os pontos importantes, exemplos, dúvidas e resumos"></textarea>
+                <textarea id="notaConteudo" rows="12" placeholder="Anote a aula, os pontos importantes, dúvidas e resumos"></textarea>
 
                 <div class="row">
                   <button id="salvarNotaBtn">Salvar anotação</button>
@@ -716,42 +1036,55 @@
                 </div>
               </div>
 
-              <div class="panel">
-                <div class="panel-head">
+              <div class="card">
+                <div class="card-head">
                   <h3>Anotações Salvas</h3>
-                  <span class="panel-link" id="limparNotasBtn">Limpar tudo</span>
+                  <span class="link-action" id="limparNotasBtn">Limpar tudo</span>
                 </div>
                 <div id="listaNotas"></div>
               </div>
             </div>
-          </div>
+          </section>
 
-          <div id="tab-progresso" class="tab-content">
+          <section id="page-simulados" class="tab-page">
+            <div class="card">
+              <div class="card-head">
+                <h3>Simulados</h3>
+                <span class="link-action">Próxima etapa da plataforma</span>
+              </div>
+              <div class="empty">
+                Esta área já está pronta para receber a próxima fase: geração de perguntas, quiz e simulados por matéria.
+              </div>
+            </div>
+          </section>
+
+          <section id="page-progresso" class="tab-page">
             <div class="grid-2">
-              <div class="panel">
-                <div class="panel-head">
+              <div class="card">
+                <div class="card-head">
                   <h3>Estudo por dia</h3>
-                  <span class="panel-link">Últimos 7 dias</span>
+                  <span class="link-action">Últimos 7 dias</span>
                 </div>
                 <canvas id="graficoTempoCompleto"></canvas>
               </div>
 
-              <div class="panel">
-                <div class="panel-head">
+              <div class="card">
+                <div class="card-head">
                   <h3>Estudo por matéria</h3>
-                  <span class="panel-link">Distribuição</span>
+                  <span class="link-action">Distribuição</span>
                 </div>
                 <canvas id="graficoMaterias"></canvas>
               </div>
             </div>
-          </div>
+          </section>
         </div>
-      </div>
+      </main>
     </div>
   </div>
 
   <script>
     const API = "";
+    const META_DIARIA_MIN = 210;
 
     const loginView = document.getElementById("loginView");
     const appView = document.getElementById("appView");
@@ -764,15 +1097,8 @@
     const materiaData = document.getElementById("materiaData");
     const addMateriaBtn = document.getElementById("addMateriaBtn");
 
-    const qtdMaterias = document.getElementById("qtdMaterias");
-    const qtdSessoes = document.getElementById("qtdSessoes");
-    const tempoHoje = document.getElementById("tempoHoje");
-
-    const timerMinutos = document.getElementById("timerMinutos");
-    const iniciarTimerBtn = document.getElementById("iniciarTimerBtn");
-    const finalizarTimerBtn = document.getElementById("finalizarTimerBtn");
-    const timerDisplay = document.getElementById("timerDisplay");
-    const timerStatus = document.getElementById("timerStatus");
+    const timerMinutos = document.createElement("input");
+    timerMinutos.value = 25;
 
     const iaMateria = document.getElementById("iaMateria");
     const iaData = document.getElementById("iaData");
@@ -782,8 +1108,6 @@
     const iaMsg = document.getElementById("iaMsg");
     const resultadoPlano = document.getElementById("resultadoPlano");
     const importarPlanoArquivo = document.getElementById("importarPlanoArquivo");
-    const atalhoConteudo = document.getElementById("atalhoConteudo");
-    const atalhoPlanoBtn = document.getElementById("atalhoPlanoBtn");
 
     const notaMateria = document.getElementById("notaMateria");
     const notaTitulo = document.getElementById("notaTitulo");
@@ -791,7 +1115,7 @@
     const salvarNotaBtn = document.getElementById("salvarNotaBtn");
     const limparNotaFormBtn = document.getElementById("limparNotaFormBtn");
 
-    let graficoTempo;
+    let graficoTempoHoje;
     let graficoTempoCompleto;
     let graficoMaterias;
     let timerInterval = null;
@@ -804,7 +1128,9 @@
         timer: null,
         ultimoPlano: "",
         planosSalvos: [],
-        notas: []
+        notas: [],
+        cronograma: [],
+        revisoes: []
       }));
     }
 
@@ -824,6 +1150,14 @@
       return `${min} min`;
     }
 
+    function minToHourText(min) {
+      const h = Math.floor(min / 60);
+      const m = min % 60;
+      if (h > 0 && m > 0) return `${h}h ${m}min`;
+      if (h > 0) return `${h}h`;
+      return `${m}min`;
+    }
+
     function safe(str) {
       return (str || "").replace(/[&<>"']/g, function(m) {
         return ({
@@ -836,24 +1170,24 @@
       });
     }
 
-    function abrirTab(nome) {
-      document.querySelectorAll(".tab").forEach(tab => {
-        tab.classList.toggle("active", tab.dataset.tab === nome);
+    function abrirPagina(nome) {
+      document.querySelectorAll(".menu-item").forEach(item => {
+        item.classList.toggle("active", item.dataset.page === nome);
       });
 
-      document.querySelectorAll(".tab-content").forEach(content => {
-        content.classList.toggle("active", content.id === `tab-${nome}`);
+      document.querySelectorAll(".tab-page").forEach(page => {
+        page.classList.toggle("active", page.id === `page-${nome}`);
       });
 
-      if (nome === "progresso") {
+      if (nome === "progresso" || nome === "hoje") {
         setTimeout(renderCharts, 100);
       }
     }
 
-    window.abrirTab = abrirTab;
+    window.abrirPagina = abrirPagina;
 
-    document.querySelectorAll(".tab").forEach(tab => {
-      tab.addEventListener("click", () => abrirTab(tab.dataset.tab));
+    document.querySelectorAll(".menu-item").forEach(item => {
+      item.addEventListener("click", () => abrirPagina(item.dataset.page));
     });
 
     function showLogin() {
@@ -907,10 +1241,35 @@
       showLogin();
     });
 
+    document.getElementById("btnNovaMateria").addEventListener("click", () => abrirPagina("materias"));
+    document.getElementById("btnNovaAnotacao").addEventListener("click", () => abrirPagina("caderno"));
+    document.getElementById("btnEstudoAgora").addEventListener("click", iniciarEstudoAgora);
+    document.getElementById("btnIniciarEstudoAgora2").addEventListener("click", iniciarEstudoAgora);
+
+    function iniciarEstudoAgora() {
+      const data = getData();
+      const materia = data.cronograma.find(c => c.data === hojeStr())?.materia
+        || data.materias[0]?.nome
+        || "Geral";
+
+      data.timer = {
+        minutos: 25,
+        endAt: Date.now() + 25 * 60 * 1000,
+        materia
+      };
+
+      saveData(data);
+      clearInterval(timerInterval);
+      timerInterval = setTimeout(() => {
+        concluirSessao(25, materia);
+      }, 25 * 60 * 1000);
+
+      alert(`Sessão iniciada para ${materia} por 25 minutos.`);
+    }
+
     addMateriaBtn.addEventListener("click", () => {
       const nome = materiaNome.value.trim();
       const dataProva = materiaData.value;
-
       if (!nome) return;
 
       const data = getData();
@@ -924,7 +1283,7 @@
       materiaNome.value = "";
       materiaData.value = "";
       renderApp();
-      abrirTab("materias");
+      abrirPagina("materias");
     });
 
     function removerMateria(id) {
@@ -935,42 +1294,6 @@
     }
 
     window.removerMateria = removerMateria;
-
-    function restoreTimer() {
-      clearInterval(timerInterval);
-
-      const data = getData();
-      if (!data.timer || !data.timer.endAt) {
-        timerDisplay.textContent = `${String(Number(timerMinutos.value || 25)).padStart(2, "0")}:00`;
-        timerStatus.textContent = "Pronto para estudar";
-        return;
-      }
-
-      timerInterval = setInterval(() => {
-        const current = getData();
-        if (!current.timer) {
-          clearInterval(timerInterval);
-          timerDisplay.textContent = "00:00";
-          timerStatus.textContent = "Pronto para estudar";
-          return;
-        }
-
-        const diff = current.timer.endAt - Date.now();
-
-        if (diff <= 0) {
-          clearInterval(timerInterval);
-          concluirSessao(current.timer.minutos, current.timer.materia || "Geral");
-          return;
-        }
-
-        const totalSec = Math.floor(diff / 1000);
-        const mm = String(Math.floor(totalSec / 60)).padStart(2, "0");
-        const ss = String(totalSec % 60).padStart(2, "0");
-
-        timerDisplay.textContent = `${mm}:${ss}`;
-        timerStatus.textContent = `Estudando: ${current.timer.minutos} min`;
-      }, 1000);
-    }
 
     function concluirSessao(minutos, materia) {
       const data = getData();
@@ -983,32 +1306,9 @@
 
       data.timer = null;
       saveData(data);
-
-      timerDisplay.textContent = "00:00";
-      timerStatus.textContent = "Sessão concluída";
       renderApp();
       alert("Sessão concluída com sucesso.");
     }
-
-    iniciarTimerBtn.addEventListener("click", () => {
-      const min = Number(timerMinutos.value || 25);
-      const data = getData();
-
-      data.timer = {
-        minutos: min,
-        endAt: Date.now() + min * 60 * 1000,
-        materia: data.materias[0]?.nome || "Geral"
-      };
-
-      saveData(data);
-      restoreTimer();
-    });
-
-    finalizarTimerBtn.addEventListener("click", () => {
-      const data = getData();
-      if (!data.timer) return;
-      concluirSessao(data.timer.minutos, data.timer.materia || "Geral");
-    });
 
     function ultimos7Dias() {
       const arr = [];
@@ -1036,16 +1336,14 @@
         mapaMaterias[m] = (mapaMaterias[m] || 0) + Number(s.minutos || 0);
       });
 
-      if (graficoTempo) graficoTempo.destroy();
+      if (graficoTempoHoje) graficoTempoHoje.destroy();
       if (graficoTempoCompleto) graficoTempoCompleto.destroy();
       if (graficoMaterias) graficoMaterias.destroy();
 
       const baseConfig = {
         responsive: true,
         plugins: {
-          legend: {
-            labels: { color: "#6f7890" }
-          }
+          legend: { labels: { color: "#6f7890" } }
         },
         scales: {
           x: { ticks: { color: "#6f7890" }, grid: { color: "#eef1f7" } },
@@ -1053,15 +1351,16 @@
         }
       };
 
-      graficoTempo = new Chart(document.getElementById("graficoTempo"), {
-        type: "bar",
+      graficoTempoHoje = new Chart(document.getElementById("graficoTempoHoje"), {
+        type: "line",
         data: {
-          labels: dias,
+          labels: dias.map(d => d.slice(5)),
           datasets: [{
-            label: "Minutos estudados",
+            label: "Minutos",
             data: minutosPorDia,
-            backgroundColor: "#7b80ff",
-            borderRadius: 8
+            borderColor: "#5863f8",
+            backgroundColor: "#5863f8",
+            tension: 0.35
           }]
         },
         options: baseConfig
@@ -1104,7 +1403,7 @@
       iaMsg.className = "muted";
 
       try {
-        const resp = await fetch(`${API}/api/ia/plano`, {
+        const resp = await fetch(`${API}/api/inteligente/plano`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
@@ -1185,7 +1484,7 @@
       iaMateria.value = plano.materia || "";
       iaData.value = plano.dataProva || "";
       resultadoPlano.value = plano.plano || "";
-      abrirTab("plano");
+      abrirPagina("plano");
     }
 
     window.excluirPlano = excluirPlano;
@@ -1204,7 +1503,7 @@
         <div class="saved-plan-item">
           <h4>${safe(p.materia)} ${p.dataProva ? `- ${safe(p.dataProva)}` : ""}</h4>
           <p>${safe((p.plano || "").slice(0, 250))}${(p.plano || "").length > 250 ? "..." : ""}</p>
-          <div class="subject-actions" style="margin-top:10px;">
+          <div class="subject-actions">
             <button class="secondary mini-btn" onclick="carregarPlano(${p.id})">Abrir</button>
             <button class="secondary mini-btn" onclick="excluirPlano(${p.id})">Excluir</button>
           </div>
@@ -1216,47 +1515,58 @@
       const file = event.target.files?.[0];
       if (!file) return;
 
-      const reader = new FileReader();
-      reader.onload = function(e) {
-        iaConteudo.value = e.target.result || "";
-      };
-      reader.readAsText(file, "UTF-8");
+      iaMsg.textContent = "Importando arquivo...";
+      iaMsg.className = "muted";
+
+      try {
+        const formData = new FormData();
+        formData.append("arquivo", file);
+
+        const resp = await fetch(`${API}/api/importar-arquivo`, {
+          method: "POST",
+          body: formData
+        });
+
+        const json = await resp.json();
+
+        if (!resp.ok || !json.ok) {
+          iaMsg.textContent = json.message || "Erro ao importar arquivo.";
+          iaMsg.className = "danger";
+          return;
+        }
+
+        iaConteudo.value = json.conteudo || "";
+        iaMsg.textContent = `Arquivo importado com sucesso: ${json.nomeArquivo}`;
+        iaMsg.className = "success";
+      } catch (error) {
+        iaMsg.textContent = "Erro ao enviar arquivo para leitura.";
+        iaMsg.className = "danger";
+      }
     });
 
-    atalhoPlanoBtn.addEventListener("click", () => {
-      iaConteudo.value = atalhoConteudo.value.trim();
-      abrirTab("plano");
-      iaMsg.textContent = "Conteúdo enviado para o plano inteligente.";
-      iaMsg.className = "success";
-    });
+    function atualizarSelectMaterias() {
+      const data = getData();
+
+      const options = data.materias.length
+        ? data.materias.map(m => `<option value="${safe(m.nome)}">${safe(m.nome)}</option>`).join("")
+        : `<option value="">Cadastre uma matéria primeiro</option>`;
+
+      document.getElementById("notaMateria").innerHTML = options;
+      document.getElementById("revMateria").innerHTML = options;
+    }
 
     function renderMaterias() {
       const data = getData();
-
-      qtdMaterias.textContent = `${data.materias.length} cadastradas`;
-
-      const listaInicio = document.getElementById("listaMateriasInicio");
-      const listaCompleta = document.getElementById("listaMateriasCompleta");
+      const lista = document.getElementById("listaMateriasCompleta");
 
       if (!data.materias.length) {
-        listaInicio.innerHTML = '<div class="empty">Nenhuma matéria cadastrada.</div>';
-        listaCompleta.innerHTML = '<div class="empty">Nenhuma matéria cadastrada.</div>';
+        lista.innerHTML = '<div class="empty">Nenhuma matéria cadastrada.</div>';
       } else {
-        listaInicio.innerHTML = data.materias.slice(0, 4).map((m, i) => `
-          <div class="list-item">
-            <div>
-              <span class="badge-dot ${["dot-blue","dot-green","dot-yellow","dot-red"][i % 4]}"></span>
-              <strong>${safe(m.nome)}</strong>
-            </div>
-            <div class="muted">${safe(m.data || "Sem data")}</div>
-          </div>
-        `).join("");
-
-        listaCompleta.innerHTML = data.materias.map(m => `
-          <div class="saved-plan-item">
+        lista.innerHTML = data.materias.map(m => `
+          <div class="subject-item">
             <h4>${safe(m.nome)}</h4>
             <p>Prova: ${safe(m.data || "não informada")}</p>
-            <div class="subject-actions" style="margin-top:10px;">
+            <div class="subject-actions">
               <button class="secondary mini-btn" onclick="selecionarMateriaParaNota('${safe(m.nome).replace(/'/g, "\\'")}')">Anotar aula</button>
               <button class="secondary mini-btn" onclick="removerMateria(${m.id})">Remover</button>
             </div>
@@ -1268,24 +1578,11 @@
     }
 
     function selecionarMateriaParaNota(nome) {
-      notaMateria.value = nome;
-      abrirTab("caderno");
+      document.getElementById("notaMateria").value = nome;
+      abrirPagina("caderno");
     }
 
     window.selecionarMateriaParaNota = selecionarMateriaParaNota;
-
-    function atualizarSelectMaterias() {
-      const data = getData();
-
-      if (!data.materias.length) {
-        notaMateria.innerHTML = `<option value="">Cadastre uma matéria primeiro</option>`;
-        return;
-      }
-
-      notaMateria.innerHTML = data.materias.map(m =>
-        `<option value="${safe(m.nome)}">${safe(m.nome)}</option>`
-      ).join("");
-    }
 
     salvarNotaBtn.addEventListener("click", () => {
       const materia = notaMateria.value;
@@ -1332,10 +1629,12 @@
 
     function renderNotas() {
       const container = document.getElementById("listaNotas");
+      const inicioContainer = document.getElementById("ultimasNotas");
       const data = getData();
 
       if (!data.notas.length) {
         container.innerHTML = '<div class="empty">Nenhuma anotação salva ainda.</div>';
+        inicioContainer.innerHTML = '<div class="empty">Nenhuma anotação recente.</div>';
         return;
       }
 
@@ -1343,33 +1642,247 @@
         <div class="note-item">
           <h4>${safe(n.titulo)} - ${safe(n.materia)}</h4>
           <p>${safe(n.conteudo)}</p>
-          <div class="subject-actions" style="margin-top:10px;">
+          <div class="subject-actions">
             <button class="secondary mini-btn" onclick="excluirNota(${n.id})">Excluir</button>
           </div>
         </div>
       `).join("");
+
+      inicioContainer.innerHTML = data.notas.slice(0, 3).map(n => `
+        <div class="note-item">
+          <h4>${safe(n.titulo)}</h4>
+          <p>${safe(n.materia)} • ${safe(n.criadoEm)}</p>
+        </div>
+      `).join("");
     }
 
-    function renderResumo() {
-      const data = getData();
+    document.getElementById("addCronogramaBtn").addEventListener("click", () => {
+      const horario = document.getElementById("cronHorario").value;
+      const materia = document.getElementById("cronMateria").value.trim();
+      const descricao = document.getElementById("cronDescricao").value.trim();
+      const tipo = document.getElementById("cronTipo").value;
+      const duracao = document.getElementById("cronDuracao").value.trim();
 
+      if (!horario || !materia) return;
+
+      const data = getData();
+      data.cronograma.push({
+        id: Date.now(),
+        data: hojeStr(),
+        horario,
+        materia,
+        descricao,
+        tipo,
+        duracao: duracao || "25min"
+      });
+
+      saveData(data);
+
+      document.getElementById("cronHorario").value = "";
+      document.getElementById("cronMateria").value = "";
+      document.getElementById("cronDescricao").value = "";
+      document.getElementById("cronTipo").value = "Estudar";
+      document.getElementById("cronDuracao").value = "";
+
+      renderCronograma();
+    });
+
+    function excluirCronograma(id) {
+      const data = getData();
+      data.cronograma = data.cronograma.filter(c => c.id !== id);
+      saveData(data);
+      renderCronograma();
+    }
+
+    window.excluirCronograma = excluirCronograma;
+
+    function renderCronograma() {
+      const data = getData();
+      const hoje = data.cronograma
+        .filter(c => c.data === hojeStr())
+        .sort((a, b) => a.horario.localeCompare(b.horario));
+
+      const inicio = document.getElementById("cronogramaHojeLista");
+      const completo = document.getElementById("cronogramaCompletoLista");
+
+      if (!hoje.length) {
+        const vazio = '<div class="empty">Nenhum bloco de estudo programado para hoje.</div>';
+        inicio.innerHTML = vazio;
+        completo.innerHTML = vazio;
+        return;
+      }
+
+      const html = hoje.map(item => {
+        const dotClass = item.tipo === "Revisão" ? "background:#29b36a;" : item.tipo === "Praticar" ? "background:#f3b33d;" : "background:#5863f8;";
+        const tagClass = item.tipo === "Revisão" ? "tag-review" : item.tipo === "Praticar" ? "tag-practice" : "tag-study";
+        return `
+          <div class="schedule-item">
+            <div class="schedule-time">${safe(item.horario)}</div>
+            <div class="schedule-dot" style="${dotClass}"></div>
+            <div class="schedule-main">
+              <strong>${safe(item.materia)}</strong>
+              <span>${safe(item.descricao || "Sem descrição")}</span>
+            </div>
+            <div class="schedule-tag ${tagClass}">${safe(item.tipo)}</div>
+            <div class="schedule-duration">${safe(item.duracao)}</div>
+            <button class="secondary mini-btn" onclick="excluirCronograma(${item.id})">Excluir</button>
+          </div>
+        `;
+      }).join("");
+
+      inicio.innerHTML = html;
+      completo.innerHTML = html;
+    }
+
+    document.getElementById("addRevisaoBtn").addEventListener("click", () => {
+      const materia = document.getElementById("revMateria").value;
+      const descricao = document.getElementById("revDescricao").value.trim();
+      const dataRev = document.getElementById("revData").value;
+
+      if (!materia || !dataRev) return;
+
+      const data = getData();
+      data.revisoes.push({
+        id: Date.now(),
+        materia,
+        descricao: descricao || "Revisão programada",
+        data: dataRev,
+        concluida: false
+      });
+
+      saveData(data);
+
+      document.getElementById("revDescricao").value = "";
+      document.getElementById("revData").value = "";
+      renderRevisoes();
+    });
+
+    function toggleRevisao(id) {
+      const data = getData();
+      const item = data.revisoes.find(r => r.id === id);
+      if (item) item.concluida = !item.concluida;
+      saveData(data);
+      renderRevisoes();
+    }
+
+    function excluirRevisao(id) {
+      const data = getData();
+      data.revisoes = data.revisoes.filter(r => r.id !== id);
+      saveData(data);
+      renderRevisoes();
+    }
+
+    window.toggleRevisao = toggleRevisao;
+    window.excluirRevisao = excluirRevisao;
+
+    function renderRevisoes() {
+      const data = getData();
+      const container = document.getElementById("listaRevisoes");
+
+      if (!data.revisoes.length) {
+        container.innerHTML = '<div class="empty">Nenhuma revisão cadastrada.</div>';
+      } else {
+        container.innerHTML = data.revisoes
+          .sort((a, b) => a.data.localeCompare(b.data))
+          .map(r => `
+            <div class="note-item">
+              <h4>${safe(r.materia)} - ${safe(r.data)}</h4>
+              <p>${safe(r.descricao)}</p>
+              <div class="subject-actions">
+                <button class="secondary mini-btn" onclick="toggleRevisao(${r.id})">${r.concluida ? "Desmarcar" : "Concluir"}</button>
+                <button class="secondary mini-btn" onclick="excluirRevisao(${r.id})">Excluir</button>
+              </div>
+            </div>
+          `).join("");
+      }
+
+      const hoje = data.revisoes.filter(r => r.data === hojeStr());
+      const pendentesHoje = hoje.filter(r => !r.concluida).length;
+      const concluidasHoje = hoje.filter(r => r.concluida).length;
+
+      document.getElementById("revisoesHojeCard").textContent = `${pendentesHoje} pendentes`;
+      document.getElementById("revisoesHojeSub").textContent = `${concluidasHoje} concluídas`;
+      document.getElementById("badgeRevisoes").textContent = pendentesHoje;
+      document.getElementById("notifCount").textContent = pendentesHoje;
+    }
+
+    function renderResumoHoje() {
+      const data = getData();
       const minutosHoje = data.sessoes
         .filter(s => s.date === hojeStr())
         .reduce((acc, s) => acc + Number(s.minutos || 0), 0);
 
-      tempoHoje.textContent = formatMin(minutosHoje);
-      qtdSessoes.textContent = `${data.sessoes.length} concluídas`;
+      document.getElementById("tempoHoje").textContent = minToHourText(minutosHoje);
+      document.getElementById("qtdSessoes").textContent = `${data.sessoes.length} concluídas`;
+      document.getElementById("metaMinutosHoje").textContent = minToHourText(minutosHoje);
 
-      const nome = data.user?.name || "Aluno";
-      document.getElementById("olaAluno").textContent = `Olá, ${nome}!`;
+      const percentual = Math.min(100, Math.round((minutosHoje / META_DIARIA_MIN) * 100));
+      document.getElementById("metaDiariaBarra").style.width = `${percentual}%`;
+      document.getElementById("metaPercentual").textContent = `${percentual}%`;
+
+      const nome = data.user?.name || "Acadêmico";
+      document.getElementById("heroSaudacao").textContent = `Bom dia, ${nome}! 👋`;
+      document.getElementById("profileName").textContent = nome;
+
+      const materiasComData = data.materias
+        .filter(m => m.data)
+        .sort((a, b) => a.data.localeCompare(b.data));
+
+      if (materiasComData.length) {
+        const prox = materiasComData[0];
+        const hoje = new Date(hojeStr());
+        const prova = new Date(prox.data);
+        const diff = Math.max(0, Math.ceil((prova - hoje) / (1000 * 60 * 60 * 24)));
+        document.getElementById("proximaProvaCard").textContent = `${prox.data} - ${diff} dias`;
+        document.getElementById("proximaProvaMateria").textContent = prox.nome;
+      } else {
+        document.getElementById("proximaProvaCard").textContent = "Nenhuma";
+        document.getElementById("proximaProvaMateria").textContent = "Cadastre uma matéria";
+      }
+
+      document.getElementById("metaHojeSub").textContent = `de ${minToHourText(META_DIARIA_MIN)}`;
+      document.getElementById("metaDiariaTexto").textContent = minToHourText(META_DIARIA_MIN);
+    }
+
+    function renderMateriasEmFoco() {
+      const data = getData();
+      const container = document.getElementById("materiasEmFoco");
+
+      if (!data.materias.length) {
+        container.innerHTML = '<div class="empty">Nenhuma matéria cadastrada.</div>';
+        return;
+      }
+
+      const top = data.materias.slice(0, 4);
+
+      container.innerHTML = top.map((m, i) => {
+        const progresso = [68, 45, 32, 54][i % 4];
+        return `
+          <div class="subject-item">
+            <h4>${safe(m.nome)}</h4>
+            <p>${m.data ? `Prova em ${safe(m.data)}` : "Sem data de prova"}</p>
+            <div class="subject-progress">
+              <div class="progress-bar"><div style="width:${progresso}%;"></div></div>
+              <strong>${progresso}%</strong>
+            </div>
+          </div>
+        `;
+      }).join("");
+    }
+
+    function renderPlanosSalvosHoje() {
+      renderPlanosSalvos();
     }
 
     function renderApp() {
-      renderResumo();
+      atualizarSelectMaterias();
+      renderResumoHoje();
       renderMaterias();
-      renderPlanosSalvos();
       renderNotas();
-      restoreTimer();
+      renderCronograma();
+      renderRevisoes();
+      renderMateriasEmFoco();
+      renderPlanosSalvosHoje();
       renderCharts();
     }
 
