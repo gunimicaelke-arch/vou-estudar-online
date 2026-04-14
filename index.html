@@ -537,8 +537,23 @@
         <label class="field-label">E-mail</label>
         <input type="email" id="loginEmail" placeholder="seu@email.com" />
         <label class="field-label">Senha</label>
-        <input type="password" id="loginPassword" placeholder="••••••••" />
+        <input type="password" id="loginPassword" placeholder="••••••••" onkeydown="if(event.key==='Enter')handleLogin()" />
         <button onclick="handleLogin()" id="loginBtn">Entrar</button>
+        <div style="text-align:center;margin-top:12px">
+          <span onclick="switchAuthTab('forgot')" style="font-size:13px;color:#0891b2;cursor:pointer;font-weight:500;text-decoration:underline">Esqueci minha senha</span>
+        </div>
+      </div>
+
+      <!-- Forgot Password -->
+      <div id="forgotForm" class="hidden">
+        <h2>Redefinir senha 🔑</h2>
+        <p class="muted">Enviaremos um link de redefinição para seu e-mail</p>
+        <label class="field-label">E-mail cadastrado</label>
+        <input type="email" id="forgotEmail" placeholder="seu@email.com" />
+        <button onclick="handleForgotPassword()" id="forgotBtn">Enviar link de redefinição</button>
+        <div style="text-align:center;margin-top:12px">
+          <span onclick="switchAuthTab('login')" style="font-size:13px;color:#0891b2;cursor:pointer;font-weight:500">← Voltar ao login</span>
+        </div>
       </div>
 
       <!-- Register -->
@@ -564,27 +579,48 @@
 <div id="paywallScreen" class="auth-screen hidden" style="background:linear-gradient(160deg,#0c1a2e 0%,#0a1f3d 100%)">
   <div style="width:100%;max-width:480px;text-align:center;padding:20px">
     <div style="width:60px;height:60px;border-radius:16px;background:linear-gradient(135deg,#0891b2,#22d3ee);display:grid;place-items:center;font-size:28px;margin:0 auto 24px;box-shadow:0 0 24px rgba(34,211,238,0.4)">✦</div>
-    <h1 style="font-size:28px;font-weight:700;color:#fff;letter-spacing:-0.5px;margin-bottom:8px">Seu período de teste encerrou</h1>
-    <p style="font-size:15px;color:rgba(255,255,255,0.45);margin-bottom:32px;line-height:1.6">Assine agora por <strong style="color:#22d3ee">R$ 15,00/mês</strong> e continue estudando com inteligência artificial.</p>
+    <h1 style="font-size:26px;font-weight:700;color:#fff;letter-spacing:-0.5px;margin-bottom:6px">Seu período de teste encerrou</h1>
+    <p style="font-size:14px;color:rgba(255,255,255,0.4);margin-bottom:18px;line-height:1.6">Assine por <strong style="color:#22d3ee">R$ 15,00/mês</strong> e continue estudando com IA.</p>
 
-    <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(34,211,238,0.15);border-radius:16px;padding:24px;margin-bottom:24px;text-align:left">
-      <div style="font-size:12px;font-weight:700;color:rgba(255,255,255,0.3);text-transform:uppercase;letter-spacing:1px;margin-bottom:16px">O que você terá acesso</div>
-      <div style="display:flex;flex-direction:column;gap:10px">
-        <div style="display:flex;align-items:center;gap:10px;font-size:14px;color:rgba(255,255,255,0.8)"><span style="color:#22d3ee;font-size:16px">✓</span> Matérias, Notas e Planos ilimitados</div>
-        <div style="display:flex;align-items:center;gap:10px;font-size:14px;color:rgba(255,255,255,0.8)"><span style="color:#22d3ee;font-size:16px">✓</span> Plano Inteligente com IA</div>
-        <div style="display:flex;align-items:center;gap:10px;font-size:14px;color:rgba(255,255,255,0.8)"><span style="color:#22d3ee;font-size:16px">✓</span> Flashcards e Simulados automáticos</div>
-        <div style="display:flex;align-items:center;gap:10px;font-size:14px;color:rgba(255,255,255,0.8)"><span style="color:#22d3ee;font-size:16px">✓</span> Modo Véspera de Prova</div>
-        <div style="display:flex;align-items:center;gap:10px;font-size:14px;color:rgba(255,255,255,0.8)"><span style="color:#22d3ee;font-size:16px">✓</span> Cronômetro e histórico de estudo</div>
+    <!-- Countdown -->
+    <div style="background:rgba(220,38,38,0.1);border:1px solid rgba(248,113,113,0.2);border-radius:14px;padding:14px 18px;margin-bottom:18px">
+      <div style="font-size:10px;font-weight:700;color:rgba(255,255,255,0.3);text-transform:uppercase;letter-spacing:1px;margin-bottom:10px">⚠️ Oferta especial expira em</div>
+      <div style="display:flex;justify-content:center;gap:10px;align-items:flex-start">
+        <div style="text-align:center">
+          <div style="font-size:34px;font-weight:700;color:#f87171;letter-spacing:2px;line-height:1;font-variant-numeric:tabular-nums" id="cdHoras">23</div>
+          <div style="font-size:10px;color:rgba(255,255,255,0.25);text-transform:uppercase;margin-top:4px">horas</div>
+        </div>
+        <div style="font-size:28px;font-weight:700;color:rgba(248,113,113,0.35);margin-top:2px">:</div>
+        <div style="text-align:center">
+          <div style="font-size:34px;font-weight:700;color:#f87171;letter-spacing:2px;line-height:1;font-variant-numeric:tabular-nums" id="cdMinutos">59</div>
+          <div style="font-size:10px;color:rgba(255,255,255,0.25);text-transform:uppercase;margin-top:4px">min</div>
+        </div>
+        <div style="font-size:28px;font-weight:700;color:rgba(248,113,113,0.35);margin-top:2px">:</div>
+        <div style="text-align:center">
+          <div style="font-size:34px;font-weight:700;color:#f87171;letter-spacing:2px;line-height:1;font-variant-numeric:tabular-nums" id="cdSegundos">59</div>
+          <div style="font-size:10px;color:rgba(255,255,255,0.25);text-transform:uppercase;margin-top:4px">seg</div>
+        </div>
+      </div>
+      <div style="font-size:11px;color:rgba(255,255,255,0.2);margin-top:10px">Ao zerar você será desconectado automaticamente</div>
+    </div>
+
+    <!-- Benefits -->
+    <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(34,211,238,0.12);border-radius:14px;padding:18px;margin-bottom:18px;text-align:left">
+      <div style="font-size:11px;font-weight:700;color:rgba(255,255,255,0.25);text-transform:uppercase;letter-spacing:1px;margin-bottom:12px">O que você terá acesso</div>
+      <div style="display:flex;flex-direction:column;gap:9px">
+        <div style="display:flex;align-items:center;gap:10px;font-size:13px;color:rgba(255,255,255,0.75)"><span style="color:#22d3ee">✓</span> Matérias, Notas e Planos ilimitados</div>
+        <div style="display:flex;align-items:center;gap:10px;font-size:13px;color:rgba(255,255,255,0.75)"><span style="color:#22d3ee">✓</span> Plano Inteligente com IA</div>
+        <div style="display:flex;align-items:center;gap:10px;font-size:13px;color:rgba(255,255,255,0.75)"><span style="color:#22d3ee">✓</span> Flashcards e Simulados automáticos</div>
+        <div style="display:flex;align-items:center;gap:10px;font-size:13px;color:rgba(255,255,255,0.75)"><span style="color:#22d3ee">✓</span> Modo Véspera de Prova</div>
+        <div style="display:flex;align-items:center;gap:10px;font-size:13px;color:rgba(255,255,255,0.75)"><span style="color:#22d3ee">✓</span> Cronômetro e histórico de estudo</div>
       </div>
     </div>
 
     <a href="https://www.mercadopago.com.br/subscriptions/checkout?preapproval_plan_id=c44dc3e2e0544c35a6f91f3323e69159" target="_blank"
-      style="display:block;width:100%;padding:16px;border-radius:12px;background:linear-gradient(135deg,#0891b2,#22d3ee);color:#fff;font-size:16px;font-weight:700;text-decoration:none;letter-spacing:0.2px;box-shadow:0 4px 20px rgba(34,211,238,0.35);margin-bottom:12px">
+      style="display:block;width:100%;padding:15px;border-radius:12px;background:linear-gradient(135deg,#0891b2,#22d3ee);color:#fff;font-size:15px;font-weight:700;text-decoration:none;box-shadow:0 4px 20px rgba(34,211,238,0.35);margin-bottom:10px">
       Assinar por R$ 15,00/mês →
     </a>
-    <button onclick="handleLogout()" style="background:transparent;color:rgba(255,255,255,0.3);font-size:13px;border:none;cursor:pointer;padding:8px;width:auto">Sair da conta</button>
-
-    <div id="paywallTimer" style="margin-top:20px;font-size:12px;color:rgba(255,255,255,0.2)"></div>
+    <button onclick="handleLogout()" style="background:transparent;color:rgba(255,255,255,0.25);font-size:12px;border:none;cursor:pointer;padding:8px;width:auto">Sair da conta</button>
   </div>
 </div>
 
@@ -1246,6 +1282,43 @@ function mostrarPaywall() {
   document.getElementById('authScreen').classList.add('hidden');
   document.getElementById('appScreen').classList.add('hidden');
   document.getElementById('paywallScreen').classList.remove('hidden');
+  iniciarCountdownPaywall();
+}
+
+function iniciarCountdownPaywall() {
+  if (window.countdownInterval) clearInterval(window.countdownInterval);
+  const key = 'paywall_deadline_' + (currentUser ? currentUser.id : 'guest');
+  let deadline = localStorage.getItem(key);
+  if (!deadline) {
+    deadline = new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString();
+    localStorage.setItem(key, deadline);
+  }
+  function tick() {
+    const diff = Math.max(0, Math.floor((new Date(deadline).getTime() - Date.now()) / 1000));
+    const h = Math.floor(diff / 3600);
+    const m = Math.floor((diff % 3600) / 60);
+    const s = diff % 60;
+    const elH = document.getElementById('cdHoras');
+    if (!elH) return;
+    elH.textContent = String(h).padStart(2,'0');
+    document.getElementById('cdMinutos').textContent = String(m).padStart(2,'0');
+    document.getElementById('cdSegundos').textContent = String(s).padStart(2,'0');
+    if (diff <= 0) {
+      clearInterval(window.countdownInterval);
+      localStorage.removeItem(key);
+      toast('⏰ Tempo esgotado! Assine para continuar.');
+      setTimeout(async () => {
+        await db.auth.signOut();
+        currentUser = null;
+        mostrarAuth();
+        setTimeout(() => {
+          window.open('https://www.mercadopago.com.br/subscriptions/checkout?preapproval_plan_id=c44dc3e2e0544c35a6f91f3323e69159', '_blank');
+        }, 1500);
+      }, 2000);
+    }
+  }
+  tick();
+  window.countdownInterval = setInterval(tick, 1000);
 }
 
 async function carregarApp() {
@@ -1300,6 +1373,8 @@ function switchAuthTab(tab) {
   });
   document.getElementById('loginForm').classList.toggle('hidden', tab !== 'login');
   document.getElementById('registerForm').classList.toggle('hidden', tab !== 'register');
+  const ff = document.getElementById('forgotForm');
+  if (ff) ff.classList.toggle('hidden', tab !== 'forgot');
   clearAuthMsg();
 }
 
@@ -1355,6 +1430,29 @@ async function handleRegister() {
     showAuthMsg(traduzirErro(error.message), 'error');
   } else {
     showAuthMsg('✅ Conta criada! Verifique seu e-mail para confirmar.', 'success');
+  }
+}
+
+async function handleForgotPassword() {
+  const email = document.getElementById('forgotEmail').value.trim();
+  if (!email) return showAuthMsg('Digite seu e-mail.', 'error');
+
+  const btn = document.getElementById('forgotBtn');
+  btn.innerHTML = '<span class="spinner"></span> Enviando...';
+  btn.disabled = true;
+
+  const { error } = await db.auth.resetPasswordForEmail(email, {
+    redirectTo: window.location.href
+  });
+
+  btn.innerHTML = 'Enviar link de redefinição';
+  btn.disabled = false;
+
+  if (error) {
+    showAuthMsg('Erro: ' + (error.message || 'Tente novamente.'), 'error');
+  } else {
+    showAuthMsg('✅ Link enviado! Verifique sua caixa de entrada e spam.', 'success');
+    document.getElementById('forgotEmail').value = '';
   }
 }
 
