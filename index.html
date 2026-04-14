@@ -6,7 +6,7 @@
   <title>Vou Estudar+ Online</title>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.49.4/dist/umd/supabase.min.js"></script>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -778,32 +778,32 @@ let chartInstance = null;
 // INICIALIZAÇÃO
 // ═══════════════════════════════════════
 async function init() {
-  // Tenta sessão existente
-  const { data: { session } } = await db.auth.getSession();
-  if (session) {
-    currentUser = session.user;
-    await carregarApp();
-    return;
-  }
-  // Login automático silencioso (sem mostrar tela de login)
-  const { data: loginData } = await db.auth.signInWithPassword({
-    email: 'admin@vouestudar.com',
-    password: 'vouestudar2024'
-  });
-  if (loginData?.user) {
-    currentUser = loginData.user;
-    await carregarApp();
-    return;
-  }
-  // Se conta não existe ainda, cria e loga
-  const { data: regData } = await db.auth.signUp({
-    email: 'admin@vouestudar.com',
-    password: 'vouestudar2024',
-    options: { data: { nome: 'Estudante' } }
-  });
-  if (regData?.user) {
-    currentUser = regData.user;
-    await carregarApp();
+  try {
+    // Tenta sessão existente
+    const { data: { session } } = await db.auth.getSession();
+    if (session) {
+      currentUser = session.user;
+      await carregarApp();
+      return;
+    }
+
+    // Escuta mudanças de autenticação (login via handleLogin, etc.)
+    db.auth.onAuthStateChange(async (_event, session) => {
+      if (session && !currentUser) {
+        currentUser = session.user;
+        await carregarApp();
+      } else if (!session && currentUser) {
+        currentUser = null;
+        mostrarAuth();
+      }
+    });
+
+    // Nenhuma sessão — mostra tela de login
+    mostrarAuth();
+
+  } catch (err) {
+    console.error('Erro ao inicializar:', err);
+    mostrarAuth();
   }
 }
 
@@ -904,7 +904,9 @@ async function handleRegister() {
 
 async function handleLogout() {
   await db.auth.signOut();
+  currentUser = null;
   toast('Até logo! 👋');
+  mostrarAuth();
 }
 
 function traduzirErro(msg) {
