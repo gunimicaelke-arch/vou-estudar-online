@@ -1,0 +1,1420 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Vou Estudar+ Online</title>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #f4f6fd;
+      --sidebar: #eef0fb;
+      --card: #ffffff;
+      --line: #e4e8f5;
+      --text: #1a2035;
+      --muted: #6b7799;
+      --primary: #4f5ef7;
+      --primary-2: #7c87ff;
+      --green: #22c069;
+      --orange: #f5a623;
+      --red: #f05c5c;
+      --blue-soft: #eaedff;
+      --green-soft: #e6f9ef;
+      --orange-soft: #fff5e0;
+      --red-soft: #fff0f0;
+      --shadow: 0 8px 32px rgba(18,24,50,0.08);
+      --radius: 20px;
+    }
+
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+    }
+
+    .hidden { display: none !important; }
+
+    /* ───── AUTH ───── */
+    .auth-screen {
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      padding: 24px;
+      background: linear-gradient(135deg, #eef0fb 0%, #f4f6fd 60%, #e8eaff 100%);
+    }
+
+    .login-shell {
+      width: 100%;
+      max-width: 1100px;
+      display: grid;
+      grid-template-columns: 1.1fr 0.9fr;
+      gap: 28px;
+      align-items: center;
+    }
+
+    .intro-box {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 52px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    .brand { font-size: 48px; font-weight: 800; color: var(--primary); margin-bottom: 6px; }
+    .sub { color: var(--muted); font-size: 20px; margin-bottom: 36px; }
+
+    .feature {
+      display: flex;
+      gap: 16px;
+      align-items: flex-start;
+      margin-bottom: 22px;
+    }
+
+    .feature-icon {
+      width: 50px; height: 50px;
+      border-radius: 14px;
+      background: var(--blue-soft);
+      color: var(--primary);
+      display: grid;
+      place-items: center;
+      font-size: 22px;
+      flex-shrink: 0;
+    }
+
+    .feature h3 { font-size: 17px; font-weight: 700; margin-bottom: 3px; }
+    .feature p { color: var(--muted); font-size: 14px; }
+
+    .auth-box {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 36px;
+      max-width: 460px;
+      width: 100%;
+      justify-self: center;
+    }
+
+    .auth-tabs { display: flex; gap: 8px; margin-bottom: 24px; }
+    .auth-tab {
+      flex: 1; padding: 12px; border-radius: 12px;
+      text-align: center; cursor: pointer; font-weight: 700;
+      font-size: 14px;
+      border: 1px solid var(--line);
+      background: #f7f8fd;
+      color: var(--muted);
+      transition: all .2s;
+    }
+    .auth-tab.active {
+      background: linear-gradient(90deg, var(--primary), var(--primary-2));
+      color: #fff; border-color: transparent;
+    }
+
+    .auth-box h2 { font-size: 28px; text-align: center; margin-bottom: 6px; }
+    .auth-box .muted { text-align: center; color: var(--muted); font-size: 14px; margin-bottom: 22px; }
+
+    .field-label { font-size: 13px; font-weight: 600; color: var(--muted); margin-bottom: 6px; display: block; }
+
+    input, textarea, select {
+      width: 100%; border-radius: 12px;
+      border: 1.5px solid var(--line);
+      padding: 13px 15px; font-size: 14px;
+      font-family: inherit;
+      background: #fafbff; color: var(--text);
+      margin-bottom: 14px; outline: none;
+      transition: border-color .2s;
+    }
+    input:focus, textarea:focus, select:focus { border-color: var(--primary); }
+    textarea { resize: vertical; min-height: 100px; }
+    select { cursor: pointer; }
+
+    button {
+      width: 100%; border-radius: 12px; border: none;
+      padding: 14px 18px; font-size: 14px; font-weight: 700;
+      font-family: inherit; cursor: pointer;
+      background: linear-gradient(90deg, var(--primary), var(--primary-2));
+      color: white; transition: all .2s;
+    }
+    button:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(79,94,247,.3); }
+    button:active { transform: translateY(0); }
+
+    .btn-secondary {
+      background: #eef0f9; color: var(--text);
+      border: 1px solid var(--line);
+      box-shadow: none;
+    }
+    .btn-secondary:hover { box-shadow: none; background: #e5e8f4; }
+
+    .btn-danger { background: var(--red-soft); color: var(--red); border: 1px solid #ffd5d5; }
+    .btn-danger:hover { box-shadow: none; background: #ffe0e0; }
+
+    .mini-btn { width: auto; padding: 7px 12px; border-radius: 9px; font-size: 12px; }
+
+    .msg-box {
+      padding: 12px 16px; border-radius: 12px; font-size: 13px;
+      font-weight: 600; margin-bottom: 14px; display: none;
+    }
+    .msg-box.success { background: var(--green-soft); color: var(--green); display: block; }
+    .msg-box.error { background: var(--red-soft); color: var(--red); display: block; }
+
+    /* ───── APP ───── */
+    .app-screen { display: grid; grid-template-columns: 270px 1fr; min-height: 100vh; }
+
+    .sidebar {
+      background: var(--sidebar);
+      border-right: 1px solid var(--line);
+      padding: 22px 16px;
+      display: flex;
+      flex-direction: column;
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      overflow-y: auto;
+    }
+
+    .logo {
+      display: flex; align-items: center; gap: 10px;
+      font-weight: 800; font-size: 17px;
+      color: var(--primary); margin-bottom: 28px; padding: 0 6px;
+    }
+
+    .logo-box {
+      width: 40px; height: 40px; border-radius: 12px;
+      background: var(--blue-soft);
+      display: grid; place-items: center; font-size: 20px;
+    }
+
+    .version-pill {
+      margin-left: auto; padding: 4px 9px; border-radius: 999px;
+      background: var(--blue-soft); color: var(--primary);
+      font-size: 11px; font-weight: 700;
+    }
+
+    .side-title {
+      color: var(--muted); font-size: 11px; font-weight: 700;
+      letter-spacing: 1.2px; text-transform: uppercase;
+      padding: 0 8px; margin: 16px 0 8px;
+    }
+
+    .menu { display: flex; flex-direction: column; gap: 4px; }
+
+    .menu-item {
+      padding: 12px 14px; border-radius: 14px;
+      display: flex; align-items: center; gap: 10px;
+      color: var(--text); font-weight: 600; font-size: 14px;
+      cursor: pointer; transition: all .15s;
+    }
+    .menu-item:hover { background: #e2e5f7; }
+    .menu-item.active { background: var(--blue-soft); color: var(--primary); }
+    .menu-item .icon { font-size: 18px; width: 24px; text-align: center; }
+
+    .menu-badge {
+      margin-left: auto; min-width: 22px; height: 22px;
+      padding: 0 7px; border-radius: 999px;
+      background: var(--primary); color: #fff;
+      display: inline-grid; place-items: center;
+      font-size: 11px; font-weight: 700;
+    }
+
+    .sidebar-footer {
+      margin-top: auto; padding-top: 18px;
+      border-top: 1px solid var(--line);
+    }
+
+    .user-chip {
+      display: flex; align-items: center; gap: 10px;
+      padding: 12px; border-radius: 14px;
+      background: #fff; border: 1px solid var(--line);
+      margin-bottom: 10px;
+    }
+
+    .avatar {
+      width: 38px; height: 38px; border-radius: 50%;
+      background: linear-gradient(135deg, var(--primary), var(--primary-2));
+      color: #fff; display: grid; place-items: center;
+      font-weight: 800; font-size: 15px; flex-shrink: 0;
+    }
+
+    .user-info strong { display: block; font-size: 13px; font-weight: 700; }
+    .user-info span { color: var(--muted); font-size: 12px; }
+
+    /* ───── MAIN ───── */
+    .main-area { overflow-y: auto; }
+
+    .topbar {
+      padding: 18px 28px;
+      border-bottom: 1px solid var(--line);
+      background: #fff;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: sticky; top: 0; z-index: 10;
+    }
+
+    .topbar h2 { font-size: 20px; font-weight: 800; }
+    .topbar .muted { color: var(--muted); font-size: 13px; }
+
+    .content { padding: 28px; }
+
+    .tab-page { display: none; }
+    .tab-page.active { display: block; }
+
+    /* ───── DASHBOARD ───── */
+    .hero {
+      display: flex; justify-content: space-between;
+      align-items: flex-start; gap: 18px; flex-wrap: wrap;
+      margin-bottom: 24px;
+    }
+
+    .hero h1 { font-size: 30px; font-weight: 800; margin-bottom: 6px; }
+    .hero p { color: var(--muted); font-size: 15px; }
+
+    .goal-card {
+      min-width: 300px; background: #f8f9ff;
+      border: 1px solid var(--line); border-radius: 18px;
+      padding: 16px; display: flex; gap: 14px; align-items: flex-start;
+    }
+
+    .goal-icon {
+      width: 46px; height: 46px; border-radius: 13px;
+      background: #fff3d0; display: grid; place-items: center; font-size: 22px;
+    }
+
+    .progress-bar {
+      width: 100%; height: 8px; background: #e5e8f7;
+      border-radius: 999px; overflow: hidden; margin: 10px 0 6px;
+    }
+    .progress-bar > div {
+      height: 100%;
+      background: linear-gradient(90deg, var(--primary), var(--primary-2));
+      border-radius: 999px; transition: width .5s ease;
+    }
+
+    .stats-grid {
+      display: grid; grid-template-columns: repeat(4, 1fr);
+      gap: 16px; margin-bottom: 22px;
+    }
+
+    .card {
+      background: var(--card); border: 1px solid var(--line);
+      border-radius: var(--radius); box-shadow: 0 2px 12px rgba(18,24,50,.04);
+    }
+
+    .stat-card { padding: 18px; display: flex; align-items: center; gap: 14px; }
+
+    .stat-icon {
+      width: 54px; height: 54px; border-radius: 16px;
+      display: grid; place-items: center; font-size: 24px; flex-shrink: 0;
+    }
+
+    .blue-soft { background: var(--blue-soft); color: var(--primary); }
+    .green-soft { background: var(--green-soft); color: var(--green); }
+    .orange-soft { background: var(--orange-soft); color: var(--orange); }
+    .red-soft { background: var(--red-soft); color: var(--red); }
+
+    .stat-label { font-size: 12px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: .5px; margin-bottom: 4px; }
+    .stat-value { font-size: 22px; font-weight: 800; margin-bottom: 2px; }
+    .stat-sub { color: var(--muted); font-size: 12px; }
+
+    .grid-2 { display: grid; grid-template-columns: 1.6fr 1fr; gap: 18px; margin-bottom: 22px; }
+
+    .card-pad { padding: 20px; }
+
+    .card-head {
+      display: flex; justify-content: space-between; align-items: center;
+      gap: 12px; flex-wrap: wrap; margin-bottom: 16px;
+    }
+    .card-head h3 { font-size: 16px; font-weight: 800; }
+
+    .link-action { color: var(--primary); font-weight: 700; cursor: pointer; font-size: 13px; }
+
+    /* ───── ITEMS ───── */
+    .item-card {
+      border: 1px solid var(--line); background: #fafbff;
+      border-radius: 14px; padding: 14px; margin-bottom: 10px;
+    }
+    .item-card h4 { font-size: 15px; font-weight: 700; margin-bottom: 5px; }
+    .item-card p { color: var(--muted); font-size: 13px; white-space: pre-wrap; }
+
+    .item-actions { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 10px; }
+
+    .subject-progress {
+      margin-top: 10px; display: flex; align-items: center; gap: 10px;
+    }
+    .subject-progress .progress-bar { margin: 0; flex: 1; height: 6px; }
+    .subject-progress strong { font-size: 13px; min-width: 40px; text-align: right; }
+
+    .tag {
+      display: inline-block; padding: 3px 9px; border-radius: 999px;
+      font-size: 11px; font-weight: 700; margin-right: 4px;
+    }
+    .tag-blue { background: var(--blue-soft); color: var(--primary); }
+    .tag-green { background: var(--green-soft); color: var(--green); }
+    .tag-orange { background: var(--orange-soft); color: var(--orange); }
+    .tag-red { background: var(--red-soft); color: var(--red); }
+
+    .priority-card {
+      border-radius: 16px; padding: 16px; margin-bottom: 12px;
+      border: 1px solid var(--line); border-left-width: 5px;
+    }
+    .priority-high { background: #fff1f1; border-left-color: var(--red); }
+    .priority-medium { background: #fff8ed; border-left-color: var(--orange); }
+    .priority-low { background: var(--green-soft); border-left-color: var(--green); }
+
+    .priority-label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .5px; margin-bottom: 6px; }
+    .priority-high .priority-label { color: var(--red); }
+    .priority-medium .priority-label { color: var(--orange); }
+    .priority-low .priority-label { color: var(--green); }
+
+    .row { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 14px; }
+    .row > * { flex: 1; min-width: 130px; }
+
+    .file-label {
+      display: block; width: 100%; padding: 12px 14px;
+      background: #f7f8fc; border: 1.5px dashed #c8d0ea;
+      border-radius: 12px; color: var(--muted); cursor: pointer;
+      text-align: center; font-size: 13px; font-weight: 600; margin-bottom: 14px;
+      transition: border-color .2s;
+    }
+    .file-label:hover { border-color: var(--primary); color: var(--primary); }
+
+    .chart-wrap { position: relative; height: 220px; }
+
+    .empty-state {
+      text-align: center; padding: 40px 20px;
+      color: var(--muted); font-size: 14px;
+    }
+    .empty-state .empty-icon { font-size: 40px; margin-bottom: 12px; }
+
+    .section-title {
+      font-size: 22px; font-weight: 800; margin-bottom: 20px;
+    }
+
+    /* ───── TOAST ───── */
+    #toast {
+      position: fixed; bottom: 24px; right: 24px;
+      background: var(--text); color: #fff;
+      padding: 14px 20px; border-radius: 14px;
+      font-size: 14px; font-weight: 600;
+      box-shadow: 0 8px 24px rgba(0,0,0,.2);
+      z-index: 9999;
+      transform: translateY(20px); opacity: 0;
+      transition: all .3s; pointer-events: none;
+    }
+    #toast.show { transform: translateY(0); opacity: 1; }
+
+    /* ───── LOADING ───── */
+    .spinner {
+      width: 20px; height: 20px; border: 3px solid rgba(255,255,255,.3);
+      border-top-color: #fff; border-radius: 50%;
+      animation: spin .6s linear infinite; display: inline-block; vertical-align: middle;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ───── MODAL ───── */
+    .modal-overlay {
+      position: fixed; inset: 0; background: rgba(18,24,50,.4);
+      display: grid; place-items: center; z-index: 1000;
+      backdrop-filter: blur(4px);
+    }
+    .modal {
+      background: #fff; border-radius: 22px; padding: 32px;
+      width: 100%; max-width: 480px; box-shadow: 0 24px 64px rgba(18,24,50,.15);
+    }
+    .modal h3 { font-size: 20px; font-weight: 800; margin-bottom: 20px; }
+
+    /* ───── RESPONSIVE ───── */
+    @media (max-width: 900px) {
+      .login-shell { grid-template-columns: 1fr; }
+      .intro-box { display: none; }
+      .stats-grid { grid-template-columns: repeat(2, 1fr); }
+      .grid-2 { grid-template-columns: 1fr; }
+    }
+
+    @media (max-width: 700px) {
+      .app-screen { grid-template-columns: 1fr; }
+      .sidebar { display: none; }
+      .stats-grid { grid-template-columns: 1fr 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ═══ TOAST ═══ -->
+<div id="toast"></div>
+
+<!-- ═══════════════════════════════════════
+     TELA DE AUTH
+═══════════════════════════════════════ -->
+<div id="authScreen" class="auth-screen">
+  <div class="login-shell">
+
+    <!-- Intro -->
+    <div class="intro-box">
+      <div class="brand">📚 Vou Estudar+</div>
+      <div class="sub">Sua plataforma de estudos inteligente</div>
+
+      <div class="feature">
+        <div class="feature-icon">📝</div>
+        <div>
+          <h3>Notas e Resumos</h3>
+          <p>Organize todo seu material de estudo em um só lugar</p>
+        </div>
+      </div>
+      <div class="feature">
+        <div class="feature-icon">📊</div>
+        <div>
+          <h3>Acompanhe seu Progresso</h3>
+          <p>Visualize seu desempenho e evolução por matéria</p>
+        </div>
+      </div>
+      <div class="feature">
+        <div class="feature-icon">🎯</div>
+        <div>
+          <h3>Metas e Planejamento</h3>
+          <p>Defina objetivos e crie planos de estudo personalizados</p>
+        </div>
+      </div>
+      <div class="feature">
+        <div class="feature-icon">🤖</div>
+        <div>
+          <h3>IA no seu Estudo</h3>
+          <p>Gere planos e flashcards automaticamente com IA</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Auth Box -->
+    <div class="auth-box">
+      <div class="auth-tabs">
+        <div class="auth-tab active" onclick="switchAuthTab('login')">Entrar</div>
+        <div class="auth-tab" onclick="switchAuthTab('register')">Cadastrar</div>
+      </div>
+
+      <div id="authMsg" class="msg-box"></div>
+
+      <!-- Login -->
+      <div id="loginForm">
+        <h2>Bem-vindo! 👋</h2>
+        <p class="muted">Acesse sua conta para continuar</p>
+        <label class="field-label">E-mail</label>
+        <input type="email" id="loginEmail" placeholder="seu@email.com" />
+        <label class="field-label">Senha</label>
+        <input type="password" id="loginPassword" placeholder="••••••••" />
+        <button onclick="handleLogin()" id="loginBtn">Entrar</button>
+      </div>
+
+      <!-- Register -->
+      <div id="registerForm" class="hidden">
+        <h2>Criar conta 🚀</h2>
+        <p class="muted">Comece a estudar de forma inteligente</p>
+        <label class="field-label">Nome completo</label>
+        <input type="text" id="regName" placeholder="Seu nome" />
+        <label class="field-label">E-mail</label>
+        <input type="email" id="regEmail" placeholder="seu@email.com" />
+        <label class="field-label">Senha</label>
+        <input type="password" id="regPassword" placeholder="mínimo 6 caracteres" />
+        <button onclick="handleRegister()" id="registerBtn">Criar conta</button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════
+     APP
+═══════════════════════════════════════ -->
+<div id="appScreen" class="app-screen hidden">
+
+  <!-- Sidebar -->
+  <div class="sidebar">
+    <div class="logo">
+      <div class="logo-box">📚</div>
+      Vou Estudar+
+      <span class="version-pill">v2.0</span>
+    </div>
+
+    <div class="side-title">Menu</div>
+    <div class="menu">
+      <div class="menu-item active" onclick="goTab('dashboard')">
+        <span class="icon">🏠</span> Dashboard
+      </div>
+      <div class="menu-item" onclick="goTab('materias')">
+        <span class="icon">📖</span> Matérias
+        <span class="menu-badge" id="badgeMaterias">0</span>
+      </div>
+      <div class="menu-item" onclick="goTab('notas')">
+        <span class="icon">📝</span> Notas
+        <span class="menu-badge" id="badgeNotas">0</span>
+      </div>
+      <div class="menu-item" onclick="goTab('planos')">
+        <span class="icon">🗓️</span> Planos de Estudo
+      </div>
+      <div class="menu-item" onclick="goTab('prioridades')">
+        <span class="icon">🎯</span> Prioridades
+      </div>
+    </div>
+
+    <div class="sidebar-footer">
+      <div class="user-chip">
+        <div class="avatar" id="sidebarAvatar">?</div>
+        <div class="user-info">
+          <strong id="sidebarName">Carregando...</strong>
+          <span id="sidebarEmail"></span>
+        </div>
+      </div>
+      <button class="btn-secondary" onclick="handleLogout()">🚪 Sair</button>
+    </div>
+  </div>
+
+  <!-- Main -->
+  <div class="main-area">
+    <div class="topbar">
+      <div>
+        <h2 id="topbarTitle">Dashboard</h2>
+        <div class="muted" id="topbarSub">Visão geral dos seus estudos</div>
+      </div>
+      <div id="topbarAction"></div>
+    </div>
+
+    <div class="content">
+
+      <!-- ─── DASHBOARD ─── -->
+      <div class="tab-page active" id="tab-dashboard">
+        <div class="hero">
+          <div>
+            <h1>Olá, <span id="helloName">Estudante</span>! 👋</h1>
+            <p>Aqui está seu resumo de hoje.</p>
+          </div>
+          <div class="goal-card">
+            <div class="goal-icon">🏆</div>
+            <div style="flex:1">
+              <strong style="font-size:14px">Meta do mês</strong>
+              <div id="metaText" style="color:var(--muted);font-size:13px;margin-top:2px">Sem meta definida</div>
+              <div class="progress-bar"><div id="metaBar" style="width:0%"></div></div>
+              <div style="font-size:12px;color:var(--muted)" id="metaPct">0%</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="stats-grid">
+          <div class="card stat-card">
+            <div class="stat-icon blue-soft">📖</div>
+            <div>
+              <div class="stat-label">Matérias</div>
+              <div class="stat-value" id="statMaterias">0</div>
+              <div class="stat-sub">cadastradas</div>
+            </div>
+          </div>
+          <div class="card stat-card">
+            <div class="stat-icon green-soft">📝</div>
+            <div>
+              <div class="stat-label">Notas</div>
+              <div class="stat-value" id="statNotas">0</div>
+              <div class="stat-sub">criadas</div>
+            </div>
+          </div>
+          <div class="card stat-card">
+            <div class="stat-icon orange-soft">🗓️</div>
+            <div>
+              <div class="stat-label">Planos</div>
+              <div class="stat-value" id="statPlanos">0</div>
+              <div class="stat-sub">salvos</div>
+            </div>
+          </div>
+          <div class="card stat-card">
+            <div class="stat-icon red-soft">🎯</div>
+            <div>
+              <div class="stat-label">Progresso</div>
+              <div class="stat-value" id="statProgresso">0%</div>
+              <div class="stat-sub">médio</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="grid-2">
+          <div class="card card-pad">
+            <div class="card-head">
+              <h3>📊 Progresso por Matéria</h3>
+            </div>
+            <div class="chart-wrap">
+              <canvas id="chartMaterias"></canvas>
+            </div>
+          </div>
+          <div class="card card-pad">
+            <div class="card-head">
+              <h3>📝 Últimas Notas</h3>
+              <span class="link-action" onclick="goTab('notas')">Ver todas →</span>
+            </div>
+            <div id="dashNotas"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ─── MATÉRIAS ─── -->
+      <div class="tab-page" id="tab-materias">
+        <div class="section-title">📖 Matérias</div>
+
+        <div class="card card-pad" style="margin-bottom:20px">
+          <div class="card-head"><h3>Adicionar Matéria</h3></div>
+          <div class="row">
+            <input type="text" id="novaMateria" placeholder="Ex: Matemática" />
+            <input type="text" id="novaMateriaProfessor" placeholder="Professor (opcional)" />
+          </div>
+          <div class="row" style="align-items:center">
+            <div>
+              <label class="field-label">Progresso (%)</label>
+              <input type="number" id="novaMateriaProgresso" placeholder="0" min="0" max="100" />
+            </div>
+            <div>
+              <label class="field-label">Cor</label>
+              <input type="color" id="novaMateriaColor" value="#4f5ef7" style="height:46px;padding:4px 8px;cursor:pointer" />
+            </div>
+          </div>
+          <button onclick="salvarMateria()">➕ Adicionar Matéria</button>
+        </div>
+
+        <div id="listaMaterias">
+          <div class="empty-state"><div class="empty-icon">📖</div>Nenhuma matéria ainda. Adicione uma acima!</div>
+        </div>
+      </div>
+
+      <!-- ─── NOTAS ─── -->
+      <div class="tab-page" id="tab-notas">
+        <div class="section-title">📝 Notas</div>
+
+        <div class="card card-pad" style="margin-bottom:20px">
+          <div class="card-head"><h3>Nova Nota</h3></div>
+          <div class="row">
+            <input type="text" id="novaNota" placeholder="Título da nota" />
+            <select id="notaMateria">
+              <option value="">Matéria (opcional)</option>
+            </select>
+          </div>
+          <textarea id="notaConteudo" placeholder="Conteúdo da nota..."></textarea>
+          <button onclick="salvarNota()">💾 Salvar Nota</button>
+        </div>
+
+        <div id="listaNotas">
+          <div class="empty-state"><div class="empty-icon">📝</div>Nenhuma nota ainda. Crie uma acima!</div>
+        </div>
+      </div>
+
+      <!-- ─── PLANOS ─── -->
+      <div class="tab-page" id="tab-planos">
+        <div class="section-title">🗓️ Planos de Estudo</div>
+
+        <div class="card card-pad" style="margin-bottom:20px">
+          <div class="card-head"><h3>Novo Plano</h3></div>
+          <input type="text" id="planoTitulo" placeholder="Título do plano (ex: Semana de provas)" />
+          <textarea id="planoConteudo" placeholder="Descreva seu plano de estudo..."></textarea>
+          <div class="row">
+            <input type="date" id="planoDataInicio" />
+            <input type="date" id="planoDataFim" />
+          </div>
+          <button onclick="salvarPlano()">💾 Salvar Plano</button>
+        </div>
+
+        <div id="listaPlanos">
+          <div class="empty-state"><div class="empty-icon">🗓️</div>Nenhum plano salvo ainda.</div>
+        </div>
+      </div>
+
+      <!-- ─── PRIORIDADES ─── -->
+      <div class="tab-page" id="tab-prioridades">
+        <div class="section-title">🎯 Prioridades</div>
+
+        <div class="card card-pad" style="margin-bottom:20px">
+          <div class="card-head"><h3>Nova Prioridade</h3></div>
+          <div class="row">
+            <input type="text" id="prioTitulo" placeholder="O que você precisa estudar?" />
+            <select id="prioNivel">
+              <option value="high">🔴 Alta prioridade</option>
+              <option value="medium">🟡 Média prioridade</option>
+              <option value="low">🟢 Baixa prioridade</option>
+            </select>
+          </div>
+          <input type="text" id="prioMateria" placeholder="Matéria relacionada (opcional)" />
+          <textarea id="prioDesc" placeholder="Detalhes..." style="min-height:80px"></textarea>
+          <button onclick="salvarPrioridade()">➕ Adicionar</button>
+        </div>
+
+        <div id="listaPrioridades">
+          <div class="empty-state"><div class="empty-icon">🎯</div>Nenhuma prioridade definida.</div>
+        </div>
+      </div>
+
+    </div><!-- /content -->
+  </div><!-- /main-area -->
+</div><!-- /appScreen -->
+
+<script>
+// ═══════════════════════════════════════
+// CONFIGURAÇÃO SUPABASE
+// ⚠️ SUBSTITUA pelas suas credenciais do painel Supabase
+// ═══════════════════════════════════════
+const SUPABASE_URL = 'https://mcyzxwtpjoqioeqemrv.supabase.co';
+const SUPABASE_ANON_KEY = 'sb_publishable_G1DmNZdvjDl0-3N2onqD4Q_SZM1M6f1';
+
+const { createClient } = supabase;
+const db = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, { auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true } });
+
+// Estado global
+let currentUser = null;
+let materias = [];
+let notas = [];
+let planos = [];
+let prioridades = [];
+let chartInstance = null;
+
+// ═══════════════════════════════════════
+// INICIALIZAÇÃO
+// ═══════════════════════════════════════
+async function init() {
+  try {
+    const { data: { session }, error } = await db.auth.getSession();
+    if (error) throw error;
+    if (session) {
+      currentUser = session.user;
+      await carregarApp();
+    } else {
+      mostrarAuth();
+    }
+  } catch (err) {
+    console.error('Erro de conexão Supabase:', err);
+    showAuthMsg('Erro de conexão com o servidor. Verifique sua internet.', 'error');
+    mostrarAuth();
+  }
+
+  // Listener de mudança de sessão
+  db.auth.onAuthStateChange(async (event, session) => {
+    if (event === 'SIGNED_IN' && session) {
+      currentUser = session.user;
+      await carregarApp();
+    } else if (event === 'SIGNED_OUT') {
+      currentUser = null;
+      mostrarAuth();
+    }
+  });
+}
+
+function mostrarAuth() {
+  document.getElementById('authScreen').classList.remove('hidden');
+  document.getElementById('appScreen').classList.add('hidden');
+}
+
+async function carregarApp() {
+  document.getElementById('authScreen').classList.add('hidden');
+  document.getElementById('appScreen').classList.remove('hidden');
+
+  // Perfil do usuário
+  const nome = currentUser.user_metadata?.nome || currentUser.email.split('@')[0];
+  const inicial = nome.charAt(0).toUpperCase();
+
+  document.getElementById('helloName').textContent = nome;
+  document.getElementById('sidebarName').textContent = nome;
+  document.getElementById('sidebarEmail').textContent = currentUser.email;
+  document.getElementById('sidebarAvatar').textContent = inicial;
+
+  await Promise.all([
+    carregarMaterias(),
+    carregarNotas(),
+    carregarPlanos(),
+    carregarPrioridades()
+  ]);
+
+  atualizarDashboard();
+}
+
+// ═══════════════════════════════════════
+// AUTH
+// ═══════════════════════════════════════
+function switchAuthTab(tab) {
+  document.querySelectorAll('.auth-tab').forEach((t, i) => {
+    t.classList.toggle('active', (tab === 'login' && i === 0) || (tab === 'register' && i === 1));
+  });
+  document.getElementById('loginForm').classList.toggle('hidden', tab !== 'login');
+  document.getElementById('registerForm').classList.toggle('hidden', tab !== 'register');
+  clearAuthMsg();
+}
+
+function showAuthMsg(txt, type) {
+  const el = document.getElementById('authMsg');
+  el.textContent = txt;
+  el.className = `msg-box ${type}`;
+}
+
+function clearAuthMsg() {
+  const el = document.getElementById('authMsg');
+  el.className = 'msg-box';
+}
+
+async function handleLogin() {
+  const email = document.getElementById('loginEmail').value.trim();
+  const password = document.getElementById('loginPassword').value;
+  if (!email || !password) return showAuthMsg('Preencha e-mail e senha.', 'error');
+
+  const btn = document.getElementById('loginBtn');
+  btn.innerHTML = '<span class="spinner"></span>';
+  btn.disabled = true;
+
+  const { error } = await db.auth.signInWithPassword({ email, password });
+
+  btn.innerHTML = 'Entrar';
+  btn.disabled = false;
+
+  if (error) showAuthMsg(traduzirErro(error.message), 'error');
+}
+
+async function handleRegister() {
+  const nome = document.getElementById('regName').value.trim();
+  const email = document.getElementById('regEmail').value.trim();
+  const password = document.getElementById('regPassword').value;
+
+  if (!nome || !email || !password) return showAuthMsg('Preencha todos os campos.', 'error');
+  if (password.length < 6) return showAuthMsg('Senha deve ter pelo menos 6 caracteres.', 'error');
+
+  const btn = document.getElementById('registerBtn');
+  btn.innerHTML = '<span class="spinner"></span>';
+  btn.disabled = true;
+
+  const { error } = await db.auth.signUp({
+    email, password,
+    options: { data: { nome } }
+  });
+
+  btn.innerHTML = 'Criar conta';
+  btn.disabled = false;
+
+  if (error) {
+    showAuthMsg(traduzirErro(error.message), 'error');
+  } else {
+    showAuthMsg('✅ Conta criada! Verifique seu e-mail para confirmar.', 'success');
+  }
+}
+
+async function handleLogout() {
+  await db.auth.signOut();
+  toast('Até logo! 👋');
+}
+
+function traduzirErro(msg) {
+  if (!msg) return 'Erro desconhecido.';
+  if (msg.includes('Failed to fetch') || msg.includes('fetch')) return 'Falha de conexão. Verifique sua internet.';
+  if (msg.includes('Invalid login') || msg.includes('Invalid email or password')) return 'E-mail ou senha incorretos.';
+  if (msg.includes('already registered') || msg.includes('User already registered')) return 'Este e-mail já está cadastrado.';
+  if (msg.includes('Password should be') || msg.includes('password')) return 'Senha muito curta (mínimo 6 caracteres).';
+  if (msg.includes('Email not confirmed')) return 'Confirme seu e-mail antes de entrar.';
+  if (msg.includes('signup_disabled')) return 'Cadastro desativado no momento.';
+  if (msg.includes('over_email_send_rate_limit')) return 'Muitas tentativas. Aguarde alguns minutos.';
+  return msg;
+}
+
+// ═══════════════════════════════════════
+// NAVEGAÇÃO
+// ═══════════════════════════════════════
+const tabTitles = {
+  dashboard: ['Dashboard', 'Visão geral dos seus estudos'],
+  materias: ['Matérias', 'Gerencie suas matérias e progresso'],
+  notas: ['Notas', 'Suas anotações de estudo'],
+  planos: ['Planos de Estudo', 'Organize sua rotina de estudos'],
+  prioridades: ['Prioridades', 'O que estudar primeiro']
+};
+
+function goTab(tab) {
+  document.querySelectorAll('.tab-page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.menu-item').forEach(m => m.classList.remove('active'));
+  document.getElementById(`tab-${tab}`).classList.add('active');
+  document.querySelectorAll('.menu-item').forEach(m => {
+    if (m.textContent.trim().toLowerCase().includes(tab === 'dashboard' ? 'dashboard' :
+        tab === 'materias' ? 'matéria' :
+        tab === 'notas' ? 'nota' :
+        tab === 'planos' ? 'plano' : 'priori')) {
+      m.classList.add('active');
+    }
+  });
+
+  const [title, sub] = tabTitles[tab] || ['', ''];
+  document.getElementById('topbarTitle').textContent = title;
+  document.getElementById('topbarSub').textContent = sub;
+}
+
+// ═══════════════════════════════════════
+// MATÉRIAS
+// ═══════════════════════════════════════
+async function carregarMaterias() {
+  const { data, error } = await db
+    .from('materias')
+    .select('*')
+    .eq('user_id', currentUser.id)
+    .order('created_at', { ascending: false });
+
+  if (error) { console.error('Erro ao carregar matérias:', error); return; }
+  materias = data || [];
+  renderMaterias();
+  atualizarSelectMateria();
+}
+
+function renderMaterias() {
+  const el = document.getElementById('listaMaterias');
+  document.getElementById('badgeMaterias').textContent = materias.length;
+  document.getElementById('statMaterias').textContent = materias.length;
+
+  if (!materias.length) {
+    el.innerHTML = `<div class="empty-state"><div class="empty-icon">📖</div>Nenhuma matéria ainda. Adicione uma acima!</div>`;
+    return;
+  }
+
+  el.innerHTML = materias.map(m => `
+    <div class="card card-pad item-card" style="border-left: 4px solid ${m.cor || '#4f5ef7'}">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start">
+        <div>
+          <h4>${m.nome}</h4>
+          ${m.professor ? `<p>👨‍🏫 ${m.professor}</p>` : ''}
+        </div>
+        <button class="mini-btn btn-danger" onclick="deletarMateria('${m.id}')">🗑️</button>
+      </div>
+      <div class="subject-progress">
+        <div class="progress-bar"><div style="width:${m.progresso || 0}%"></div></div>
+        <strong>${m.progresso || 0}%</strong>
+      </div>
+      <div class="item-actions">
+        <input type="range" min="0" max="100" value="${m.progresso || 0}"
+          style="flex:1;accent-color:var(--primary)"
+          oninput="atualizarProgressoMateria('${m.id}', this.value)"
+          onchange="salvarProgressoMateria('${m.id}', this.value)" />
+      </div>
+    </div>
+  `).join('');
+}
+
+async function salvarMateria() {
+  const nome = document.getElementById('novaMateria').value.trim();
+  if (!nome) return toast('Digite o nome da matéria!');
+
+  const materia = {
+    user_id: currentUser.id,
+    nome,
+    professor: document.getElementById('novaMateriaProfessor').value.trim(),
+    progresso: parseInt(document.getElementById('novaMateriaProgresso').value) || 0,
+    cor: document.getElementById('novaMateriaColor').value
+  };
+
+  const { error } = await db.from('materias').insert([materia]);
+  if (error) return toast('Erro ao salvar: ' + error.message);
+
+  document.getElementById('novaMateria').value = '';
+  document.getElementById('novaMateriaProfessor').value = '';
+  document.getElementById('novaMateriaProgresso').value = '';
+  toast('✅ Matéria adicionada!');
+  await carregarMaterias();
+  atualizarDashboard();
+}
+
+function atualizarProgressoMateria(id, valor) {
+  const m = materias.find(x => x.id === id);
+  if (m) m.progresso = parseInt(valor);
+  // Atualiza o texto visualmente
+  const cards = document.querySelectorAll('#listaMaterias .item-card');
+  cards.forEach(card => {
+    const btn = card.querySelector('.btn-danger');
+    if (btn && btn.getAttribute('onclick').includes(id)) {
+      card.querySelector('.subject-progress strong').textContent = valor + '%';
+      card.querySelector('.progress-bar > div').style.width = valor + '%';
+    }
+  });
+}
+
+async function salvarProgressoMateria(id, valor) {
+  await db.from('materias').update({ progresso: parseInt(valor) }).eq('id', id);
+  await carregarMaterias();
+  atualizarDashboard();
+}
+
+async function deletarMateria(id) {
+  if (!confirm('Deletar esta matéria?')) return;
+  const { error } = await db.from('materias').delete().eq('id', id);
+  if (error) return toast('Erro ao deletar.');
+  toast('🗑️ Matéria removida.');
+  await carregarMaterias();
+  atualizarDashboard();
+}
+
+function atualizarSelectMateria() {
+  const sel = document.getElementById('notaMateria');
+  sel.innerHTML = '<option value="">Matéria (opcional)</option>' +
+    materias.map(m => `<option value="${m.id}">${m.nome}</option>`).join('');
+}
+
+// ═══════════════════════════════════════
+// NOTAS
+// ═══════════════════════════════════════
+async function carregarNotas() {
+  const { data, error } = await db
+    .from('notas')
+    .select('*')
+    .eq('user_id', currentUser.id)
+    .order('created_at', { ascending: false });
+
+  if (error) { console.error('Erro ao carregar notas:', error); return; }
+  notas = data || [];
+  renderNotas();
+}
+
+function renderNotas() {
+  const el = document.getElementById('listaNotas');
+  document.getElementById('badgeNotas').textContent = notas.length;
+  document.getElementById('statNotas').textContent = notas.length;
+
+  if (!notas.length) {
+    el.innerHTML = `<div class="empty-state"><div class="empty-icon">📝</div>Nenhuma nota ainda!</div>`;
+    return;
+  }
+
+  el.innerHTML = notas.map(n => {
+    const mat = materias.find(m => m.id === n.materia_id);
+    return `
+      <div class="card card-pad item-card">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start">
+          <div style="flex:1">
+            <h4>${n.titulo}</h4>
+            ${mat ? `<span class="tag tag-blue">${mat.nome}</span>` : ''}
+            <p style="margin-top:8px">${n.conteudo}</p>
+          </div>
+          <button class="mini-btn btn-danger" onclick="deletarNota('${n.id}')" style="margin-left:10px">🗑️</button>
+        </div>
+        <div style="font-size:12px;color:var(--muted);margin-top:8px">
+          ${new Date(n.created_at).toLocaleDateString('pt-BR')}
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+async function salvarNota() {
+  const titulo = document.getElementById('novaNota').value.trim();
+  const conteudo = document.getElementById('notaConteudo').value.trim();
+  if (!titulo || !conteudo) return toast('Preencha título e conteúdo!');
+
+  const nota = {
+    user_id: currentUser.id,
+    titulo,
+    conteudo,
+    materia_id: document.getElementById('notaMateria').value || null
+  };
+
+  const { error } = await db.from('notas').insert([nota]);
+  if (error) return toast('Erro ao salvar: ' + error.message);
+
+  document.getElementById('novaNota').value = '';
+  document.getElementById('notaConteudo').value = '';
+  document.getElementById('notaMateria').value = '';
+  toast('✅ Nota salva!');
+  await carregarNotas();
+  atualizarDashboard();
+}
+
+async function deletarNota(id) {
+  if (!confirm('Deletar esta nota?')) return;
+  await db.from('notas').delete().eq('id', id);
+  toast('🗑️ Nota removida.');
+  await carregarNotas();
+  atualizarDashboard();
+}
+
+// ═══════════════════════════════════════
+// PLANOS
+// ═══════════════════════════════════════
+async function carregarPlanos() {
+  const { data, error } = await db
+    .from('planos')
+    .select('*')
+    .eq('user_id', currentUser.id)
+    .order('created_at', { ascending: false });
+
+  if (error) { console.error('Erro ao carregar planos:', error); return; }
+  planos = data || [];
+  renderPlanos();
+}
+
+function renderPlanos() {
+  const el = document.getElementById('listaPlanos');
+  document.getElementById('statPlanos').textContent = planos.length;
+
+  if (!planos.length) {
+    el.innerHTML = `<div class="empty-state"><div class="empty-icon">🗓️</div>Nenhum plano ainda!</div>`;
+    return;
+  }
+
+  el.innerHTML = planos.map(p => `
+    <div class="card card-pad item-card">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start">
+        <div style="flex:1">
+          <h4>${p.titulo}</h4>
+          ${p.data_inicio ? `<span class="tag tag-blue">📅 ${fmtData(p.data_inicio)} → ${fmtData(p.data_fim)}</span>` : ''}
+          <p style="margin-top:8px">${p.conteudo}</p>
+        </div>
+        <button class="mini-btn btn-danger" onclick="deletarPlano('${p.id}')" style="margin-left:10px">🗑️</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+async function salvarPlano() {
+  const titulo = document.getElementById('planoTitulo').value.trim();
+  const conteudo = document.getElementById('planoConteudo').value.trim();
+  if (!titulo || !conteudo) return toast('Preencha título e conteúdo!');
+
+  const plano = {
+    user_id: currentUser.id,
+    titulo, conteudo,
+    data_inicio: document.getElementById('planoDataInicio').value || null,
+    data_fim: document.getElementById('planoDataFim').value || null
+  };
+
+  const { error } = await db.from('planos').insert([plano]);
+  if (error) return toast('Erro ao salvar: ' + error.message);
+
+  document.getElementById('planoTitulo').value = '';
+  document.getElementById('planoConteudo').value = '';
+  document.getElementById('planoDataInicio').value = '';
+  document.getElementById('planoDataFim').value = '';
+  toast('✅ Plano salvo!');
+  await carregarPlanos();
+  atualizarDashboard();
+}
+
+async function deletarPlano(id) {
+  if (!confirm('Deletar este plano?')) return;
+  await db.from('planos').delete().eq('id', id);
+  toast('🗑️ Plano removido.');
+  await carregarPlanos();
+}
+
+// ═══════════════════════════════════════
+// PRIORIDADES
+// ═══════════════════════════════════════
+async function carregarPrioridades() {
+  const { data, error } = await db
+    .from('prioridades')
+    .select('*')
+    .eq('user_id', currentUser.id)
+    .order('created_at', { ascending: false });
+
+  if (error) { console.error('Erro ao carregar prioridades:', error); return; }
+  prioridades = data || [];
+  renderPrioridades();
+}
+
+function renderPrioridades() {
+  const el = document.getElementById('listaPrioridades');
+
+  if (!prioridades.length) {
+    el.innerHTML = `<div class="empty-state"><div class="empty-icon">🎯</div>Nenhuma prioridade ainda!</div>`;
+    return;
+  }
+
+  const nivelLabel = { high: '🔴 Alta', medium: '🟡 Média', low: '🟢 Baixa' };
+
+  el.innerHTML = prioridades.map(p => `
+    <div class="priority-card priority-${p.nivel}">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start">
+        <div style="flex:1">
+          <div class="priority-label">${nivelLabel[p.nivel] || p.nivel}</div>
+          <h4 style="margin-bottom:4px">${p.titulo}</h4>
+          ${p.materia ? `<span class="tag tag-blue">${p.materia}</span>` : ''}
+          ${p.descricao ? `<p style="margin-top:8px">${p.descricao}</p>` : ''}
+        </div>
+        <button class="mini-btn btn-danger" onclick="deletarPrioridade('${p.id}')" style="margin-left:10px">🗑️</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+async function salvarPrioridade() {
+  const titulo = document.getElementById('prioTitulo').value.trim();
+  if (!titulo) return toast('Digite o título!');
+
+  const prio = {
+    user_id: currentUser.id,
+    titulo,
+    nivel: document.getElementById('prioNivel').value,
+    materia: document.getElementById('prioMateria').value.trim(),
+    descricao: document.getElementById('prioDesc').value.trim()
+  };
+
+  const { error } = await db.from('prioridades').insert([prio]);
+  if (error) return toast('Erro ao salvar: ' + error.message);
+
+  document.getElementById('prioTitulo').value = '';
+  document.getElementById('prioMateria').value = '';
+  document.getElementById('prioDesc').value = '';
+  toast('✅ Prioridade adicionada!');
+  await carregarPrioridades();
+}
+
+async function deletarPrioridade(id) {
+  if (!confirm('Deletar esta prioridade?')) return;
+  await db.from('prioridades').delete().eq('id', id);
+  toast('🗑️ Removida.');
+  await carregarPrioridades();
+}
+
+// ═══════════════════════════════════════
+// DASHBOARD
+// ═══════════════════════════════════════
+function atualizarDashboard() {
+  // Progresso médio
+  const progMedio = materias.length
+    ? Math.round(materias.reduce((s, m) => s + (m.progresso || 0), 0) / materias.length)
+    : 0;
+  document.getElementById('statProgresso').textContent = progMedio + '%';
+
+  // Meta bar (usa progresso médio como proxy)
+  document.getElementById('metaBar').style.width = progMedio + '%';
+  document.getElementById('metaPct').textContent = progMedio + '% concluído';
+  if (materias.length) {
+    document.getElementById('metaText').textContent = `${materias.length} matéria(s) no total`;
+  }
+
+  // Últimas notas no dashboard
+  const dashNotas = document.getElementById('dashNotas');
+  if (!notas.length) {
+    dashNotas.innerHTML = `<div class="empty-state" style="padding:20px"><div class="empty-icon">📝</div>Sem notas ainda.</div>`;
+  } else {
+    dashNotas.innerHTML = notas.slice(0, 3).map(n => `
+      <div class="item-card" style="margin-bottom:8px">
+        <h4 style="font-size:13px">${n.titulo}</h4>
+        <p style="font-size:12px;margin-top:2px">${n.conteudo.substring(0, 80)}${n.conteudo.length > 80 ? '...' : ''}</p>
+      </div>
+    `).join('');
+  }
+
+  // Gráfico
+  renderChart();
+}
+
+function renderChart() {
+  const ctx = document.getElementById('chartMaterias').getContext('2d');
+  if (chartInstance) chartInstance.destroy();
+
+  if (!materias.length) {
+    ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+    return;
+  }
+
+  chartInstance = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: materias.map(m => m.nome),
+      datasets: [{
+        label: 'Progresso (%)',
+        data: materias.map(m => m.progresso || 0),
+        backgroundColor: materias.map(m => (m.cor || '#4f5ef7') + '33'),
+        borderColor: materias.map(m => m.cor || '#4f5ef7'),
+        borderWidth: 2, borderRadius: 8
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      scales: {
+        y: { beginAtZero: true, max: 100, grid: { color: '#e4e8f5' } },
+        x: { grid: { display: false } }
+      },
+      plugins: { legend: { display: false } }
+    }
+  });
+}
+
+// ═══════════════════════════════════════
+// UTILS
+// ═══════════════════════════════════════
+function toast(msg) {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.classList.add('show');
+  setTimeout(() => el.classList.remove('show'), 3000);
+}
+
+function fmtData(d) {
+  if (!d) return '';
+  const [y, m, day] = d.split('-');
+  return `${day}/${m}/${y}`;
+}
+
+// ═══════════════════════════════════════
+// START
+// ═══════════════════════════════════════
+init();
+</script>
+
+<!-- ═══════════════════════════════════════
+SQL PARA CRIAR AS TABELAS NO SUPABASE
+(Rode no SQL Editor do painel Supabase)
+═══════════════════════════════════════
+
+-- Matérias
+create table materias (
+  id uuid default gen_random_uuid() primary key,
+  user_id uuid references auth.users not null,
+  nome text not null,
+  professor text,
+  progresso integer default 0,
+  cor text default '#4f5ef7',
+  created_at timestamptz default now()
+);
+alter table materias enable row level security;
+create policy "Usuário vê só suas matérias" on materias
+  for all using (auth.uid() = user_id);
+
+-- Notas
+create table notas (
+  id uuid default gen_random_uuid() primary key,
+  user_id uuid references auth.users not null,
+  titulo text not null,
+  conteudo text,
+  materia_id uuid references materias(id) on delete set null,
+  created_at timestamptz default now()
+);
+alter table notas enable row level security;
+create policy "Usuário vê só suas notas" on notas
+  for all using (auth.uid() = user_id);
+
+-- Planos
+create table planos (
+  id uuid default gen_random_uuid() primary key,
+  user_id uuid references auth.users not null,
+  titulo text not null,
+  conteudo text,
+  data_inicio date,
+  data_fim date,
+  created_at timestamptz default now()
+);
+alter table planos enable row level security;
+create policy "Usuário vê só seus planos" on planos
+  for all using (auth.uid() = user_id);
+
+-- Prioridades
+create table prioridades (
+  id uuid default gen_random_uuid() primary key,
+  user_id uuid references auth.users not null,
+  titulo text not null,
+  nivel text default 'medium',
+  materia text,
+  descricao text,
+  created_at timestamptz default now()
+);
+alter table prioridades enable row level security;
+create policy "Usuário vê só suas prioridades" on prioridades
+  for all using (auth.uid() = user_id);
+
+═══════════════════════════════════════ -->
+</body>
+</html>
