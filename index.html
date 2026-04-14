@@ -513,6 +513,12 @@
         <input id="loginPassword" type="password" placeholder="Senha" value="123456" />
         <button id="loginBtn">Entrar</button>
 
+        <div class="demo-box">
+          <strong>Login de demonstração:</strong><br>
+          Email: admin@vouestudar.com<br>
+          Senha: 123456
+        </div>
+
         <p id="loginMsg" class="muted"></p>
       </div>
     </div>
@@ -862,39 +868,6 @@
     }
 
     loginBtn.addEventListener("click", async () => {
-  setAuthMessage("Entrando...", "muted");
-
-  try {
-    const email = document.getElementById("loginEmail").value.trim();
-    const password = document.getElementById("loginPassword").value.trim();
-
-    if (!email || !password) {
-      setAuthMessage("Preencha email e senha.", "danger");
-      return;
-    }
-
-    const { data, error } = await supabase.auth.signInWithPassword({
-      email,
-      password
-    });
-
-    if (error) {
-      setAuthMessage(error.message, "danger");
-      return;
-    }
-
-    setAuthMessage("Login realizado com sucesso.", "success");
-
-    // 🔥 AQUI ESTAVA O ERRO → FALTAVA ISSO
-    if (data?.user) {
-      state.user = data.user;
-      await initApp();
-    }
-
-  } catch (err) {
-    setAuthMessage("Erro: " + (err.message || err), "danger");
-  }
-});
       loginMsg.textContent = "Entrando...";
       loginMsg.className = "muted";
 
