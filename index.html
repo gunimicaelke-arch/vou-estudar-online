@@ -1624,9 +1624,12 @@ async function gerarPlanoInteligente() {
     const mediaType = pdfTextoExtraido.split(';')[0].split(':')[1];
     const diasTexto = dataProva ? `A prova é em ${dataProva} e o estudo começa em ${dataInicio || 'hoje'}.` : '';
 
-    const response = await fetch('https://api.anthropic.com/v1/messages', {
+    const response = await fetch('https://jamsxocejgxyzopgcqdv.supabase.co/functions/v1/gerar-plano', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImphbXN4b2Nlamd4eXpvcGdjcWR2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYxMjk4ODEsImV4cCI6MjA5MTcwNTg4MX0.pwdAbAr-7Td_e2DZd0Xwn5qUOW3Qb_Z8w6ZOHwzBTjw'
+      },
       body: JSON.stringify({
         model: 'claude-sonnet-4-20250514',
         max_tokens: 4000,
@@ -1634,16 +1637,7 @@ async function gerarPlanoInteligente() {
           role: 'user',
           content: [
             { type: 'document', source: { type: 'base64', media_type: mediaType, data: base64 } },
-            { type: 'text', text: `Você é um especialista em provas de Direito para faculdade. ${diasTexto} Analise este documento e responda APENAS em JSON válido sem texto fora do JSON:
-{
-  "topicos": [{"tema":"string","probabilidade":number,"justificativa":"string","progresso":0}],
-  "plano": "string com plano semanal detalhado por dias",
-  "resumo": "string com resumo dos temas principais",
-  "flashcards": [{"pergunta":"string","resposta":"string"}],
-  "exercicios": [{"pergunta":"string","alternativas":["A)...","B)...","C)...","D)..."],"correta":0,"explicacao":"string"}],
-  "cronograma": [{"semana":"Semana 1","tema":"string","atividades":"string","horas":number}]
-}
-Gere pelo menos 8 topicos, 8 flashcards, 5 exercicios com alternativas, 6 semanas de cronograma.` }
+            { type: 'text', text: 'Você é um especialista em provas de Direito para faculdade. ' + diasTexto + ' Analise este documento e responda APENAS em JSON válido sem texto fora do JSON: {"topicos": [{"tema":"string","probabilidade":95,"justificativa":"string","progresso":0}],"plano": "string com plano semanal detalhado por dias","resumo": "string com resumo dos temas principais","flashcards": [{"pergunta":"string","resposta":"string"}],"exercicios": [{"pergunta":"string","alternativas":["A)...","B)...","C)...","D)..."],"correta":0,"explicacao":"string"}],"cronograma": [{"semana":"Semana 1","tema":"string","atividades":"string","horas":10}]} Gere pelo menos 8 topicos, 8 flashcards, 5 exercicios com alternativas, 6 semanas de cronograma.' }
           ]
         }]
       })
