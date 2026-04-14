@@ -921,6 +921,7 @@
               <button class="mini-btn btn-secondary" id="tabBtnResumo" onclick="switchPlanoTab('resumo')" style="width:auto">📝 Resumo</button>
               <button class="mini-btn btn-secondary" id="tabBtnCrono" onclick="switchPlanoTab('crono')" style="width:auto">📅 Cronograma</button>
               <button class="mini-btn btn-secondary" id="tabBtnChat" onclick="switchPlanoTab('chat')" style="width:auto">💬 Chat com PDF</button>
+              <button class="mini-btn btn-secondary" id="tabBtnVespera" onclick="switchPlanoTab('vespera')" style="width:auto;display:none">🌙 Modo Véspera</button>
             </div>
 
             <!-- Aba: Plano Semanal -->
@@ -997,6 +998,18 @@
               <div id="progresVazio" style="text-align:center;padding:30px">
                 <div style="font-size:40px;margin-bottom:12px">🏆</div>
                 <div style="font-size:16px;font-weight:700">Gere um plano para começar o simulado progressivo!</div>
+              </div>
+            </div>
+
+            <!-- Aba: Véspera de Prova -->
+            <div id="tabVespera" class="hidden">
+              <div id="vesperaBanner" style="background:linear-gradient(135deg,#1e1b4b,#3730a3);color:#fff;border-radius:14px;padding:20px;margin-bottom:18px;text-align:center">
+                <div style="font-size:32px;margin-bottom:8px">🌙</div>
+                <div style="font-size:20px;font-weight:800;margin-bottom:4px">Modo Véspera de Prova</div>
+                <div style="font-size:13px;opacity:0.85" id="vesperaSubtitulo">Revisão focada no essencial para amanhã</div>
+              </div>
+              <div id="vesperaConteudo">
+                <div class="empty-state"><div class="empty-icon">🌙</div>Gerando revisão de véspera...</div>
               </div>
             </div>
 
@@ -1826,6 +1839,7 @@ async function gerarPlanoInteligente() {
 
     planoGeradoAtual = { titulo, resultado, dataProva };
     renderPlanoInteligente(titulo, resultado);
+    await verificarModoVespera(dataProva);
 
   } catch(err) {
     console.error(err);
@@ -1986,7 +2000,7 @@ function atualizarProgTopic(tema, idx, val) {
 }
 
 function switchPlanoTab(tab) {
-  ['plano','flash','simulado','progres','resumo','crono','chat'].forEach(t => {
+  ['plano','flash','simulado','progres','resumo','crono','chat','vespera'].forEach(t => {
     const el = document.getElementById('tab' + t.charAt(0).toUpperCase() + t.slice(1));
     if (el) el.classList.add('hidden');
     const btn = document.getElementById('tabBtn' + t.charAt(0).toUpperCase() + t.slice(1));
@@ -2006,7 +2020,8 @@ async function salvarPlanoInteligente() {
     titulo,
     pdf_nome: document.getElementById('pdfNome').textContent,
     analise: resultado,
-    plano_gerado: resultado.plano
+    plano_gerado: resultado.plano,
+    data_prova: planoGeradoAtual.dataProva || null
   }]);
   if (error) return toast('❌ Erro ao salvar: ' + error.message);
   toast('✅ Plano salvo com sucesso!');
@@ -2049,6 +2064,7 @@ function verPlanoSalvo(id) {
     planoGeradoAtual = { titulo: data.titulo, resultado: data.analise };
     renderPlanoInteligente(data.titulo, data.analise);
     goTab('planointeligente');
+    await verificarModoVespera(data.data_prova || null);
 
     // Inicia cronômetro automaticamente para a matéria relacionada
     const mat = materias.find(m =>
@@ -2280,6 +2296,111 @@ function reiniciarProgressivo() {
 }
 
 // ═══════════════════════════════════════
+// ══ MODO VÉSPERA ══
+async function verificarModoVespera(dataProva) {
+  if (!dataProva) return;
+  const hoje = new Date(); hoje.setHours(0,0,0,0);
+  const prova = new Date(dataProva + 'T00:00:00');
+  const dias = Math.ceil((prova - hoje) / 86400000);
+  if (dias !== 1) return;
+
+  // Mostra aba véspera em destaque
+  const btnVespera = document.getElementById('tabBtnVespera');
+  if (btnVespera) {
+    btnVespera.style.display = 'inline-flex';
+    btnVespera.style.background = 'linear-gradient(135deg,#7c3aed,#4f46e5)';
+    btnVespera.style.color = '#fff';
+    btnVespera.textContent = '🌙 Véspera!';
+  }
+
+  // Alerta no topo
+  toast('🌙 Modo Véspera ativado! Prova amanhã!');
+  switchPlanoTab('vespera');
+  await gerarResumoVespera();
+}
+
+async function gerarResumoVespera() {
+  if (!planoGeradoAtual) return;
+  const el = document.getElementById('vesperaConteudo');
+  if (!el) return;
+
+  el.innerHTML = '<div style="text-align:center;padding:30px"><div class="spinner" style="margin:0 auto 10px"></div><div style="color:var(--muted)">Gerando revisão essencial...</div></div>';
+
+  const { resultado, titulo } = planoGeradoAtual;
+  const topicos = (resultado.topicos || []).slice(0, 5).map(t => t.tema).join(', ');
+  const resumo = resultado.resumo || '';
+  const flashcardsSel = (resultado.flashcards || []).slice(0, 6);
+
+  try {
+    const response = await fetch('https://jamsxocejgxyzopgcqdv.supabase.co/functions/v1/gerar-plano', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImphbXN4b2Nlamd4eXpvcGdjcWR2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYxMjk4ODEsImV4cCI6MjA5MTcwNTg4MX0.pwdAbAr-7Td_e2DZd0Xwn5qUOW3Qb_Z8w6ZOHwzBTjw'
+      },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 1500,
+        messages: [{
+          role: 'user',
+          content: [{ type: 'text', text: `Você é um professor expert. É véspera de prova de "${titulo}". Tópicos principais: ${topicos}. Resumo do material: ${resumo.substring(0,500)}. Responda APENAS em JSON válido sem texto fora do JSON: {"essencial": "string com os 5 pontos mais importantes para revisar agora em tópicos claros e diretos", "alertas": ["string com dica rápida"], "flashcards_essenciais": [{"pergunta":"string","resposta":"string"}], "nao_esquecer": "string com o que definitivamente vai cair na prova"}` }]
+        }]
+      })
+    });
+
+    const data = await response.json();
+    const texto = data.content.map(i => i.text || '').join('');
+    const clean = texto.replace(/\`\`\`json|\`\`\`/g, '').trim();
+    let r;
+    try { r = JSON.parse(clean); } catch(e) { const m = clean.match(/\{[\s\S]*\}/); r = m ? JSON.parse(m[0]) : null; }
+    if (!r) throw new Error('JSON inválido');
+
+    el.innerHTML = `
+      <div style="margin-bottom:18px;padding:14px;background:#fef3c7;border:1px solid #fbbf24;border-radius:12px">
+        <div style="font-size:13px;font-weight:800;color:#92400e;margin-bottom:8px">🎯 NÃO ESQUEÇA AMANHÃ:</div>
+        <div style="font-size:13px;color:#78350f;line-height:1.7">${r.nao_esquecer || ''}</div>
+      </div>
+      <div style="margin-bottom:18px">
+        <div style="font-size:14px;font-weight:800;margin-bottom:10px">📌 5 Pontos Essenciais para Revisar</div>
+        <div style="white-space:pre-wrap;font-size:13px;line-height:1.9;color:var(--text)">${r.essencial || ''}</div>
+      </div>
+      ${r.alertas && r.alertas.length ? `
+      <div style="margin-bottom:18px">
+        <div style="font-size:14px;font-weight:800;margin-bottom:10px">⚡ Dicas Rápidas</div>
+        ${r.alertas.map(a => `<div style="padding:8px 12px;background:var(--blue-soft);border-radius:8px;font-size:13px;margin-bottom:6px">💡 ${a}</div>`).join('')}
+      </div>` : ''}
+      ${r.flashcards_essenciais && r.flashcards_essenciais.length ? `
+      <div>
+        <div style="font-size:14px;font-weight:800;margin-bottom:10px">🧠 Flashcards de Véspera</div>
+        ${r.flashcards_essenciais.map(f => `
+          <div style="border:1px solid var(--border,#e5e7eb);border-radius:10px;padding:12px;margin-bottom:10px">
+            <div style="font-size:13px;font-weight:700;margin-bottom:6px">❓ ${f.pergunta}</div>
+            <div style="font-size:13px;color:var(--primary);border-top:1px dashed var(--border,#e5e7eb);padding-top:8px;margin-top:4px">✅ ${f.resposta}</div>
+          </div>`).join('')}
+      </div>` : ''}
+    `;
+  } catch(err) {
+    // Fallback sem IA — usa dados do plano já gerado
+    const topList = (resultado.topicos || []).slice(0,5).map((t,i) => `${i+1}. ${t.tema} (${t.probabilidade}%)`).join('
+');
+    const fcList = (resultado.flashcards || []).slice(0,4);
+    el.innerHTML = `
+      <div style="margin-bottom:18px;padding:14px;background:#fef3c7;border:1px solid #fbbf24;border-radius:12px">
+        <div style="font-size:13px;font-weight:800;color:#92400e;margin-bottom:8px">🎯 TÓPICOS MAIS PROVÁVEIS:</div>
+        <div style="font-size:13px;color:#78350f;white-space:pre-wrap;line-height:1.9">${topList}</div>
+      </div>
+      <div style="margin-bottom:18px">
+        <div style="font-size:14px;font-weight:800;margin-bottom:10px">📝 Resumo para Revisar</div>
+        <div style="font-size:13px;line-height:1.9;color:var(--text)">${resultado.resumo || 'Sem resumo disponível.'}</div>
+      </div>
+      ${fcList.length ? `<div>
+        <div style="font-size:14px;font-weight:800;margin-bottom:10px">🧠 Flashcards Essenciais</div>
+        ${fcList.map(f => `<div style="border:1px solid var(--border,#e5e7eb);border-radius:10px;padding:12px;margin-bottom:10px"><div style="font-size:13px;font-weight:700;margin-bottom:6px">❓ ${f.pergunta}</div><div style="font-size:13px;color:var(--primary);border-top:1px dashed var(--border,#e5e7eb);padding-top:8px">✅ ${f.resposta}</div></div>`).join('')}
+      </div>` : ''}
+    `;
+  }
+}
+
 // ══ TIMER DE ESTUDO ══
 let estudoAtivoId = null;
 let estudoAtivoNome = null;
