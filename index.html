@@ -453,7 +453,7 @@
 <!-- ═══════════════════════════════════════
      TELA DE AUTH
 ═══════════════════════════════════════ -->
-<div id="authScreen" class="auth-screen">
+<div id="authScreen" class="auth-screen hidden">
   <div class="login-shell">
 
     <!-- Intro -->
@@ -778,31 +778,33 @@ let chartInstance = null;
 // INICIALIZAÇÃO
 // ═══════════════════════════════════════
 async function init() {
-  try {
-    const { data: { session }, error } = await db.auth.getSession();
-    if (error) throw error;
-    if (session) {
-      currentUser = session.user;
-      await carregarApp();
-    } else {
-      mostrarAuth();
-    }
-  } catch (err) {
-    console.error('Erro de conexão Supabase:', err);
-    showAuthMsg('Erro de conexão com o servidor. Verifique sua internet.', 'error');
-    mostrarAuth();
+  // Tenta sessão existente
+  const { data: { session } } = await db.auth.getSession();
+  if (session) {
+    currentUser = session.user;
+    await carregarApp();
+    return;
   }
-
-  // Listener de mudança de sessão
-  db.auth.onAuthStateChange(async (event, session) => {
-    if (event === 'SIGNED_IN' && session) {
-      currentUser = session.user;
-      await carregarApp();
-    } else if (event === 'SIGNED_OUT') {
-      currentUser = null;
-      mostrarAuth();
-    }
+  // Login automático silencioso (sem mostrar tela de login)
+  const { data: loginData } = await db.auth.signInWithPassword({
+    email: 'admin@vouestudar.com',
+    password: 'vouestudar2024'
   });
+  if (loginData?.user) {
+    currentUser = loginData.user;
+    await carregarApp();
+    return;
+  }
+  // Se conta não existe ainda, cria e loga
+  const { data: regData } = await db.auth.signUp({
+    email: 'admin@vouestudar.com',
+    password: 'vouestudar2024',
+    options: { data: { nome: 'Estudante' } }
+  });
+  if (regData?.user) {
+    currentUser = regData.user;
+    await carregarApp();
+  }
 }
 
 function mostrarAuth() {
