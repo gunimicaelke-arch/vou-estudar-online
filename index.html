@@ -694,6 +694,20 @@
         </div>
       </div>
 
+      <!-- ─── MODAL ESCOLHER MATÉRIA ─── -->
+      <div id="modalEscolherMateria" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:9999;align-items:center;justify-content:center">
+        <div class="card card-pad" style="width:100%;max-width:420px;margin:20px">
+          <div class="card-head"><h3>⏱️ Iniciar Cronômetro</h3></div>
+          <p style="font-size:13px;color:var(--muted);margin-bottom:12px">Plano: <strong id="tituloPlanoEscolha"></strong></p>
+          <p style="font-size:13px;margin-bottom:8px">Qual matéria deseja cronometrar?</p>
+          <select id="selectMateriaTimer" style="margin-bottom:14px"></select>
+          <div style="display:flex;gap:8px">
+            <button onclick="confirmarMateriaTimer()">▶ Iniciar</button>
+            <button class="btn-secondary" onclick="document.getElementById('modalEscolherMateria').style.display='none'">Cancelar</button>
+          </div>
+        </div>
+      </div>
+
       <!-- ─── MODAL LEMBRETE ─── -->
       <div id="modalLembrete" class="hidden" style="position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:9999;align-items:center;justify-content:center">
         <div class="card card-pad" style="width:100%;max-width:420px;margin:20px">
@@ -2035,7 +2049,45 @@ function verPlanoSalvo(id) {
     planoGeradoAtual = { titulo: data.titulo, resultado: data.analise };
     renderPlanoInteligente(data.titulo, data.analise);
     goTab('planointeligente');
+
+    // Inicia cronômetro automaticamente para a matéria relacionada
+    const mat = materias.find(m =>
+      data.titulo && (
+        data.titulo.toLowerCase().includes(m.nome.toLowerCase()) ||
+        m.nome.toLowerCase().includes(data.titulo.toLowerCase().split(' - ')[0]) ||
+        m.nome.toLowerCase().includes(data.titulo.toLowerCase().split(' ')[0])
+      )
+    );
+    if (mat) {
+      if (estudoAtivoId) pararEstudo(estudoAtivoId);
+      iniciarEstudo(mat.id, mat.nome);
+      toast('⏱️ Cronômetro iniciado para: ' + mat.nome);
+    } else {
+      // Se não encontrar matéria exata, abre modal para escolher
+      abrirModalEscolherMateria(data.titulo);
+    }
   });
+}
+
+function abrirModalEscolherMateria(tituloPlano) {
+  if (!materias.length) return;
+  const modal = document.getElementById('modalEscolherMateria');
+  const sel = document.getElementById('selectMateriaTimer');
+  sel.innerHTML = '<option value="">-- Não iniciar cronômetro --</option>' +
+    materias.map(m => `<option value="${m.id}" data-nome="${m.nome}">${m.nome}</option>`).join('');
+  document.getElementById('tituloPlanoEscolha').textContent = tituloPlano;
+  modal.style.display = 'flex';
+}
+
+function confirmarMateriaTimer() {
+  const sel = document.getElementById('selectMateriaTimer');
+  const id = sel.value;
+  const nome = sel.options[sel.selectedIndex]?.dataset?.nome;
+  document.getElementById('modalEscolherMateria').style.display = 'none';
+  if (id && nome) {
+    if (estudoAtivoId) pararEstudo(estudoAtivoId);
+    iniciarEstudo(id, nome);
+  }
 }
 
 async function deletarPlanoInt(id) {
