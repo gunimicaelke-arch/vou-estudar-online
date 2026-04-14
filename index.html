@@ -761,7 +761,7 @@
 // ⚠️ SUBSTITUA pelas suas credenciais do painel Supabase
 // ═══════════════════════════════════════
 const SUPABASE_URL = 'https://mcyzxwtpjoqioeqemrv.supabase.co';
-const SUPABASE_ANON_KEY = 'sb_publishable_G1DmNZdvjDl0-3N2onqD4Q_SZM1M6f1';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1jeXp4d3Rwam9xaWlvZXFlbXJ2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYwNTQ2NTYsImV4cCI6MjA5MTYzMDY1Nn0.OgWfLztRssBMNdsRjDUjTDHw3GmKSadW-EVM_BtUrtk';
 
 const { createClient } = supabase;
 const db = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, { auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true } });
