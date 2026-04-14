@@ -2059,7 +2059,7 @@ function renderListaPlanosInt(lista) {
 }
 
 function verPlanoSalvo(id) {
-  db.from('planos_ia').select('*').eq('id', id).single().then(({ data }) => {
+  db.from('planos_ia').select('*').eq('id', id).single().then(async ({ data }) => {
     if (!data) return;
     planoGeradoAtual = { titulo: data.titulo, resultado: data.analise };
     renderPlanoInteligente(data.titulo, data.analise);
