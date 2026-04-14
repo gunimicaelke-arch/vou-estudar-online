@@ -861,8 +861,10 @@
               <button class="mini-btn active-tab-btn" id="tabBtnPlano" onclick="switchPlanoTab('plano')" style="width:auto">📚 Plano Semanal</button>
               <button class="mini-btn btn-secondary" id="tabBtnFlash" onclick="switchPlanoTab('flash')" style="width:auto">🧠 Flashcards</button>
               <button class="mini-btn btn-secondary" id="tabBtnSimulado" onclick="switchPlanoTab('simulado')" style="width:auto">💡 Simulado</button>
+              <button class="mini-btn btn-secondary" id="tabBtnProgres" onclick="switchPlanoTab('progres')" style="width:auto">🎯 Simulado Progressivo</button>
               <button class="mini-btn btn-secondary" id="tabBtnResumo" onclick="switchPlanoTab('resumo')" style="width:auto">📝 Resumo</button>
               <button class="mini-btn btn-secondary" id="tabBtnCrono" onclick="switchPlanoTab('crono')" style="width:auto">📅 Cronograma</button>
+              <button class="mini-btn btn-secondary" id="tabBtnChat" onclick="switchPlanoTab('chat')" style="width:auto">💬 Chat com PDF</button>
             </div>
 
             <!-- Aba: Plano Semanal -->
@@ -899,6 +901,69 @@
             <div id="tabCrono" class="hidden">
               <div id="cronogramaGerado"></div>
             </div>
+
+            <!-- Aba: Simulado Progressivo -->
+            <div id="tabProgres" class="hidden">
+              <div style="background:var(--blue-soft);border-radius:14px;padding:16px;margin-bottom:16px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px">
+                <div>
+                  <div style="font-size:20px;font-weight:800" id="progresScore">0 pts</div>
+                  <div style="font-size:12px;color:var(--muted)">sua pontuação</div>
+                </div>
+                <div>
+                  <div style="font-size:20px;font-weight:800;color:var(--green)" id="progresAcertos">0</div>
+                  <div style="font-size:12px;color:var(--muted)">acertos seguidos</div>
+                </div>
+                <div>
+                  <div style="font-size:20px;font-weight:800;color:var(--orange)" id="progresRestantes">0</div>
+                  <div style="font-size:12px;color:var(--muted)">questões restantes</div>
+                </div>
+                <button class="mini-btn" style="width:auto" onclick="reiniciarProgressivo()">↺ Reiniciar</button>
+              </div>
+
+              <div id="progresQuestao" style="display:none">
+                <div class="item-card" style="margin-bottom:16px;border-left:4px solid var(--primary)">
+                  <div style="display:flex;justify-content:space-between;margin-bottom:10px">
+                    <span class="tag tag-blue" id="progresNumero">Questão 1</span>
+                    <span class="tag tag-orange" id="progresNivel">Normal</span>
+                  </div>
+                  <h4 style="font-size:14px;margin-bottom:14px" id="progresTexto"></h4>
+                  <div id="progresAlternativas"></div>
+                </div>
+              </div>
+
+              <div id="progresFeedback" class="hidden" style="margin-bottom:14px;padding:14px;border-radius:12px;text-align:center">
+                <div style="font-size:24px;margin-bottom:6px" id="progresFeedbackIcon"></div>
+                <div style="font-size:14px;font-weight:700" id="progresFeedbackTexto"></div>
+                <div style="font-size:13px;margin-top:6px;color:var(--muted)" id="progresFeedbackExp"></div>
+                <button class="mini-btn" style="width:auto;margin-top:10px" onclick="proximaQuestaoProgressiva()">Próxima →</button>
+              </div>
+
+              <div id="progresVazio" style="text-align:center;padding:30px">
+                <div style="font-size:40px;margin-bottom:12px">🏆</div>
+                <div style="font-size:16px;font-weight:700">Gere um plano para começar o simulado progressivo!</div>
+              </div>
+            </div>
+
+            <!-- Aba: Chat com PDF -->
+            <div id="tabChat" class="hidden">
+              <div id="chatMensagens" style="min-height:200px;max-height:400px;overflow-y:auto;margin-bottom:14px;display:flex;flex-direction:column;gap:10px">
+                <div style="background:var(--blue-soft);border-radius:14px;padding:14px;max-width:85%">
+                  <div style="font-size:12px;font-weight:700;color:var(--primary);margin-bottom:4px">🤖 Assistente</div>
+                  <div style="font-size:13px">Olá! Pode me fazer qualquer pergunta sobre o material que você importou. Vou responder com base no conteúdo do PDF!</div>
+                </div>
+              </div>
+              <div style="display:flex;gap:8px">
+                <input type="text" id="chatInput" placeholder="Ex: Qual a diferença entre dolo eventual e culpa consciente?" style="flex:1;margin-bottom:0" onkeydown="if(event.key==='Enter')enviarChat()" />
+                <button onclick="enviarChat()" id="btnEnviarChat" style="width:auto;padding:13px 18px">Enviar</button>
+              </div>
+              <div style="display:flex;gap:6px;margin-top:10px;flex-wrap:wrap">
+                <button class="mini-btn btn-secondary" style="width:auto" onclick="perguntaRapida('Quais são os pontos mais importantes deste material?')">📌 Pontos importantes</button>
+                <button class="mini-btn btn-secondary" style="width:auto" onclick="perguntaRapida('Me dê 3 exemplos práticos do tema principal')">💡 Exemplos práticos</button>
+                <button class="mini-btn btn-secondary" style="width:auto" onclick="perguntaRapida('O que mais cai em prova sobre este assunto?')">🎯 O que mais cai</button>
+                <button class="mini-btn btn-secondary" style="width:auto" onclick="perguntaRapida('Faça um resumo em tópicos do material')">📝 Resumo rápido</button>
+              </div>
+            </div>
+
           </div>
         </div>
 
@@ -1709,6 +1774,8 @@ function renderPlanoInteligente(titulo, r) {
   renderProgressoTopicos(r.topicos);
 
   switchPlanoTab('plano');
+  // Iniciar simulado progressivo
+  if (r.exercicios && r.exercicios.length) iniciarSimuladoProgressivo(r.exercicios);
   document.getElementById('resultadoPlanoIA').scrollIntoView({ behavior: 'smooth' });
 }
 
@@ -1817,12 +1884,14 @@ function atualizarProgTopic(tema, idx, val) {
 }
 
 function switchPlanoTab(tab) {
-  ['plano','flash','simulado','resumo','crono'].forEach(t => {
-    document.getElementById('tab' + t.charAt(0).toUpperCase() + t.slice(1)).classList.add('hidden');
+  ['plano','flash','simulado','progres','resumo','crono','chat'].forEach(t => {
+    const el = document.getElementById('tab' + t.charAt(0).toUpperCase() + t.slice(1));
+    if (el) el.classList.add('hidden');
     const btn = document.getElementById('tabBtn' + t.charAt(0).toUpperCase() + t.slice(1));
     if (btn) { btn.classList.remove('active-tab-btn'); btn.classList.add('btn-secondary'); }
   });
-  document.getElementById('tab' + tab.charAt(0).toUpperCase() + tab.slice(1)).classList.remove('hidden');
+  const activeEl = document.getElementById('tab' + tab.charAt(0).toUpperCase() + tab.slice(1));
+  if (activeEl) activeEl.classList.remove('hidden');
   const activeBtn = document.getElementById('tabBtn' + tab.charAt(0).toUpperCase() + tab.slice(1));
   if (activeBtn) { activeBtn.classList.add('active-tab-btn'); activeBtn.classList.remove('btn-secondary'); }
 }
@@ -1886,6 +1955,188 @@ async function deletarPlanoInt(id) {
   await db.from('planos_ia').delete().eq('id', id);
   toast('🗑️ Plano removido.');
   await carregarPlanosInteligentes();
+}
+
+// ═══════════════════════════════════════
+// CHAT COM PDF
+// ═══════════════════════════════════════
+let chatHistorico = [];
+
+async function enviarChat() {
+  const input = document.getElementById('chatInput');
+  const msg = input.value.trim();
+  if (!msg) return;
+  if (!pdfTextoExtraido) return toast('⚠️ Importe um PDF primeiro!');
+
+  input.value = '';
+  adicionarMensagemChat('user', msg);
+
+  const btn = document.getElementById('btnEnviarChat');
+  btn.innerHTML = '<span class="spinner"></span>';
+  btn.disabled = true;
+
+  chatHistorico.push({ role: 'user', content: msg });
+
+  try {
+    const base64 = pdfTextoExtraido.split(',')[1];
+    const mediaType = pdfTextoExtraido.split(';')[0].split(':')[1];
+
+    const mensagens = chatHistorico.length === 1 ? [{
+      role: 'user',
+      content: [
+        { type: 'document', source: { type: 'base64', media_type: mediaType, data: base64 } },
+        { type: 'text', text: 'Você é um professor especialista neste material. Responda de forma clara, didática e objetiva em português. Pergunta: ' + msg }
+      ]
+    }] : [
+      {
+        role: 'user',
+        content: [
+          { type: 'document', source: { type: 'base64', media_type: mediaType, data: base64 } },
+          { type: 'text', text: 'Você é um professor especialista neste material. Responda de forma clara, didática e objetiva em português. Use o histórico da conversa para contexto.' }
+        ]
+      },
+      { role: 'assistant', content: 'Entendido! Estou pronto para responder suas perguntas sobre este material.' },
+      ...chatHistorico
+    ];
+
+    const response = await fetch('https://jamsxocejgxyzopgcqdv.supabase.co/functions/v1/gerar-plano', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImphbXN4b2Nlamd4eXpvcGdjcWR2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYxMjk4ODEsImV4cCI6MjA5MTcwNTg4MX0.pwdAbAr-7Td_e2DZd0Xwn5qUOW3Qb_Z8w6ZOHwzBTjw'
+      },
+      body: JSON.stringify({ model: 'claude-sonnet-4-20250514', max_tokens: 1000, messages: mensagens })
+    });
+
+    const data = await response.json();
+    const resposta = data.content?.map(i => i.text || '').join('') || 'Erro ao obter resposta.';
+    chatHistorico.push({ role: 'assistant', content: resposta });
+    adicionarMensagemChat('assistant', resposta);
+
+  } catch(err) {
+    adicionarMensagemChat('assistant', '❌ Erro ao conectar. Tente novamente.');
+  }
+
+  btn.innerHTML = 'Enviar';
+  btn.disabled = false;
+}
+
+function perguntaRapida(texto) {
+  document.getElementById('chatInput').value = texto;
+  enviarChat();
+}
+
+function adicionarMensagemChat(tipo, texto) {
+  const el = document.getElementById('chatMensagens');
+  const isUser = tipo === 'user';
+  const div = document.createElement('div');
+  div.style.cssText = `background:${isUser ? 'var(--primary)' : 'var(--blue-soft)'};border-radius:14px;padding:14px;max-width:85%;${isUser ? 'align-self:flex-end;margin-left:auto' : 'align-self:flex-start'}`;
+  div.innerHTML = `
+    <div style="font-size:12px;font-weight:700;color:${isUser ? 'rgba(255,255,255,0.8)' : 'var(--primary)'};margin-bottom:4px">${isUser ? '👤 Você' : '🤖 Assistente'}</div>
+    <div style="font-size:13px;color:${isUser ? '#fff' : 'var(--text)'};white-space:pre-wrap;line-height:1.6">${texto}</div>
+  `;
+  el.appendChild(div);
+  el.scrollTop = el.scrollHeight;
+}
+
+// ═══════════════════════════════════════
+// SIMULADO PROGRESSIVO
+// ═══════════════════════════════════════
+let filaProgressiva = [];
+let questaoAtualProg = null;
+let scoreProg = 0;
+let acertosSeguidos = 0;
+let errosQuestao = {};
+
+function iniciarSimuladoProgressivo(exercicios) {
+  if (!exercicios || !exercicios.length) return;
+  filaProgressiva = exercicios.map((e, i) => ({ ...e, id: i, peso: 1, acertos: 0, erros: 0 }));
+  scoreProg = 0;
+  acertosSeguidos = 0;
+  errosQuestao = {};
+  atualizarStatsProg();
+  proximaQuestaoProgressiva();
+}
+
+function atualizarStatsProg() {
+  document.getElementById('progresScore').textContent = scoreProg + ' pts';
+  document.getElementById('progresAcertos').textContent = acertosSeguidos;
+  document.getElementById('progresRestantes').textContent = filaProgressiva.filter(q => q.acertos < 3).length;
+}
+
+function proximaQuestaoProgressiva() {
+  document.getElementById('progresFeedback').classList.add('hidden');
+
+  const pendentes = filaProgressiva.filter(q => q.acertos < 3);
+  if (!pendentes.length) {
+    document.getElementById('progresQuestao').style.display = 'none';
+    document.getElementById('progresVazio').style.display = 'block';
+    document.getElementById('progresVazio').innerHTML = '<div style="font-size:40px;margin-bottom:12px">🏆</div><div style="font-size:16px;font-weight:700;color:var(--green)">Parabéns! Você dominou todas as questões!</div><div style="font-size:13px;color:var(--muted);margin-top:6px">Pontuação final: ' + scoreProg + ' pts</div>';
+    return;
+  }
+
+  // Prioriza questões com mais erros
+  pendentes.sort((a, b) => (b.erros - b.acertos) - (a.erros - a.acertos));
+  questaoAtualProg = pendentes[0];
+
+  document.getElementById('progresVazio').style.display = 'none';
+  document.getElementById('progresQuestao').style.display = 'block';
+  document.getElementById('progresNumero').textContent = 'Questão ' + (questaoAtualProg.id + 1);
+  document.getElementById('progresNivel').textContent = questaoAtualProg.erros > 2 ? '🔴 Difícil' : questaoAtualProg.erros > 0 ? '🟡 Revisar' : '🟢 Normal';
+  document.getElementById('progresTexto').textContent = questaoAtualProg.pergunta;
+
+  const altEl = document.getElementById('progresAlternativas');
+  altEl.innerHTML = (questaoAtualProg.alternativas || []).map((a, i) => `
+    <button onclick="responderProgressivo(${i})" style="width:100%;text-align:left;background:#f8f9ff;color:var(--text);border:1.5px solid var(--line);border-radius:10px;padding:10px 14px;font-size:13px;margin-bottom:8px;cursor:pointer" id="altProg${i}">
+      ${a}
+    </button>
+  `).join('');
+
+  atualizarStatsProg();
+}
+
+function responderProgressivo(idx) {
+  if (!questaoAtualProg) return;
+  const correto = idx === questaoAtualProg.correta;
+  const q = filaProgressiva.find(q => q.id === questaoAtualProg.id);
+
+  // Desabilita botões
+  (questaoAtualProg.alternativas || []).forEach((_, i) => {
+    const btn = document.getElementById('altProg' + i);
+    if (btn) {
+      btn.disabled = true;
+      if (i === questaoAtualProg.correta) btn.style.background = '#e6f9ef';
+      else if (i === idx && !correto) btn.style.background = '#fff0f0';
+    }
+  });
+
+  if (correto) {
+    q.acertos++;
+    acertosSeguidos++;
+    scoreProg += (10 + acertosSeguidos * 2);
+    document.getElementById('progresFeedback').style.background = 'var(--green-soft)';
+    document.getElementById('progresFeedbackIcon').textContent = '✅';
+    document.getElementById('progresFeedbackTexto').textContent = acertosSeguidos > 2 ? '🔥 Sequência de ' + acertosSeguidos + '! +' + (10 + acertosSeguidos * 2) + ' pts' : 'Correto! +' + (10 + acertosSeguidos * 2) + ' pts';
+  } else {
+    q.erros++;
+    q.acertos = 0;
+    acertosSeguidos = 0;
+    document.getElementById('progresFeedback').style.background = 'var(--red-soft)';
+    document.getElementById('progresFeedbackIcon').textContent = '❌';
+    document.getElementById('progresFeedbackTexto').textContent = 'Errou! A questão vai voltar mais vezes.';
+  }
+
+  document.getElementById('progresFeedbackExp').textContent = questaoAtualProg.explicacao || '';
+  document.getElementById('progresFeedback').classList.remove('hidden');
+  atualizarStatsProg();
+}
+
+function reiniciarProgressivo() {
+  filaProgressiva.forEach(q => { q.acertos = 0; q.erros = 0; });
+  scoreProg = 0;
+  acertosSeguidos = 0;
+  atualizarStatsProg();
+  proximaQuestaoProgressiva();
 }
 
 // ═══════════════════════════════════════
