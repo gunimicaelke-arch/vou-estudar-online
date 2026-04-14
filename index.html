@@ -560,6 +560,10 @@
       <div class="menu-item" onclick="goTab('prioridades')">
         <span class="icon">🎯</span> Prioridades
       </div>
+      <div class="menu-item" onclick="goTab('planointeligente')">
+        <span class="icon">✨</span> Plano Inteligente
+        <span class="menu-badge" id="badgePlanosInt" style="background:var(--green)">NEW</span>
+      </div>
     </div>
 
     <div class="sidebar-footer">
@@ -751,6 +755,61 @@
         </div>
       </div>
 
+      <!-- ─── PLANO INTELIGENTE ─── -->
+      <div class="tab-page" id="tab-planointeligente">
+        <div class="section-title">✨ Plano Inteligente de Estudos</div>
+
+        <div class="card card-pad" style="margin-bottom:20px">
+          <div class="card-head"><h3>📄 Importar PDF</h3></div>
+          <p style="color:var(--muted);font-size:13px;margin-bottom:16px">Faça upload do seu edital, ementa ou material. O sistema vai analisar e montar um plano completo com os tópicos mais prováveis de cair na prova, resumo e exercícios.</p>
+          <label class="file-label" for="pdfInput">
+            📎 Clique para selecionar o PDF
+            <span id="pdfNome" style="display:block;font-size:12px;margin-top:4px;color:var(--primary)"></span>
+          </label>
+          <input type="file" id="pdfInput" accept=".pdf" class="hidden" onchange="selecionarPDF(this)" />
+          <input type="text" id="planoIATitulo" placeholder="Nome do plano (ex: Direito Civil - OAB)" style="margin-top:4px" />
+          <button onclick="gerarPlanoInteligente()" id="btnGerarPlano">🚀 Gerar Plano Inteligente</button>
+        </div>
+
+        <!-- Resultado -->
+        <div id="resultadoPlanoIA" class="hidden">
+          <div class="card card-pad" style="margin-bottom:20px;border-left:4px solid var(--primary)">
+            <div class="card-head">
+              <h3 id="planoIATituloResult">Plano Gerado</h3>
+              <button class="mini-btn" onclick="salvarPlanoInteligente()" style="width:auto">💾 Salvar Plano</button>
+            </div>
+
+            <div style="margin-bottom:20px">
+              <h4 style="font-size:14px;font-weight:700;color:var(--primary);margin-bottom:12px">🎯 Tópicos com maior chance de cair (90%+)</h4>
+              <div id="topicosProvaveis"></div>
+            </div>
+
+            <div style="margin-bottom:20px">
+              <h4 style="font-size:14px;font-weight:700;color:var(--primary);margin-bottom:12px">📚 Plano de Estudos Detalhado</h4>
+              <div id="planoDetalhado" style="white-space:pre-wrap;font-size:13px;line-height:1.8;color:var(--text)"></div>
+            </div>
+
+            <div style="margin-bottom:20px">
+              <h4 style="font-size:14px;font-weight:700;color:var(--primary);margin-bottom:12px">📝 Resumo dos Principais Temas</h4>
+              <div id="resumoTemas" style="white-space:pre-wrap;font-size:13px;line-height:1.8;color:var(--text)"></div>
+            </div>
+
+            <div>
+              <h4 style="font-size:14px;font-weight:700;color:var(--primary);margin-bottom:12px">💡 Exercícios Práticos</h4>
+              <div id="exerciciosGerados"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Planos salvos -->
+        <div class="card card-pad">
+          <div class="card-head"><h3>📋 Planos Salvos</h3></div>
+          <div id="listaPlanosInteligentes">
+            <div class="empty-state"><div class="empty-icon">✨</div>Nenhum plano inteligente salvo ainda.</div>
+          </div>
+        </div>
+      </div>
+
     </div><!-- /content -->
   </div><!-- /main-area -->
 </div><!-- /appScreen -->
@@ -829,7 +888,8 @@ async function carregarApp() {
     carregarMaterias(),
     carregarNotas(),
     carregarPlanos(),
-    carregarPrioridades()
+    carregarPrioridades(),
+    carregarPlanosInteligentes()
   ]);
 
   atualizarDashboard();
@@ -929,7 +989,8 @@ const tabTitles = {
   materias: ['Matérias', 'Gerencie suas matérias e progresso'],
   notas: ['Notas', 'Suas anotações de estudo'],
   planos: ['Planos de Estudo', 'Organize sua rotina de estudos'],
-  prioridades: ['Prioridades', 'O que estudar primeiro']
+  prioridades: ['Prioridades', 'O que estudar primeiro'],
+  planointeligente: ['✨ Plano Inteligente', 'Análise e plano de estudos gerado por IA']
 };
 
 function goTab(tab) {
@@ -1351,6 +1412,195 @@ function fmtData(d) {
   if (!d) return '';
   const [y, m, day] = d.split('-');
   return `${day}/${m}/${y}`;
+}
+
+// ═══════════════════════════════════════
+// PLANO INTELIGENTE
+// ═══════════════════════════════════════
+let pdfTextoExtraido = '';
+let planoGeradoAtual = null;
+
+function selecionarPDF(input) {
+  const file = input.files[0];
+  if (!file) return;
+  document.getElementById('pdfNome').textContent = '✅ ' + file.name;
+
+  const reader = new FileReader();
+  reader.onload = async function(e) {
+    toast('📄 PDF carregado! Clique em Gerar Plano.');
+    // Armazena base64 para enviar à IA
+    pdfTextoExtraido = e.target.result;
+  };
+  reader.readAsDataURL(file);
+}
+
+async function gerarPlanoInteligente() {
+  if (!pdfTextoExtraido) return toast('⚠️ Selecione um PDF primeiro!');
+  const titulo = document.getElementById('planoIATitulo').value.trim() || 'Plano Inteligente';
+
+  const btn = document.getElementById('btnGerarPlano');
+  btn.innerHTML = '<span class="spinner"></span> Analisando PDF...';
+  btn.disabled = true;
+
+  try {
+    // Extrai base64 puro
+    const base64 = pdfTextoExtraido.split(',')[1];
+    const mediaType = pdfTextoExtraido.split(';')[0].split(':')[1];
+
+    const response = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 4000,
+        messages: [{
+          role: 'user',
+          content: [
+            {
+              type: 'document',
+              source: { type: 'base64', media_type: mediaType, data: base64 }
+            },
+            {
+              type: 'text',
+              text: `Você é um especialista em concursos e provas de Direito. Analise este documento e responda APENAS em JSON válido, sem texto fora do JSON, no seguinte formato:
+{
+  "topicos": [
+    {"tema": "nome do tema", "probabilidade": 95, "justificativa": "motivo de cair na prova"},
+    ...pelo menos 8 tópicos ordenados por probabilidade...
+  ],
+  "plano": "Plano de estudos semanal detalhado em texto, com dias e horários sugeridos",
+  "resumo": "Resumo dos principais temas e conceitos mais importantes do material",
+  "exercicios": [
+    {"pergunta": "texto da pergunta", "resposta": "resposta correta com explicação"},
+    ...pelo menos 5 exercícios...
+  ]
+}`
+            }
+          ]
+        }]
+      })
+    });
+
+    const data = await response.json();
+    const texto = data.content?.map(i => i.text || '').join('');
+    const clean = texto.replace(/\`\`\`json|\`\`\`/g, '').trim();
+    const resultado = JSON.parse(clean);
+
+    planoGeradoAtual = { titulo, resultado };
+    renderPlanoInteligente(titulo, resultado);
+
+  } catch(err) {
+    console.error(err);
+    toast('❌ Erro ao gerar plano. Tente novamente.');
+  }
+
+  btn.innerHTML = '🚀 Gerar Plano Inteligente';
+  btn.disabled = false;
+}
+
+function renderPlanoInteligente(titulo, r) {
+  document.getElementById('resultadoPlanoIA').classList.remove('hidden');
+  document.getElementById('planoIATituloResult').textContent = '✨ ' + titulo;
+
+  // Tópicos
+  const topEl = document.getElementById('topicosProvaveis');
+  topEl.innerHTML = r.topicos.map(t => `
+    <div class="item-card" style="margin-bottom:8px;border-left:4px solid ${t.probabilidade >= 90 ? 'var(--green)' : t.probabilidade >= 75 ? 'var(--orange)' : 'var(--primary)'}">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <h4 style="font-size:14px">${t.tema}</h4>
+        <span class="tag ${t.probabilidade >= 90 ? 'tag-green' : t.probabilidade >= 75 ? 'tag-orange' : 'tag-blue'}">${t.probabilidade}% chance</span>
+      </div>
+      <p style="font-size:12px;margin-top:4px">${t.justificativa}</p>
+    </div>
+  `).join('');
+
+  // Plano
+  document.getElementById('planoDetalhado').textContent = r.plano;
+
+  // Resumo
+  document.getElementById('resumoTemas').textContent = r.resumo;
+
+  // Exercícios
+  const exEl = document.getElementById('exerciciosGerados');
+  exEl.innerHTML = r.exercicios.map((e, i) => `
+    <div class="item-card" style="margin-bottom:10px">
+      <h4 style="font-size:13px;margin-bottom:8px">📌 ${i+1}. ${e.pergunta}</h4>
+      <details>
+        <summary style="cursor:pointer;color:var(--primary);font-size:13px;font-weight:700">Ver resposta</summary>
+        <p style="margin-top:8px;font-size:13px;background:var(--green-soft);padding:10px;border-radius:10px">${e.resposta}</p>
+      </details>
+    </div>
+  `).join('');
+
+  document.getElementById('resultadoPlanoIA').scrollIntoView({ behavior: 'smooth' });
+}
+
+async function salvarPlanoInteligente() {
+  if (!planoGeradoAtual) return;
+  const { titulo, resultado } = planoGeradoAtual;
+
+  const { error } = await db.from('planos_ia').insert([{
+    user_id: currentUser.id,
+    titulo,
+    pdf_nome: document.getElementById('pdfNome').textContent,
+    analise: resultado,
+    plano_gerado: resultado.plano
+  }]);
+
+  if (error) return toast('❌ Erro ao salvar: ' + error.message);
+  toast('✅ Plano salvo com sucesso!');
+  await carregarPlanosInteligentes();
+}
+
+async function carregarPlanosInteligentes() {
+  const { data, error } = await db
+    .from('planos_ia')
+    .select('*')
+    .eq('user_id', currentUser.id)
+    .order('created_at', { ascending: false });
+
+  if (error) return;
+  renderListaPlanosInt(data || []);
+  document.getElementById('badgePlanosInt').textContent = (data || []).length || 'NEW';
+}
+
+function renderListaPlanosInt(lista) {
+  const el = document.getElementById('listaPlanosInteligentes');
+  if (!lista.length) {
+    el.innerHTML = '<div class="empty-state"><div class="empty-icon">✨</div>Nenhum plano inteligente salvo ainda.</div>';
+    return;
+  }
+  el.innerHTML = lista.map(p => `
+    <div class="item-card" style="margin-bottom:10px">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start">
+        <div>
+          <h4>${p.titulo}</h4>
+          <p style="font-size:12px;margin-top:2px">${p.pdf_nome || ''} — ${new Date(p.created_at).toLocaleDateString('pt-BR')}</p>
+        </div>
+        <div style="display:flex;gap:6px">
+          <button class="mini-btn" onclick="verPlanoSalvo('${p.id}')">👁️ Ver</button>
+          <button class="mini-btn btn-danger" onclick="deletarPlanoInt('${p.id}')">🗑️</button>
+        </div>
+      </div>
+    </div>
+  `).join('');
+}
+
+function verPlanoSalvo(id) {
+  // Recarrega da lista local
+  db.from('planos_ia').select('*').eq('id', id).single().then(({ data }) => {
+    if (!data) return;
+    planoGeradoAtual = { titulo: data.titulo, resultado: data.analise };
+    renderPlanoInteligente(data.titulo, data.analise);
+    goTab('planointeligente');
+  });
+}
+
+async function deletarPlanoInt(id) {
+  if (!confirm('Deletar este plano?')) return;
+  await db.from('planos_ia').delete().eq('id', id);
+  toast('🗑️ Plano removido.');
+  await carregarPlanosInteligentes();
 }
 
 // ═══════════════════════════════════════
