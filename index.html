@@ -449,7 +449,11 @@
       color: #fff !important;
       border-color: transparent !important;
     }
-  </style>
+    @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.6; }
+  }
+</style>
 </head>
 <body>
 
@@ -677,6 +681,17 @@
             <div id="dashNotas"></div>
           </div>
         </div>
+
+        <!-- Histórico de Estudo no Dashboard -->
+        <div class="card card-pad" style="margin-top:18px">
+          <div class="card-head">
+            <h3>📈 Histórico de Estudo</h3>
+            <span class="link-action" onclick="goTab('materias')">Ir para matérias →</span>
+          </div>
+          <div id="historicoEstudo">
+            <div class="empty-state"><div class="empty-icon">⏱️</div>Clique em uma matéria para iniciar o cronômetro!</div>
+          </div>
+        </div>
       </div>
 
       <!-- ─── MODAL LEMBRETE ─── -->
@@ -707,6 +722,12 @@
             <div>
               <label class="field-label">Cor</label>
               <input type="color" id="novaMateriaColor" value="#4f5ef7" style="height:46px;padding:4px 8px;cursor:pointer" />
+            </div>
+          </div>
+          <div class="row">
+            <div style="flex:1">
+              <label class="field-label">🏁 Data da Prova (opcional)</label>
+              <input type="date" id="novaMateriaDataProva" />
             </div>
           </div>
           <button onclick="salvarMateria()">➕ Adicionar Matéria</button>
@@ -1083,7 +1104,8 @@ async function carregarApp() {
     carregarPlanos(),
     carregarPrioridades(),
     carregarPlanosInteligentes(),
-    carregarLembretes()
+    carregarLembretes(),
+    carregarHistoricoEstudo()
   ]);
 
   atualizarDashboard();
@@ -1188,6 +1210,8 @@ const tabTitles = {
 };
 
 function goTab(tab) {
+  // Para timer se sair da aba matérias
+  if (tab !== 'materias' && estudoAtivoId) pararEstudo(estudoAtivoId);
   document.querySelectorAll('.tab-page').forEach(p => p.classList.remove('active'));
   document.querySelectorAll('.menu-item').forEach(m => m.classList.remove('active'));
   document.getElementById(`tab-${tab}`).classList.add('active');
@@ -1231,27 +1255,67 @@ function renderMaterias() {
     return;
   }
 
-  el.innerHTML = materias.map(m => `
-    <div class="card card-pad item-card" style="border-left: 4px solid ${m.cor || '#4f5ef7'}">
+  // Ordenar por urgência (prova mais próxima primeiro, sem prova por último)
+  const hoje = new Date(); hoje.setHours(0,0,0,0);
+  const sorted = [...materias].sort((a, b) => {
+    const dA = a.data_prova ? new Date(a.data_prova + 'T00:00:00') : null;
+    const dB = b.data_prova ? new Date(b.data_prova + 'T00:00:00') : null;
+    if (!dA && !dB) return 0;
+    if (!dA) return 1;
+    if (!dB) return -1;
+    return dA - dB;
+  });
+
+  el.innerHTML = sorted.map(m => {
+    const dias = m.data_prova ? Math.ceil((new Date(m.data_prova + 'T00:00:00') - hoje) / 86400000) : null;
+    const urgente = dias !== null && dias <= 3 && dias >= 0;
+    const proximo = dias !== null && dias <= 7 && dias > 3;
+    const passado = dias !== null && dias < 0;
+    let corBorda = m.cor || '#4f5ef7';
+    if (urgente) corBorda = '#ef4444';
+    else if (proximo) corBorda = '#f97316';
+
+    let badgeDias = '';
+    if (passado) badgeDias = '<span style="font-size:11px;background:#6b7280;color:#fff;padding:2px 8px;border-radius:20px;font-weight:700">Prova encerrada</span>';
+    else if (urgente) badgeDias = '<span style="font-size:11px;background:#ef4444;color:#fff;padding:2px 8px;border-radius:20px;font-weight:700">🚨 ' + (dias === 0 ? 'HOJE!' : dias + (dias===1?' dia!':' dias!')) + '</span>';
+    else if (proximo) badgeDias = '<span style="font-size:11px;background:#f97316;color:#fff;padding:2px 8px;border-radius:20px;font-weight:700">⚠️ ' + dias + ' dias</span>';
+    else if (dias !== null) badgeDias = '<span style="font-size:11px;background:var(--blue-soft);color:var(--primary);padding:2px 8px;border-radius:20px;font-weight:600">📅 ' + dias + ' dias</span>';
+
+    let alertaBanner = '';
+    if (urgente) alertaBanner = '<div style="margin-bottom:10px;padding:8px 12px;background:#fef2f2;border:1px solid #fecaca;border-radius:8px;font-size:12px;color:#dc2626;font-weight:600">🚨 Prova em ' + (dias === 0 ? 'HOJE' : dias + (dias===1?' dia':' dias')) + '! Priorize esta matéria agora!</div>';
+    else if (proximo) alertaBanner = '<div style="margin-bottom:10px;padding:8px 12px;background:#fff7ed;border:1px solid #fed7aa;border-radius:8px;font-size:12px;color:#ea580c;font-weight:600">⚠️ Prova em ' + dias + ' dias. Intensifique os estudos!</div>';
+
+    return `
+    <div class="card card-pad item-card" id="matcard-${m.id}"
+      style="border-left: 4px solid ${corBorda};cursor:pointer;transition:box-shadow 0.2s${urgente?';box-shadow:0 0 0 2px #ef444440':''}"
+      onclick="selecionarMateria('${m.id}', '${m.nome.replace(/'/g,"\\'")}', event)">
+      ${alertaBanner}
       <div style="display:flex;justify-content:space-between;align-items:flex-start">
-        <div>
-          <h4>${m.nome}</h4>
-          ${m.professor ? `<p>👨‍🏫 ${m.professor}</p>` : ''}
+        <div style="flex:1">
+          <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+            <h4 style="margin:0">${m.nome}</h4>
+            <span id="badge-estudando-${m.id}" class="hidden" style="font-size:11px;background:var(--green,#22c55e);color:#fff;padding:2px 8px;border-radius:20px;font-weight:700">● estudando</span>
+            ${badgeDias}
+          </div>
+          ${m.professor ? `<p style="margin:4px 0 0">👨‍🏫 ${m.professor}</p>` : ''}
+          ${m.data_prova ? `<p style="margin:4px 0 0;font-size:12px;color:var(--muted)">🏁 Prova: ${new Date(m.data_prova + 'T00:00:00').toLocaleDateString('pt-BR')}</p>` : ''}
+          <div style="font-size:12px;color:var(--muted);margin-top:4px">⏱️ Total: <span id="tempo-total-${m.id}">${formatarTempoTotal(m.tempo_total || 0)}</span> &nbsp;|&nbsp; Sessão: <span id="display-timer-${m.id}" style="color:var(--primary);font-weight:700">--</span></div>
         </div>
-        <button class="mini-btn btn-danger" onclick="deletarMateria('${m.id}')">🗑️</button>
+        <button class="mini-btn btn-danger" onclick="event.stopPropagation();deletarMateria('${m.id}')">🗑️</button>
       </div>
-      <div class="subject-progress">
+      <div class="subject-progress" style="margin-top:10px">
         <div class="progress-bar"><div style="width:${m.progresso || 0}%"></div></div>
         <strong>${m.progresso || 0}%</strong>
       </div>
       <div class="item-actions">
         <input type="range" min="0" max="100" value="${m.progresso || 0}"
           style="flex:1;accent-color:var(--primary)"
+          onclick="event.stopPropagation()"
           oninput="atualizarProgressoMateria('${m.id}', this.value)"
           onchange="salvarProgressoMateria('${m.id}', this.value)" />
       </div>
-    </div>
-  `).join('');
+    </div>`;
+  }).join('');
 }
 
 async function salvarMateria() {
@@ -1263,7 +1327,8 @@ async function salvarMateria() {
     nome,
     professor: document.getElementById('novaMateriaProfessor').value.trim(),
     progresso: parseInt(document.getElementById('novaMateriaProgresso').value) || 0,
-    cor: document.getElementById('novaMateriaColor').value
+    cor: document.getElementById('novaMateriaColor').value,
+    data_prova: document.getElementById('novaMateriaDataProva').value || null
   };
 
   const { error } = await db.from('materias').insert([materia]);
@@ -1272,6 +1337,7 @@ async function salvarMateria() {
   document.getElementById('novaMateria').value = '';
   document.getElementById('novaMateriaProfessor').value = '';
   document.getElementById('novaMateriaProgresso').value = '';
+  document.getElementById('novaMateriaDataProva').value = '';
   toast('✅ Matéria adicionada!');
   await carregarMaterias();
   atualizarDashboard();
@@ -2162,6 +2228,143 @@ function reiniciarProgressivo() {
 }
 
 // ═══════════════════════════════════════
+// ══ TIMER DE ESTUDO ══
+let estudoAtivoId = null;
+let estudoAtivoNome = null;
+let estudoInicioMs = null;
+let estudoSegundos = 0;
+let estudoInterval = null;
+
+function formatarTempoTotal(segundos) {
+  if (!segundos) return '0min';
+  const h = Math.floor(segundos / 3600);
+  const m = Math.floor((segundos % 3600) / 60);
+  if (h > 0) return h + 'h ' + m + 'min';
+  return m > 0 ? m + 'min' : '<1min';
+}
+
+function formatarTimer(seg) {
+  const h = String(Math.floor(seg / 3600)).padStart(2,'0');
+  const m = String(Math.floor((seg % 3600) / 60)).padStart(2,'0');
+  const s = String(seg % 60).padStart(2,'0');
+  return h + ':' + m + ':' + s;
+}
+
+function selecionarMateria(id, nome, event) {
+  // Não inicia se clicou no range ou botão deletar
+  if (event && (event.target.tagName === 'INPUT' || event.target.tagName === 'BUTTON')) return;
+
+  if (estudoAtivoId === id) {
+    // Clicou na mesma → para
+    pararEstudo(id);
+  } else {
+    // Para qualquer outro e inicia este
+    if (estudoAtivoId) pararEstudo(estudoAtivoId);
+    iniciarEstudo(id, nome);
+  }
+}
+
+function iniciarEstudo(id, nome) {
+  estudoAtivoId = id;
+  estudoAtivoNome = nome;
+  estudoSegundos = 0;
+  estudoInicioMs = Date.now();
+
+  // Visual: destaca card ativo
+  document.querySelectorAll('#listaMaterias .item-card').forEach(c => {
+    c.style.boxShadow = '';
+    c.style.opacity = '0.6';
+  });
+  const card = document.getElementById('matcard-' + id);
+  if (card) { card.style.boxShadow = '0 0 0 3px var(--primary)'; card.style.opacity = '1'; }
+
+  const badge = document.getElementById('badge-estudando-' + id);
+  if (badge) badge.classList.remove('hidden');
+
+  estudoInterval = setInterval(() => {
+    estudoSegundos++;
+    const display = document.getElementById('display-timer-' + id);
+    if (display) display.textContent = formatarTimer(estudoSegundos);
+  }, 1000);
+
+  toast('▶ Cronômetro iniciado: ' + nome);
+}
+
+async function pararEstudo(id) {
+  if (!estudoAtivoId || estudoAtivoId !== id) return;
+  clearInterval(estudoInterval);
+  const seg = estudoSegundos;
+  const nome = estudoAtivoNome;
+
+  estudoAtivoId = null;
+  estudoAtivoNome = null;
+  estudoSegundos = 0;
+  estudoInterval = null;
+
+  // Remove visual destaque
+  document.querySelectorAll('#listaMaterias .item-card').forEach(c => {
+    c.style.boxShadow = '';
+    c.style.opacity = '1';
+  });
+  const badge = document.getElementById('badge-estudando-' + id);
+  if (badge) badge.classList.add('hidden');
+  const display = document.getElementById('display-timer-' + id);
+  if (display) display.textContent = '--';
+
+  if (seg < 5) return;
+
+  // Salva sessão
+  await db.from('sessoes_estudo').insert([{
+    user_id: currentUser.id,
+    materia_id: id,
+    materia_nome: nome,
+    segundos: seg,
+    data: new Date().toISOString()
+  }]);
+
+  // Atualiza tempo_total
+  const mat = materias.find(m => m.id === id);
+  const novoTotal = (mat ? (mat.tempo_total || 0) : 0) + seg;
+  await db.from('materias').update({ tempo_total: novoTotal }).eq('id', id);
+
+  toast('✅ ' + formatarTempoTotal(seg) + ' registrados em ' + nome);
+  await carregarMaterias();
+  await carregarHistoricoEstudo();
+}
+
+async function carregarHistoricoEstudo() {
+  const el = document.getElementById('historicoEstudo');
+  if (!el) return;
+  const { data } = await db.from('sessoes_estudo')
+    .select('*')
+    .eq('user_id', currentUser.id)
+    .order('data', { ascending: false })
+    .limit(10);
+
+  if (!data || !data.length) {
+    el.innerHTML = '<div class="empty-state"><div class="empty-icon">⏱️</div>Clique em uma matéria para iniciar o cronômetro!</div>';
+    return;
+  }
+
+  el.innerHTML = data.map(s => `
+    <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--border,#eee)">
+      <div>
+        <div style="font-weight:600;font-size:14px">📖 ${s.materia_nome || 'Matéria'}</div>
+        <div style="font-size:12px;color:var(--muted)">${new Date(s.data).toLocaleString('pt-BR')}</div>
+      </div>
+      <div style="font-weight:700;color:var(--primary);font-size:14px">⏱️ ${formatarTempoTotal(s.segundos)}</div>
+    </div>
+  `).join('');
+}
+
+// Para timer ao fechar/sair da página
+window.addEventListener('beforeunload', () => {
+  if (estudoAtivoId) pararEstudo(estudoAtivoId);
+});
+document.addEventListener('visibilitychange', () => {
+  if (document.hidden && estudoAtivoId) pararEstudo(estudoAtivoId);
+});
+
 // ══ LEMBRETES ══
 function abrirModalLembrete() {
   const m = document.getElementById('modalLembrete');
