@@ -2401,8 +2401,7 @@ async function gerarResumoVespera() {
     `;
   } catch(err) {
     // Fallback sem IA — usa dados do plano já gerado
-    const topList = (resultado.topicos || []).slice(0,5).map((t,i) => `${i+1}. ${t.tema} (${t.probabilidade}%)`).join('
-');
+    const topList = (resultado.topicos || []).slice(0,5).map((t,i) => `${i+1}. ${t.tema} (${t.probabilidade}%)`).join('\n');
     const fcList = (resultado.flashcards || []).slice(0,4);
     el.innerHTML = `
       <div style="margin-bottom:18px;padding:14px;background:#fef3c7;border:1px solid #fbbf24;border-radius:12px">
