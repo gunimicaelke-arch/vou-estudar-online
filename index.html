@@ -3,27 +3,29 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Vou Estudar+ Versão 2</title>
+  <title>Vou Estudar+ Online</title>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
     * { box-sizing: border-box; }
 
     :root{
-      --bg: #f6f7fc;
-      --sidebar: #f0f1fb;
-      --card: #ffffff;
-      --line: #e6e9f5;
-      --text: #202634;
-      --muted: #6f7890;
-      --primary: #5863f8;
-      --primary-2: #7882ff;
-      --green: #29b36a;
-      --orange: #f3b33d;
-      --blue-soft: #eef1ff;
-      --green-soft: #eaf8ef;
-      --orange-soft: #fff4df;
-      --red-soft: #fff0f0;
-      --shadow: 0 10px 28px rgba(22, 29, 45, 0.06);
+      --bg:#f6f7fc;
+      --sidebar:#f0f1fb;
+      --card:#ffffff;
+      --line:#e6e9f5;
+      --text:#202634;
+      --muted:#6f7890;
+      --primary:#5863f8;
+      --primary-2:#7882ff;
+      --green:#29b36a;
+      --orange:#f3b33d;
+      --red:#ff6b6b;
+      --blue-soft:#eef1ff;
+      --green-soft:#eaf8ef;
+      --orange-soft:#fff4df;
+      --red-soft:#fff0f0;
+      --shadow:0 10px 28px rgba(22,29,45,0.06);
     }
 
     body {
@@ -51,7 +53,7 @@
       align-items: center;
     }
 
-    .intro-box, .login-box, .shell, .card, .sidebar {
+    .intro-box, .auth-box, .shell, .card, .sidebar {
       background: var(--card);
       border: 1px solid var(--line);
       border-radius: 24px;
@@ -109,22 +111,45 @@
       font-size: 18px;
     }
 
-    .login-box {
+    .auth-box {
       padding: 32px;
-      max-width: 460px;
+      max-width: 480px;
       width: 100%;
       justify-self: center;
     }
 
-    .login-box h2 {
+    .auth-tabs {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+
+    .auth-tab {
+      flex: 1;
+      padding: 12px;
+      border-radius: 14px;
+      text-align: center;
+      cursor: pointer;
+      font-weight: 700;
+      border: 1px solid var(--line);
+      background: #f7f8fd;
+    }
+
+    .auth-tab.active {
+      background: linear-gradient(90deg, var(--primary), var(--primary-2));
+      color: #fff;
+      border-color: transparent;
+    }
+
+    .auth-box h2 {
       margin: 0 0 8px 0;
-      font-size: 40px;
+      font-size: 34px;
       text-align: center;
     }
 
-    .login-box .muted {
+    .auth-box .muted {
       text-align: center;
-      margin-bottom: 24px;
+      margin-bottom: 18px;
     }
 
     input, textarea, select, button {
@@ -170,15 +195,6 @@
       padding: 8px 12px;
       border-radius: 10px;
       font-size: 13px;
-    }
-
-    .demo-box {
-      margin-top: 14px;
-      background: #f4f5ff;
-      border-radius: 16px;
-      padding: 14px;
-      color: var(--text);
-      border: 1px solid #e6e8ff;
     }
 
     .muted { color: var(--muted); }
@@ -294,9 +310,7 @@
       color: #fff;
     }
 
-    .shell {
-      overflow: hidden;
-    }
+    .shell { overflow: hidden; }
 
     .topbar {
       padding: 18px 22px;
@@ -307,74 +321,6 @@
       gap: 16px;
       flex-wrap: wrap;
       background: #fff;
-    }
-
-    .search-box {
-      flex: 1;
-      min-width: 280px;
-      max-width: 620px;
-      position: relative;
-    }
-
-    .search-box input {
-      margin: 0;
-      padding-left: 44px;
-      padding-right: 90px;
-      border-radius: 16px;
-    }
-
-    .search-icon {
-      position: absolute;
-      left: 14px;
-      top: 50%;
-      transform: translateY(-50%);
-      color: var(--muted);
-    }
-
-    .search-shortcut {
-      position: absolute;
-      right: 12px;
-      top: 50%;
-      transform: translateY(-50%);
-      font-size: 12px;
-      color: var(--muted);
-      background: #f5f6fb;
-      border: 1px solid var(--line);
-      padding: 6px 8px;
-      border-radius: 10px;
-    }
-
-    .top-actions {
-      display: flex;
-      align-items: center;
-      gap: 14px;
-      flex-wrap: wrap;
-    }
-
-    .icon-btn {
-      width: 42px;
-      height: 42px;
-      border-radius: 14px;
-      background: #f5f6fb;
-      border: 1px solid var(--line);
-      display: grid;
-      place-items: center;
-      position: relative;
-    }
-
-    .notif-dot {
-      position: absolute;
-      top: -4px;
-      right: -4px;
-      width: 20px;
-      height: 20px;
-      border-radius: 999px;
-      background: #ff5757;
-      color: #fff;
-      font-size: 11px;
-      display: grid;
-      place-items: center;
-      font-weight: 700;
     }
 
     .profile-box {
@@ -488,7 +434,7 @@
     .blue-soft { background: var(--blue-soft); color: var(--primary); }
     .green-soft { background: var(--green-soft); color: var(--green); }
     .orange-soft { background: var(--orange-soft); color: var(--orange); }
-    .red-soft { background: var(--red-soft); color: #ff6b6b; }
+    .red-soft { background: var(--red-soft); color: var(--red); }
 
     .stat-title {
       color: var(--muted);
@@ -523,9 +469,7 @@
       margin-bottom: 18px;
     }
 
-    .card {
-      padding: 20px;
-    }
+    .card { padding: 20px; }
 
     .card-head {
       display: flex;
@@ -540,7 +484,6 @@
       margin: 0;
       font-size: 18px;
       font-weight: 800;
-      letter-spacing: 0.2px;
     }
 
     .link-action {
@@ -548,72 +491,6 @@
       font-weight: 700;
       cursor: pointer;
       font-size: 14px;
-    }
-
-    .schedule-item {
-      display: flex;
-      align-items: center;
-      gap: 14px;
-      padding: 14px;
-      border-radius: 18px;
-      margin-bottom: 12px;
-      border: 1px solid var(--line);
-    }
-
-    .schedule-time {
-      width: 66px;
-      font-weight: 700;
-      color: var(--muted);
-      flex-shrink: 0;
-    }
-
-    .schedule-dot {
-      width: 12px;
-      height: 12px;
-      border-radius: 50%;
-      flex-shrink: 0;
-    }
-
-    .schedule-main {
-      flex: 1;
-      min-width: 0;
-    }
-
-    .schedule-main strong {
-      display: block;
-      font-size: 16px;
-      margin-bottom: 4px;
-    }
-
-    .schedule-main span {
-      color: var(--muted);
-      font-size: 14px;
-    }
-
-    .schedule-tag {
-      padding: 6px 12px;
-      border-radius: 999px;
-      font-size: 13px;
-      font-weight: 700;
-      white-space: nowrap;
-    }
-
-    .tag-study { background: #ececff; color: var(--primary); }
-    .tag-review { background: #eaf8ef; color: var(--green); }
-    .tag-practice { background: #fff4df; color: #cc8a00; }
-
-    .schedule-duration {
-      white-space: nowrap;
-      color: var(--muted);
-      font-weight: 700;
-      margin-left: 6px;
-    }
-
-    .big-action {
-      margin-top: 10px;
-      border-radius: 14px;
-      padding: 16px;
-      font-size: 18px;
     }
 
     .note-item, .subject-item, .saved-plan-item {
@@ -677,18 +554,43 @@
       margin-bottom: 12px;
     }
 
+    .priority-card {
+      border-radius: 18px;
+      padding: 18px;
+      margin-bottom: 14px;
+      border: 1px solid var(--line);
+    }
+
+    .priority-90 { background: #fff1f1; border-left: 6px solid #ff6b6b; }
+    .priority-70 { background: #fff7e8; border-left: 6px solid #f3b33d; }
+    .priority-50 { background: #f5fff7; border-left: 6px solid #29b36a; }
+    .priority-25 { background: #f4f5f8; border-left: 6px solid #b9bfd3; }
+
+    .priority-top {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-bottom: 8px;
+    }
+
+    .priority-badge {
+      display: inline-block;
+      padding: 6px 12px;
+      border-radius: 999px;
+      font-size: 13px;
+      font-weight: 800;
+    }
+
+    .badge-90 { background:#ff6b6b; color:#fff; }
+    .badge-70 { background:#f3b33d; color:#fff; }
+    .badge-50 { background:#29b36a; color:#fff; }
+    .badge-25 { background:#9aa3b2; color:#fff; }
+
     @media (max-width: 1220px) {
-      .app-wrap {
-        grid-template-columns: 1fr;
-      }
-
-      .sidebar {
-        order: 2;
-      }
-
-      .shell {
-        order: 1;
-      }
+      .app-wrap { grid-template-columns: 1fr; }
+      .sidebar { order: 2; }
+      .shell { order: 1; }
     }
 
     @media (max-width: 1100px) {
@@ -715,7 +617,7 @@
           <div class="feature-icon">📘</div>
           <div>
             <h3>Plano de estudo inteligente</h3>
-            <p>Gere planos personalizados, cronogramas e revisões.</p>
+            <p>Foque primeiro no que mais tem chance de cair.</p>
           </div>
         </div>
 
@@ -728,29 +630,37 @@
         </div>
 
         <div class="feature">
-          <div class="feature-icon">📈</div>
+          <div class="feature-icon">☁️</div>
           <div>
-            <h3>Acompanhe seu progresso</h3>
-            <p>Veja evolução diária, matérias em foco e próximas provas.</p>
+            <h3>Tudo salvo online</h3>
+            <p>Abra no celular ou no computador sem perder seus dados.</p>
           </div>
         </div>
       </div>
 
-      <div class="login-box">
-        <h2>Entrar</h2>
-        <p class="muted">Acesse sua conta para continuar</p>
-
-        <input id="loginEmail" type="email" placeholder="Email" value="admin@vouestudar.com" />
-        <input id="loginPassword" type="password" placeholder="Senha" value="123456" />
-        <button id="loginBtn">Entrar</button>
-
-        <div class="demo-box">
-          <strong>Login de demonstração:</strong><br>
-          Email: admin@vouestudar.com<br>
-          Senha: 123456
+      <div class="auth-box">
+        <div class="auth-tabs">
+          <div class="auth-tab active" id="tabLogin">Entrar</div>
+          <div class="auth-tab" id="tabCadastro">Criar conta</div>
         </div>
 
-        <p id="loginMsg" class="muted"></p>
+        <h2 id="authTitle">Entrar</h2>
+        <p class="muted" id="authSubtitle">Acesse sua conta para continuar</p>
+
+        <div id="loginForm">
+          <input id="loginEmail" type="email" placeholder="Email" />
+          <input id="loginPassword" type="password" placeholder="Senha" />
+          <button id="loginBtn">Entrar</button>
+          <button class="secondary" id="resetBtn" style="margin-top:10px;">Enviar recuperação de senha</button>
+        </div>
+
+        <div id="cadastroForm" class="hidden">
+          <input id="signupEmail" type="email" placeholder="Email" />
+          <input id="signupPassword" type="password" placeholder="Senha" />
+          <button id="signupBtn">Criar conta</button>
+        </div>
+
+        <p id="authMsg" class="muted"></p>
       </div>
     </div>
   </div>
@@ -761,58 +671,44 @@
         <div class="logo">
           <div class="logo-box">📘</div>
           <span>Vou Estudar+</span>
-          <span class="version-pill">Versão 2.0</span>
+          <span class="version-pill">Online</span>
         </div>
 
         <div class="menu">
           <div class="menu-item active" data-page="hoje">🏠 Hoje</div>
           <div class="menu-item" data-page="plano">✨ Plano Inteligente</div>
-          <div class="menu-item" data-page="materias">📚 Matérias</div>
-          <div class="menu-item" data-page="cronograma">🗓️ Cronograma</div>
-          <div class="menu-item" data-page="revisoes">🔄 Revisões <span class="menu-badge" id="badgeRevisoes">0</span></div>
+          <div class="menu-item" data-page="trabalhos">📌 Trabalhos <span class="menu-badge" id="badgeTrabalhos">0</span></div>
           <div class="menu-item" data-page="caderno">📝 Caderno Diário</div>
-          <div class="menu-item" data-page="simulados">🧪 Simulados</div>
           <div class="menu-item" data-page="progresso">📊 Progresso</div>
         </div>
 
         <div class="sidebar-actions">
           <div class="side-title">Atalhos</div>
-          <button class="quick-btn quick-primary" id="btnEstudoAgora">▶ Iniciar Estudo<br><span style="font-weight:400;">25:00</span></button>
-          <button class="quick-btn secondary" id="btnNovaMateria">＋ Nova Matéria</button>
-          <button class="quick-btn secondary" id="btnNovaAnotacao">✎ Nova Anotação</button>
+          <button class="quick-btn quick-primary" id="btnEstudoAgora">▶ Estudar agora</button>
+          <button class="quick-btn secondary" id="btnNovoTrabalho">＋ Novo trabalho</button>
+          <button class="quick-btn secondary" id="btnNovaAnotacao">✎ Nova anotação</button>
         </div>
       </aside>
 
       <main class="shell">
         <div class="topbar">
-          <div class="search-box">
-            <span class="search-icon">🔎</span>
-            <input type="text" placeholder="Buscar matérias, planos, anotações..." />
-            <span class="search-shortcut">CTRL + K</span>
-          </div>
-
-          <div class="top-actions">
-            <div class="icon-btn">🔔 <span class="notif-dot" id="notifCount">0</span></div>
-            <div class="icon-btn">🗓️</div>
-
-            <div class="profile-box">
-              <div class="avatar">A</div>
-              <div class="profile-meta">
-                <strong id="profileName">Acadêmico</strong>
-                <span>Acadêmico</span>
-              </div>
+          <div class="profile-box">
+            <div class="avatar">A</div>
+            <div class="profile-meta">
+              <strong id="profileName">Acadêmico</strong>
+              <span id="profileEmail">email</span>
             </div>
-
-            <button class="secondary mini-btn" id="logoutBtn">Sair</button>
           </div>
+
+          <button class="secondary mini-btn" id="logoutBtn">Sair</button>
         </div>
 
         <div class="content">
           <section id="page-hoje" class="tab-page active">
             <div class="hero">
               <div>
-                <h1 id="heroSaudacao">Bom dia, Acadêmico! 👋</h1>
-                <p>Vamos focar e conquistar seus objetivos hoje.</p>
+                <h1 id="heroSaudacao">Bom dia! 👋</h1>
+                <p>Hoje o foco é começar pelo que mais cai.</p>
               </div>
 
               <div class="goal-card">
@@ -841,29 +737,29 @@
               </div>
 
               <div class="stat-card card">
-                <div class="stat-icon green-soft">📅</div>
+                <div class="stat-icon red-soft">🔥</div>
                 <div>
-                  <div class="stat-title">Próxima prova</div>
-                  <div class="stat-value" id="proximaProvaCard">Nenhuma</div>
-                  <div class="stat-sub" id="proximaProvaMateria">Cadastre uma matéria</div>
+                  <div class="stat-title">Foco principal</div>
+                  <div class="stat-value" id="focoPrincipalCard">90% de chance</div>
+                  <div class="stat-sub">Comece pelo que mais cai</div>
                 </div>
               </div>
 
               <div class="stat-card card">
-                <div class="stat-icon orange-soft">📒</div>
+                <div class="stat-icon orange-soft">📌</div>
                 <div>
-                  <div class="stat-title">Revisões hoje</div>
-                  <div class="stat-value" id="revisoesHojeCard">0 pendentes</div>
-                  <div class="stat-sub" id="revisoesHojeSub">0 concluídas</div>
+                  <div class="stat-title">Trabalhos</div>
+                  <div class="stat-value" id="trabalhosPendentesCard">0 pendentes</div>
+                  <div class="stat-sub" id="trabalhoMaisProximoCard">Sem prazo próximo</div>
                 </div>
               </div>
 
               <div class="stat-card card">
-                <div class="stat-icon blue-soft">🎯</div>
+                <div class="stat-icon green-soft">📝</div>
                 <div>
-                  <div class="stat-title">Sessões</div>
-                  <div class="stat-value" id="qtdSessoes">0 concluídas</div>
-                  <div class="stat-sub">Total acumulado</div>
+                  <div class="stat-title">Anotações</div>
+                  <div class="stat-value" id="anotacoesHojeCard">0 salvas</div>
+                  <div class="stat-sub">Caderno diário</div>
                 </div>
               </div>
             </div>
@@ -871,10 +767,28 @@
             <div class="grid-2">
               <div class="card">
                 <div class="card-head">
-                  <h3>O que estudar hoje?</h3>
-                  <span class="link-action" onclick="abrirPagina('cronograma')">Ver cronograma completo →</span>
+                  <h3>Seu foco de estudo</h3>
+                  <span class="link-action" onclick="abrirPagina('plano')">Abrir plano inteligente →</span>
                 </div>
-                <div id="cronogramaHojeLista"></div>
+
+                <div class="priority-card priority-90">
+                  <div class="priority-top">
+                    <span class="priority-badge badge-90">90% • Prioridade máxima</span>
+                    <strong>Comece aqui</strong>
+                  </div>
+                  <h4 style="margin:0 0 6px 0;">O que mais cai na prova</h4>
+                  <p>Direcione o estudo primeiro para os tópicos mais prováveis.</p>
+                </div>
+
+                <div class="priority-card priority-70">
+                  <div class="priority-top">
+                    <span class="priority-badge badge-70">70% • Alta prioridade</span>
+                    <strong>Depois continue</strong>
+                  </div>
+                  <h4 style="margin:0 0 6px 0;">Assuntos recorrentes</h4>
+                  <p>Estude em seguida os temas de alta incidência.</p>
+                </div>
+
                 <button class="big-action" id="btnIniciarEstudoAgora2">▶ Iniciar Estudo Agora</button>
               </div>
 
@@ -891,15 +805,13 @@
               <div class="card">
                 <div class="card-head">
                   <h3>Progresso Semanal</h3>
-                  <span class="link-action" onclick="abrirPagina('progresso')">Ver progresso completo →</span>
                 </div>
                 <canvas id="graficoTempoHoje"></canvas>
               </div>
 
               <div class="card">
                 <div class="card-head">
-                  <h3>Matérias em Foco</h3>
-                  <span class="link-action" onclick="abrirPagina('materias')">Gerenciar matérias →</span>
+                  <h3>Trabalhos em andamento</h3>
                 </div>
                 <div id="materiasEmFoco"></div>
               </div>
@@ -909,12 +821,12 @@
           <section id="page-plano" class="tab-page">
             <div class="card">
               <div class="card-head">
-                <h3>Plano de Estudo Inteligente</h3>
-                <span class="link-action">Prático e personalizado</span>
+                <h3>Plano Inteligente</h3>
+                <span class="link-action">Foque primeiro no que mais cai</span>
               </div>
 
               <div class="row">
-                <input id="iaMateria" placeholder="Matéria" />
+                <input id="iaMateria" placeholder="Tema, prova ou disciplina" />
                 <input id="iaData" type="date" />
               </div>
 
@@ -923,7 +835,7 @@
               </label>
               <input id="importarPlanoArquivo" type="file" accept=".pdf,.csv,.txt,.docx" class="hidden" />
 
-              <textarea id="iaConteudo" rows="10" placeholder="Cole ou importe o conteúdo da aula, resumo, edital ou tema da prova"></textarea>
+              <textarea id="iaConteudo" rows="8" placeholder="Cole ou importe o conteúdo da prova, edital, aula ou resumo"></textarea>
 
               <div class="row">
                 <button id="gerarPlanoBtn">Gerar plano</button>
@@ -931,89 +843,88 @@
               </div>
 
               <p id="iaMsg" class="muted"></p>
+
+              <div class="card" style="margin-top:18px; background:#fafbff;">
+                <div class="card-head">
+                  <h3>Seu plano focado no que mais cai</h3>
+                  <span class="link-action">Ordenado por chance de cair</span>
+                </div>
+
+                <div id="planoPriorizadoPreview">
+                  <div class="priority-card priority-90">
+                    <div class="priority-top">
+                      <span class="priority-badge badge-90">90%</span>
+                      <strong>Prioridade máxima</strong>
+                    </div>
+                    <h4 style="margin:0 0 6px 0;">Comece por aqui</h4>
+                    <p>Primeiro os tópicos com maior chance de cair.</p>
+                  </div>
+
+                  <div class="priority-card priority-70">
+                    <div class="priority-top">
+                      <span class="priority-badge badge-70">70%</span>
+                      <strong>Alta prioridade</strong>
+                    </div>
+                    <h4 style="margin:0 0 6px 0;">Segundo bloco</h4>
+                    <p>Depois siga para os assuntos muito recorrentes.</p>
+                  </div>
+
+                  <div class="priority-card priority-50">
+                    <div class="priority-top">
+                      <span class="priority-badge badge-50">50%</span>
+                      <strong>Prioridade média</strong>
+                    </div>
+                    <h4 style="margin:0 0 6px 0;">Terceiro bloco</h4>
+                    <p>Depois revise os conteúdos secundários.</p>
+                  </div>
+
+                  <div class="priority-card priority-25">
+                    <div class="priority-top">
+                      <span class="priority-badge badge-25">25%</span>
+                      <strong>Revisão leve</strong>
+                    </div>
+                    <h4 style="margin:0 0 6px 0;">Finalização</h4>
+                    <p>Finalize com os temas menos prováveis.</p>
+                  </div>
+                </div>
+              </div>
+
               <textarea id="resultadoPlano" rows="18" placeholder="Seu plano aparecerá aqui."></textarea>
             </div>
 
             <div class="card" style="margin-top:18px;">
               <div class="card-head">
                 <h3>Planos Salvos</h3>
-                <span class="link-action" id="limparPlanosBtn">Limpar tudo</span>
               </div>
               <div id="listaPlanosSalvos"></div>
             </div>
           </section>
 
-          <section id="page-materias" class="tab-page">
+          <section id="page-trabalhos" class="tab-page">
             <div class="grid-2">
               <div class="card">
                 <div class="card-head">
-                  <h3>Cadastrar Matéria</h3>
-                  <span class="link-action">Organização acadêmica</span>
+                  <h3>Adicionar Trabalho</h3>
                 </div>
 
-                <input id="materiaNome" placeholder="Nome da matéria" />
-                <input id="materiaData" type="date" />
-                <button id="addMateriaBtn">Salvar matéria</button>
-              </div>
-
-              <div class="card">
-                <div class="card-head">
-                  <h3>Matérias Cadastradas</h3>
-                  <span class="link-action">Lista</span>
-                </div>
-                <div id="listaMateriasCompleta"></div>
-              </div>
-            </div>
-          </section>
-
-          <section id="page-cronograma" class="tab-page">
-            <div class="card">
-              <div class="card-head">
-                <h3>Cronograma do Dia</h3>
-                <span class="link-action">Organize seus blocos de estudo</span>
-              </div>
-
-              <div class="row">
-                <input id="cronHorario" type="time" />
-                <input id="cronMateria" placeholder="Matéria" />
-                <input id="cronDescricao" placeholder="Descrição" />
-              </div>
-
-              <div class="row">
-                <select id="cronTipo">
-                  <option value="Estudar">Estudar</option>
-                  <option value="Revisão">Revisão</option>
-                  <option value="Praticar">Praticar</option>
+                <input id="trabMateria" placeholder="Tema ou disciplina" />
+                <input id="trabTitulo" placeholder="Título do trabalho" />
+                <textarea id="trabDescricao" rows="6" placeholder="Descrição"></textarea>
+                <input id="trabDataEntrega" type="date" />
+                <select id="trabStatus">
+                  <option value="Pendente">Pendente</option>
+                  <option value="Em andamento">Em andamento</option>
+                  <option value="Concluído">Concluído</option>
                 </select>
-                <input id="cronDuracao" placeholder="Duração ex: 1h 30min" />
-              </div>
 
-              <button id="addCronogramaBtn">Adicionar ao cronograma</button>
-
-              <div style="margin-top:18px;" id="cronogramaCompletoLista"></div>
-            </div>
-          </section>
-
-          <section id="page-revisoes" class="tab-page">
-            <div class="grid-2">
-              <div class="card">
-                <div class="card-head">
-                  <h3>Criar Revisão</h3>
-                  <span class="link-action">24h, 3 dias, 7 dias</span>
-                </div>
-
-                <select id="revMateria"></select>
-                <input id="revDescricao" placeholder="Descrição da revisão" />
-                <input id="revData" type="date" />
-                <button id="addRevisaoBtn">Salvar revisão</button>
+                <button id="addTrabalhoBtn">Salvar trabalho</button>
               </div>
 
               <div class="card">
                 <div class="card-head">
-                  <h3>Revisões Pendentes</h3>
-                  <span class="link-action">Hoje e próximas</span>
+                  <h3>Lista de Trabalhos</h3>
                 </div>
-                <div id="listaRevisoes"></div>
+                <div id="listaTrabalhos"></div>
               </div>
             </div>
           </section>
@@ -1023,12 +934,11 @@
               <div class="card">
                 <div class="card-head">
                   <h3>Caderno Diário</h3>
-                  <span class="link-action">Anotações por matéria</span>
                 </div>
 
-                <select id="notaMateria"></select>
+                <input id="notaMateria" placeholder="Tema ou disciplina" />
                 <input id="notaTitulo" placeholder="Título da anotação" />
-                <textarea id="notaConteudo" rows="12" placeholder="Anote a aula, os pontos importantes, dúvidas e resumos"></textarea>
+                <textarea id="notaConteudo" rows="12" placeholder="Anote a aula, os pontos importantes e dúvidas"></textarea>
 
                 <div class="row">
                   <button id="salvarNotaBtn">Salvar anotação</button>
@@ -1039,21 +949,8 @@
               <div class="card">
                 <div class="card-head">
                   <h3>Anotações Salvas</h3>
-                  <span class="link-action" id="limparNotasBtn">Limpar tudo</span>
                 </div>
                 <div id="listaNotas"></div>
-              </div>
-            </div>
-          </section>
-
-          <section id="page-simulados" class="tab-page">
-            <div class="card">
-              <div class="card-head">
-                <h3>Simulados</h3>
-                <span class="link-action">Próxima etapa da plataforma</span>
-              </div>
-              <div class="empty">
-                Esta área já está pronta para receber a próxima fase: geração de perguntas, quiz e simulados por matéria.
               </div>
             </div>
           </section>
@@ -1063,15 +960,13 @@
               <div class="card">
                 <div class="card-head">
                   <h3>Estudo por dia</h3>
-                  <span class="link-action">Últimos 7 dias</span>
                 </div>
                 <canvas id="graficoTempoCompleto"></canvas>
               </div>
 
               <div class="card">
                 <div class="card-head">
-                  <h3>Estudo por matéria</h3>
-                  <span class="link-action">Distribuição</span>
+                  <h3>Estudo por foco</h3>
                 </div>
                 <canvas id="graficoMaterias"></canvas>
               </div>
@@ -1083,22 +978,36 @@
   </div>
 
   <script>
+    const SUPABASE_URL = "https://mcyzxwtpjoqioeqemrv.supabase.co";
+    const SUPABASE_KEY = "sb_publishable_G1DmNZdvjDl0-3N2onqD4Q_SZM1M6f1";
     const API = "";
     const META_DIARIA_MIN = 210;
 
+    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+    const state = {
+      user: null,
+      trabalhos: [],
+      notas: [],
+      planos: [],
+      sessoes: []
+    };
+
     const loginView = document.getElementById("loginView");
     const appView = document.getElementById("appView");
-    const loginMsg = document.getElementById("loginMsg");
+    const authMsg = document.getElementById("authMsg");
+
+    const tabLogin = document.getElementById("tabLogin");
+    const tabCadastro = document.getElementById("tabCadastro");
+    const loginForm = document.getElementById("loginForm");
+    const cadastroForm = document.getElementById("cadastroForm");
+    const authTitle = document.getElementById("authTitle");
+    const authSubtitle = document.getElementById("authSubtitle");
 
     const loginBtn = document.getElementById("loginBtn");
+    const signupBtn = document.getElementById("signupBtn");
+    const resetBtn = document.getElementById("resetBtn");
     const logoutBtn = document.getElementById("logoutBtn");
-
-    const materiaNome = document.getElementById("materiaNome");
-    const materiaData = document.getElementById("materiaData");
-    const addMateriaBtn = document.getElementById("addMateriaBtn");
-
-    const timerMinutos = document.createElement("input");
-    timerMinutos.value = 25;
 
     const iaMateria = document.getElementById("iaMateria");
     const iaData = document.getElementById("iaData");
@@ -1118,36 +1027,9 @@
     let graficoTempoHoje;
     let graficoTempoCompleto;
     let graficoMaterias;
-    let timerInterval = null;
-
-    function getData() {
-      return JSON.parse(localStorage.getItem("vou_estudar_data") || JSON.stringify({
-        user: null,
-        materias: [],
-        sessoes: [],
-        timer: null,
-        ultimoPlano: "",
-        planosSalvos: [],
-        notas: [],
-        cronograma: [],
-        revisoes: []
-      }));
-    }
-
-    function saveData(data) {
-      localStorage.setItem("vou_estudar_data", JSON.stringify(data));
-    }
-
-    function isLogged() {
-      return !!getData().user;
-    }
 
     function hojeStr() {
       return new Date().toISOString().slice(0, 10);
-    }
-
-    function formatMin(min) {
-      return `${min} min`;
     }
 
     function minToHourText(min) {
@@ -1170,6 +1052,39 @@
       });
     }
 
+    function setAuthMessage(text, kind = "muted") {
+      authMsg.textContent = text;
+      authMsg.className = kind;
+    }
+
+    function setIAMessage(text, kind = "muted") {
+      iaMsg.textContent = text;
+      iaMsg.className = kind;
+    }
+
+    function showLogin() {
+      loginView.classList.remove("hidden");
+      appView.classList.add("hidden");
+    }
+
+    function showApp() {
+      loginView.classList.add("hidden");
+      appView.classList.remove("hidden");
+    }
+
+    function openAuthTab(mode) {
+      const isLogin = mode === "login";
+      tabLogin.classList.toggle("active", isLogin);
+      tabCadastro.classList.toggle("active", !isLogin);
+      loginForm.classList.toggle("hidden", !isLogin);
+      cadastroForm.classList.toggle("hidden", isLogin);
+      authTitle.textContent = isLogin ? "Entrar" : "Criar conta";
+      authSubtitle.textContent = isLogin
+        ? "Acesse sua conta para continuar"
+        : "Crie sua conta para salvar tudo online";
+      setAuthMessage("");
+    }
+
     function abrirPagina(nome) {
       document.querySelectorAll(".menu-item").forEach(item => {
         item.classList.toggle("active", item.dataset.page === nome);
@@ -1190,151 +1105,549 @@
       item.addEventListener("click", () => abrirPagina(item.dataset.page));
     });
 
-    function showLogin() {
-      loginView.classList.remove("hidden");
-      appView.classList.add("hidden");
+    tabLogin.addEventListener("click", () => openAuthTab("login"));
+    tabCadastro.addEventListener("click", () => openAuthTab("signup"));
+
+    async function signupSupabase(email, password) {
+      const { data, error } = await supabase.auth.signUp({ email, password });
+      if (error) throw error;
+      return data;
     }
 
-    function showApp() {
-      loginView.classList.add("hidden");
-      appView.classList.remove("hidden");
-      renderApp();
+    async function resetPasswordSupabase(email) {
+      const { error } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: window.location.origin
+      });
+      if (error) throw error;
+    }
+
+    async function getCurrentUser() {
+      const { data, error } = await supabase.auth.getUser();
+      if (error) throw error;
+      return data.user;
+    }
+
+    async function logoutSupabase() {
+      const { error } = await supabase.auth.signOut();
+      if (error) throw error;
+    }
+
+    async function loadTrabalhos() {
+      const { data, error } = await supabase
+        .from("trabalhos")
+        .select("*")
+        .order("data_entrega", { ascending: true });
+
+      if (error) throw error;
+      state.trabalhos = data || [];
+    }
+
+    async function loadNotas() {
+      const { data, error } = await supabase
+        .from("notas")
+        .select("*")
+        .order("created_at", { ascending: false });
+
+      if (error) throw error;
+      state.notas = data || [];
+    }
+
+    async function loadPlanos() {
+      const { data, error } = await supabase
+        .from("planos")
+        .select("*")
+        .order("created_at", { ascending: false });
+
+      if (error) throw error;
+      state.planos = data || [];
+    }
+
+    async function loadSessoes() {
+      const { data, error } = await supabase
+        .from("sessoes_estudo")
+        .select("*")
+        .order("data", { ascending: true });
+
+      if (error) throw error;
+      state.sessoes = data || [];
+    }
+
+    async function loadAllData() {
+      await Promise.all([
+        loadTrabalhos(),
+        loadNotas(),
+        loadPlanos(),
+        loadSessoes()
+      ]);
     }
 
     loginBtn.addEventListener("click", async () => {
-      loginMsg.textContent = "Entrando...";
-      loginMsg.className = "muted";
+      setAuthMessage("Entrando...", "muted");
 
       try {
         const email = document.getElementById("loginEmail").value.trim();
         const password = document.getElementById("loginPassword").value.trim();
 
-        const resp = await fetch(`${API}/api/login`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ email, password })
-        });
-
-        const json = await resp.json();
-
-        if (!resp.ok || !json.ok) {
-          loginMsg.textContent = json.message || "Falha no login.";
-          loginMsg.className = "danger";
+        if (!email || !password) {
+          setAuthMessage("Preencha email e senha.", "danger");
           return;
         }
 
-        const data = getData();
-        data.user = json.user;
-        saveData(data);
-        showApp();
-      } catch (error) {
-        loginMsg.textContent = "Erro ao conectar no servidor.";
-        loginMsg.className = "danger";
+        const { data, error } = await supabase.auth.signInWithPassword({
+          email,
+          password
+        });
+
+        if (error) {
+          setAuthMessage(error.message, "danger");
+          return;
+        }
+
+        setAuthMessage("Login feito com sucesso.", "success");
+
+        if (data?.user) {
+          state.user = data.user;
+          await initApp();
+        }
+      } catch (err) {
+        setAuthMessage("Erro: " + (err.message || err), "danger");
       }
     });
 
-    logoutBtn.addEventListener("click", () => {
-      const data = getData();
-      data.user = null;
-      data.timer = null;
-      saveData(data);
-      showLogin();
+    signupBtn.addEventListener("click", async () => {
+      setAuthMessage("Criando conta...", "muted");
+
+      try {
+        const email = document.getElementById("signupEmail").value.trim();
+        const password = document.getElementById("signupPassword").value.trim();
+
+        await signupSupabase(email, password);
+        setAuthMessage("Conta criada com sucesso.", "success");
+      } catch (error) {
+        setAuthMessage(error.message || "Erro ao criar conta.", "danger");
+      }
     });
 
-    document.getElementById("btnNovaMateria").addEventListener("click", () => abrirPagina("materias"));
-    document.getElementById("btnNovaAnotacao").addEventListener("click", () => abrirPagina("caderno"));
+    resetBtn.addEventListener("click", async () => {
+      setAuthMessage("Enviando recuperação...", "muted");
+
+      try {
+        const email = document.getElementById("loginEmail").value.trim();
+        if (!email) throw new Error("Informe seu email.");
+        await resetPasswordSupabase(email);
+        setAuthMessage("Email de recuperação enviado.", "success");
+      } catch (error) {
+        setAuthMessage(error.message || "Erro na recuperação.", "danger");
+      }
+    });
+
+    logoutBtn.addEventListener("click", async () => {
+      try {
+        await logoutSupabase();
+      } catch (error) {
+        alert(error.message || "Erro ao sair.");
+      }
+    });
+
+    supabase.auth.onAuthStateChange(async (_event, session) => {
+      if (session?.user) {
+        state.user = session.user;
+        await initApp();
+      } else {
+        state.user = null;
+        showLogin();
+      }
+    });
+
+    document.getElementById("addTrabalhoBtn").addEventListener("click", async () => {
+      try {
+        const materia = document.getElementById("trabMateria").value.trim();
+        const titulo = document.getElementById("trabTitulo").value.trim();
+        const descricao = document.getElementById("trabDescricao").value.trim();
+        const dataEntrega = document.getElementById("trabDataEntrega").value;
+        const status = document.getElementById("trabStatus").value;
+
+        if (!titulo || !dataEntrega) throw new Error("Informe título e data de entrega.");
+
+        const { error } = await supabase.from("trabalhos").insert([{
+          user_id: state.user.id,
+          materia: materia || null,
+          titulo,
+          descricao: descricao || null,
+          data_entrega: dataEntrega,
+          status
+        }]);
+
+        if (error) throw error;
+
+        document.getElementById("trabMateria").value = "";
+        document.getElementById("trabTitulo").value = "";
+        document.getElementById("trabDescricao").value = "";
+        document.getElementById("trabDataEntrega").value = "";
+        document.getElementById("trabStatus").value = "Pendente";
+
+        await loadTrabalhos();
+        renderTrabalhos();
+      } catch (error) {
+        alert(error.message || "Erro ao salvar trabalho.");
+      }
+    });
+
+    async function alterarStatusTrabalho(id, currentStatus) {
+      try {
+        let novoStatus = "Pendente";
+        if (currentStatus === "Pendente") novoStatus = "Em andamento";
+        else if (currentStatus === "Em andamento") novoStatus = "Concluído";
+
+        const { error } = await supabase.from("trabalhos").update({ status: novoStatus }).eq("id", id);
+        if (error) throw error;
+        await loadTrabalhos();
+        renderTrabalhos();
+      } catch (error) {
+        alert(error.message || "Erro ao atualizar trabalho.");
+      }
+    }
+    window.alterarStatusTrabalho = alterarStatusTrabalho;
+
+    async function excluirTrabalho(id) {
+      try {
+        const { error } = await supabase.from("trabalhos").delete().eq("id", id);
+        if (error) throw error;
+        await loadTrabalhos();
+        renderTrabalhos();
+      } catch (error) {
+        alert(error.message || "Erro ao excluir trabalho.");
+      }
+    }
+    window.excluirTrabalho = excluirTrabalho;
+
+    document.getElementById("salvarNotaBtn").addEventListener("click", async () => {
+      try {
+        const materia = notaMateria.value.trim();
+        const titulo = notaTitulo.value.trim();
+        const conteudo = notaConteudo.value.trim();
+
+        if (!materia || !conteudo) throw new Error("Informe tema e conteúdo.");
+
+        const { error } = await supabase.from("notas").insert([{
+          user_id: state.user.id,
+          materia,
+          titulo: titulo || "Anotação sem título",
+          conteudo,
+          criado_em: new Date().toLocaleString("pt-BR")
+        }]);
+
+        if (error) throw error;
+
+        notaMateria.value = "";
+        notaTitulo.value = "";
+        notaConteudo.value = "";
+
+        await loadNotas();
+        renderNotas();
+        renderResumoHoje();
+      } catch (error) {
+        alert(error.message || "Erro ao salvar anotação.");
+      }
+    });
+
+    limparNotaFormBtn.addEventListener("click", () => {
+      notaMateria.value = "";
+      notaTitulo.value = "";
+      notaConteudo.value = "";
+    });
+
+    async function excluirNota(id) {
+      try {
+        const { error } = await supabase.from("notas").delete().eq("id", id);
+        if (error) throw error;
+        await loadNotas();
+        renderNotas();
+        renderResumoHoje();
+      } catch (error) {
+        alert(error.message || "Erro ao excluir anotação.");
+      }
+    }
+    window.excluirNota = excluirNota;
+
+    gerarPlanoBtn.addEventListener("click", async () => {
+      setIAMessage("Gerando plano...", "muted");
+
+      try {
+        const materia = iaMateria.value.trim();
+        const conteudo = iaConteudo.value.trim();
+
+        if (!materia && !conteudo) {
+          setIAMessage("Informe um tema ou cole o conteúdo.", "danger");
+          return;
+        }
+
+        const planoMontado = `
+90% - PRIORIDADE MÁXIMA
+- Estude primeiro os tópicos com maior chance de cair.
+- Resolva questões diretas e recorrentes.
+- Foque em padrões de cobrança.
+
+70% - ALTA PRIORIDADE
+- Depois avance para os assuntos muito frequentes.
+- Faça exercícios de aplicação e fixação.
+
+50% - PRIORIDADE MÉDIA
+- Revise conteúdos secundários.
+- Resuma pontos-chave e exemplos.
+
+25% - REVISÃO LEVE
+- Finalize pelos temas menos prováveis.
+- Use leitura rápida e revisão curta.
+
+Tema base: ${materia || "Plano geral"}
+Conteúdo analisado:
+${conteudo || "Sem conteúdo detalhado"}
+        `.trim();
+
+        resultadoPlano.value = planoMontado;
+        setIAMessage("Plano gerado com sucesso.", "success");
+      } catch (error) {
+        setIAMessage(error.message || "Erro ao gerar plano.", "danger");
+      }
+    });
+
+    salvarPlanoBtn.addEventListener("click", async () => {
+      try {
+        const materia = iaMateria.value.trim();
+        const dataProva = iaData.value || null;
+        const plano = resultadoPlano.value.trim();
+
+        if (!plano) throw new Error("Gere ou edite um plano antes de salvar.");
+
+        const { error } = await supabase.from("planos").insert([{
+          user_id: state.user.id,
+          materia: materia || null,
+          data_prova: dataProva,
+          plano,
+          criado_em: new Date().toLocaleString("pt-BR")
+        }]);
+
+        if (error) throw error;
+
+        await loadPlanos();
+        renderPlanosSalvos();
+        setIAMessage("Plano salvo com sucesso.", "success");
+      } catch (error) {
+        setIAMessage(error.message || "Erro ao salvar plano.", "danger");
+      }
+    });
+
+    async function carregarPlano(id) {
+      const plano = state.planos.find(p => p.id === id);
+      if (!plano) return;
+      iaMateria.value = plano.materia || "";
+      iaData.value = plano.data_prova || "";
+      resultadoPlano.value = plano.plano || "";
+      abrirPagina("plano");
+    }
+    window.carregarPlano = carregarPlano;
+
+    async function excluirPlano(id) {
+      try {
+        const { error } = await supabase.from("planos").delete().eq("id", id);
+        if (error) throw error;
+        await loadPlanos();
+        renderPlanosSalvos();
+      } catch (error) {
+        alert(error.message || "Erro ao excluir plano.");
+      }
+    }
+    window.excluirPlano = excluirPlano;
+
+    importarPlanoArquivo.addEventListener("change", async (event) => {
+      const file = event.target.files?.[0];
+      if (!file) return;
+
+      try {
+        const text = await file.text();
+        iaConteudo.value = text;
+        setIAMessage(`Arquivo importado: ${file.name}`, "success");
+      } catch (error) {
+        setIAMessage("Erro ao importar arquivo.", "danger");
+      }
+    });
+
     document.getElementById("btnEstudoAgora").addEventListener("click", iniciarEstudoAgora);
     document.getElementById("btnIniciarEstudoAgora2").addEventListener("click", iniciarEstudoAgora);
+    document.getElementById("btnNovoTrabalho").addEventListener("click", () => abrirPagina("trabalhos"));
+    document.getElementById("btnNovaAnotacao").addEventListener("click", () => abrirPagina("caderno"));
 
-    function iniciarEstudoAgora() {
-      const data = getData();
-      const materia = data.cronograma.find(c => c.data === hojeStr())?.materia
-        || data.materias[0]?.nome
-        || "Geral";
+    async function iniciarEstudoAgora() {
+      try {
+        const { error } = await supabase.from("sessoes_estudo").insert([{
+          user_id: state.user.id,
+          data: hojeStr(),
+          minutos: 25,
+          materia: "Foco principal"
+        }]);
 
-      data.timer = {
-        minutos: 25,
-        endAt: Date.now() + 25 * 60 * 1000,
-        materia
-      };
+        if (error) throw error;
 
-      saveData(data);
-      clearInterval(timerInterval);
-      timerInterval = setTimeout(() => {
-        concluirSessao(25, materia);
-      }, 25 * 60 * 1000);
-
-      alert(`Sessão iniciada para ${materia} por 25 minutos.`);
-    }
-
-    addMateriaBtn.addEventListener("click", () => {
-      const nome = materiaNome.value.trim();
-      const dataProva = materiaData.value;
-      if (!nome) return;
-
-      const data = getData();
-      data.materias.push({
-        id: Date.now(),
-        nome,
-        data: dataProva || ""
-      });
-
-      saveData(data);
-      materiaNome.value = "";
-      materiaData.value = "";
-      renderApp();
-      abrirPagina("materias");
-    });
-
-    function removerMateria(id) {
-      const data = getData();
-      data.materias = data.materias.filter(m => m.id !== id);
-      saveData(data);
-      renderApp();
-    }
-
-    window.removerMateria = removerMateria;
-
-    function concluirSessao(minutos, materia) {
-      const data = getData();
-
-      data.sessoes.push({
-        date: hojeStr(),
-        minutos: Number(minutos),
-        materia: materia || "Geral"
-      });
-
-      data.timer = null;
-      saveData(data);
-      renderApp();
-      alert("Sessão concluída com sucesso.");
-    }
-
-    function ultimos7Dias() {
-      const arr = [];
-      for (let i = 6; i >= 0; i--) {
-        const d = new Date();
-        d.setDate(d.getDate() - i);
-        arr.push(d.toISOString().slice(0, 10));
+        alert("Sessão registrada com sucesso.");
+        await loadSessoes();
+        renderResumoHoje();
+        renderCharts();
+      } catch (error) {
+        alert(error.message || "Erro ao iniciar estudo.");
       }
-      return arr;
+    }
+
+    function renderNotas() {
+      const container = document.getElementById("listaNotas");
+      const inicioContainer = document.getElementById("ultimasNotas");
+
+      if (!state.notas.length) {
+        container.innerHTML = '<div class="empty">Nenhuma anotação salva ainda.</div>';
+        inicioContainer.innerHTML = '<div class="empty">Nenhuma anotação recente.</div>';
+        return;
+      }
+
+      container.innerHTML = state.notas.map(n => `
+        <div class="note-item">
+          <h4>${safe(n.titulo)} - ${safe(n.materia)}</h4>
+          <p>${safe(n.conteudo)}</p>
+          <div class="subject-actions">
+            <button class="secondary mini-btn" onclick="excluirNota('${n.id}')">Excluir</button>
+          </div>
+        </div>
+      `).join("");
+
+      inicioContainer.innerHTML = state.notas.slice(0, 3).map(n => `
+        <div class="note-item">
+          <h4>${safe(n.titulo)}</h4>
+          <p>${safe(n.materia)} • ${safe(n.criado_em || "")}</p>
+        </div>
+      `).join("");
+    }
+
+    function renderPlanosSalvos() {
+      const container = document.getElementById("listaPlanosSalvos");
+
+      if (!state.planos.length) {
+        container.innerHTML = '<div class="empty">Nenhum plano salvo ainda.</div>';
+        return;
+      }
+
+      container.innerHTML = state.planos.map(p => `
+        <div class="saved-plan-item">
+          <h4>${safe(p.materia || "Sem tema")} ${p.data_prova ? `- ${safe(p.data_prova)}` : ""}</h4>
+          <p>${safe((p.plano || "").slice(0, 250))}${(p.plano || "").length > 250 ? "..." : ""}</p>
+          <div class="subject-actions">
+            <button class="secondary mini-btn" onclick="carregarPlano('${p.id}')">Abrir</button>
+            <button class="secondary mini-btn" onclick="excluirPlano('${p.id}')">Excluir</button>
+          </div>
+        </div>
+      `).join("");
+    }
+
+    function renderTrabalhos() {
+      const container = document.getElementById("listaTrabalhos");
+      const badge = document.getElementById("badgeTrabalhos");
+
+      const pendentes = state.trabalhos.filter(t => t.status !== "Concluído").length;
+      badge.textContent = pendentes;
+      document.getElementById("trabalhosPendentesCard").textContent = `${pendentes} pendentes`;
+
+      const proximos = state.trabalhos
+        .filter(t => t.status !== "Concluído" && t.data_entrega)
+        .sort((a, b) => a.data_entrega.localeCompare(b.data_entrega));
+
+      if (proximos.length) {
+        const prox = proximos[0];
+        document.getElementById("trabalhoMaisProximoCard").textContent = `${prox.titulo} - ${prox.data_entrega}`;
+      } else {
+        document.getElementById("trabalhoMaisProximoCard").textContent = "Sem prazo próximo";
+      }
+
+      if (!state.trabalhos.length) {
+        container.innerHTML = '<div class="empty">Nenhum trabalho cadastrado.</div>';
+        return;
+      }
+
+      container.innerHTML = state.trabalhos.map(t => `
+        <div class="note-item">
+          <h4>${safe(t.titulo)} - ${safe(t.materia || "Sem tema")}</h4>
+          <p>${safe(t.descricao || "Sem descrição")}</p>
+          <p style="margin-top:8px;"><strong>Entrega:</strong> ${safe(t.data_entrega)} | <strong>Status:</strong> ${safe(t.status)}</p>
+          <div class="subject-actions">
+            <button class="secondary mini-btn" onclick="alterarStatusTrabalho('${t.id}', '${safe(t.status)}')">Mudar status</button>
+            <button class="secondary mini-btn" onclick="excluirTrabalho('${t.id}')">Excluir</button>
+          </div>
+        </div>
+      `).join("");
+    }
+
+    function renderResumoHoje() {
+      const minutosHoje = state.sessoes
+        .filter(s => s.data === hojeStr())
+        .reduce((acc, s) => acc + Number(s.minutos || 0), 0);
+
+      document.getElementById("tempoHoje").textContent = minToHourText(minutosHoje);
+      document.getElementById("metaMinutosHoje").textContent = minToHourText(minutosHoje);
+
+      const percentual = Math.min(100, Math.round((minutosHoje / META_DIARIA_MIN) * 100));
+      document.getElementById("metaDiariaBarra").style.width = `${percentual}%`;
+      document.getElementById("metaPercentual").textContent = `${percentual}%`;
+
+      const nome = state.user?.email?.split("@")[0] || "Acadêmico";
+      document.getElementById("heroSaudacao").textContent = `Bom dia, ${nome}! 👋`;
+      document.getElementById("profileName").textContent = nome;
+      document.getElementById("profileEmail").textContent = state.user?.email || "";
+
+      document.getElementById("metaHojeSub").textContent = `de ${minToHourText(META_DIARIA_MIN)}`;
+      document.getElementById("metaDiariaTexto").textContent = minToHourText(META_DIARIA_MIN);
+      document.getElementById("anotacoesHojeCard").textContent = `${state.notas.length} salvas`;
+    }
+
+    function renderTrabalhosResumo() {
+      const container = document.getElementById("materiasEmFoco");
+
+      if (!state.trabalhos.length) {
+        container.innerHTML = '<div class="empty">Nenhum trabalho cadastrado.</div>';
+        return;
+      }
+
+      container.innerHTML = state.trabalhos.slice(0, 4).map((t, i) => {
+        const progresso = [90, 70, 50, 25][i % 4];
+        return `
+          <div class="subject-item">
+            <h4>${safe(t.titulo)}</h4>
+            <p>${t.data_entrega ? `Entrega em ${safe(t.data_entrega)}` : "Sem data"}</p>
+            <div class="subject-progress">
+              <div class="progress-bar"><div style="width:${progresso}%;"></div></div>
+              <strong>${progresso}%</strong>
+            </div>
+          </div>
+        `;
+      }).join("");
     }
 
     function renderCharts() {
-      const data = getData();
+      const dias = [];
+      for (let i = 6; i >= 0; i--) {
+        const d = new Date();
+        d.setDate(d.getDate() - i);
+        dias.push(d.toISOString().slice(0, 10));
+      }
 
-      const dias = ultimos7Dias();
       const minutosPorDia = dias.map(d =>
-        data.sessoes
-          .filter(s => s.date === d)
+        state.sessoes
+          .filter(s => s.data === d)
           .reduce((acc, s) => acc + Number(s.minutos || 0), 0)
       );
 
-      const mapaMaterias = {};
-      data.sessoes.forEach(s => {
-        const m = s.materia || "Geral";
-        mapaMaterias[m] = (mapaMaterias[m] || 0) + Number(s.minutos || 0);
-      });
+      const mapaFoco = {
+        "90% chance": 40,
+        "70% chance": 25,
+        "50% chance": 20,
+        "Revisão leve": 15
+      };
 
       if (graficoTempoHoje) graficoTempoHoje.destroy();
       if (graficoTempoCompleto) graficoTempoCompleto.destroy();
@@ -1342,9 +1655,7 @@
 
       const baseConfig = {
         responsive: true,
-        plugins: {
-          legend: { labels: { color: "#6f7890" } }
-        },
+        plugins: { legend: { labels: { color: "#6f7890" } } },
         scales: {
           x: { ticks: { color: "#6f7890" }, grid: { color: "#eef1f7" } },
           y: { ticks: { color: "#6f7890" }, grid: { color: "#eef1f7" } }
@@ -1383,514 +1694,49 @@
       graficoMaterias = new Chart(document.getElementById("graficoMaterias"), {
         type: "doughnut",
         data: {
-          labels: Object.keys(mapaMaterias).length ? Object.keys(mapaMaterias) : ["Sem dados"],
+          labels: Object.keys(mapaFoco),
           datasets: [{
-            data: Object.keys(mapaMaterias).length ? Object.values(mapaMaterias) : [1],
-            backgroundColor: ["#6370ff", "#24c26a", "#ffb020", "#ff7b7b", "#8a7dff"]
+            data: Object.values(mapaFoco),
+            backgroundColor: ["#ff6b6b", "#f3b33d", "#29b36a", "#9aa3b2"]
           }]
         },
         options: {
           responsive: true,
-          plugins: {
-            legend: { labels: { color: "#6f7890" } }
-          }
+          plugins: { legend: { labels: { color: "#6f7890" } } }
         }
       });
-    }
-
-    gerarPlanoBtn.addEventListener("click", async () => {
-      iaMsg.textContent = "Gerando plano...";
-      iaMsg.className = "muted";
-
-      try {
-        const resp = await fetch(`${API}/api/inteligente/plano`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            materia: iaMateria.value.trim(),
-            provaData: iaData.value,
-            conteudo: iaConteudo.value.trim()
-          })
-        });
-
-        const json = await resp.json();
-
-        if (!resp.ok || !json.ok) {
-          iaMsg.textContent = json.message || "Erro ao gerar plano.";
-          iaMsg.className = "danger";
-          return;
-        }
-
-        resultadoPlano.value = json.plano;
-
-        const data = getData();
-        data.ultimoPlano = json.plano;
-        saveData(data);
-
-        iaMsg.textContent = "Plano gerado com sucesso.";
-        iaMsg.className = "success";
-      } catch (error) {
-        iaMsg.textContent = "Erro ao conectar com o sistema inteligente.";
-        iaMsg.className = "danger";
-      }
-    });
-
-    salvarPlanoBtn.addEventListener("click", () => {
-      const materia = iaMateria.value.trim();
-      const dataProva = iaData.value;
-      const plano = resultadoPlano.value.trim();
-
-      if (!plano) {
-        iaMsg.textContent = "Gere ou edite um plano antes de salvar.";
-        iaMsg.className = "danger";
-        return;
-      }
-
-      const data = getData();
-      data.planosSalvos.unshift({
-        id: Date.now(),
-        materia: materia || "Sem matéria",
-        dataProva: dataProva || "",
-        plano,
-        criadoEm: new Date().toLocaleString("pt-BR")
-      });
-
-      saveData(data);
-      renderPlanosSalvos();
-
-      iaMsg.textContent = "Plano salvo com sucesso.";
-      iaMsg.className = "success";
-    });
-
-    document.getElementById("limparPlanosBtn").addEventListener("click", () => {
-      const data = getData();
-      data.planosSalvos = [];
-      saveData(data);
-      renderPlanosSalvos();
-    });
-
-    function excluirPlano(id) {
-      const data = getData();
-      data.planosSalvos = data.planosSalvos.filter(p => p.id !== id);
-      saveData(data);
-      renderPlanosSalvos();
-    }
-
-    function carregarPlano(id) {
-      const data = getData();
-      const plano = data.planosSalvos.find(p => p.id === id);
-      if (!plano) return;
-
-      iaMateria.value = plano.materia || "";
-      iaData.value = plano.dataProva || "";
-      resultadoPlano.value = plano.plano || "";
-      abrirPagina("plano");
-    }
-
-    window.excluirPlano = excluirPlano;
-    window.carregarPlano = carregarPlano;
-
-    function renderPlanosSalvos() {
-      const container = document.getElementById("listaPlanosSalvos");
-      const data = getData();
-
-      if (!data.planosSalvos.length) {
-        container.innerHTML = '<div class="empty">Nenhum plano salvo ainda.</div>';
-        return;
-      }
-
-      container.innerHTML = data.planosSalvos.map(p => `
-        <div class="saved-plan-item">
-          <h4>${safe(p.materia)} ${p.dataProva ? `- ${safe(p.dataProva)}` : ""}</h4>
-          <p>${safe((p.plano || "").slice(0, 250))}${(p.plano || "").length > 250 ? "..." : ""}</p>
-          <div class="subject-actions">
-            <button class="secondary mini-btn" onclick="carregarPlano(${p.id})">Abrir</button>
-            <button class="secondary mini-btn" onclick="excluirPlano(${p.id})">Excluir</button>
-          </div>
-        </div>
-      `).join("");
-    }
-
-    importarPlanoArquivo.addEventListener("change", async (event) => {
-      const file = event.target.files?.[0];
-      if (!file) return;
-
-      iaMsg.textContent = "Importando arquivo...";
-      iaMsg.className = "muted";
-
-      try {
-        const formData = new FormData();
-        formData.append("arquivo", file);
-
-        const resp = await fetch(`${API}/api/importar-arquivo`, {
-          method: "POST",
-          body: formData
-        });
-
-        const json = await resp.json();
-
-        if (!resp.ok || !json.ok) {
-          iaMsg.textContent = json.message || "Erro ao importar arquivo.";
-          iaMsg.className = "danger";
-          return;
-        }
-
-        iaConteudo.value = json.conteudo || "";
-        iaMsg.textContent = `Arquivo importado com sucesso: ${json.nomeArquivo}`;
-        iaMsg.className = "success";
-      } catch (error) {
-        iaMsg.textContent = "Erro ao enviar arquivo para leitura.";
-        iaMsg.className = "danger";
-      }
-    });
-
-    function atualizarSelectMaterias() {
-      const data = getData();
-
-      const options = data.materias.length
-        ? data.materias.map(m => `<option value="${safe(m.nome)}">${safe(m.nome)}</option>`).join("")
-        : `<option value="">Cadastre uma matéria primeiro</option>`;
-
-      document.getElementById("notaMateria").innerHTML = options;
-      document.getElementById("revMateria").innerHTML = options;
-    }
-
-    function renderMaterias() {
-      const data = getData();
-      const lista = document.getElementById("listaMateriasCompleta");
-
-      if (!data.materias.length) {
-        lista.innerHTML = '<div class="empty">Nenhuma matéria cadastrada.</div>';
-      } else {
-        lista.innerHTML = data.materias.map(m => `
-          <div class="subject-item">
-            <h4>${safe(m.nome)}</h4>
-            <p>Prova: ${safe(m.data || "não informada")}</p>
-            <div class="subject-actions">
-              <button class="secondary mini-btn" onclick="selecionarMateriaParaNota('${safe(m.nome).replace(/'/g, "\\'")}')">Anotar aula</button>
-              <button class="secondary mini-btn" onclick="removerMateria(${m.id})">Remover</button>
-            </div>
-          </div>
-        `).join("");
-      }
-
-      atualizarSelectMaterias();
-    }
-
-    function selecionarMateriaParaNota(nome) {
-      document.getElementById("notaMateria").value = nome;
-      abrirPagina("caderno");
-    }
-
-    window.selecionarMateriaParaNota = selecionarMateriaParaNota;
-
-    salvarNotaBtn.addEventListener("click", () => {
-      const materia = notaMateria.value;
-      const titulo = notaTitulo.value.trim();
-      const conteudo = notaConteudo.value.trim();
-
-      if (!materia || !conteudo) return;
-
-      const data = getData();
-      data.notas.unshift({
-        id: Date.now(),
-        materia,
-        titulo: titulo || "Anotação sem título",
-        conteudo,
-        criadoEm: new Date().toLocaleString("pt-BR")
-      });
-
-      saveData(data);
-      notaTitulo.value = "";
-      notaConteudo.value = "";
-      renderNotas();
-    });
-
-    limparNotaFormBtn.addEventListener("click", () => {
-      notaTitulo.value = "";
-      notaConteudo.value = "";
-    });
-
-    document.getElementById("limparNotasBtn").addEventListener("click", () => {
-      const data = getData();
-      data.notas = [];
-      saveData(data);
-      renderNotas();
-    });
-
-    function excluirNota(id) {
-      const data = getData();
-      data.notas = data.notas.filter(n => n.id !== id);
-      saveData(data);
-      renderNotas();
-    }
-
-    window.excluirNota = excluirNota;
-
-    function renderNotas() {
-      const container = document.getElementById("listaNotas");
-      const inicioContainer = document.getElementById("ultimasNotas");
-      const data = getData();
-
-      if (!data.notas.length) {
-        container.innerHTML = '<div class="empty">Nenhuma anotação salva ainda.</div>';
-        inicioContainer.innerHTML = '<div class="empty">Nenhuma anotação recente.</div>';
-        return;
-      }
-
-      container.innerHTML = data.notas.map(n => `
-        <div class="note-item">
-          <h4>${safe(n.titulo)} - ${safe(n.materia)}</h4>
-          <p>${safe(n.conteudo)}</p>
-          <div class="subject-actions">
-            <button class="secondary mini-btn" onclick="excluirNota(${n.id})">Excluir</button>
-          </div>
-        </div>
-      `).join("");
-
-      inicioContainer.innerHTML = data.notas.slice(0, 3).map(n => `
-        <div class="note-item">
-          <h4>${safe(n.titulo)}</h4>
-          <p>${safe(n.materia)} • ${safe(n.criadoEm)}</p>
-        </div>
-      `).join("");
-    }
-
-    document.getElementById("addCronogramaBtn").addEventListener("click", () => {
-      const horario = document.getElementById("cronHorario").value;
-      const materia = document.getElementById("cronMateria").value.trim();
-      const descricao = document.getElementById("cronDescricao").value.trim();
-      const tipo = document.getElementById("cronTipo").value;
-      const duracao = document.getElementById("cronDuracao").value.trim();
-
-      if (!horario || !materia) return;
-
-      const data = getData();
-      data.cronograma.push({
-        id: Date.now(),
-        data: hojeStr(),
-        horario,
-        materia,
-        descricao,
-        tipo,
-        duracao: duracao || "25min"
-      });
-
-      saveData(data);
-
-      document.getElementById("cronHorario").value = "";
-      document.getElementById("cronMateria").value = "";
-      document.getElementById("cronDescricao").value = "";
-      document.getElementById("cronTipo").value = "Estudar";
-      document.getElementById("cronDuracao").value = "";
-
-      renderCronograma();
-    });
-
-    function excluirCronograma(id) {
-      const data = getData();
-      data.cronograma = data.cronograma.filter(c => c.id !== id);
-      saveData(data);
-      renderCronograma();
-    }
-
-    window.excluirCronograma = excluirCronograma;
-
-    function renderCronograma() {
-      const data = getData();
-      const hoje = data.cronograma
-        .filter(c => c.data === hojeStr())
-        .sort((a, b) => a.horario.localeCompare(b.horario));
-
-      const inicio = document.getElementById("cronogramaHojeLista");
-      const completo = document.getElementById("cronogramaCompletoLista");
-
-      if (!hoje.length) {
-        const vazio = '<div class="empty">Nenhum bloco de estudo programado para hoje.</div>';
-        inicio.innerHTML = vazio;
-        completo.innerHTML = vazio;
-        return;
-      }
-
-      const html = hoje.map(item => {
-        const dotClass = item.tipo === "Revisão" ? "background:#29b36a;" : item.tipo === "Praticar" ? "background:#f3b33d;" : "background:#5863f8;";
-        const tagClass = item.tipo === "Revisão" ? "tag-review" : item.tipo === "Praticar" ? "tag-practice" : "tag-study";
-        return `
-          <div class="schedule-item">
-            <div class="schedule-time">${safe(item.horario)}</div>
-            <div class="schedule-dot" style="${dotClass}"></div>
-            <div class="schedule-main">
-              <strong>${safe(item.materia)}</strong>
-              <span>${safe(item.descricao || "Sem descrição")}</span>
-            </div>
-            <div class="schedule-tag ${tagClass}">${safe(item.tipo)}</div>
-            <div class="schedule-duration">${safe(item.duracao)}</div>
-            <button class="secondary mini-btn" onclick="excluirCronograma(${item.id})">Excluir</button>
-          </div>
-        `;
-      }).join("");
-
-      inicio.innerHTML = html;
-      completo.innerHTML = html;
-    }
-
-    document.getElementById("addRevisaoBtn").addEventListener("click", () => {
-      const materia = document.getElementById("revMateria").value;
-      const descricao = document.getElementById("revDescricao").value.trim();
-      const dataRev = document.getElementById("revData").value;
-
-      if (!materia || !dataRev) return;
-
-      const data = getData();
-      data.revisoes.push({
-        id: Date.now(),
-        materia,
-        descricao: descricao || "Revisão programada",
-        data: dataRev,
-        concluida: false
-      });
-
-      saveData(data);
-
-      document.getElementById("revDescricao").value = "";
-      document.getElementById("revData").value = "";
-      renderRevisoes();
-    });
-
-    function toggleRevisao(id) {
-      const data = getData();
-      const item = data.revisoes.find(r => r.id === id);
-      if (item) item.concluida = !item.concluida;
-      saveData(data);
-      renderRevisoes();
-    }
-
-    function excluirRevisao(id) {
-      const data = getData();
-      data.revisoes = data.revisoes.filter(r => r.id !== id);
-      saveData(data);
-      renderRevisoes();
-    }
-
-    window.toggleRevisao = toggleRevisao;
-    window.excluirRevisao = excluirRevisao;
-
-    function renderRevisoes() {
-      const data = getData();
-      const container = document.getElementById("listaRevisoes");
-
-      if (!data.revisoes.length) {
-        container.innerHTML = '<div class="empty">Nenhuma revisão cadastrada.</div>';
-      } else {
-        container.innerHTML = data.revisoes
-          .sort((a, b) => a.data.localeCompare(b.data))
-          .map(r => `
-            <div class="note-item">
-              <h4>${safe(r.materia)} - ${safe(r.data)}</h4>
-              <p>${safe(r.descricao)}</p>
-              <div class="subject-actions">
-                <button class="secondary mini-btn" onclick="toggleRevisao(${r.id})">${r.concluida ? "Desmarcar" : "Concluir"}</button>
-                <button class="secondary mini-btn" onclick="excluirRevisao(${r.id})">Excluir</button>
-              </div>
-            </div>
-          `).join("");
-      }
-
-      const hoje = data.revisoes.filter(r => r.data === hojeStr());
-      const pendentesHoje = hoje.filter(r => !r.concluida).length;
-      const concluidasHoje = hoje.filter(r => r.concluida).length;
-
-      document.getElementById("revisoesHojeCard").textContent = `${pendentesHoje} pendentes`;
-      document.getElementById("revisoesHojeSub").textContent = `${concluidasHoje} concluídas`;
-      document.getElementById("badgeRevisoes").textContent = pendentesHoje;
-      document.getElementById("notifCount").textContent = pendentesHoje;
-    }
-
-    function renderResumoHoje() {
-      const data = getData();
-      const minutosHoje = data.sessoes
-        .filter(s => s.date === hojeStr())
-        .reduce((acc, s) => acc + Number(s.minutos || 0), 0);
-
-      document.getElementById("tempoHoje").textContent = minToHourText(minutosHoje);
-      document.getElementById("qtdSessoes").textContent = `${data.sessoes.length} concluídas`;
-      document.getElementById("metaMinutosHoje").textContent = minToHourText(minutosHoje);
-
-      const percentual = Math.min(100, Math.round((minutosHoje / META_DIARIA_MIN) * 100));
-      document.getElementById("metaDiariaBarra").style.width = `${percentual}%`;
-      document.getElementById("metaPercentual").textContent = `${percentual}%`;
-
-      const nome = data.user?.name || "Acadêmico";
-      document.getElementById("heroSaudacao").textContent = `Bom dia, ${nome}! 👋`;
-      document.getElementById("profileName").textContent = nome;
-
-      const materiasComData = data.materias
-        .filter(m => m.data)
-        .sort((a, b) => a.data.localeCompare(b.data));
-
-      if (materiasComData.length) {
-        const prox = materiasComData[0];
-        const hoje = new Date(hojeStr());
-        const prova = new Date(prox.data);
-        const diff = Math.max(0, Math.ceil((prova - hoje) / (1000 * 60 * 60 * 24)));
-        document.getElementById("proximaProvaCard").textContent = `${prox.data} - ${diff} dias`;
-        document.getElementById("proximaProvaMateria").textContent = prox.nome;
-      } else {
-        document.getElementById("proximaProvaCard").textContent = "Nenhuma";
-        document.getElementById("proximaProvaMateria").textContent = "Cadastre uma matéria";
-      }
-
-      document.getElementById("metaHojeSub").textContent = `de ${minToHourText(META_DIARIA_MIN)}`;
-      document.getElementById("metaDiariaTexto").textContent = minToHourText(META_DIARIA_MIN);
-    }
-
-    function renderMateriasEmFoco() {
-      const data = getData();
-      const container = document.getElementById("materiasEmFoco");
-
-      if (!data.materias.length) {
-        container.innerHTML = '<div class="empty">Nenhuma matéria cadastrada.</div>';
-        return;
-      }
-
-      const top = data.materias.slice(0, 4);
-
-      container.innerHTML = top.map((m, i) => {
-        const progresso = [68, 45, 32, 54][i % 4];
-        return `
-          <div class="subject-item">
-            <h4>${safe(m.nome)}</h4>
-            <p>${m.data ? `Prova em ${safe(m.data)}` : "Sem data de prova"}</p>
-            <div class="subject-progress">
-              <div class="progress-bar"><div style="width:${progresso}%;"></div></div>
-              <strong>${progresso}%</strong>
-            </div>
-          </div>
-        `;
-      }).join("");
-    }
-
-    function renderPlanosSalvosHoje() {
-      renderPlanosSalvos();
     }
 
     function renderApp() {
-      atualizarSelectMaterias();
       renderResumoHoje();
-      renderMaterias();
       renderNotas();
-      renderCronograma();
-      renderRevisoes();
-      renderMateriasEmFoco();
-      renderPlanosSalvosHoje();
+      renderTrabalhos();
+      renderTrabalhosResumo();
+      renderPlanosSalvos();
       renderCharts();
     }
 
-    if (isLogged()) {
+    async function initApp() {
       showApp();
-    } else {
-      showLogin();
+      await loadAllData();
+      renderApp();
     }
+
+    async function boot() {
+      try {
+        const user = await getCurrentUser();
+        if (user) {
+          state.user = user;
+          await initApp();
+        } else {
+          showLogin();
+        }
+      } catch (error) {
+        showLogin();
+      }
+    }
+
+    boot();
   </script>
 </body>
 </html>
