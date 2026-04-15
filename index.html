@@ -2214,21 +2214,71 @@ async function gerarPlanoInteligente() {
   btn.innerHTML = usandoTexto ? '<span class="spinner"></span> Analisando texto...' : '<span class="spinner"></span> Analisando PDF...';
   btn.disabled = true;
 
+  function extrairJSONValido(str) {
+    const inicio = str.indexOf('{');
+    const fim = str.lastIndexOf('}');
+    if (inicio === -1 || fim === -1 || fim <= inicio) return null;
+    return str.slice(inicio, fim + 1);
+  }
+
+  function tentarCorrigirJSONBasico(str) {
+    return str
+      .replace(/,\s*([}\]])/g, '$1')
+      .replace(/[ -]+/g, ' ')
+      .trim();
+  }
+
   try {
     const diasTexto = dataProva ? `A prova é em ${dataProva} e o estudo começa em ${dataInicio || 'hoje'}.` : '';
 
     let mensagemContent;
     if (usandoTexto) {
-      // Modo texto — muito mais rápido e barato
       mensagemContent = [
-        { type: 'text', text: 'Você é um especialista em provas para faculdade. ' + diasTexto + ' Material de estudo:\n\n' + textoColado.substring(0, 8000) + '\n\nAnalise este material e responda APENAS em JSON válido sem texto fora do JSON: {"topicos": [{"tema":"string","probabilidade":95,"justificativa":"string","explicacao_detalhada":"string com explicação completa e detalhada do tópico com pelo menos 40 linhas cobrindo conceitos, definições, exemplos práticos e pontos importantes para a prova","progresso":0}],"plano": "string com plano semanal detalhado por dias","resumo": "string com resumo dos temas principais","flashcards": [{"pergunta":"string","resposta":"string"}],"exercicios": [{"pergunta":"string","alternativas":["A)...","B)...","C)...","D)..."],"correta":0,"explicacao":"string"}],"cronograma": [{"semana":"Semana 1","tema":"string","atividades":"string","horas":10}]} Gere pelo menos 8 topicos, 8 flashcards, 5 exercicios com alternativas, 6 semanas de cronograma.' }
+        {
+          type: 'text',
+          text:
+            'Você é um especialista em provas para faculdade. ' +
+            diasTexto +
+            ' Analise o material abaixo e responda SOMENTE com JSON válido. ' +
+            'Não use markdown. Não use ```json. Não escreva explicações fora do JSON. ' +
+            'Retorne exatamente neste formato: ' +
+            '{"topicos":[{"tema":"string","probabilidade":95,"justificativa":"string","explicacao_detalhada":"string","progresso":0}],"plano":"string","resumo":"string","flashcards":[{"pergunta":"string","resposta":"string"}],"exercicios":[{"pergunta":"string","alternativas":["A)...","B)...","C)...","D)..."],"correta":0,"explicacao":"string"}],"cronograma":[{"semana":"Semana 1","tema":"string","atividades":"string","horas":10}]}' +
+            '
+
+Gere pelo menos 8 tópicos, 8 flashcards, 5 exercícios e 6 semanas de cronograma.' +
+            '
+
+Material de estudo:
+
+' +
+            textoColado.substring(0, 8000)
+        }
       ];
     } else {
       const base64 = pdfTextoExtraido.split(',')[1];
       const mediaType = pdfTextoExtraido.split(';')[0].split(':')[1];
       mensagemContent = [
-        { type: 'document', source: { type: 'base64', media_type: mediaType, data: base64 } },
-        { type: 'text', text: 'Você é um especialista em provas para faculdade. ' + diasTexto + ' Analise este documento e responda APENAS em JSON válido sem texto fora do JSON: {"topicos": [{"tema":"string","probabilidade":95,"justificativa":"string","explicacao_detalhada":"string com explicação completa e detalhada do tópico com pelo menos 40 linhas cobrindo conceitos, definições, exemplos práticos e pontos importantes para a prova","progresso":0}],"plano": "string com plano semanal detalhado por dias","resumo": "string com resumo dos temas principais","flashcards": [{"pergunta":"string","resposta":"string"}],"exercicios": [{"pergunta":"string","alternativas":["A)...","B)...","C)...","D)..."],"correta":0,"explicacao":"string"}],"cronograma": [{"semana":"Semana 1","tema":"string","atividades":"string","horas":10}]} Gere pelo menos 8 topicos, 8 flashcards, 5 exercicios com alternativas, 6 semanas de cronograma.' }
+        {
+          type: 'document',
+          source: {
+            type: 'base64',
+            media_type: mediaType,
+            data: base64
+          }
+        },
+        {
+          type: 'text',
+          text:
+            'Você é um especialista em provas para faculdade. ' +
+            diasTexto +
+            ' Analise o PDF enviado e responda SOMENTE com JSON válido. ' +
+            'Não use markdown. Não use ```json. Não escreva explicações fora do JSON. ' +
+            'Retorne exatamente neste formato: ' +
+            '{"topicos":[{"tema":"string","probabilidade":95,"justificativa":"string","explicacao_detalhada":"string","progresso":0}],"plano":"string","resumo":"string","flashcards":[{"pergunta":"string","resposta":"string"}],"exercicios":[{"pergunta":"string","alternativas":["A)...","B)...","C)...","D)..."],"correta":0,"explicacao":"string"}],"cronograma":[{"semana":"Semana 1","tema":"string","atividades":"string","horas":10}]}' +
+            '
+
+Gere pelo menos 8 tópicos, 8 flashcards, 5 exercícios e 6 semanas de cronograma.'
+        }
       ];
     }
 
@@ -2241,45 +2291,83 @@ async function gerarPlanoInteligente() {
       body: JSON.stringify({
         model: 'claude-sonnet-4-20250514',
         max_tokens: 4096,
-        messages: [{
-          role: 'user',
-          content: mensagemContent
-        }]
+        messages: [
+          {
+            role: 'user',
+            content: mensagemContent
+          }
+        ]
       })
     });
 
     const data = await response.json();
     console.log('Resposta Edge Function:', JSON.stringify(data));
-    if (data.error) throw new Error(data.error.message || JSON.stringify(data.error));
-    if (!data.content || !data.content.length) throw new Error('Resposta vazia da IA: ' + JSON.stringify(data));
-    const texto = data.content.map(i => i.text || '').join('');
-    const clean = texto.replace(/```json|```/g, '').trim();
-    let resultado;
-    try { resultado = JSON.parse(clean); }
-    catch(e) {
-      const match = clean.match(/\{[\s\S]*\}/);
-      if (match) resultado = JSON.parse(match[0]);
-      else throw new Error('JSON inválido: ' + clean.substring(0, 200));
+
+    if (data.error) {
+      throw new Error(data.error.message || JSON.stringify(data.error));
     }
+
+    if (!data.content || !data.content.length) {
+      throw new Error('Resposta vazia da IA: ' + JSON.stringify(data));
+    }
+
+    const texto = data.content.map(i => i.text || '').join('').trim();
+    let clean = texto.replace(/```json|```/gi, '').trim();
+    let brutoJSON = extrairJSONValido(clean);
+
+    if (!brutoJSON) {
+      console.error('Resposta recebida da IA:', texto);
+      throw new Error('A IA não retornou JSON.');
+    }
+
+    let resultado = null;
+
+    try {
+      resultado = JSON.parse(brutoJSON);
+    } catch (e1) {
+      try {
+        const corrigido = tentarCorrigirJSONBasico(brutoJSON);
+        resultado = JSON.parse(corrigido);
+      } catch (e2) {
+        console.error('JSON original da IA:', brutoJSON);
+        console.error('Erro ao converter JSON:', e2);
+        throw new Error('A IA retornou JSON inválido. Tente novamente.');
+      }
+    }
+
+    if (!resultado || typeof resultado !== 'object') {
+      throw new Error('Resultado inválido.');
+    }
+
+    if (!Array.isArray(resultado.topicos)) resultado.topicos = [];
+    if (!Array.isArray(resultado.flashcards)) resultado.flashcards = [];
+    if (!Array.isArray(resultado.exercicios)) resultado.exercicios = [];
+    if (!Array.isArray(resultado.cronograma)) resultado.cronograma = [];
+    if (typeof resultado.plano !== 'string') resultado.plano = '';
+    if (typeof resultado.resumo !== 'string') resultado.resumo = '';
 
     planoGeradoAtual = { titulo, resultado, dataProva };
     renderPlanoInteligente(titulo, resultado);
     await verificarModoVespera(dataProva);
+    toast('✅ Plano gerado com sucesso!');
 
-  } catch(err) {
+  } catch (err) {
     console.error(err);
     const msg = err.message || '';
+
     if (msg.toLowerCase().includes('credit') || msg.toLowerCase().includes('balance') || msg.toLowerCase().includes('billing')) {
       toast('⚠️ Serviço temporariamente indisponível. Tente novamente em alguns minutos.');
     } else if (msg.toLowerCase().includes('timeout') || msg.toLowerCase().includes('network')) {
       toast('⚠️ Conexão lenta. Verifique sua internet e tente novamente.');
+    } else if (msg.toLowerCase().includes('json')) {
+      toast('⚠️ A IA respondeu em formato inválido. Tente gerar novamente.');
     } else {
       toast('❌ Não foi possível gerar o plano. Tente novamente em instantes.');
     }
+  } finally {
+    btn.innerHTML = '🚀 Gerar Plano Inteligente';
+    btn.disabled = false;
   }
-
-  btn.innerHTML = '🚀 Gerar Plano Inteligente';
-  btn.disabled = false;
 }
 
 function renderPlanoInteligente(titulo, r) {
