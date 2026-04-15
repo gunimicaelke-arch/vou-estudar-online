@@ -1188,6 +1188,43 @@
           <div id="adminMsg" style="margin-top:10px;font-size:13px;display:none"></div>
         </div>
 
+        <!-- Compartilhar Módulos -->
+        <div class="card card-pad" style="margin-bottom:20px">
+          <div class="card-head"><h3>📤 Compartilhar Módulos</h3></div>
+          <p style="font-size:13px;color:var(--muted);margin-bottom:16px">Selecione um usuário e escolha quais conteúdos seus deseja compartilhar com ele.</p>
+
+          <div style="margin-bottom:14px">
+            <label class="field-label">Usuário destino</label>
+            <select id="compartilharUsuario" style="margin-bottom:0">
+              <option value="">Selecione o usuário...</option>
+            </select>
+          </div>
+
+          <div style="margin-bottom:14px">
+            <label class="field-label">O que compartilhar</label>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:6px">
+              <label style="display:flex;align-items:center;gap:8px;padding:10px;border:1px solid var(--border);border-radius:10px;cursor:pointer;font-size:13px">
+                <input type="checkbox" id="compMaterias" style="width:auto;margin:0" /> 📖 Matérias
+              </label>
+              <label style="display:flex;align-items:center;gap:8px;padding:10px;border:1px solid var(--border);border-radius:10px;cursor:pointer;font-size:13px">
+                <input type="checkbox" id="compNotas" style="width:auto;margin:0" /> 📝 Notas
+              </label>
+              <label style="display:flex;align-items:center;gap:8px;padding:10px;border:1px solid var(--border);border-radius:10px;cursor:pointer;font-size:13px">
+                <input type="checkbox" id="compPlanos" style="width:auto;margin:0" /> 🗓️ Planos de Estudo
+              </label>
+              <label style="display:flex;align-items:center;gap:8px;padding:10px;border:1px solid var(--border);border-radius:10px;cursor:pointer;font-size:13px">
+                <input type="checkbox" id="compPrioridades" style="width:auto;margin:0" /> 🎯 Prioridades
+              </label>
+              <label style="display:flex;align-items:center;gap:8px;padding:10px;border:1px solid var(--border);border-radius:10px;cursor:pointer;font-size:13px">
+                <input type="checkbox" id="compPlanosInt" style="width:auto;margin:0" /> ✨ Planos Inteligentes
+              </label>
+            </div>
+          </div>
+
+          <button onclick="adminCompartilharModulos()" style="background:linear-gradient(135deg,#0891b2,#22d3ee)">📤 Compartilhar com este usuário</button>
+          <div id="compartilharMsg" style="margin-top:10px;font-size:13px;display:none"></div>
+        </div>
+
         <!-- Lista de usuários -->
         <div class="card card-pad">
           <div class="card-head">
@@ -2973,6 +3010,20 @@ async function adminCarregarUsuarios() {
     return;
   }
 
+  // Populate sharing dropdown with emails via RPC
+  try {
+    const { data: emailData } = await db.rpc('get_users_emails');
+    const sel = document.getElementById('compartilharUsuario');
+    if (sel && emailData) {
+      sel.innerHTML = '<option value="">Selecione o usuário...</option>' +
+        emailData.filter(u => u.email !== currentUser.email).map(u =>
+          `<option value="${u.id}">${u.email}</option>`
+        ).join('');
+      // Store emails for display
+      window.adminUsersEmails = emailData;
+    }
+  } catch(e) {}
+
   el.innerHTML = data.map(u => {
     const trialFim = u.trial_fim ? new Date(u.trial_fim) : null;
     const trialExpirou = trialFim && trialFim < new Date();
@@ -2983,15 +3034,19 @@ async function adminCarregarUsuarios() {
     else if (diasTrial !== null) { status = '⏳ Trial (' + diasTrial + 'd)'; statusColor = '#d97706'; statusBg = '#fffbeb'; }
     else { status = '—'; statusColor = '#64748b'; statusBg = '#f8fafc'; }
 
+    const emailInfo = window.adminUsersEmails?.find(e => e.id === u.user_id);
+    const emailDisplay = emailInfo ? emailInfo.email : u.user_id.substring(0,8) + '...';
+
     return `
     <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 0;border-bottom:1px solid var(--border)">
       <div>
-        <div style="font-size:13px;font-weight:600;color:var(--text)">${u.user_id.substring(0,8)}...</div>
+        <div style="font-size:13px;font-weight:600;color:var(--text)">${emailDisplay}</div>
         <div style="font-size:11px;color:var(--muted);margin-top:1px">${trialFim ? 'Trial até: ' + trialFim.toLocaleDateString('pt-BR') : 'Sem trial'}</div>
       </div>
       <div style="display:flex;align-items:center;gap:8px">
         <span style="font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px;background:${statusBg};color:${statusColor}">${status}</span>
         ${!u.ativa ? `<button onclick="adminAtivarPorId('${u.user_id}')" class="mini-btn" style="width:auto;padding:4px 10px;font-size:11px">Ativar</button>` : `<button onclick="adminDesativarPorId('${u.user_id}')" class="mini-btn btn-secondary" style="width:auto;padding:4px 10px;font-size:11px">Desativar</button>`}
+        <button onclick="adminCompartilharComUsuario('${u.user_id}')" class="mini-btn btn-secondary" style="width:auto;padding:4px 10px;font-size:11px">📤</button>
       </div>
     </div>`;
   }).join('');
@@ -3008,6 +3063,118 @@ async function adminDesativarPorId(userId) {
   await db.from('assinaturas').update({ ativa: false }).eq('user_id', userId);
   toast('🔒 Assinatura desativada.');
   await adminCarregarUsuarios();
+}
+
+// ══ COMPARTILHAR MÓDULOS ══
+function adminCompartilharComUsuario(userId) {
+  const sel = document.getElementById('compartilharUsuario');
+  if (sel) sel.value = userId;
+  document.getElementById('compMaterias').checked = true;
+  document.getElementById('compNotas').checked = true;
+  document.getElementById('compPlanos').checked = true;
+  document.getElementById('compPrioridades').checked = true;
+  document.getElementById('compPlanosInt').checked = true;
+  document.getElementById('compartilharUsuario').scrollIntoView({ behavior: 'smooth' });
+  toast('👆 Usuário selecionado! Confirme os módulos e clique em Compartilhar.');
+}
+
+async function adminCompartilharModulos() {
+  const userId = document.getElementById('compartilharUsuario').value;
+  if (!userId) return mostrarCompartilharMsg('Selecione um usuário.', 'error');
+
+  const modMaterias = document.getElementById('compMaterias').checked;
+  const modNotas = document.getElementById('compNotas').checked;
+  const modPlanos = document.getElementById('compPlanos').checked;
+  const modPrioridades = document.getElementById('compPrioridades').checked;
+  const modPlanosInt = document.getElementById('compPlanosInt').checked;
+
+  if (!modMaterias && !modNotas && !modPlanos && !modPrioridades && !modPlanosInt) {
+    return mostrarCompartilharMsg('Selecione pelo menos um módulo.', 'error');
+  }
+
+  mostrarCompartilharMsg('⏳ Compartilhando...', 'info');
+
+  let total = 0;
+  let erros = 0;
+
+  // Compartilhar Matérias
+  if (modMaterias) {
+    const { data } = await db.from('materias').select('*').eq('user_id', currentUser.id);
+    if (data && data.length) {
+      for (const item of data) {
+        const novo = { ...item, id: undefined, user_id: userId, created_at: undefined };
+        const { error } = await db.from('materias').insert([novo]);
+        if (!error) total++; else erros++;
+      }
+    }
+  }
+
+  // Compartilhar Notas
+  if (modNotas) {
+    const { data } = await db.from('notas').select('*').eq('user_id', currentUser.id);
+    if (data && data.length) {
+      for (const item of data) {
+        const novo = { ...item, id: undefined, user_id: userId, created_at: undefined, materia_id: null };
+        const { error } = await db.from('notas').insert([novo]);
+        if (!error) total++; else erros++;
+      }
+    }
+  }
+
+  // Compartilhar Planos de Estudo
+  if (modPlanos) {
+    const { data } = await db.from('planos').select('*').eq('user_id', currentUser.id);
+    if (data && data.length) {
+      for (const item of data) {
+        const novo = { ...item, id: undefined, user_id: userId, created_at: undefined };
+        const { error } = await db.from('planos').insert([novo]);
+        if (!error) total++; else erros++;
+      }
+    }
+  }
+
+  // Compartilhar Prioridades
+  if (modPrioridades) {
+    const { data } = await db.from('prioridades').select('*').eq('user_id', currentUser.id);
+    if (data && data.length) {
+      for (const item of data) {
+        const novo = { ...item, id: undefined, user_id: userId, created_at: undefined };
+        const { error } = await db.from('prioridades').insert([novo]);
+        if (!error) total++; else erros++;
+      }
+    }
+  }
+
+  // Compartilhar Planos Inteligentes
+  if (modPlanosInt) {
+    const { data } = await db.from('planos_ia').select('*').eq('user_id', currentUser.id);
+    if (data && data.length) {
+      for (const item of data) {
+        const novo = { ...item, id: undefined, user_id: userId, created_at: undefined };
+        const { error } = await db.from('planos_ia').insert([novo]);
+        if (!error) total++; else erros++;
+      }
+    }
+  }
+
+  if (erros === 0) {
+    mostrarCompartilharMsg('✅ ' + total + ' item(ns) compartilhado(s) com sucesso!', 'success');
+  } else {
+    mostrarCompartilharMsg('⚠️ ' + total + ' compartilhados, ' + erros + ' erros (itens duplicados ignorados).', 'warn');
+  }
+}
+
+function mostrarCompartilharMsg(txt, tipo) {
+  const el = document.getElementById('compartilharMsg');
+  el.textContent = txt;
+  el.style.display = 'block';
+  el.style.padding = '10px 14px';
+  el.style.borderRadius = '8px';
+  if (tipo === 'success') { el.style.color = '#059669'; el.style.background = '#f0fdf4'; el.style.border = '1px solid #bbf7d0'; }
+  else if (tipo === 'error') { el.style.color = '#dc2626'; el.style.background = '#fef2f2'; el.style.border = '1px solid #fecaca'; }
+  else if (tipo === 'warn') { el.style.color = '#d97706'; el.style.background = '#fffbeb'; el.style.border = '1px solid #fde68a'; }
+  else { el.style.color = '#0369a1'; el.style.background = '#f0f9ff'; el.style.border = '1px solid #cffafe'; }
+  if (tipo !== 'info') setTimeout(() => { el.style.display = 'none'; }, 5000);
 }
 
 // START
