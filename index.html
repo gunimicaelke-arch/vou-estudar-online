@@ -2089,11 +2089,7 @@ async function gerarPlanoInteligente() {
     if (usandoTexto) {
       // Modo texto — muito mais rápido e barato
       mensagemContent = [
-        { type: 'text', text: 'Você é um especialista em provas para faculdade. ' + diasTexto + ' Material de estudo:
-
-' + textoColado.substring(0, 8000) + '
-
-Analise este material e responda APENAS em JSON válido sem texto fora do JSON: {"topicos": [{"tema":"string","probabilidade":95,"justificativa":"string","progresso":0}],"plano": "string com plano semanal detalhado por dias","resumo": "string com resumo dos temas principais","flashcards": [{"pergunta":"string","resposta":"string"}],"exercicios": [{"pergunta":"string","alternativas":["A)...","B)...","C)...","D)..."],"correta":0,"explicacao":"string"}],"cronograma": [{"semana":"Semana 1","tema":"string","atividades":"string","horas":10}]} Gere pelo menos 8 topicos, 8 flashcards, 5 exercicios com alternativas, 6 semanas de cronograma.' }
+        { type: 'text', text: 'Você é um especialista em provas para faculdade. ' + diasTexto + ' Material de estudo:\n\n' + textoColado.substring(0, 8000) + '\n\nAnalise este material e responda APENAS em JSON válido sem texto fora do JSON: {"topicos": [{"tema":"string","probabilidade":95,"justificativa":"string","progresso":0}],"plano": "string com plano semanal detalhado por dias","resumo": "string com resumo dos temas principais","flashcards": [{"pergunta":"string","resposta":"string"}],"exercicios": [{"pergunta":"string","alternativas":["A)...","B)...","C)...","D)..."],"correta":0,"explicacao":"string"}],"cronograma": [{"semana":"Semana 1","tema":"string","atividades":"string","horas":10}]} Gere pelo menos 8 topicos, 8 flashcards, 5 exercicios com alternativas, 6 semanas de cronograma.' }
       ];
     } else {
       const base64 = pdfTextoExtraido.split(',')[1];
