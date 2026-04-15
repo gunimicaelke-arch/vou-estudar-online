@@ -566,6 +566,10 @@
         <input type="email" id="regEmail" placeholder="seu@email.com" onblur="if(this.value.trim())registrarVisitanteCadastro('email_digitado', this.value.trim())" />
         <label class="field-label">Senha</label>
         <input type="password" id="regPassword" placeholder="mínimo 6 caracteres" />
+        <label class="field-label">WhatsApp (opcional)</label>
+        <input type="tel" id="regTelefone" placeholder="(11) 99999-9999"
+          onblur="if(this.value.trim())registrarVisitanteCadastro('telefone_digitado', this.value.trim())"
+          oninput="this.value=this.value.replace(/[^0-9()\s+-]/g,'')" />
         <button onclick="handleRegister()" id="registerBtn">Criar conta</button>
       </div>
 
@@ -3475,6 +3479,7 @@ async function adminCarregarTentativasCadastro() {
         const acaoConfig = {
           abriu_form: { cor: '#0891b2', bg: '#f0f9ff', label: '👀 Abriu o form' },
           email_digitado: { cor: '#7c3aed', bg: '#f5f3ff', label: '✉️ Digitou o email' },
+          telefone_digitado: { cor: '#0891b2', bg: '#ecfeff', label: '📱 Digitou o telefone' },
           tentativa: { cor: '#d97706', bg: '#fffbeb', label: '📝 Tentou cadastrar' },
           sucesso: { cor: '#059669', bg: '#f0fdf4', label: '✅ Cadastrou' },
           erro: { cor: '#dc2626', bg: '#fef2f2', label: '❌ Erro no cadastro' }
