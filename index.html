@@ -2242,13 +2242,16 @@ async function gerarPlanoInteligente() {
         {
           type: 'text',
           text:
-            'Você é um especialista em provas para faculdade. ' +
+            'Você é um professor especialista em provas de faculdade e concursos. ' +
             diasTexto +
             ' Analise o material abaixo e responda SOMENTE com JSON válido. ' +
             'Não use markdown. Não use ```json. Não escreva explicações fora do JSON. ' +
+            'IMPORTANTE: o campo resumo deve ser uma aula completa, didática e aprofundada, com no mínimo 50 linhas, explicando o conteúdo de forma clara para prova. ' +
+            'Inclua conceitos, detalhes teóricos, exemplos práticos, pontos que mais caem e explicações organizadas como aula. ' +
             'Retorne exatamente neste formato: ' +
-            '{"topicos":[{"tema":"string","probabilidade":95,"justificativa":"string","explicacao_detalhada":"string","progresso":0}],"plano":"string","resumo":"string","flashcards":[{"pergunta":"string","resposta":"string"}],"exercicios":[{"pergunta":"string","alternativas":["A)...","B)...","C)...","D)..."],"correta":0,"explicacao":"string"}],"cronograma":[{"semana":"Semana 1","tema":"string","atividades":"string","horas":10}]}' +
+            '{"topicos":[{"tema":"string","probabilidade":95,"justificativa":"string","explicacao_detalhada":"string","progresso":0}],"plano":"string","resumo":"texto longo com no mínimo 50 linhas, em formato de aula detalhada","flashcards":[{"pergunta":"string","resposta":"string"}],"exercicios":[{"pergunta":"string","alternativas":["A)...","B)...","C)...","D)..."],"correta":0,"explicacao":"string"}],"cronograma":[{"semana":"Semana 1","tema":"string","atividades":"string","horas":10}]}' +
             '\n\nGere pelo menos 8 tópicos, 8 flashcards, 5 exercícios e 6 semanas de cronograma.' +
+            '\n\nNo resumo, entregue conteúdo extenso, aprofundado e útil para revisão pré-prova.' +
             '\n\nMaterial de estudo:\n\n' +
             textoColado.substring(0, 8000)
         }
@@ -2268,13 +2271,16 @@ async function gerarPlanoInteligente() {
         {
           type: 'text',
           text:
-            'Você é um especialista em provas para faculdade. ' +
+            'Você é um professor especialista em provas de faculdade e concursos. ' +
             diasTexto +
             ' Analise o PDF enviado e responda SOMENTE com JSON válido. ' +
             'Não use markdown. Não use ```json. Não escreva explicações fora do JSON. ' +
+            'IMPORTANTE: o campo resumo deve ser uma aula completa, didática e aprofundada, com no mínimo 50 linhas, explicando o conteúdo de forma clara para prova. ' +
+            'Inclua conceitos, detalhes teóricos, exemplos práticos, pontos que mais caem e explicações organizadas como aula. ' +
             'Retorne exatamente neste formato: ' +
-            '{"topicos":[{"tema":"string","probabilidade":95,"justificativa":"string","explicacao_detalhada":"string","progresso":0}],"plano":"string","resumo":"string","flashcards":[{"pergunta":"string","resposta":"string"}],"exercicios":[{"pergunta":"string","alternativas":["A)...","B)...","C)...","D)..."],"correta":0,"explicacao":"string"}],"cronograma":[{"semana":"Semana 1","tema":"string","atividades":"string","horas":10}]}' +
-            '\n\nGere pelo menos 8 tópicos, 8 flashcards, 5 exercícios e 6 semanas de cronograma.'
+            '{"topicos":[{"tema":"string","probabilidade":95,"justificativa":"string","explicacao_detalhada":"string","progresso":0}],"plano":"string","resumo":"texto longo com no mínimo 50 linhas, em formato de aula detalhada","flashcards":[{"pergunta":"string","resposta":"string"}],"exercicios":[{"pergunta":"string","alternativas":["A)...","B)...","C)...","D)..."],"correta":0,"explicacao":"string"}],"cronograma":[{"semana":"Semana 1","tema":"string","atividades":"string","horas":10}]}' +
+            '\n\nGere pelo menos 8 tópicos, 8 flashcards, 5 exercícios e 6 semanas de cronograma.' +
+            '\n\nNo resumo, entregue conteúdo extenso, aprofundado e útil para revisão pré-prova.'
         }
       ];
     }
@@ -2287,7 +2293,7 @@ async function gerarPlanoInteligente() {
       },
       body: JSON.stringify({
         model: 'claude-sonnet-4-20250514',
-        max_tokens: 4096,
+        max_tokens: 7000,
         messages: [
           {
             role: 'user',
