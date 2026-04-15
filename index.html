@@ -1210,6 +1210,17 @@
           </div>
         </div>
 
+        <!-- Tentativas de Cadastro -->
+        <div class="card card-pad" style="margin-bottom:20px">
+          <div class="card-head">
+            <h3>👀 Visitantes na Tela de Cadastro</h3>
+            <span style="font-size:11px;color:var(--muted)">Últimos 7 dias</span>
+          </div>
+          <div id="adminTentativasCadastro">
+            <div class="empty-state"><div class="empty-icon">👀</div>Carregando...</div>
+          </div>
+        </div>
+
         <!-- Ativar assinatura -->
         <div class="card card-pad" style="margin-bottom:20px">
           <div class="card-head"><h3>✅ Ativar Assinatura</h3></div>
@@ -1480,6 +1491,9 @@ function switchAuthTab(tab) {
   const ff = document.getElementById('forgotForm');
   if (ff) ff.classList.toggle('hidden', tab !== 'forgot');
   clearAuthMsg();
+
+  // Rastreia quando alguém abre o formulário de cadastro
+  if (tab === 'register') registrarVisitanteCadastro('abriu_form');
 }
 
 function showAuthMsg(txt, type) {
@@ -1518,6 +1532,9 @@ async function handleRegister() {
   if (!nome || !email || !password) return showAuthMsg('Preencha todos os campos.', 'error');
   if (password.length < 6) return showAuthMsg('Senha deve ter pelo menos 6 caracteres.', 'error');
 
+  // Rastreia tentativa de cadastro com email
+  registrarVisitanteCadastro('tentativa', email);
+
   const btn = document.getElementById('registerBtn');
   btn.innerHTML = '<span class="spinner"></span>';
   btn.disabled = true;
@@ -1532,8 +1549,10 @@ async function handleRegister() {
 
   if (error) {
     showAuthMsg(traduzirErro(error.message), 'error');
+    registrarVisitanteCadastro('erro', email);
   } else {
     showAuthMsg('✅ Conta criada! Verifique seu e-mail para confirmar.', 'success');
+    registrarVisitanteCadastro('sucesso', email);
   }
 }
 
@@ -3149,7 +3168,8 @@ let adminRefreshInterval = null;
 async function adminCarregarTempoReal() {
   await Promise.all([
     adminCarregarOnline(),
-    adminCarregarNovosCadastros()
+    adminCarregarNovosCadastros(),
+    adminCarregarTentativasCadastro()
   ]);
   document.getElementById('adminUltimaAtualizacao').textContent =
     'Atualizado: ' + new Date().toLocaleTimeString('pt-BR');
@@ -3223,6 +3243,79 @@ async function adminCarregarNovosCadastros() {
       <span style="font-size:10px;background:${statusBg};color:${statusColor};padding:2px 8px;border-radius:20px;font-weight:700">${status}</span>
     </div>`;
   }).join('');
+}
+
+// ══ RASTREAMENTO DE VISITANTES ══
+async function registrarVisitanteCadastro(acao, email = null) {
+  try {
+    await db.from('visitantes_cadastro').insert([{
+      acao,
+      email: email || null,
+      user_agent: navigator.userAgent.substring(0, 200),
+      created_at: new Date().toISOString()
+    }]);
+  } catch(e) {}
+}
+
+async function adminCarregarTentativasCadastro() {
+  const el = document.getElementById('adminTentativasCadastro');
+  if (!el) return;
+
+  const seteDiasAtras = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString();
+  const { data } = await db.from('visitantes_cadastro')
+    .select('*')
+    .gte('created_at', seteDiasAtras)
+    .order('created_at', { ascending: false });
+
+  if (!data || !data.length) {
+    el.innerHTML = '<div class="empty-state"><div class="empty-icon">👀</div>Nenhuma visita registrada ainda.</div>';
+    return;
+  }
+
+  // Summary
+  const abriuForm = data.filter(d => d.acao === 'abriu_form').length;
+  const tentativas = data.filter(d => d.acao === 'tentativa').length;
+  const sucessos = data.filter(d => d.acao === 'sucesso').length;
+  const erros = data.filter(d => d.acao === 'erro').length;
+  const abandonos = abriuForm - tentativas;
+  const taxaConversao = tentativas > 0 ? Math.round(sucessos / tentativas * 100) : 0;
+
+  el.innerHTML = `
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:16px">
+      <div style="background:#f0f9ff;border:1px solid #cffafe;border-radius:10px;padding:12px;text-align:center">
+        <div style="font-size:22px;font-weight:700;color:#0891b2">${abriuForm}</div>
+        <div style="font-size:11px;color:#0369a1;font-weight:600">Abriram o form</div>
+      </div>
+      <div style="background:#fffbeb;border:1px solid #fde68a;border-radius:10px;padding:12px;text-align:center">
+        <div style="font-size:22px;font-weight:700;color:#d97706">${abandonos > 0 ? abandonos : 0}</div>
+        <div style="font-size:11px;color:#b45309;font-weight:600">Abandonaram</div>
+      </div>
+      <div style="background:#ecfdf5;border:1px solid #bbf7d0;border-radius:10px;padding:12px;text-align:center">
+        <div style="font-size:22px;font-weight:700;color:#059669">${sucessos}</div>
+        <div style="font-size:11px;color:#047857;font-weight:600">Cadastraram</div>
+      </div>
+      <div style="background:#f0fdf4;border:1px solid #86efac;border-radius:10px;padding:12px;text-align:center">
+        <div style="font-size:22px;font-weight:700;color:#16a34a">${taxaConversao}%</div>
+        <div style="font-size:11px;color:#15803d;font-weight:600">Taxa conversão</div>
+      </div>
+    </div>
+    <div>
+      ${data.slice(0, 15).map(d => {
+        const acaoConfig = {
+          abriu_form: { cor: '#0891b2', bg: '#f0f9ff', label: '👀 Abriu o form' },
+          tentativa: { cor: '#d97706', bg: '#fffbeb', label: '📝 Tentou cadastrar' },
+          sucesso: { cor: '#059669', bg: '#f0fdf4', label: '✅ Cadastrou' },
+          erro: { cor: '#dc2626', bg: '#fef2f2', label: '❌ Erro no cadastro' }
+        };
+        const cfg = acaoConfig[d.acao] || { cor: '#64748b', bg: '#f8fafc', label: d.acao };
+        const hora = new Date(d.created_at).toLocaleString('pt-BR', { day:'2-digit', month:'2-digit', hour:'2-digit', minute:'2-digit' });
+        return `<div style="display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--border)">
+          <span style="font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px;background:${cfg.bg};color:${cfg.cor};white-space:nowrap">${cfg.label}</span>
+          <div style="flex:1;font-size:12px;color:var(--muted)">${d.email || '—'}</div>
+          <div style="font-size:11px;color:var(--muted);white-space:nowrap">${hora}</div>
+        </div>`;
+      }).join('')}
+    </div>`;
 }
 
 // ══ COMPARTILHAR MÓDULOS ══
