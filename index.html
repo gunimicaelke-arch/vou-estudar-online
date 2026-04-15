@@ -1160,20 +1160,53 @@
 
         <!-- Estatísticas -->
         <div class="card card-pad" style="margin-bottom:20px">
-          <div class="card-head"><h3>📊 Visão Geral</h3></div>
-          <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px">
-            <div style="background:#f0f9ff;border:1px solid #cffafe;border-radius:12px;padding:16px;text-align:center">
-              <div style="font-size:28px;font-weight:700;color:#0891b2" id="adminTotalUsers">—</div>
-              <div style="font-size:12px;color:#0369a1;font-weight:600;margin-top:4px">Total de Usuários</div>
+          <div class="card-head">
+            <h3>📊 Visão Geral</h3>
+            <span style="font-size:11px;color:var(--muted)" id="adminUltimaAtualizacao"></span>
+          </div>
+          <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px">
+            <div style="background:#f0f9ff;border:1px solid #cffafe;border-radius:12px;padding:14px;text-align:center">
+              <div style="font-size:26px;font-weight:700;color:#0891b2" id="adminTotalUsers">—</div>
+              <div style="font-size:11px;color:#0369a1;font-weight:600;margin-top:4px">Total Usuários</div>
             </div>
-            <div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:12px;padding:16px;text-align:center">
-              <div style="font-size:28px;font-weight:700;color:#059669" id="adminAtivos">—</div>
-              <div style="font-size:12px;color:#047857;font-weight:600;margin-top:4px">Assinaturas Ativas</div>
+            <div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:12px;padding:14px;text-align:center">
+              <div style="font-size:26px;font-weight:700;color:#059669" id="adminAtivos">—</div>
+              <div style="font-size:11px;color:#047857;font-weight:600;margin-top:4px">Assinaturas Ativas</div>
             </div>
-            <div style="background:#fffbeb;border:1px solid #fde68a;border-radius:12px;padding:16px;text-align:center">
-              <div style="font-size:28px;font-weight:700;color:#d97706" id="adminTrial">—</div>
-              <div style="font-size:12px;color:#b45309;font-weight:600;margin-top:4px">Em Trial</div>
+            <div style="background:#fffbeb;border:1px solid #fde68a;border-radius:12px;padding:14px;text-align:center">
+              <div style="font-size:26px;font-weight:700;color:#d97706" id="adminTrial">—</div>
+              <div style="font-size:11px;color:#b45309;font-weight:600;margin-top:4px">Em Trial</div>
             </div>
+            <div style="background:#f0fdf4;border:1px solid #86efac;border-radius:12px;padding:14px;text-align:center;position:relative">
+              <div style="position:absolute;top:10px;right:10px;width:8px;height:8px;background:#22c55e;border-radius:50%;box-shadow:0 0 6px rgba(34,197,94,0.6)"></div>
+              <div style="font-size:26px;font-weight:700;color:#16a34a" id="adminOnline">—</div>
+              <div style="font-size:11px;color:#15803d;font-weight:600;margin-top:4px">Online Agora</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Online em tempo real -->
+        <div class="card card-pad" style="margin-bottom:20px">
+          <div class="card-head">
+            <h3>🟢 Usuários Online Agora</h3>
+            <div style="display:flex;align-items:center;gap:8px">
+              <div style="width:8px;height:8px;background:#22c55e;border-radius:50%;box-shadow:0 0 6px rgba(34,197,94,0.6)"></div>
+              <span style="font-size:11px;color:var(--muted)">Atualiza a cada 30s</span>
+            </div>
+          </div>
+          <div id="adminOnlineList">
+            <div class="empty-state"><div class="empty-icon">🟢</div>Nenhum usuário online no momento.</div>
+          </div>
+        </div>
+
+        <!-- Novos cadastros -->
+        <div class="card card-pad" style="margin-bottom:20px">
+          <div class="card-head">
+            <h3>🆕 Novos Cadastros</h3>
+            <span style="font-size:11px;color:var(--muted)">Últimos 7 dias</span>
+          </div>
+          <div id="adminNovosCadastros">
+            <div class="empty-state"><div class="empty-icon">🆕</div>Carregando...</div>
           </div>
         </div>
 
@@ -1403,6 +1436,27 @@ async function carregarApp() {
   atualizarDashboard();
   mostrarBadgeTrial();
   mostrarMenuAdmin();
+  registrarPresenca();
+}
+
+async function registrarPresenca() {
+  if (!currentUser) return;
+  try {
+    await db.from('presencas').upsert([{
+      user_id: currentUser.id,
+      ultimo_acesso: new Date().toISOString(),
+      pagina: 'dashboard'
+    }], { onConflict: 'user_id' });
+    // Atualiza presença a cada 2 minutos
+    setInterval(async () => {
+      if (currentUser) {
+        await db.from('presencas').upsert([{
+          user_id: currentUser.id,
+          ultimo_acesso: new Date().toISOString()
+        }], { onConflict: 'user_id' });
+      }
+    }, 120000);
+  } catch(e) {}
 }
 
 async function mostrarBadgeTrial() {
@@ -2965,10 +3019,16 @@ async function adminAtivarAssinatura() {
   const { data: existing } = await db.from('assinaturas').select('*').eq('user_id', userId).maybeSingle();
 
   if (existing) {
-    const { error } = await db.from('assinaturas').update({ ativa: true }).eq('user_id', userId);
+    const { error } = await db.from('assinaturas').update({ 
+      ativa: true, 
+      data_pagamento: new Date().toISOString() 
+    }).eq('user_id', userId);
     if (error) { mostrarAdminMsg('Erro ao ativar: ' + error.message, 'error'); return; }
   } else {
-    const { error } = await db.from('assinaturas').insert([{ user_id: userId, ativa: true }]);
+    const { error } = await db.from('assinaturas').insert([{ 
+      user_id: userId, ativa: true, 
+      data_pagamento: new Date().toISOString() 
+    }]);
     if (error) { mostrarAdminMsg('Erro ao criar: ' + error.message, 'error'); return; }
   }
 
@@ -3019,10 +3079,22 @@ async function adminCarregarUsuarios() {
         emailData.filter(u => u.email !== currentUser.email).map(u =>
           `<option value="${u.id}">${u.email}</option>`
         ).join('');
-      // Store emails for display
       window.adminUsersEmails = emailData;
     }
   } catch(e) {}
+
+  // Load real-time data
+  await adminCarregarTempoReal();
+
+  // Auto-refresh every 30 seconds
+  if (adminRefreshInterval) clearInterval(adminRefreshInterval);
+  adminRefreshInterval = setInterval(async () => {
+    if (document.getElementById('tab-admin').classList.contains('active')) {
+      await adminCarregarOnline();
+      document.getElementById('adminUltimaAtualizacao').textContent =
+        'Atualizado: ' + new Date().toLocaleTimeString('pt-BR');
+    }
+  }, 30000);
 
   el.innerHTML = data.map(u => {
     const trialFim = u.trial_fim ? new Date(u.trial_fim) : null;
@@ -3036,12 +3108,15 @@ async function adminCarregarUsuarios() {
 
     const emailInfo = window.adminUsersEmails?.find(e => e.id === u.user_id);
     const emailDisplay = emailInfo ? emailInfo.email : u.user_id.substring(0,8) + '...';
+    const dataPagamento = u.data_pagamento ? new Date(u.data_pagamento).toLocaleDateString('pt-BR', { day:'2-digit', month:'2-digit', year:'numeric', hour:'2-digit', minute:'2-digit' }) : null;
 
     return `
     <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 0;border-bottom:1px solid var(--border)">
       <div>
         <div style="font-size:13px;font-weight:600;color:var(--text)">${emailDisplay}</div>
-        <div style="font-size:11px;color:var(--muted);margin-top:1px">${trialFim ? 'Trial até: ' + trialFim.toLocaleDateString('pt-BR') : 'Sem trial'}</div>
+        <div style="font-size:11px;color:var(--muted);margin-top:2px">
+          ${dataPagamento ? '<span style="color:#059669;font-weight:600">💳 Pagou em: ' + dataPagamento + '</span>' : (trialFim ? 'Trial até: ' + trialFim.toLocaleDateString('pt-BR') : 'Sem trial')}
+        </div>
       </div>
       <div style="display:flex;align-items:center;gap:8px">
         <span style="font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px;background:${statusBg};color:${statusColor}">${status}</span>
@@ -3053,7 +3128,10 @@ async function adminCarregarUsuarios() {
 }
 
 async function adminAtivarPorId(userId) {
-  await db.from('assinaturas').update({ ativa: true }).eq('user_id', userId);
+  await db.from('assinaturas').update({ 
+    ativa: true, 
+    data_pagamento: new Date().toISOString() 
+  }).eq('user_id', userId);
   toast('✅ Assinatura ativada!');
   await adminCarregarUsuarios();
 }
@@ -3063,6 +3141,88 @@ async function adminDesativarPorId(userId) {
   await db.from('assinaturas').update({ ativa: false }).eq('user_id', userId);
   toast('🔒 Assinatura desativada.');
   await adminCarregarUsuarios();
+}
+
+// ══ TEMPO REAL ADMIN ══
+let adminRefreshInterval = null;
+
+async function adminCarregarTempoReal() {
+  await Promise.all([
+    adminCarregarOnline(),
+    adminCarregarNovosCadastros()
+  ]);
+  document.getElementById('adminUltimaAtualizacao').textContent =
+    'Atualizado: ' + new Date().toLocaleTimeString('pt-BR');
+}
+
+async function adminCarregarOnline() {
+  const el = document.getElementById('adminOnlineList');
+  const elCount = document.getElementById('adminOnline');
+  if (!el) return;
+
+  // Considera online quem acessou nos últimos 5 minutos
+  const cincoMinAtras = new Date(Date.now() - 5 * 60 * 1000).toISOString();
+  const { data } = await db.from('presencas').select('*').gte('ultimo_acesso', cincoMinAtras).order('ultimo_acesso', { ascending: false });
+
+  const lista = data || [];
+  if (elCount) elCount.textContent = lista.length;
+
+  // Get emails
+  const emails = window.adminUsersEmails || [];
+
+  if (!lista.length) {
+    el.innerHTML = '<div class="empty-state"><div class="empty-icon">🟢</div>Nenhum usuário online no momento.</div>';
+    return;
+  }
+
+  el.innerHTML = lista.map(p => {
+    const emailInfo = emails.find(e => e.id === p.user_id);
+    const email = emailInfo ? emailInfo.email : p.user_id.substring(0,12) + '...';
+    const tempo = Math.floor((Date.now() - new Date(p.ultimo_acesso).getTime()) / 60000);
+    const tempoTexto = tempo === 0 ? 'agora mesmo' : tempo + ' min atrás';
+    return `
+    <div style="display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--border)">
+      <div style="width:10px;height:10px;background:#22c55e;border-radius:50%;box-shadow:0 0 6px rgba(34,197,94,0.5);flex-shrink:0"></div>
+      <div style="flex:1">
+        <div style="font-size:13px;font-weight:600;color:var(--text)">${email}</div>
+        <div style="font-size:11px;color:var(--muted)">Último acesso: ${tempoTexto}</div>
+      </div>
+      <span style="font-size:10px;background:#f0fdf4;color:#16a34a;padding:2px 8px;border-radius:20px;font-weight:700">ONLINE</span>
+    </div>`;
+  }).join('');
+}
+
+async function adminCarregarNovosCadastros() {
+  const el = document.getElementById('adminNovosCadastros');
+  if (!el) return;
+
+  const seteDiasAtras = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString();
+  const { data } = await db.from('assinaturas').select('*').gte('created_at', seteDiasAtras).order('created_at', { ascending: false });
+
+  const emails = window.adminUsersEmails || [];
+
+  if (!data || !data.length) {
+    el.innerHTML = '<div class="empty-state"><div class="empty-icon">🆕</div>Nenhum novo cadastro nos últimos 7 dias.</div>';
+    return;
+  }
+
+  el.innerHTML = data.map(u => {
+    const emailInfo = emails.find(e => e.id === u.user_id);
+    const email = emailInfo ? emailInfo.email : u.user_id.substring(0,12) + '...';
+    const dataCadastro = new Date(u.created_at).toLocaleDateString('pt-BR', { day:'2-digit', month:'2-digit', year:'numeric', hour:'2-digit', minute:'2-digit' });
+    const statusBg = u.ativa ? '#f0fdf4' : '#fffbeb';
+    const statusColor = u.ativa ? '#16a34a' : '#d97706';
+    const status = u.ativa ? '✅ Ativo' : '⏳ Trial';
+    return `
+    <div style="display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--border)">
+      <div style="width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#0891b2,#22d3ee);display:grid;place-items:center;font-size:14px;font-weight:700;color:#fff;flex-shrink:0">${email.charAt(0).toUpperCase()}</div>
+      <div style="flex:1">
+        <div style="font-size:13px;font-weight:600;color:var(--text)">${email}</div>
+        <div style="font-size:11px;color:var(--muted)">Cadastrado em: ${dataCadastro}</div>
+      </div>
+      <span style="font-size:10px;background:${statusBg};color:${statusColor};padding:2px 8px;border-radius:20px;font-weight:700">${status}</span>
+    </div>`;
+  }).join('');
 }
 
 // ══ COMPARTILHAR MÓDULOS ══
