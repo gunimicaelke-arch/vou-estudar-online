@@ -2108,7 +2108,7 @@ async function gerarPlanoInteligente() {
       },
       body: JSON.stringify({
         model: 'claude-sonnet-4-20250514',
-        max_tokens: 2500,
+        max_tokens: 4096,
         messages: [{
           role: 'user',
           content: mensagemContent
@@ -2640,7 +2640,7 @@ async function gerarResumoVespera() {
       },
       body: JSON.stringify({
         model: 'claude-sonnet-4-20250514',
-        max_tokens: 1500,
+        max_tokens: 2000,
         messages: [{
           role: 'user',
           content: [{ type: 'text', text: `Você é um professor expert. É véspera de prova de "${titulo}". Tópicos principais: ${topicos}. Resumo do material: ${resumo.substring(0,500)}. Responda APENAS em JSON válido sem texto fora do JSON: {"essencial": "string com os 5 pontos mais importantes para revisar agora em tópicos claros e diretos", "alertas": ["string com dica rápida"], "flashcards_essenciais": [{"pergunta":"string","resposta":"string"}], "nao_esquecer": "string com o que definitivamente vai cair na prova"}` }]
