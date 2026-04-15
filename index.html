@@ -921,13 +921,22 @@
           <!-- Coluna Esquerda: Upload + Pomodoro -->
           <div>
             <div class="card card-pad" style="margin-bottom:14px">
-              <div class="card-head"><h3>📄 Importar PDF</h3></div>
-              <p style="color:var(--muted);font-size:12px;margin-bottom:12px">Faça upload do edital, ementa ou material de estudo.</p>
-              <label class="file-label" for="pdfInput">
-                📎 Clique para selecionar o PDF
-                <span id="pdfNome" style="display:block;font-size:12px;margin-top:4px;color:var(--primary)"></span>
-              </label>
-              <input type="file" id="pdfInput" accept=".pdf" class="hidden" onchange="selecionarPDF(this)" />
+              <div class="card-head"><h3>📄 Material de Estudo</h3></div>
+              <div style="display:flex;gap:6px;margin-bottom:14px;background:#ecfeff;border-radius:10px;padding:4px">
+                <button id="btnTabPDF" onclick="switchInputTab('pdf')" class="mini-btn active-tab-btn" style="flex:1;border-radius:8px">📎 Upload PDF</button>
+                <button id="btnTabTexto" onclick="switchInputTab('texto')" class="mini-btn btn-secondary" style="flex:1;border-radius:8px">📝 Colar Texto</button>
+              </div>
+              <div id="inputPDF">
+                <label class="file-label" for="pdfInput">
+                  📎 Clique para selecionar o PDF
+                  <span id="pdfNome" style="display:block;font-size:12px;margin-top:4px;color:var(--accent)"></span>
+                </label>
+                <input type="file" id="pdfInput" accept=".pdf" class="hidden" onchange="selecionarPDF(this)" />
+              </div>
+              <div id="inputTexto" class="hidden">
+                <textarea id="textoColado" placeholder="Cole aqui o conteúdo do edital, resumo ou material de estudo..." style="min-height:130px;margin-bottom:0;font-size:13px"></textarea>
+                <div style="font-size:11px;color:var(--muted);margin-top:4px;margin-bottom:10px">💡 Mais rápido que PDF — cole direto do Word, site ou apostila</div>
+              </div>
               <input type="text" id="planoIATitulo" placeholder="Nome do plano (ex: Direito Civil)" style="margin-top:4px" />
               <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px">
                 <div>
@@ -2033,6 +2042,16 @@ document.addEventListener('DOMContentLoaded', () => {
   if (dp) dp.addEventListener('change', atualizarDiasProva);
 });
 
+function switchInputTab(tab) {
+  const isPdf = tab === 'pdf';
+  document.getElementById('inputPDF').classList.toggle('hidden', !isPdf);
+  document.getElementById('inputTexto').classList.toggle('hidden', isPdf);
+  document.getElementById('btnTabPDF').classList.toggle('active-tab-btn', isPdf);
+  document.getElementById('btnTabPDF').classList.toggle('btn-secondary', !isPdf);
+  document.getElementById('btnTabTexto').classList.toggle('active-tab-btn', !isPdf);
+  document.getElementById('btnTabTexto').classList.toggle('btn-secondary', isPdf);
+}
+
 function selecionarPDF(input) {
   const file = input.files[0];
   if (!file) return;
@@ -2046,19 +2065,44 @@ function selecionarPDF(input) {
 }
 
 async function gerarPlanoInteligente() {
-  if (!pdfTextoExtraido) return toast('⚠️ Selecione um PDF primeiro!');
+  const textoColado = document.getElementById('textoColado')?.value?.trim();
+  const usandoTexto = !document.getElementById('inputTexto').classList.contains('hidden');
+
+  if (usandoTexto) {
+    if (!textoColado) return toast('⚠️ Cole o conteúdo do material primeiro!');
+  } else {
+    if (!pdfTextoExtraido) return toast('⚠️ Selecione um PDF primeiro!');
+  }
+
   const titulo = document.getElementById('planoIATitulo').value.trim() || 'Plano Inteligente';
   const dataProva = document.getElementById('planoDataProva').value;
   const dataInicio = document.getElementById('planoDataInicioInt').value;
 
   const btn = document.getElementById('btnGerarPlano');
-  btn.innerHTML = '<span class="spinner"></span> Analisando PDF...';
+  btn.innerHTML = usandoTexto ? '<span class="spinner"></span> Analisando texto...' : '<span class="spinner"></span> Analisando PDF...';
   btn.disabled = true;
 
   try {
-    const base64 = pdfTextoExtraido.split(',')[1];
-    const mediaType = pdfTextoExtraido.split(';')[0].split(':')[1];
     const diasTexto = dataProva ? `A prova é em ${dataProva} e o estudo começa em ${dataInicio || 'hoje'}.` : '';
+
+    let mensagemContent;
+    if (usandoTexto) {
+      // Modo texto — muito mais rápido e barato
+      mensagemContent = [
+        { type: 'text', text: 'Você é um especialista em provas para faculdade. ' + diasTexto + ' Material de estudo:
+
+' + textoColado.substring(0, 8000) + '
+
+Analise este material e responda APENAS em JSON válido sem texto fora do JSON: {"topicos": [{"tema":"string","probabilidade":95,"justificativa":"string","progresso":0}],"plano": "string com plano semanal detalhado por dias","resumo": "string com resumo dos temas principais","flashcards": [{"pergunta":"string","resposta":"string"}],"exercicios": [{"pergunta":"string","alternativas":["A)...","B)...","C)...","D)..."],"correta":0,"explicacao":"string"}],"cronograma": [{"semana":"Semana 1","tema":"string","atividades":"string","horas":10}]} Gere pelo menos 8 topicos, 8 flashcards, 5 exercicios com alternativas, 6 semanas de cronograma.' }
+      ];
+    } else {
+      const base64 = pdfTextoExtraido.split(',')[1];
+      const mediaType = pdfTextoExtraido.split(';')[0].split(':')[1];
+      mensagemContent = [
+        { type: 'document', source: { type: 'base64', media_type: mediaType, data: base64 } },
+        { type: 'text', text: 'Você é um especialista em provas para faculdade. ' + diasTexto + ' Analise este documento e responda APENAS em JSON válido sem texto fora do JSON: {"topicos": [{"tema":"string","probabilidade":95,"justificativa":"string","progresso":0}],"plano": "string com plano semanal detalhado por dias","resumo": "string com resumo dos temas principais","flashcards": [{"pergunta":"string","resposta":"string"}],"exercicios": [{"pergunta":"string","alternativas":["A)...","B)...","C)...","D)..."],"correta":0,"explicacao":"string"}],"cronograma": [{"semana":"Semana 1","tema":"string","atividades":"string","horas":10}]} Gere pelo menos 8 topicos, 8 flashcards, 5 exercicios com alternativas, 6 semanas de cronograma.' }
+      ];
+    }
 
     const response = await fetch('https://jamsxocejgxyzopgcqdv.supabase.co/functions/v1/gerar-plano', {
       method: 'POST',
@@ -2068,13 +2112,10 @@ async function gerarPlanoInteligente() {
       },
       body: JSON.stringify({
         model: 'claude-sonnet-4-20250514',
-        max_tokens: 4000,
+        max_tokens: 2500,
         messages: [{
           role: 'user',
-          content: [
-            { type: 'document', source: { type: 'base64', media_type: mediaType, data: base64 } },
-            { type: 'text', text: 'Você é um especialista em provas de Direito para faculdade. ' + diasTexto + ' Analise este documento e responda APENAS em JSON válido sem texto fora do JSON: {"topicos": [{"tema":"string","probabilidade":95,"justificativa":"string","progresso":0}],"plano": "string com plano semanal detalhado por dias","resumo": "string com resumo dos temas principais","flashcards": [{"pergunta":"string","resposta":"string"}],"exercicios": [{"pergunta":"string","alternativas":["A)...","B)...","C)...","D)..."],"correta":0,"explicacao":"string"}],"cronograma": [{"semana":"Semana 1","tema":"string","atividades":"string","horas":10}]} Gere pelo menos 8 topicos, 8 flashcards, 5 exercicios com alternativas, 6 semanas de cronograma.' }
-          ]
+          content: mensagemContent
         }]
       })
     });
