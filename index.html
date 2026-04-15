@@ -3106,17 +3106,19 @@ async function adminCarregarUsuarios() {
   // Populate sharing dropdown with emails via RPC
   try {
     const { data: emailData } = await db.rpc('get_users_emails');
-    const sel = document.getElementById('compartilharUsuario');
-    if (sel && emailData) {
-      sel.innerHTML = '<option value="">Selecione o usuário...</option>' +
-        emailData.filter(u => u.email !== currentUser.email).map(u =>
-          `<option value="${u.id}">${u.email}</option>`
-        ).join('');
+    if (emailData) {
       window.adminUsersEmails = emailData;
+      const sel = document.getElementById('compartilharUsuario');
+      if (sel) {
+        sel.innerHTML = '<option value="">Selecione o usuário...</option>' +
+          emailData.filter(u => u.email !== currentUser.email).map(u =>
+            `<option value="${u.id}">${u.email}</option>`
+          ).join('');
+      }
     }
-  } catch(e) {}
+  } catch(e) { console.log('RPC emails erro:', e); }
 
-  // Load real-time data
+  // Load real-time data AFTER emails are loaded
   await adminCarregarTempoReal();
 
   // Auto-refresh every 30 seconds
@@ -3196,7 +3198,12 @@ async function adminCarregarOnline() {
 
   // Considera online quem acessou nos últimos 5 minutos
   const cincoMinAtras = new Date(Date.now() - 5 * 60 * 1000).toISOString();
-  const { data } = await db.from('presencas').select('*').gte('ultimo_acesso', cincoMinAtras).order('ultimo_acesso', { ascending: false });
+  const { data, error } = await db.from('presencas').select('*').gte('ultimo_acesso', cincoMinAtras).order('ultimo_acesso', { ascending: false });
+
+  if (error) {
+    el.innerHTML = '<div class="empty-state" style="padding:16px;font-size:12px;color:var(--red)">⚠️ Erro: ' + error.message + '<br>Verifique se a tabela "presencas" existe no Supabase.</div>';
+    return;
+  }
 
   const lista = data || [];
   if (elCount) elCount.textContent = lista.length;
@@ -3276,10 +3283,15 @@ async function adminCarregarTentativasCadastro() {
   if (!el) return;
 
   const seteDiasAtras = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString();
-  const { data } = await db.from('visitantes_cadastro')
+  const { data, error } = await db.from('visitantes_cadastro')
     .select('*')
     .gte('created_at', seteDiasAtras)
     .order('created_at', { ascending: false });
+
+  if (error) {
+    el.innerHTML = '<div class="empty-state" style="padding:16px;font-size:12px;color:var(--red)">⚠️ Erro: ' + error.message + '<br>Verifique se a tabela "visitantes_cadastro" existe no Supabase.</div>';
+    return;
+  }
 
   if (!data || !data.length) {
     el.innerHTML = '<div class="empty-state"><div class="empty-icon">👀</div>Nenhuma visita registrada ainda.</div>';
