@@ -2289,7 +2289,7 @@ async function gerarPlanoInteligente() {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': 'Bearer ' + (await db.auth.getSession()).data.session?.access_token
+        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
       },
       body: JSON.stringify({
         model: 'claude-sonnet-4-20250514',
@@ -2721,7 +2721,7 @@ async function enviarChat() {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': 'Bearer ' + (await db.auth.getSession()).data.session?.access_token
+        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
       },
       body: JSON.stringify({ model: 'claude-sonnet-4-20250514', max_tokens: 1000, messages: mensagens })
     });
@@ -2898,7 +2898,7 @@ async function gerarResumoVespera() {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': 'Bearer ' + (await db.auth.getSession()).data.session?.access_token
+        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
       },
       body: JSON.stringify({
         model: 'claude-sonnet-4-20250514',
