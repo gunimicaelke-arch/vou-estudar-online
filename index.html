@@ -562,14 +562,14 @@
         <p class="muted">Comece a estudar de forma inteligente</p>
         <label class="field-label">Nome completo</label>
         <input type="text" id="regName" placeholder="Seu nome" />
+        <label class="field-label" style="margin-top:4px">WhatsApp <span style="color:#dc2626">*</span></label>
+        <input type="tel" id="regTelefone" placeholder="(11) 99999-9999"
+          onblur="if(this.value.trim())registrarVisitanteCadastro('telefone_digitado', this.value.trim())"
+          oninput="this.value=this.value.replace(/[^0-9()+\s-]/g,'')" />
         <label class="field-label">E-mail</label>
         <input type="email" id="regEmail" placeholder="seu@email.com" onblur="if(this.value.trim())registrarVisitanteCadastro('email_digitado', this.value.trim())" />
         <label class="field-label">Senha</label>
         <input type="password" id="regPassword" placeholder="mínimo 6 caracteres" />
-        <label class="field-label">WhatsApp (opcional)</label>
-        <input type="tel" id="regTelefone" placeholder="(11) 99999-9999"
-          onblur="if(this.value.trim())registrarVisitanteCadastro('telefone_digitado', this.value.trim())"
-          oninput="this.value=this.value.replace(/[^0-9()\s+-]/g,'')" />
         <button onclick="handleRegister()" id="registerBtn">Criar conta</button>
       </div>
 
@@ -1240,7 +1240,7 @@
         <div class="card card-pad" style="margin-bottom:20px">
           <div class="card-head">
             <h3>👀 Visitantes na Tela de Cadastro</h3>
-            <span style="font-size:11px;color:var(--muted)">Últimos 7 dias</span>
+            <span style="font-size:11px;color:var(--muted)">Todos os registros</span>
           </div>
           <div id="adminTentativasCadastro">
             <div class="empty-state"><div class="empty-icon">👀</div>Carregando...</div>
@@ -1555,7 +1555,8 @@ async function handleRegister() {
   const email = document.getElementById('regEmail').value.trim();
   const password = document.getElementById('regPassword').value;
 
-  if (!nome || !email || !password) return showAuthMsg('Preencha todos os campos.', 'error');
+  const telefone = document.getElementById('regTelefone')?.value.trim();
+  if (!nome || !email || !password || !telefone) return showAuthMsg('Preencha todos os campos, incluindo o WhatsApp.', 'error');
   if (password.length < 6) return showAuthMsg('Senha deve ter pelo menos 6 caracteres.', 'error');
 
   // Rastreia tentativa de cadastro com email
@@ -3391,7 +3392,10 @@ async function adminCarregarNovosCadastros() {
   (assinData || []).forEach(a => { assinMap[a.user_id] = a; });
 
   const ativos = Object.values(assinMap).filter(a => a.ativa).length;
-  const trial = Object.values(assinMap).filter(a => !a.ativa).length;
+  // Trial = users with assinatura record but not ativa, OR users without any assinatura record
+  const comAssinatura = new Set(Object.keys(assinMap));
+  const semAssinatura = emails.filter(u => !comAssinatura.has(u.id)).length;
+  const trial = Object.values(assinMap).filter(a => !a.ativa).length + semAssinatura;
   const el1 = document.getElementById('adminTotalUsers');
   const el2 = document.getElementById('adminAtivos');
   const el3 = document.getElementById('adminTrial');
@@ -3431,11 +3435,10 @@ async function adminCarregarTentativasCadastro() {
   const el = document.getElementById('adminTentativasCadastro');
   if (!el) return;
 
-  const seteDiasAtras = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString();
   const { data, error } = await db.from('visitantes_cadastro')
     .select('*')
-    .gte('created_at', seteDiasAtras)
-    .order('created_at', { ascending: false });
+    .order('created_at', { ascending: false })
+    .limit(200);
 
   if (error) {
     el.innerHTML = '<div class="empty-state" style="padding:16px;font-size:12px;color:var(--red)">⚠️ Erro: ' + error.message + '<br>Verifique se a tabela "visitantes_cadastro" existe no Supabase.</div>';
