@@ -2226,7 +2226,7 @@ async function gerarPlanoInteligente() {
   function tentarCorrigirJSONBasico(str) {
     return str
       .replace(/,\s*([}\]])/g, '$1')
-      .replace(/[ -]+/g, ' ')
+      .replace(/[\x00-\x1F]+/g, ' ')
       .trim();
   }
 
