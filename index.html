@@ -1038,6 +1038,7 @@
               <button class="mini-btn btn-secondary" id="tabBtnResumo" onclick="switchPlanoTab('resumo')" style="width:auto">📝 Resumo</button>
               <button class="mini-btn btn-secondary" id="tabBtnCrono" onclick="switchPlanoTab('crono')" style="width:auto">📅 Cronograma</button>
               <button class="mini-btn btn-secondary" id="tabBtnChat" onclick="switchPlanoTab('chat')" style="width:auto">💬 Chat com PDF</button>
+              <button class="mini-btn btn-secondary" id="tabBtnTopicos" onclick="switchPlanoTab('topicos')" style="width:auto">📖 Explicações</button>
               <button class="mini-btn btn-secondary" id="tabBtnVespera" onclick="switchPlanoTab('vespera')" style="width:auto;display:none">🌙 Modo Véspera</button>
             </div>
 
@@ -1115,6 +1116,13 @@
               <div id="progresVazio" style="text-align:center;padding:30px">
                 <div style="font-size:40px;margin-bottom:12px">🏆</div>
                 <div style="font-size:16px;font-weight:700">Gere um plano para começar o simulado progressivo!</div>
+              </div>
+            </div>
+
+            <!-- Aba: Explicações dos Tópicos -->
+            <div id="tabTopicos" class="hidden">
+              <div id="explicacoesTopicos">
+                <div class="empty-state"><div class="empty-icon">📖</div>Gere um plano para ver as explicações detalhadas.</div>
               </div>
             </div>
 
@@ -2213,14 +2221,14 @@ async function gerarPlanoInteligente() {
     if (usandoTexto) {
       // Modo texto — muito mais rápido e barato
       mensagemContent = [
-        { type: 'text', text: 'Você é um especialista em provas para faculdade. ' + diasTexto + ' Material de estudo:\n\n' + textoColado.substring(0, 8000) + '\n\nAnalise este material e responda APENAS em JSON válido sem texto fora do JSON: {"topicos": [{"tema":"string","probabilidade":95,"justificativa":"string","progresso":0}],"plano": "string com plano semanal detalhado por dias","resumo": "string com resumo dos temas principais","flashcards": [{"pergunta":"string","resposta":"string"}],"exercicios": [{"pergunta":"string","alternativas":["A)...","B)...","C)...","D)..."],"correta":0,"explicacao":"string"}],"cronograma": [{"semana":"Semana 1","tema":"string","atividades":"string","horas":10}]} Gere pelo menos 8 topicos, 8 flashcards, 5 exercicios com alternativas, 6 semanas de cronograma.' }
+        { type: 'text', text: 'Você é um especialista em provas para faculdade. ' + diasTexto + ' Material de estudo:\n\n' + textoColado.substring(0, 8000) + '\n\nAnalise este material e responda APENAS em JSON válido sem texto fora do JSON: {"topicos": [{"tema":"string","probabilidade":95,"justificativa":"string","explicacao_detalhada":"string com explicação completa e detalhada do tópico com pelo menos 40 linhas cobrindo conceitos, definições, exemplos práticos e pontos importantes para a prova","progresso":0}],"plano": "string com plano semanal detalhado por dias","resumo": "string com resumo dos temas principais","flashcards": [{"pergunta":"string","resposta":"string"}],"exercicios": [{"pergunta":"string","alternativas":["A)...","B)...","C)...","D)..."],"correta":0,"explicacao":"string"}],"cronograma": [{"semana":"Semana 1","tema":"string","atividades":"string","horas":10}]} Gere pelo menos 8 topicos, 8 flashcards, 5 exercicios com alternativas, 6 semanas de cronograma.' }
       ];
     } else {
       const base64 = pdfTextoExtraido.split(',')[1];
       const mediaType = pdfTextoExtraido.split(';')[0].split(':')[1];
       mensagemContent = [
         { type: 'document', source: { type: 'base64', media_type: mediaType, data: base64 } },
-        { type: 'text', text: 'Você é um especialista em provas para faculdade. ' + diasTexto + ' Analise este documento e responda APENAS em JSON válido sem texto fora do JSON: {"topicos": [{"tema":"string","probabilidade":95,"justificativa":"string","progresso":0}],"plano": "string com plano semanal detalhado por dias","resumo": "string com resumo dos temas principais","flashcards": [{"pergunta":"string","resposta":"string"}],"exercicios": [{"pergunta":"string","alternativas":["A)...","B)...","C)...","D)..."],"correta":0,"explicacao":"string"}],"cronograma": [{"semana":"Semana 1","tema":"string","atividades":"string","horas":10}]} Gere pelo menos 8 topicos, 8 flashcards, 5 exercicios com alternativas, 6 semanas de cronograma.' }
+        { type: 'text', text: 'Você é um especialista em provas para faculdade. ' + diasTexto + ' Analise este documento e responda APENAS em JSON válido sem texto fora do JSON: {"topicos": [{"tema":"string","probabilidade":95,"justificativa":"string","explicacao_detalhada":"string com explicação completa e detalhada do tópico com pelo menos 40 linhas cobrindo conceitos, definições, exemplos práticos e pontos importantes para a prova","progresso":0}],"plano": "string com plano semanal detalhado por dias","resumo": "string com resumo dos temas principais","flashcards": [{"pergunta":"string","resposta":"string"}],"exercicios": [{"pergunta":"string","alternativas":["A)...","B)...","C)...","D)..."],"correta":0,"explicacao":"string"}],"cronograma": [{"semana":"Semana 1","tema":"string","atividades":"string","horas":10}]} Gere pelo menos 8 topicos, 8 flashcards, 5 exercicios com alternativas, 6 semanas de cronograma.' }
       ];
     }
 
@@ -2309,6 +2317,9 @@ function renderPlanoInteligente(titulo, r) {
 
   // Cronograma
   renderCronograma(r.cronograma || []);
+
+  // Explicações detalhadas
+  renderExplicacoesTopicos(r.topicos || []);
 
   // Progresso por tópico
   renderProgressoTopicos(r.topicos);
@@ -2423,8 +2434,44 @@ function atualizarProgTopic(tema, idx, val) {
   document.getElementById('statProgInt').textContent = media + '%';
 }
 
+function renderExplicacoesTopicos(topicos) {
+  const el = document.getElementById('explicacoesTopicos');
+  if (!el || !topicos.length) return;
+
+  el.innerHTML = topicos.map((t, i) => `
+    <div style="margin-bottom:24px;border:1px solid var(--border);border-radius:14px;overflow:hidden">
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 18px;background:${t.probabilidade >= 90 ? '#f0fdf4' : t.probabilidade >= 75 ? '#fffbeb' : '#f0f9ff'};cursor:pointer;user-select:none"
+        onclick="toggleExplicacao(${i})">
+        <div style="display:flex;align-items:center;gap:10px">
+          <div style="width:28px;height:28px;border-radius:50%;background:${t.probabilidade >= 90 ? '#059669' : t.probabilidade >= 75 ? '#d97706' : '#0891b2'};color:#fff;display:grid;place-items:center;font-size:11px;font-weight:700;flex-shrink:0">${i+1}</div>
+          <div>
+            <div style="font-size:14px;font-weight:700;color:var(--text)">${t.tema}</div>
+            <div style="font-size:11px;color:var(--muted);margin-top:2px">${t.justificativa}</div>
+          </div>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px">
+          <span style="font-size:11px;font-weight:700;padding:3px 9px;border-radius:20px;background:${t.probabilidade >= 90 ? '#dcfce7' : t.probabilidade >= 75 ? '#fef9c3' : '#e0f2fe'};color:${t.probabilidade >= 90 ? '#059669' : t.probabilidade >= 75 ? '#d97706' : '#0891b2'}">${t.probabilidade}%</span>
+          <span id="chevron-${i}" style="font-size:16px;color:var(--muted);transition:transform 0.2s">▼</span>
+        </div>
+      </div>
+      <div id="expContent-${i}" class="hidden" style="padding:20px 24px;background:#fff;font-size:13px;line-height:2;color:var(--text);white-space:pre-wrap;border-top:1px solid var(--border)">
+        ${t.explicacao_detalhada || t.justificativa || 'Explicação não disponível para este tópico.'}
+      </div>
+    </div>
+  `).join('');
+}
+
+function toggleExplicacao(i) {
+  const el = document.getElementById('expContent-' + i);
+  const ch = document.getElementById('chevron-' + i);
+  if (!el) return;
+  const hidden = el.classList.contains('hidden');
+  el.classList.toggle('hidden', !hidden);
+  if (ch) ch.style.transform = hidden ? 'rotate(180deg)' : 'rotate(0deg)';
+}
+
 function switchPlanoTab(tab) {
-  ['plano','flash','simulado','progres','resumo','crono','chat','vespera'].forEach(t => {
+  ['plano','flash','simulado','progres','resumo','crono','chat','topicos','vespera'].forEach(t => {
     const el = document.getElementById('tab' + t.charAt(0).toUpperCase() + t.slice(1));
     if (el) el.classList.add('hidden');
     const btn = document.getElementById('tabBtn' + t.charAt(0).toUpperCase() + t.slice(1));
