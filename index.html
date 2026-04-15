@@ -1656,6 +1656,8 @@ function goTab(tab) {
   const [title, sub] = tabTitles[tab] || ['', ''];
   document.getElementById('topbarTitle').textContent = title;
   document.getElementById('topbarSub').textContent = sub;
+
+  if (tab === 'admin') adminCarregarUsuarios();
 }
 
 // ═══════════════════════════════════════
