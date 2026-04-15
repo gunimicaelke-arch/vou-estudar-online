@@ -3284,36 +3284,43 @@ async function adminCarregarNovosCadastros() {
   const el = document.getElementById('adminNovosCadastros');
   if (!el) return;
 
-  const seteDiasAtras = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString();
-  const { data } = await db.from('assinaturas').select('*').gte('created_at', seteDiasAtras).order('created_at', { ascending: false });
-
   const emails = window.adminUsersEmails || [];
 
-  if (!data || !data.length) {
-    el.innerHTML = '<div class="empty-state"><div class="empty-icon">🆕</div>Nenhum novo cadastro nos últimos 7 dias.</div>';
+  if (!emails.length) {
+    el.innerHTML = '<div class="empty-state"><div class="empty-icon">🆕</div>Nenhum usuário encontrado. Clique em Atualizar.</div>';
     return;
   }
 
-  el.innerHTML = data.map(u => {
-    const emailInfo = emails.find(e => e.id === u.user_id);
-    const email = emailInfo ? emailInfo.email : u.user_id.substring(0,12) + '...';
-    const dataCadastro = new Date(u.created_at).toLocaleDateString('pt-BR', { day:'2-digit', month:'2-digit', year:'numeric', hour:'2-digit', minute:'2-digit' });
-    const statusBg = u.ativa ? '#f0fdf4' : '#fffbeb';
-    const statusColor = u.ativa ? '#16a34a' : '#d97706';
-    const status = u.ativa ? '✅ Ativo' : '⏳ Trial';
-    return `
-    <div style="display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--border)">
-      <div style="width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#0891b2,#22d3ee);display:grid;place-items:center;font-size:14px;font-weight:700;color:#fff;flex-shrink:0">${email.charAt(0).toUpperCase()}</div>
+  const { data: assinData } = await db.from('assinaturas').select('*').order('created_at', { ascending: false });
+  const assinMap = {};
+  (assinData || []).forEach(a => { assinMap[a.user_id] = a; });
+
+  const ativos = Object.values(assinMap).filter(a => a.ativa).length;
+  const trial = Object.values(assinMap).filter(a => !a.ativa).length;
+  const el1 = document.getElementById('adminTotalUsers');
+  const el2 = document.getElementById('adminAtivos');
+  const el3 = document.getElementById('adminTrial');
+  if (el1) el1.textContent = emails.length;
+  if (el2) el2.textContent = ativos;
+  if (el3) el3.textContent = trial;
+
+  el.innerHTML = emails.map(u => {
+    const assin = assinMap[u.id];
+    const statusBg = assin?.ativa ? '#f0fdf4' : '#fffbeb';
+    const statusColor = assin?.ativa ? '#16a34a' : '#d97706';
+    const status = assin?.ativa ? '✅ Ativo' : '⏳ Trial';
+    const dataPag = assin?.data_pagamento ? '<div style="font-size:11px;color:#059669">💳 Pagou em: ' + new Date(assin.data_pagamento).toLocaleDateString('pt-BR') + '</div>' : '';
+    return `<div style="display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--border)">
+      <div style="width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#0891b2,#22d3ee);display:grid;place-items:center;font-size:14px;font-weight:700;color:#fff;flex-shrink:0">${u.email.charAt(0).toUpperCase()}</div>
       <div style="flex:1">
-        <div style="font-size:13px;font-weight:600;color:var(--text)">${email}</div>
-        <div style="font-size:11px;color:var(--muted)">Cadastrado em: ${dataCadastro}</div>
+        <div style="font-size:13px;font-weight:600;color:var(--text)">${u.email}</div>
+        ${dataPag}
       </div>
       <span style="font-size:10px;background:${statusBg};color:${statusColor};padding:2px 8px;border-radius:20px;font-weight:700">${status}</span>
     </div>`;
   }).join('');
 }
 
-// ══ RASTREAMENTO DE VISITANTES ══
 async function registrarVisitanteCadastro(acao, email = null) {
   try {
     await db.from('visitantes_cadastro').insert([{
