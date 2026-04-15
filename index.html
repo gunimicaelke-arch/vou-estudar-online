@@ -2211,7 +2211,9 @@ async function gerarPlanoInteligente() {
   const dataInicio = document.getElementById('planoDataInicioInt').value;
 
   const btn = document.getElementById('btnGerarPlano');
-  btn.innerHTML = usandoTexto ? '<span class="spinner"></span> Analisando texto...' : '<span class="spinner"></span> Analisando PDF...';
+  btn.innerHTML = usandoTexto
+    ? '<span class="spinner"></span> Analisando texto...'
+    : '<span class="spinner"></span> Analisando PDF...';
   btn.disabled = true;
 
   function extrairJSONValido(str) {
@@ -2229,9 +2231,12 @@ async function gerarPlanoInteligente() {
   }
 
   try {
-    const diasTexto = dataProva ? `A prova é em ${dataProva} e o estudo começa em ${dataInicio || 'hoje'}.` : '';
+    const diasTexto = dataProva
+      ? `A prova é em ${dataProva} e o estudo começa em ${dataInicio || 'hoje'}.`
+      : '';
 
     let mensagemContent;
+
     if (usandoTexto) {
       mensagemContent = [
         {
