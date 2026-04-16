@@ -1497,7 +1497,7 @@ async function registrarPresenca() {
 }
 
 async function mostrarBadgeTrial() {
-  const { data } = await db.from('assinaturas').select('*').eq('user_id', currentUser.id).single().catch(() => ({ data: null }));
+  const { data } = await db.from('assinaturas').select('*').eq('user_id', currentUser.id).maybeSingle();
   if (!data || data.ativa) return;
   if (!data.trial_fim) return;
   const dias = Math.ceil((new Date(data.trial_fim) - new Date()) / 86400000);
@@ -3389,7 +3389,16 @@ async function adminCarregarNovosCadastros() {
     return;
   }
 
-  const { data: assinData } = await db.from('assinaturas').select('user_id, ativa, trial_fim, data_pagamento, created_at').order('created_at', { ascending: false });
+  // Use RPC to bypass RLS and get all subscriptions
+  let assinData = null;
+  try {
+    const { data: rpcData } = await db.rpc('get_all_assinaturas');
+    assinData = rpcData;
+  } catch(e) {
+    // Fallback to direct query
+    const { data: directData } = await db.from('assinaturas').select('user_id, ativa, trial_fim, data_pagamento, created_at').order('created_at', { ascending: false });
+    assinData = directData;
+  }
   const assinMap = {};
   (assinData || []).forEach(a => { assinMap[a.user_id] = a; });
 
@@ -3404,12 +3413,6 @@ async function adminCarregarNovosCadastros() {
   if (el1) el1.textContent = emails.length;
   if (el2) el2.textContent = ativos;
   if (el3) el3.textContent = trial;
-
-  // Debug: log first user to verify keys match
-  if (emails.length > 0) {
-    console.log('First email id:', emails[0].id);
-    console.log('AssinMap keys:', Object.keys(assinMap).slice(0,3));
-  }
 
   el.innerHTML = emails.map(u => {
     const assin = assinMap[u.id];
