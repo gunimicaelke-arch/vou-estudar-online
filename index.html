@@ -467,9 +467,42 @@
     .grid-2 { grid-template-columns: 1fr; }
   }
   @media (max-width: 700px) {
-    .app-screen { grid-template-columns: 1fr; }
-    .sidebar { display: none; }
+    .app-screen { grid-template-columns: 1fr; display: flex; flex-direction: column; height: 100vh; }
+    .sidebar { display: none !important; }
+    .main-area { flex: 1; overflow-y: auto; padding-bottom: 70px; }
     .stats-grid { grid-template-columns: 1fr 1fr; }
+    .topbar { padding: 10px 14px; }
+    .card-pad { padding: 14px; }
+    .bottom-nav { display: flex !important; }
+    .section-title { font-size: 16px; }
+    .grid-2 { grid-template-columns: 1fr; }
+  }
+
+  .bottom-nav {
+    display: none;
+    position: fixed; bottom: 0; left: 0; right: 0;
+    background: #0c1a2e;
+    border-top: 1px solid rgba(34,211,238,0.15);
+    padding: 8px 4px env(safe-area-inset-bottom, 8px);
+    z-index: 999;
+    justify-content: space-around;
+    align-items: center;
+    gap: 2px;
+  }
+  .bn-item {
+    display: flex; flex-direction: column; align-items: center; gap: 3px;
+    padding: 6px 8px; border-radius: 10px; cursor: pointer;
+    color: rgba(255,255,255,0.35); font-size: 9px; font-weight: 600;
+    letter-spacing: 0.3px; text-transform: uppercase;
+    flex: 1; min-width: 0;
+    transition: all .15s;
+  }
+  .bn-item .bn-icon { font-size: 20px; line-height: 1; }
+  .bn-item.active { color: #22d3ee; background: rgba(34,211,238,0.1); }
+  .bn-item .bn-badge {
+    position: absolute; top: 2px; right: 6px;
+    background: #0891b2; color: #fff; font-size: 8px;
+    padding: 1px 4px; border-radius: 999px; font-weight: 700;
   }
 
   @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
@@ -1309,6 +1342,67 @@
 
     </div><!-- /content -->
   </div><!-- /main-area -->
+
+  <!-- Bottom Nav Mobile -->
+  <nav class="bottom-nav" id="bottomNav">
+    <div class="bn-item active" id="bn-dashboard" onclick="goTab('dashboard');setActiveBottomNav('dashboard')">
+      <span class="bn-icon">🏠</span>
+      <span>Início</span>
+    </div>
+    <div class="bn-item" id="bn-materias" onclick="goTab('materias');setActiveBottomNav('materias')" style="position:relative">
+      <span class="bn-icon">📖</span>
+      <span>Matérias</span>
+      <span class="bn-badge" id="bnBadgeMat" style="display:none"></span>
+    </div>
+    <div class="bn-item" id="bn-planointeligente" onclick="goTab('planointeligente');setActiveBottomNav('planointeligente')" style="position:relative">
+      <span class="bn-icon">✨</span>
+      <span>IA</span>
+      <span class="bn-badge" id="bnBadgeIA" style="display:none"></span>
+    </div>
+    <div class="bn-item" id="bn-notas" onclick="goTab('notas');setActiveBottomNav('notas')">
+      <span class="bn-icon">📝</span>
+      <span>Notas</span>
+    </div>
+    <div class="bn-item" id="bn-more" onclick="toggleMobileMenu()">
+      <span class="bn-icon">☰</span>
+      <span>Mais</span>
+    </div>
+  </nav>
+
+  <!-- Mobile Menu Drawer -->
+  <div id="mobileDrawer" style="display:none;position:fixed;bottom:64px;left:0;right:0;background:#0c1a2e;border-top:1px solid rgba(34,211,238,0.15);padding:12px;z-index:998;border-radius:20px 20px 0 0">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+      <div onclick="goTab('planos');toggleMobileMenu()" style="display:flex;align-items:center;gap:10px;padding:12px;border-radius:12px;background:rgba(255,255,255,0.05);color:rgba(255,255,255,0.7);font-size:13px;cursor:pointer">
+        <span style="font-size:18px">🗓️</span> Planos
+      </div>
+      <div onclick="goTab('prioridades');toggleMobileMenu()" style="display:flex;align-items:center;gap:10px;padding:12px;border-radius:12px;background:rgba(255,255,255,0.05);color:rgba(255,255,255,0.7);font-size:13px;cursor:pointer">
+        <span style="font-size:18px">🎯</span> Prioridades
+      </div>
+      <div onclick="goTab('lembretes');toggleMobileMenu()" style="display:flex;align-items:center;gap:10px;padding:12px;border-radius:12px;background:rgba(255,255,255,0.05);color:rgba(255,255,255,0.7);font-size:13px;cursor:pointer">
+        <span style="font-size:18px">🔔</span> Lembretes
+      </div>
+      <div id="bnAdminItem" onclick="goTab('admin');toggleMobileMenu()" style="display:none;align-items:center;gap:10px;padding:12px;border-radius:12px;background:rgba(245,158,11,0.15);color:#fbbf24;font-size:13px;cursor:pointer">
+        <span style="font-size:18px">🛡️</span> Admin
+      </div>
+    </div>
+    <div style="display:flex;gap:8px;margin-top:8px">
+      <a href="https://www.mercadopago.com.br/subscriptions/checkout?preapproval_plan_id=c44dc3e2e0544c35a6f91f3323e69159" target="_blank"
+        style="flex:1;display:flex;align-items:center;justify-content:center;gap:6px;padding:12px;border-radius:12px;background:linear-gradient(135deg,#0891b2,#22d3ee);color:#fff;font-size:12px;font-weight:700;text-decoration:none">
+        💳 Assinar R$15
+      </a>
+      <a href="mailto:gunimicaelke@gmail.com?subject=Preciso%20de%20ajuda&body=Ol%C3%A1%2C%20preciso%20de%20ajuda."
+        style="display:flex;align-items:center;justify-content:center;gap:6px;padding:12px;border-radius:12px;background:rgba(255,255,255,0.05);color:rgba(255,255,255,0.6);font-size:12px;font-weight:600;text-decoration:none">
+        💬 Suporte
+      </a>
+      <button onclick="handleLogout();toggleMobileMenu()" style="padding:12px 14px;border-radius:12px;background:rgba(255,255,255,0.05);color:rgba(255,255,255,0.4);font-size:12px;width:auto">
+        🚪 Sair
+      </button>
+    </div>
+    <div style="text-align:center;margin-top:10px;padding:8px 12px;background:rgba(255,255,255,0.03);border-radius:10px;font-size:11px;color:rgba(255,255,255,0.3)">
+      <span id="mobileUserEmail"></span>
+    </div>
+  </div>
+
 </div><!-- /appScreen -->
 
 <script>
@@ -1638,6 +1732,36 @@ const tabTitles = {
   planointeligente: ['✨ Plano Inteligente', 'Análise e plano de estudos gerado por IA']
 };
 
+function setActiveBottomNav(tab) {
+  document.querySelectorAll('.bn-item').forEach(i => i.classList.remove('active'));
+  const el = document.getElementById('bn-' + tab);
+  if (el) el.classList.add('active');
+  // Close drawer if open
+  const drawer = document.getElementById('mobileDrawer');
+  if (drawer) drawer.style.display = 'none';
+}
+
+function toggleMobileMenu() {
+  const drawer = document.getElementById('mobileDrawer');
+  if (!drawer) return;
+  drawer.style.display = drawer.style.display === 'none' ? 'block' : 'none';
+  // Update user email
+  const emailEl = document.getElementById('mobileUserEmail');
+  if (emailEl && currentUser) emailEl.textContent = currentUser.email;
+  // Show admin if admin
+  const adminItem = document.getElementById('bnAdminItem');
+  if (adminItem) adminItem.style.display = isAdmin() ? 'flex' : 'none';
+}
+
+// Close drawer when tapping outside
+document.addEventListener('click', (e) => {
+  const drawer = document.getElementById('mobileDrawer');
+  const moreBtn = document.getElementById('bn-more');
+  if (drawer && drawer.style.display === 'block' && !drawer.contains(e.target) && !moreBtn?.contains(e.target)) {
+    drawer.style.display = 'none';
+  }
+});
+
 function goTab(tab) {
   // Para timer se sair da aba matérias
   if (tab !== 'materias' && estudoAtivoId) pararEstudo(estudoAtivoId);
@@ -1658,6 +1782,9 @@ function goTab(tab) {
   document.getElementById('topbarSub').textContent = sub;
 
   if (tab === 'admin') adminCarregarUsuarios();
+
+  // Update bottom nav active state
+  setActiveBottomNav(tab);
 }
 
 // ═══════════════════════════════════════
