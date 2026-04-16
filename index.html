@@ -3,384 +3,368 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Vou Estudar+ — Landing Page</title>
-<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400&display=swap" rel="stylesheet"/>
+<title>Vou Estudar+</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
-body{font-family:'Plus Jakarta Sans',sans-serif;background:#f0f4ff;min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px 20px}
-
-/* ── OUTER WRAPPER ── */
-.preview-wrapper{
-  background:#1a2d5a;
-  border-radius:24px;
-  padding:32px 40px 40px;
-  max-width:1080px;
-  width:100%;
-  box-shadow:0 24px 80px rgba(10,20,60,0.35);
+body{
+  font-family:'Plus Jakarta Sans',sans-serif;
+  background:linear-gradient(160deg,#0d1b3e 0%,#0f2a6b 50%,#0a1a3a 100%);
+  min-height:100vh;
+  color:#fff;
+  -webkit-font-smoothing:antialiased;
 }
 
-.preview-header{
-  display:flex;
-  gap:48px;
-  justify-content:center;
-  margin-bottom:20px;
+/* ══ LOGO C — LIVRO + FAÍSCA DOURADA ══ */
+.logo{display:flex;align-items:center;gap:12px}
+.logo-icon-wrap{position:relative;flex-shrink:0}
+.logo-icon{
+  width:48px;height:48px;border-radius:14px;
+  background:#fff;
+  display:flex;align-items:center;justify-content:center;
 }
-.preview-label{
-  display:flex;align-items:center;gap:8px;
-  font-size:12px;font-weight:600;
+.logo-icon svg{width:28px;height:28px}
+.logo-dot{
+  position:absolute;top:-3px;right:-3px;
+  width:13px;height:13px;
+  background:linear-gradient(135deg,#fbbf24,#f59e0b);
+  border-radius:50%;
+  border:2.5px solid #0d1b3e;
+}
+.logo-name{
+  font-size:18px;font-weight:800;color:#fff;
+  letter-spacing:-0.5px;line-height:1;
+}
+.logo-name .plus{
+  background:linear-gradient(90deg,#fbbf24,#f97316);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+}
+
+/* ══ DESKTOP ══ */
+.desktop{display:none;flex-direction:column;min-height:100vh}
+
+.d-nav{
+  padding:22px 64px;
+  display:flex;align-items:center;justify-content:space-between;
+  border-bottom:1px solid rgba(255,255,255,0.06);
+}
+.d-nav-right{display:flex;align-items:center;gap:6px}
+.d-nav-link{
+  font-size:13px;font-weight:500;
   color:rgba(255,255,255,0.5);
-  letter-spacing:0.5px;text-transform:uppercase;
+  text-decoration:none;padding:8px 14px;border-radius:8px;
+  transition:all .15s;
 }
-.preview-label svg{width:14px;height:14px;fill:rgba(255,255,255,0.4)}
+.d-nav-link:hover{color:#fff;background:rgba(255,255,255,0.06)}
+.d-nav-cta{
+  font-size:13px;font-weight:700;color:#fff;
+  background:linear-gradient(90deg,#1a6fe8,#3b9fff);
+  border:none;padding:10px 22px;border-radius:10px;
+  cursor:pointer;text-decoration:none;margin-left:6px;
+  transition:opacity .15s;
+}
+.d-nav-cta:hover{opacity:0.88}
 
-/* ── SCREENS LAYOUT ── */
-.screens{
-  display:grid;
-  grid-template-columns:220px 1fr;
-  gap:24px;
-  align-items:start;
+.d-hero{
+  flex:1;display:grid;
+  grid-template-columns:1fr 400px;
+  gap:64px;align-items:center;
+  padding:56px 64px 48px;
+  max-width:1160px;margin:0 auto;width:100%;
 }
-
-/* ══════════════════════════
-   MOBILE SCREEN
-══════════════════════════ */
-.mobile-frame{
-  background:#fff;
-  border-radius:20px;
-  overflow:hidden;
-  box-shadow:0 8px 32px rgba(0,0,0,0.25);
-  border:1px solid rgba(255,255,255,0.15);
-}
-.mobile-top{
-  background:linear-gradient(160deg,#1e3a7a 0%,#1a5fa8 100%);
-  padding:20px 18px 22px;
-  position:relative;
-}
-.m-logo{display:flex;align-items:center;gap:6px;margin-bottom:18px}
-.m-logo-icon{
-  width:26px;height:26px;border-radius:7px;
-  background:linear-gradient(135deg,#2b7fff,#60b0ff);
-  display:flex;align-items:center;justify-content:center;
-  font-size:13px;
-}
-.m-logo span{font-size:14px;font-weight:800;color:#fff;letter-spacing:-0.3px}
-.m-logo strong{color:#60d0ff}
-
-.m-headline{
-  font-size:17px;font-weight:800;color:#fff;line-height:1.25;
-  letter-spacing:-0.4px;margin-bottom:14px;
-}
-
-.m-features{display:flex;flex-direction:column;gap:8px;margin-bottom:18px}
-.m-feat{
-  display:flex;align-items:center;gap:8px;
-  font-size:10px;font-weight:600;color:rgba(255,255,255,0.75);
-}
-.m-feat-icon{
-  width:26px;height:26px;border-radius:7px;
-  background:rgba(255,255,255,0.12);
-  display:flex;align-items:center;justify-content:center;font-size:12px;
-  flex-shrink:0;
-}
-
-.m-cta-btn{
-  display:block;width:100%;
-  background:linear-gradient(90deg,#1a6fe8,#2b9fff);
-  color:#fff;font-size:12px;font-weight:700;
-  padding:11px;border-radius:10px;text-align:center;
-  text-decoration:none;letter-spacing:0.1px;
-  margin-bottom:8px;
-}
-.m-cta-btn svg{display:inline-block;margin-left:4px;vertical-align:middle}
-
-.m-secondary-links{
-  display:flex;flex-direction:column;gap:5px;
-}
-.m-link{
-  display:block;width:100%;
-  background:transparent;
-  border:1.5px solid rgba(255,255,255,0.25);
-  color:rgba(255,255,255,0.8);font-size:10px;font-weight:600;
-  padding:8px;border-radius:9px;text-align:center;text-decoration:none;
-}
-
-.m-support{
-  background:#fff;
-  padding:8px 18px;
-  font-size:9px;color:#64748b;font-weight:600;text-align:center;
-}
-
-/* ══════════════════════════
-   DESKTOP SCREEN
-══════════════════════════ */
-.desktop-frame{
-  background:#fff;
-  border-radius:20px;
-  overflow:hidden;
-  box-shadow:0 8px 32px rgba(0,0,0,0.25);
-  border:1px solid rgba(255,255,255,0.15);
-}
-.desktop-top{
-  background:linear-gradient(160deg,#1e3a7a 0%,#1a5fa8 80%,#1470c0 100%);
-  padding:32px 40px 36px;
-  display:grid;
-  grid-template-columns:1fr 340px;
-  gap:32px;
-  align-items:center;
-  position:relative;
-}
-
-.d-left{}
-.d-logo{display:flex;align-items:center;gap:8px;margin-bottom:20px}
-.d-logo-icon{
-  width:32px;height:32px;border-radius:9px;
-  background:linear-gradient(135deg,#2b7fff,#60b0ff);
-  display:flex;align-items:center;justify-content:center;
-  font-size:16px;
-}
-.d-logo span{font-size:18px;font-weight:800;color:#fff;letter-spacing:-0.5px}
-.d-logo strong{color:#60d0ff}
 
 .d-badge{
-  display:inline-flex;align-items:center;gap:5px;
-  background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.2);
-  border-radius:999px;padding:4px 10px;
-  font-size:10px;font-weight:700;color:rgba(255,255,255,0.7);
-  letter-spacing:0.5px;text-transform:uppercase;
+  display:inline-flex;align-items:center;gap:7px;
+  background:rgba(251,191,36,0.08);
+  border:1px solid rgba(251,191,36,0.22);
+  border-radius:999px;padding:5px 14px;
+  font-size:11px;font-weight:700;
+  color:rgba(251,191,36,0.8);
+  letter-spacing:0.8px;text-transform:uppercase;
+  margin-bottom:22px;
+}
+.d-badge-dot{width:6px;height:6px;border-radius:50%;background:#fbbf24}
+
+.d-title{
+  font-size:50px;font-weight:800;
+  line-height:1.08;letter-spacing:-1.8px;
+  margin-bottom:18px;
+}
+.d-title span{
+  background:linear-gradient(90deg,#60a5fa,#818cf8);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+}
+
+.d-desc{
+  font-size:16px;color:rgba(255,255,255,0.45);
+  line-height:1.7;margin-bottom:38px;max-width:430px;
+}
+
+.d-feats{display:flex;gap:28px;margin-bottom:42px;flex-wrap:wrap}
+.d-feat{display:flex;align-items:center;gap:10px;font-size:13px;font-weight:600;color:rgba(255,255,255,0.68)}
+.d-feat-icon{
+  width:34px;height:34px;border-radius:10px;
+  background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.08);
+  display:flex;align-items:center;justify-content:center;
+  font-size:16px;flex-shrink:0;
+}
+
+.d-cta-row{display:flex;align-items:center;gap:18px;margin-bottom:18px}
+.d-cta{
+  display:inline-flex;align-items:center;gap:8px;
+  background:linear-gradient(90deg,#1a6fe8,#3b9fff);
+  color:#fff;font-size:15px;font-weight:700;
+  padding:15px 34px;border-radius:13px;
+  text-decoration:none;
+  transition:opacity .15s,transform .15s;
+}
+.d-cta:hover{opacity:0.9;transform:translateY(-1px)}
+.d-hint{font-size:12px;color:rgba(255,255,255,0.3);font-weight:500}
+
+.d-links{display:flex;gap:22px;margin-top:4px}
+.d-link{
+  font-size:13px;color:rgba(255,255,255,0.38);
+  text-decoration:none;font-weight:500;
+  border-bottom:1px solid rgba(255,255,255,0.1);
+  padding-bottom:2px;transition:color .15s;
+}
+.d-link:hover{color:rgba(255,255,255,0.7)}
+
+/* dashboard card */
+.dash{
+  background:rgba(255,255,255,0.05);
+  border:1px solid rgba(255,255,255,0.1);
+  border-radius:20px;padding:26px;
+}
+.dash-lbl{
+  font-size:10px;font-weight:700;
+  color:rgba(255,255,255,0.28);
+  text-transform:uppercase;letter-spacing:1.2px;
+  margin-bottom:20px;
+}
+.dash-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:5px}
+.dash-s{font-size:12px;font-weight:600;color:rgba(255,255,255,0.72)}
+.dash-p{font-size:12px;font-weight:700;color:#60a5fa}
+.dash-bg{height:5px;background:rgba(255,255,255,0.07);border-radius:999px;margin-bottom:14px;overflow:hidden}
+.dash-fill{height:100%;border-radius:999px;background:linear-gradient(90deg,#1d4ed8,#60a5fa)}
+.dash-div{height:1px;background:rgba(255,255,255,0.07);margin:14px 0}
+.dash-plbl{font-size:9px;color:rgba(255,255,255,0.28);text-transform:uppercase;letter-spacing:1px;margin-bottom:7px}
+.dash-pbg{height:7px;background:rgba(255,255,255,0.05);border-radius:999px;overflow:hidden;margin-bottom:5px}
+.dash-pbar{height:100%;width:72%;border-radius:999px;background:linear-gradient(90deg,#1a6fe8,#60a5fa)}
+.dash-pnum{font-size:11px;font-weight:700;color:rgba(255,255,255,0.35);text-align:right}
+
+.d-footer{
+  padding:18px 64px;
+  border-top:1px solid rgba(255,255,255,0.05);
+  display:flex;justify-content:center;
+}
+.d-footer a{
+  font-size:12px;color:rgba(255,255,255,0.28);
+  text-decoration:none;font-weight:500;
+  display:flex;align-items:center;gap:6px;
+  transition:color .15s;
+}
+.d-footer a:hover{color:rgba(255,255,255,0.6)}
+
+/* ══ MOBILE ══ */
+.mobile{display:none;flex-direction:column;min-height:100vh}
+
+.m-nav{
+  padding:16px 22px;
+  border-bottom:1px solid rgba(255,255,255,0.06);
+}
+.m-nav .logo-outer{width:38px;height:38px}
+.m-nav .logo-inner{width:30px;height:30px}
+.m-nav .logo-text .name{font-size:16px}
+
+.m-hero{flex:1;padding:32px 24px 28px;display:flex;flex-direction:column}
+
+.m-badge{
+  display:inline-flex;align-items:center;gap:6px;
+  background:rgba(251,191,36,0.08);
+  border:1px solid rgba(251,191,36,0.2);
+  border-radius:999px;padding:4px 12px;
+  font-size:10px;font-weight:700;
+  color:rgba(251,191,36,0.75);
+  letter-spacing:0.8px;text-transform:uppercase;
+  margin-bottom:18px;align-self:flex-start;
+}
+
+.m-title{
+  font-size:28px;font-weight:800;
+  line-height:1.18;letter-spacing:-0.9px;
   margin-bottom:12px;
 }
-
-.d-headline{
-  font-size:30px;font-weight:800;color:#fff;line-height:1.2;
-  letter-spacing:-0.8px;margin-bottom:8px;
-}
-.d-sub{
-  font-size:13px;color:rgba(255,255,255,0.55);
-  line-height:1.5;margin-bottom:24px;max-width:360px;
+.m-title span{
+  background:linear-gradient(90deg,#60a5fa,#818cf8);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
 }
 
-.d-features-row{
-  display:flex;gap:20px;margin-bottom:28px;
-}
-.d-feat{
-  display:flex;align-items:center;gap:8px;
-  font-size:11px;font-weight:600;color:rgba(255,255,255,0.75);
-}
-.d-feat-icon{
-  width:30px;height:30px;border-radius:8px;
-  background:rgba(255,255,255,0.12);
-  display:flex;align-items:center;justify-content:center;font-size:14px;
-  flex-shrink:0;
+.m-desc{
+  font-size:14px;color:rgba(255,255,255,0.42);
+  line-height:1.65;margin-bottom:26px;
 }
 
-.d-cta-btn{
-  display:inline-flex;align-items:center;gap:6px;
-  background:linear-gradient(90deg,#1a6fe8,#2b9fff);
-  color:#fff;font-size:13px;font-weight:700;
-  padding:13px 28px;border-radius:11px;text-decoration:none;
-  letter-spacing:0.1px;margin-bottom:10px;
+.m-feats{display:flex;flex-direction:column;gap:10px;margin-bottom:30px}
+.m-feat{display:flex;align-items:center;gap:10px;font-size:13px;font-weight:600;color:rgba(255,255,255,0.68)}
+.m-feat-icon{
+  width:32px;height:32px;border-radius:9px;
+  background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.08);
+  display:flex;align-items:center;justify-content:center;
+  font-size:15px;flex-shrink:0;
 }
 
-.d-secondary-row{
-  display:flex;align-items:center;gap:16px;flex-wrap:wrap;
+.m-cta{
+  display:block;width:100%;
+  background:linear-gradient(90deg,#1a6fe8,#3b9fff);
+  color:#fff;font-size:15px;font-weight:700;
+  padding:15px;border-radius:13px;
+  text-align:center;text-decoration:none;
+  margin-bottom:8px;transition:opacity .15s;
 }
-.d-link{
-  font-size:12px;color:rgba(255,255,255,0.65);font-weight:500;text-decoration:none;
+.m-cta:hover{opacity:0.9}
+.m-hint{font-size:11px;color:rgba(255,255,255,0.28);text-align:center;margin-bottom:20px}
+
+.m-sec{display:flex;flex-direction:column;gap:8px}
+.m-link{
+  display:block;width:100%;
+  border:1.5px solid rgba(255,255,255,0.12);
+  color:rgba(255,255,255,0.6);
+  font-size:13px;font-weight:600;
+  padding:12px;border-radius:11px;
+  text-align:center;text-decoration:none;
+  background:transparent;transition:all .15s;
 }
-.d-link:hover{color:rgba(255,255,255,0.9)}
+.m-link:hover{background:rgba(255,255,255,0.05);color:#fff}
 
-/* RIGHT SIDE — mock dashboard card */
-.d-right{display:flex;align-items:flex-start;justify-content:flex-end;padding-right:10px}
-
-.dashboard-card{
-  background:rgba(255,255,255,0.08);
-  border:1px solid rgba(255,255,255,0.18);
-  border-radius:16px;
-  padding:16px;
-  width:220px;
-  backdrop-filter:blur(12px);
+.m-footer{
+  padding:16px 24px;
+  border-top:1px solid rgba(255,255,255,0.05);
+  text-align:center;
 }
-.dc-label{
-  font-size:9px;font-weight:700;color:rgba(255,255,255,0.35);
-  text-transform:uppercase;letter-spacing:1px;margin-bottom:12px;
-}
-.dc-row{
-  display:flex;justify-content:space-between;align-items:center;
-  margin-bottom:8px;
-}
-.dc-subject{font-size:11px;font-weight:600;color:rgba(255,255,255,0.8)}
-.dc-pct{font-size:11px;font-weight:700;color:#60d0ff}
-
-.dc-bar-bg{height:5px;background:rgba(255,255,255,0.1);border-radius:999px;margin-bottom:6px;overflow:hidden}
-.dc-bar{height:100%;border-radius:999px;background:linear-gradient(90deg,#2b7fff,#60d0ff)}
-
-.dc-divider{height:1px;background:rgba(255,255,255,0.1);margin:10px 0}
-.dc-progress-label{font-size:9px;color:rgba(255,255,255,0.35);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:6px}
-.dc-progress-bar-bg{height:7px;background:rgba(255,255,255,0.08);border-radius:999px;overflow:hidden;margin-bottom:4px}
-.dc-progress-bar{height:100%;border-radius:999px;background:linear-gradient(90deg,#1a6fe8,#60d0ff);width:72%}
-.dc-progress-num{font-size:10px;font-weight:700;color:rgba(255,255,255,0.5);text-align:right}
-
-/* illustration books stacked */
-.books-illustration{
-  position:absolute;right:260px;bottom:0;
-  display:flex;align-items:flex-end;gap:3px;opacity:0.25;
-}
-.book{border-radius:3px 3px 0 0}
-
-/* Desktop support bar */
-.d-support{
-  background:#fff;
-  padding:10px 40px;
-  display:flex;align-items:center;gap:6px;
-  font-size:11px;color:#64748b;font-weight:500;border-top:1px solid #f0f0f0;
+.m-footer a{
+  font-size:12px;color:rgba(255,255,255,0.28);
+  text-decoration:none;font-weight:500;
 }
 
+/* ══ RESPONSIVE SWITCH ══ */
+@media(min-width:768px){
+  .desktop{display:flex}
+  .mobile{display:none}
+}
+@media(max-width:767px){
+  .desktop{display:none}
+  .mobile{display:flex}
+}
 </style>
 </head>
 <body>
 
-<div class="preview-wrapper">
-
-  <!-- Labels -->
-  <div class="preview-header">
-    <div class="preview-label">
-      <svg viewBox="0 0 24 24"><path d="M17 2H7a2 2 0 00-2 2v16a2 2 0 002 2h10a2 2 0 002-2V4a2 2 0 00-2-2zM12 20a1 1 0 110-2 1 1 0 010 2z"/></svg>
-      Versão Mobile
+<!-- DESKTOP -->
+<div class="desktop">
+  <nav class="d-nav">
+    <div class="logo">
+      <div class="logo-icon-wrap">
+        <div class="logo-icon">
+          <svg viewBox="0 0 24 24" fill="none">
+            <path d="M3 19V5a1 1 0 011-1h7v16H4a1 1 0 01-1-1z" fill="#1d4ed8"/>
+            <path d="M21 19V5a1 1 0 00-1-1h-7v16h7a1 1 0 001-1z" fill="#3730a3"/>
+            <path d="M11 4h2v16h-2z" fill="#1e40af"/>
+            <path d="M6 8h3M6 11h3M6 14h2" stroke="rgba(255,255,255,0.55)" stroke-width="1.2" stroke-linecap="round"/>
+          </svg>
+        </div>
+        <div class="logo-dot"></div>
+      </div>
+      <span class="logo-name">Vou Estudar<span class="plus">+</span></span>
     </div>
-    <div class="preview-label">
-      <svg viewBox="0 0 24 24"><path d="M20 3H4a2 2 0 00-2 2v11a2 2 0 002 2h7v2H9v2h6v-2h-2v-2h7a2 2 0 002-2V5a2 2 0 00-2-2zm0 13H4V5h16v11z"/></svg>
-      Versão para Computador
+    <div class="d-nav-right">
+      <a href="#" class="d-nav-link">Entrar na minha conta</a>
+      <a href="#" class="d-nav-link">Esqueci minha senha</a>
+      <a href="#" class="d-nav-cta">Começar grátis</a>
+    </div>
+  </nav>
+
+  <div class="d-hero">
+    <div>
+      <div class="d-badge"><div class="d-badge-dot"></div>Seu plano, sua aprovação</div>
+      <h1 class="d-title">Organize seus estudos<br>e <span>alcance seus objetivos!</span></h1>
+      <p class="d-desc">Plano inteligente, acompanhamento diário e foco no que realmente importa para a sua aprovação.</p>
+      <div class="d-feats">
+        <div class="d-feat"><div class="d-feat-icon">📝</div>Plano personalizado</div>
+        <div class="d-feat"><div class="d-feat-icon">🎯</div>Mais foco e disciplina</div>
+        <div class="d-feat"><div class="d-feat-icon">🏆</div>Mais chances de aprovação</div>
+      </div>
+      <div class="d-cta-row">
+        <a href="#" class="d-cta">Começar grátis →</a>
+        <span class="d-hint">Crie sua conta em menos de 1 minuto</span>
+      </div>
+      <div class="d-links">
+        <a href="#" class="d-link">Entrar na minha conta</a>
+        <a href="#" class="d-link">Esqueci minha senha</a>
+      </div>
+    </div>
+
+    <div class="dash">
+      <div class="dash-lbl">Meu Plano</div>
+      <div class="dash-row"><span class="dash-s">Matemática</span><span class="dash-p">92%</span></div>
+      <div class="dash-bg"><div class="dash-fill" style="width:92%"></div></div>
+      <div class="dash-row"><span class="dash-s">Português</span><span class="dash-p">78%</span></div>
+      <div class="dash-bg"><div class="dash-fill" style="width:78%"></div></div>
+      <div class="dash-row"><span class="dash-s">História</span><span class="dash-p">55%</span></div>
+      <div class="dash-bg"><div class="dash-fill" style="width:55%"></div></div>
+      <div class="dash-row"><span class="dash-s">Biologia</span><span class="dash-p">83%</span></div>
+      <div class="dash-bg"><div class="dash-fill" style="width:83%"></div></div>
+      <div class="dash-div"></div>
+      <div class="dash-plbl">Progresso geral</div>
+      <div class="dash-pbg"><div class="dash-pbar"></div></div>
+      <div class="dash-pnum">72%</div>
     </div>
   </div>
 
-  <div class="screens">
+  <footer class="d-footer">
+    <a href="mailto:gunimicaelke@gmail.com?subject=Preciso%20de%20ajuda">💬 Precisa de ajuda? Fale com o suporte</a>
+  </footer>
+</div>
 
-    <!-- ── MOBILE ── -->
-    <div class="mobile-frame">
-      <div class="mobile-top">
-        <div class="m-logo">
-          <div class="m-logo-icon">📚</div>
-          <span>Vou Estudar<strong>+</strong></span>
+<!-- MOBILE -->
+<div class="mobile">
+  <nav class="m-nav">
+    <div class="logo">
+      <div class="logo-icon-wrap">
+        <div class="logo-icon">
+          <svg viewBox="0 0 24 24" fill="none">
+            <path d="M3 19V5a1 1 0 011-1h7v16H4a1 1 0 01-1-1z" fill="#1d4ed8"/>
+            <path d="M21 19V5a1 1 0 00-1-1h-7v16h7a1 1 0 001-1z" fill="#3730a3"/>
+            <path d="M11 4h2v16h-2z" fill="#1e40af"/>
+            <path d="M6 8h3M6 11h3M6 14h2" stroke="rgba(255,255,255,0.55)" stroke-width="1.2" stroke-linecap="round"/>
+          </svg>
         </div>
-
-        <div class="m-headline">Organize seus estudos e alcance seus objetivos!</div>
-
-        <div class="m-features">
-          <div class="m-feat">
-            <div class="m-feat-icon">📝</div>
-            Plano de estudos personalizado
-          </div>
-          <div class="m-feat">
-            <div class="m-feat-icon">🎯</div>
-            Mais foco e disciplina
-          </div>
-          <div class="m-feat">
-            <div class="m-feat-icon">🏆</div>
-            Aumente suas chances de aprovação
-          </div>
-        </div>
-
-        <a href="#" class="m-cta-btn">
-          Começar grátis
-          <svg width="12" height="12" viewBox="0 0 24 24" fill="white"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-        </a>
-
-        <div class="m-secondary-links">
-          <a href="#" class="m-link">Entrar na minha conta</a>
-          <a href="#" class="m-link">Esqueci minha senha</a>
-        </div>
+        <div class="logo-dot"></div>
       </div>
-      <div class="m-support">💬 Precisa de ajuda? Fale com o suporte</div>
+      <span class="logo-name">Vou Estudar<span class="plus">+</span></span>
     </div>
+  </nav>
 
-    <!-- ── DESKTOP ── -->
-    <div class="desktop-frame">
-      <div class="desktop-top">
-
-        <div class="d-left">
-          <div class="d-logo">
-            <div class="d-logo-icon">📚</div>
-            <span>Vou Estudar<strong>+</strong></span>
-          </div>
-
-          <div class="d-badge">
-            <span style="color:#60d0ff">✦</span>
-            Seu plano, sua aprovação!
-          </div>
-
-          <div class="d-headline">Organize seus estudos<br>e alcance seus objetivos!</div>
-          <div class="d-sub">Para inteligente, acompanhamento diário e foco no que realmente importa.</div>
-
-          <div class="d-features-row">
-            <div class="d-feat">
-              <div class="d-feat-icon">📝</div>
-              <span>Plano de estudos<br>personalizado</span>
-            </div>
-            <div class="d-feat">
-              <div class="d-feat-icon">🎯</div>
-              <span>Mais foco<br>e disciplina</span>
-            </div>
-            <div class="d-feat">
-              <div class="d-feat-icon">🏆</div>
-              <span>Aumente suas<br>chances de aprovação</span>
-            </div>
-          </div>
-
-          <a href="#" class="d-cta-btn">
-            Começar grátis →
-          </a>
-
-          <div class="d-secondary-row">
-            <span style="font-size:11px;color:rgba(255,255,255,0.35)">Crie sua conta em menos de 1 minuto</span>
-          </div>
-
-          <div style="margin-top:16px;display:flex;gap:16px">
-            <a href="#" class="d-link">Entrar na minha conta</a>
-            <a href="#" class="d-link">Esqueci minha senha</a>
-          </div>
-        </div>
-
-        <!-- dashboard mockup card -->
-        <div class="d-right">
-          <div class="dashboard-card">
-            <div class="dc-label">Meu Plano</div>
-
-            <div class="dc-row">
-              <span class="dc-subject">Matemática</span>
-              <span class="dc-pct">92%</span>
-            </div>
-            <div class="dc-bar-bg"><div class="dc-bar" style="width:92%"></div></div>
-
-            <div class="dc-row">
-              <span class="dc-subject">Português</span>
-              <span class="dc-pct">78%</span>
-            </div>
-            <div class="dc-bar-bg"><div class="dc-bar" style="width:78%"></div></div>
-
-            <div class="dc-row">
-              <span class="dc-subject">História</span>
-              <span class="dc-pct">55%</span>
-            </div>
-            <div class="dc-bar-bg"><div class="dc-bar" style="width:55%"></div></div>
-
-            <div class="dc-divider"></div>
-
-            <div class="dc-progress-label">Progresso</div>
-            <div class="dc-progress-bar-bg">
-              <div class="dc-progress-bar"></div>
-            </div>
-            <div class="dc-progress-num">72%</div>
-          </div>
-        </div>
-
-      </div>
-
-      <div class="d-support">
-        💬 Precisa de ajuda? <a href="#" style="color:#1a6fe8;text-decoration:none;font-weight:600">Fale com o suporte</a>
-      </div>
+  <div class="m-hero">
+    <div class="m-badge">✦ Sua aprovação</div>
+    <h1 class="m-title">Organize seus estudos e <span>alcance seus objetivos!</span></h1>
+    <p class="m-desc">Plano inteligente, acompanhamento diário e foco no que realmente importa.</p>
+    <div class="m-feats">
+      <div class="m-feat"><div class="m-feat-icon">📝</div>Plano de estudos personalizado</div>
+      <div class="m-feat"><div class="m-feat-icon">🎯</div>Mais foco e disciplina</div>
+      <div class="m-feat"><div class="m-feat-icon">🏆</div>Aumente suas chances de aprovação</div>
     </div>
-
+    <a href="#" class="m-cta">Começar grátis →</a>
+    <p class="m-hint">Crie sua conta em menos de 1 minuto</p>
+    <div class="m-sec">
+      <a href="#" class="m-link">Entrar na minha conta</a>
+      <a href="#" class="m-link">Esqueci minha senha</a>
+    </div>
   </div>
+
+  <footer class="m-footer">
+    <a href="mailto:gunimicaelke@gmail.com?subject=Preciso%20de%20ajuda">💬 Precisa de ajuda? Fale com o suporte</a>
+  </footer>
 </div>
 
 </body>
