@@ -567,6 +567,17 @@
       <div id="loginForm">
         <h2>Bem-vindo! 👋</h2>
         <p class="muted">Acesse sua conta para continuar</p>
+        <div style="display:flex;gap:8px;margin-bottom:14px">
+          <button onclick="handleSocialLogin('google')" style="flex:1;display:flex;align-items:center;justify-content:center;gap:8px;background:#fff;color:#374151;border:1.5px solid #e2e8f0;font-size:13px;font-weight:600;padding:10px 8px;border-radius:10px;cursor:pointer;transition:all .15s" onmouseover="this.style.background='#f8fafc'" onmouseout="this.style.background='#fff'">
+            <svg width="16" height="16" viewBox="0 0 24 24"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>
+            Google
+          </button>
+          <button onclick="handleSocialLogin('facebook')" style="flex:1;display:flex;align-items:center;justify-content:center;gap:8px;background:#fff;color:#374151;border:1.5px solid #e2e8f0;font-size:13px;font-weight:600;padding:10px 8px;border-radius:10px;cursor:pointer;transition:all .15s" onmouseover="this.style.background='#f8fafc'" onmouseout="this.style.background='#fff'">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="#1877F2"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
+            Facebook
+          </button>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px;color:#94a3b8;font-size:12px"><div style="flex:1;height:1px;background:#e2e8f0"></div>ou use seu e-mail<div style="flex:1;height:1px;background:#e2e8f0"></div></div>
         <label class="field-label">E-mail</label>
         <input type="email" id="loginEmail" placeholder="seu@email.com" />
         <label class="field-label">Senha</label>
@@ -593,6 +604,17 @@
       <div id="registerForm" class="hidden">
         <h2>Criar conta 🚀</h2>
         <p class="muted">Comece a estudar de forma inteligente</p>
+        <div style="display:flex;gap:8px;margin-bottom:14px">
+          <button onclick="handleSocialLogin('google')" style="flex:1;display:flex;align-items:center;justify-content:center;gap:8px;background:#fff;color:#374151;border:1.5px solid #e2e8f0;font-size:13px;font-weight:600;padding:10px 8px;border-radius:10px;cursor:pointer;transition:all .15s" onmouseover="this.style.background='#f8fafc'" onmouseout="this.style.background='#fff'">
+            <svg width="16" height="16" viewBox="0 0 24 24"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>
+            Cadastrar com Google
+          </button>
+          <button onclick="handleSocialLogin('facebook')" style="flex:1;display:flex;align-items:center;justify-content:center;gap:8px;background:#fff;color:#374151;border:1.5px solid #e2e8f0;font-size:13px;font-weight:600;padding:10px 8px;border-radius:10px;cursor:pointer;transition:all .15s" onmouseover="this.style.background='#f8fafc'" onmouseout="this.style.background='#fff'">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="#1877F2"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
+            Facebook
+          </button>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px;color:#94a3b8;font-size:12px"><div style="flex:1;height:1px;background:#e2e8f0"></div>ou preencha seus dados<div style="flex:1;height:1px;background:#e2e8f0"></div></div>
         <label class="field-label">Nome completo</label>
         <input type="text" id="regName" placeholder="Seu nome" />
         <label class="field-label" style="margin-top:4px">WhatsApp <span style="color:#dc2626">*</span></label>
@@ -666,6 +688,28 @@
       Assinar por R$ 15,00/mês →
     </a>
     <button onclick="handleLogout()" style="background:transparent;color:rgba(255,255,255,0.25);font-size:12px;border:none;cursor:pointer;padding:8px;width:auto">Sair da conta</button>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════
+     ONBOARDING PÓS-CADASTRO
+═══════════════════════════════════════ -->
+<div id="onboardingScreen" class="auth-screen hidden">
+  <div style="width:100%;max-width:520px;padding:20px">
+
+    <!-- Progress bar -->
+    <div style="display:flex;align-items:center;gap:0;margin-bottom:28px" id="obProgBar"></div>
+
+    <!-- Card principal -->
+    <div style="background:#fff;border-radius:18px;padding:32px;box-shadow:0 12px 40px rgba(7,26,24,0.14);border:1px solid #cffafe">
+      <div id="obCardContent"></div>
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-top:24px">
+        <span onclick="obPular()" style="font-size:13px;color:#94a3b8;cursor:pointer;font-weight:500" id="obSkipBtn">Pular etapa</span>
+        <button onclick="obAvancar()" id="obNextBtn" style="width:auto;padding:10px 28px;background:#0891b2;color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:600;cursor:pointer;transition:all .15s" disabled>Continuar →</button>
+      </div>
+    </div>
+
+    <div style="text-align:center;margin-top:16px;font-size:12px;color:rgba(255,255,255,0.25)">Você pode alterar essas preferências depois nas configurações</div>
   </div>
 </div>
 
@@ -1433,7 +1477,9 @@ async function init() {
     const { data: { session } } = await db.auth.getSession();
     if (session) {
       currentUser = session.user;
-      await carregarApp();
+      // Se já logado mas nunca fez onboarding (ex: social login novo)
+      if (obDeveExibir()) { mostrarOnboarding(); }
+      else { await carregarApp(); }
       return;
     }
 
@@ -1441,7 +1487,12 @@ async function init() {
     db.auth.onAuthStateChange(async (_event, session) => {
       if (session && !currentUser) {
         currentUser = session.user;
-        await carregarApp();
+        // Verifica se é novo usuário (cadastro ou social pela 1ª vez)
+        let isNovo = false;
+        try { isNovo = !!sessionStorage.getItem('ob_novo_usuario'); sessionStorage.removeItem('ob_novo_usuario'); } catch(e) {}
+        if (!isNovo) isNovo = obDeveExibir();
+        if (isNovo) { mostrarOnboarding(); }
+        else { await carregarApp(); }
       } else if (!session && currentUser) {
         currentUser = null;
         mostrarAuth();
@@ -1672,8 +1723,10 @@ async function handleRegister() {
     showAuthMsg(traduzirErro(error.message), 'error');
     registrarVisitanteCadastro('erro', email);
   } else {
-    showAuthMsg('✅ Conta criada! Verifique seu e-mail para confirmar.', 'success');
     registrarVisitanteCadastro('sucesso', email);
+    // Guarda flag para mostrar onboarding assim que sessão confirmar
+    try { sessionStorage.setItem('ob_novo_usuario', '1'); } catch(e) {}
+    showAuthMsg('✅ Conta criada! Verifique seu e-mail para confirmar o cadastro.', 'success');
   }
 }
 
@@ -2553,6 +2606,77 @@ function renderPlanoInteligente(titulo, r) {
   // Iniciar simulado progressivo
   if (r.exercicios && r.exercicios.length) iniciarSimuladoProgressivo(r.exercicios);
   document.getElementById('resultadoPlanoIA').scrollIntoView({ behavior: 'smooth' });
+
+  // Banner de assinatura pós-plano (só para não-assinantes)
+  injetarBannerAssinatura();
+}
+
+async function injetarBannerAssinatura() {
+  // Verifica se já é assinante — se for, não mostra nada
+  try {
+    const { data } = await db.from('assinaturas').select('ativa').eq('user_id', currentUser.id).maybeSingle();
+    if (data && data.ativa) return;
+  } catch(e) {}
+
+  // Remove banner anterior se existir
+  const antigo = document.getElementById('bannerAssinatura');
+  if (antigo) antigo.remove();
+
+  const container = document.getElementById('resultadoPlanoIA');
+  if (!container) return;
+
+  const banner = document.createElement('div');
+  banner.id = 'bannerAssinatura';
+  banner.style.cssText = 'margin-top:32px;border-radius:18px;overflow:hidden;border:1px solid rgba(34,211,238,0.2)';
+  banner.innerHTML = `
+    <div style="background:linear-gradient(135deg,#0c1a2e 0%,#0c3a5e 60%,#0c1a2e 100%);padding:32px 28px;text-align:center">
+      <div style="display:inline-flex;align-items:center;gap:8px;background:rgba(34,211,238,0.12);border:1px solid rgba(34,211,238,0.25);border-radius:999px;padding:5px 14px;margin-bottom:18px">
+        <span style="width:8px;height:8px;border-radius:50%;background:#22d3ee;box-shadow:0 0 6px rgba(34,211,238,0.8);display:inline-block"></span>
+        <span style="font-size:11px;font-weight:700;color:#22d3ee;letter-spacing:0.5px">SEU PLANO ESTÁ PRONTO</span>
+      </div>
+      <div style="font-size:24px;font-weight:700;color:#fff;letter-spacing:-0.5px;margin-bottom:8px;line-height:1.2">
+        Gostou do que a IA criou para você?<br>
+        <span style="background:linear-gradient(90deg,#22d3ee,#67e8f9);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">Desbloqueie o acesso completo.</span>
+      </div>
+      <div style="font-size:14px;color:rgba(255,255,255,0.45);margin-bottom:24px;max-width:400px;margin-left:auto;margin-right:auto;line-height:1.6">
+        Seu trial tem duração limitada. Assine agora e continue gerando planos, flashcards e simulados ilimitados.
+      </div>
+
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;max-width:480px;margin:0 auto 28px">
+        <div style="background:rgba(255,255,255,0.05);border:1px solid rgba(34,211,238,0.12);border-radius:12px;padding:14px 10px">
+          <div style="font-size:20px;margin-bottom:6px">✨</div>
+          <div style="font-size:12px;font-weight:600;color:#fff">Planos ilimitados</div>
+          <div style="font-size:11px;color:rgba(255,255,255,0.35);margin-top:2px">Gere quantos quiser</div>
+        </div>
+        <div style="background:rgba(255,255,255,0.05);border:1px solid rgba(34,211,238,0.12);border-radius:12px;padding:14px 10px">
+          <div style="font-size:20px;margin-bottom:6px">🃏</div>
+          <div style="font-size:12px;font-weight:600;color:#fff">Flashcards e simulados</div>
+          <div style="font-size:11px;color:rgba(255,255,255,0.35);margin-top:2px">Sem limite de uso</div>
+        </div>
+        <div style="background:rgba(255,255,255,0.05);border:1px solid rgba(34,211,238,0.12);border-radius:12px;padding:14px 10px">
+          <div style="font-size:20px;margin-bottom:6px">🌙</div>
+          <div style="font-size:12px;font-weight:600;color:#fff">Modo Véspera</div>
+          <div style="font-size:11px;color:rgba(255,255,255,0.35);margin-top:2px">Revisão de última hora</div>
+        </div>
+      </div>
+
+      <div style="display:flex;flex-direction:column;align-items:center;gap:10px;max-width:320px;margin:0 auto">
+        <a href="https://www.mercadopago.com.br/subscriptions/checkout?preapproval_plan_id=c44dc3e2e0544c35a6f91f3323e69159"
+          target="_blank"
+          style="display:block;width:100%;padding:15px;border-radius:12px;background:linear-gradient(135deg,#0891b2,#22d3ee);color:#fff;font-size:15px;font-weight:700;text-decoration:none;box-shadow:0 4px 20px rgba(34,211,238,0.35);transition:opacity .15s;letter-spacing:0.1px"
+          onmouseover="this.style.opacity='.88'" onmouseout="this.style.opacity='1'">
+          💳 Assinar por R$ 15,00/mês →
+        </a>
+        <div style="display:flex;align-items:center;gap:6px">
+          <span style="width:6px;height:6px;border-radius:50%;background:#22c55e;display:inline-block"></span>
+          <span style="font-size:12px;color:rgba(255,255,255,0.3)">Cancele quando quiser · Sem fidelidade</span>
+        </div>
+      </div>
+    </div>
+  `;
+
+  container.appendChild(banner);
+  banner.scrollIntoView({ behavior: 'smooth', block: 'center' });
 }
 
 function renderFlashcard() {
@@ -3803,6 +3927,222 @@ function mostrarCompartilharMsg(txt, tipo) {
   else if (tipo === 'warn') { el.style.color = '#d97706'; el.style.background = '#fffbeb'; el.style.border = '1px solid #fde68a'; }
   else { el.style.color = '#0369a1'; el.style.background = '#f0f9ff'; el.style.border = '1px solid #cffafe'; }
   if (tipo !== 'info') setTimeout(() => { el.style.display = 'none'; }, 5000);
+}
+
+// ══ LOGIN SOCIAL ══
+async function handleSocialLogin(provider) {
+  const { error } = await db.auth.signInWithOAuth({
+    provider,
+    options: { redirectTo: window.location.href }
+  });
+  if (error) showAuthMsg('Erro ao conectar com ' + provider + ': ' + error.message, 'error');
+}
+
+// ══ ONBOARDING ══
+const OB_KEY = 'vou_estudar_onboarding_done';
+
+const obPassos = [
+  {
+    id: 'objetivo', emoji: '🎯',
+    titulo: 'Qual é o seu grande objetivo?',
+    sub: 'Vamos personalizar tudo com base na sua meta principal.',
+    tipo: 'opcoes',
+    opcoes: [
+      { icon: '🏫', label: 'Vestibular', sub: 'ENEM, Fuvest, Unicamp...' },
+      { icon: '🏛️', label: 'Concurso público', sub: 'Federal, estadual, municipal' },
+      { icon: '🎓', label: 'Faculdade', sub: 'Provas e trabalhos' },
+      { icon: '📈', label: 'Crescimento profissional', sub: 'Certificações e cursos' }
+    ]
+  },
+  {
+    id: 'materias', emoji: '📚',
+    titulo: 'Quais matérias você quer estudar?',
+    sub: 'Selecione todas que se aplicam. Você pode editar depois.',
+    tipo: 'tags',
+    tags: ['Matemática','Português','História','Geografia','Física','Química','Biologia','Inglês','Redação','Informática','Raciocínio Lógico','Direito','Atualidades']
+  },
+  {
+    id: 'tempo', emoji: '⏰',
+    titulo: 'Quanto tempo você tem por dia?',
+    sub: 'Isso vai definir seu plano de estudos ideal.',
+    tipo: 'opcoes',
+    opcoes: [
+      { icon: '⚡', label: 'Menos de 1h', sub: 'Estudo rápido e focado' },
+      { icon: '📖', label: '1h a 2h', sub: 'Ritmo equilibrado' },
+      { icon: '🔥', label: '2h a 4h', sub: 'Dedicação intensa' },
+      { icon: '💪', label: 'Mais de 4h', sub: 'Modo maratona' }
+    ]
+  },
+  {
+    id: 'estilo', emoji: '🧠',
+    titulo: 'Como você aprende melhor?',
+    sub: 'A IA vai adaptar o conteúdo ao seu jeito de estudar.',
+    tipo: 'opcoes',
+    opcoes: [
+      { icon: '✍️', label: 'Resumindo', sub: 'Escrever para fixar' },
+      { icon: '🃏', label: 'Flashcards', sub: 'Repetição espaçada' },
+      { icon: '📹', label: 'Videoaulas', sub: 'Ver e ouvir' },
+      { icon: '📝', label: 'Exercícios', sub: 'Praticar direto' }
+    ]
+  },
+  {
+    id: 'prova', emoji: '📅',
+    titulo: 'Quando é sua próxima prova ou meta?',
+    sub: 'Com essa data, criamos um cronograma realista para você.',
+    tipo: 'inputs',
+    campos: [
+      { label: 'Nome da prova ou evento', placeholder: 'Ex: ENEM 2025, Concurso da Prefeitura...', id: 'obProva' },
+      { label: 'Data aproximada', placeholder: 'Ex: Novembro de 2025', id: 'obData', tipo: 'month' }
+    ]
+  }
+];
+
+let obAtual = 0;
+const obRespostas = {};
+
+function mostrarOnboarding() {
+  obAtual = 0;
+  document.getElementById('authScreen').classList.add('hidden');
+  document.getElementById('appScreen').classList.add('hidden');
+  document.getElementById('paywallScreen').classList.add('hidden');
+  document.getElementById('onboardingScreen').classList.remove('hidden');
+  obRenderizar();
+}
+
+function obRenderizar() {
+  if (obAtual >= obPassos.length) { obFinalizar(); return; }
+  const p = obPassos[obAtual];
+
+  // Progress bar
+  const prog = document.getElementById('obProgBar');
+  prog.innerHTML = '';
+  obPassos.forEach((s, i) => {
+    const dot = document.createElement('div');
+    dot.style.cssText = 'display:flex;flex-direction:column;align-items:center;gap:5px;flex:1';
+    const circle = document.createElement('div');
+    const isDone = i < obAtual, isActive = i === obAtual;
+    circle.style.cssText = `width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;border:2px solid ${isDone ? '#22c55e' : isActive ? '#0891b2' : 'rgba(255,255,255,0.2)'};background:${isDone ? '#22c55e' : isActive ? '#0891b2' : 'rgba(255,255,255,0.06)'};color:${isDone || isActive ? '#fff' : 'rgba(255,255,255,0.3)'};transition:all .25s;position:relative;z-index:1`;
+    circle.innerHTML = isDone ? '✓' : (i + 1);
+    const lbl = document.createElement('div');
+    lbl.style.cssText = `font-size:10px;color:${isDone ? '#22c55e' : isActive ? '#22d3ee' : 'rgba(255,255,255,0.25)'};text-align:center;white-space:nowrap`;
+    lbl.textContent = s.emoji;
+    dot.appendChild(circle); dot.appendChild(lbl); prog.appendChild(dot);
+    if (i < obPassos.length - 1) {
+      const line = document.createElement('div');
+      line.style.cssText = `flex:1;height:2px;background:${i < obAtual ? '#22c55e' : 'rgba(255,255,255,0.1)'};margin-bottom:18px;transition:background .3s`;
+      prog.appendChild(line);
+    }
+  });
+
+  // Conteúdo do card
+  const card = document.getElementById('obCardContent');
+  card.innerHTML = '';
+  const next = document.getElementById('obNextBtn');
+
+  const em = document.createElement('div'); em.style.cssText = 'font-size:32px;margin-bottom:10px'; em.textContent = p.emoji; card.appendChild(em);
+  const tit = document.createElement('div'); tit.style.cssText = 'font-size:20px;font-weight:700;color:#0c1a2e;margin-bottom:5px;letter-spacing:-0.4px'; tit.textContent = p.titulo; card.appendChild(tit);
+  const sub = document.createElement('div'); sub.style.cssText = 'font-size:13px;color:#0369a1;margin-bottom:20px;line-height:1.5'; sub.textContent = p.sub; card.appendChild(sub);
+
+  if (p.tipo === 'opcoes') {
+    const grid = document.createElement('div'); grid.style.cssText = 'display:grid;grid-template-columns:repeat(2,1fr);gap:10px';
+    p.opcoes.forEach((opt, idx) => {
+      const el = document.createElement('div');
+      const sel = obRespostas[p.id] === idx;
+      el.style.cssText = `border:1.5px solid ${sel ? '#0891b2' : '#cffafe'};border-radius:12px;padding:12px 10px;cursor:pointer;background:${sel ? '#ecfeff' : '#f0f9ff'};transition:all .15s`;
+      el.innerHTML = `<div style="font-size:20px;margin-bottom:4px">${opt.icon}</div><div style="font-size:13px;font-weight:600;color:${sel ? '#0891b2' : '#0c1a2e'}">${opt.label}</div><div style="font-size:11px;color:#0369a1">${opt.sub}</div>`;
+      el.onclick = () => {
+        obRespostas[p.id] = idx;
+        grid.querySelectorAll('div[data-ob]').forEach(e => {
+          e.style.borderColor = '#cffafe'; e.style.background = '#f0f9ff';
+          e.querySelector('div:nth-child(2)').style.color = '#0c1a2e';
+        });
+        el.style.borderColor = '#0891b2'; el.style.background = '#ecfeff';
+        el.querySelector('div:nth-child(2)').style.color = '#0891b2';
+        next.disabled = false;
+      };
+      el.setAttribute('data-ob', idx);
+      grid.appendChild(el);
+    });
+    card.appendChild(grid);
+    next.disabled = obRespostas[p.id] === undefined;
+
+  } else if (p.tipo === 'tags') {
+    if (!obRespostas[p.id]) obRespostas[p.id] = [];
+    const wrap = document.createElement('div'); wrap.style.cssText = 'display:flex;flex-wrap:wrap;gap:8px';
+    p.tags.forEach(tag => {
+      const el = document.createElement('button');
+      const sel = obRespostas[p.id].includes(tag);
+      el.style.cssText = `width:auto;padding:7px 14px;border-radius:999px;border:1.5px solid ${sel ? '#0891b2' : '#cffafe'};background:${sel ? '#ecfeff' : '#f0f9ff'};color:${sel ? '#0891b2' : '#0369a1'};font-size:13px;font-weight:${sel ? '600' : '500'};cursor:pointer;transition:all .15s`;
+      el.textContent = tag;
+      el.onclick = () => {
+        const arr = obRespostas[p.id];
+        const idx = arr.indexOf(tag);
+        if (idx > -1) arr.splice(idx, 1); else arr.push(tag);
+        const s = arr.includes(tag);
+        el.style.borderColor = s ? '#0891b2' : '#cffafe';
+        el.style.background = s ? '#ecfeff' : '#f0f9ff';
+        el.style.color = s ? '#0891b2' : '#0369a1';
+        el.style.fontWeight = s ? '600' : '500';
+        next.disabled = arr.length === 0;
+      };
+      wrap.appendChild(el);
+    });
+    card.appendChild(wrap);
+    next.disabled = obRespostas[p.id].length === 0;
+
+  } else if (p.tipo === 'inputs') {
+    if (!obRespostas[p.id]) obRespostas[p.id] = {};
+    const grp = document.createElement('div'); grp.style.cssText = 'display:flex;flex-direction:column;gap:12px';
+    p.campos.forEach((f, fi) => {
+      const lbl = document.createElement('label'); lbl.className = 'field-label'; lbl.textContent = f.label;
+      const inp = document.createElement('input'); inp.type = f.tipo || 'text'; inp.placeholder = f.placeholder; inp.value = obRespostas[p.id][fi] || '';
+      inp.style.marginBottom = '0';
+      inp.oninput = () => {
+        obRespostas[p.id][fi] = inp.value;
+        next.disabled = !Object.values(obRespostas[p.id]).some(v => v && v.toString().trim());
+      };
+      grp.appendChild(lbl); grp.appendChild(inp);
+    });
+    card.appendChild(grp);
+    next.disabled = !Object.values(obRespostas[p.id]).some(v => v && v.toString().trim());
+  }
+}
+
+function obAvancar() { obAtual++; obRenderizar(); }
+function obPular() { obAtual++; obRenderizar(); }
+
+async function obFinalizar() {
+  // Salva respostas no Supabase como metadados do usuário
+  try {
+    const meta = {
+      ob_objetivo: obPassos[0].opcoes[obRespostas['objetivo'] ?? 0]?.label || '',
+      ob_materias: (obRespostas['materias'] || []).join(', '),
+      ob_tempo: obPassos[2].opcoes[obRespostas['tempo'] ?? 1]?.label || '',
+      ob_estilo: obPassos[3].opcoes[obRespostas['estilo'] ?? 0]?.label || '',
+      ob_prova: obRespostas['prova']?.[0] || '',
+      ob_data: obRespostas['prova']?.[1] || '',
+      ob_done: true
+    };
+    await db.auth.updateUser({ data: meta });
+
+    // Cria matérias automaticamente se selecionou
+    const mats = obRespostas['materias'] || [];
+    if (mats.length && currentUser) {
+      const inserts = mats.slice(0, 5).map(nome => ({ user_id: currentUser.id, nome, progresso: 0, cor: '#0891b2' }));
+      await db.from('materias').insert(inserts);
+    }
+  } catch(e) { console.log('Onboarding save error:', e); }
+
+  // Marca como feito no localStorage para não repetir
+  try { localStorage.setItem(OB_KEY + '_' + currentUser.id, '1'); } catch(e) {}
+
+  document.getElementById('onboardingScreen').classList.add('hidden');
+  await carregarApp();
+}
+
+function obDeveExibir() {
+  if (!currentUser) return false;
+  try { return !localStorage.getItem(OB_KEY + '_' + currentUser.id); } catch(e) { return false; }
 }
 
 // START
