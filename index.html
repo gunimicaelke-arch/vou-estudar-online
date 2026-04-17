@@ -746,6 +746,57 @@ body{font-family:'Plus Jakarta Sans',sans-serif;-webkit-font-smoothing:antialias
 
   <!-- HERO -->
   <div class="lp-hero">
+
+    <!-- ══ CLICKBAIT BANNER ══ -->
+    <div id="lpClickbait" style="
+      width:100%;max-width:640px;
+      background:linear-gradient(135deg,rgba(37,99,235,0.18),rgba(124,58,237,0.14));
+      border:1px solid rgba(255,255,255,0.12);
+      border-radius:16px;padding:14px 20px;
+      display:flex;align-items:center;gap:14px;
+      margin-bottom:28px;cursor:pointer;
+      position:relative;overflow:hidden;
+      animation:lpPulse 2.5s ease-in-out infinite;
+    " onclick="irParaCadastro()">
+      <div style="
+        position:absolute;inset:0;
+        background:linear-gradient(90deg,transparent,rgba(255,255,255,0.04),transparent);
+        animation:lpShine 2.5s linear infinite;
+        pointer-events:none;
+      "></div>
+      <div style="font-size:28px;flex-shrink:0;line-height:1">🔥</div>
+      <div style="flex:1;text-align:left">
+        <div style="font-size:13px;font-weight:800;color:#fff;letter-spacing:-0.2px" id="lpClickbaitText">
+          97% dos aprovados tinham um plano de estudos organizado
+        </div>
+        <div style="font-size:11px;color:rgba(255,255,255,0.45);margin-top:3px">Você está preparado para ser um deles?</div>
+      </div>
+      <div style="font-size:13px;font-weight:700;color:#fbbf24;white-space:nowrap;flex-shrink:0">Começar →</div>
+    </div>
+    <style>
+    @keyframes lpPulse { 0%,100%{box-shadow:0 0 0 0 rgba(37,99,235,0)} 50%{box-shadow:0 0 0 6px rgba(37,99,235,0.18)} }
+    @keyframes lpShine { 0%{transform:translateX(-100%)} 100%{transform:translateX(400%)} }
+    </style>
+    <script>
+    (function(){
+      var frases = [
+        { t:'97% dos aprovados tinham um plano de estudos organizado', s:'Você está preparado para ser um deles?' },
+        { t:'Quem estuda com método aprova em metade do tempo', s:'Descubra o método que está mudando resultados.' },
+        { t:'Seu concorrente já está estudando com IA — e você?', s:'Gere seu plano inteligente em segundos.' },
+        { t:'A diferença entre passar e reprovar é a organização', s:'Organize tudo em um só lugar, de graça.' },
+        { t:'Estudantes com cronograma têm 3× mais chances de aprovação', s:'Monte o seu agora sem precisar de planilha.' },
+      ];
+      var i = 0;
+      setInterval(function(){
+        i = (i+1) % frases.length;
+        var el = document.getElementById('lpClickbaitText');
+        var sub = el ? el.nextElementSibling : null;
+        if(el){ el.style.opacity='0'; setTimeout(function(){ el.textContent=frases[i].t; el.style.opacity='1'; },300); }
+        if(sub){ sub.style.opacity='0'; setTimeout(function(){ sub.textContent=frases[i].s; sub.style.opacity='1'; },300); }
+      }, 4000);
+    })();
+    </script>
+
     <div class="lp-badge"><div class="lp-badge-dot"></div>Seu plano, sua aprovação</div>
 
     <h1 class="lp-title">Organize seus estudos<br>e <span class="highlight">alcance seus<br>objetivos!</span></h1>
@@ -763,6 +814,7 @@ body{font-family:'Plus Jakarta Sans',sans-serif;-webkit-font-smoothing:antialias
       <div class="lp-area"><span class="lp-area-icon">💻</span>Tecnologia</div>
       <div class="lp-area"><span class="lp-area-icon">🏥</span>Enfermagem</div>
       <div class="lp-area"><span class="lp-area-icon">📖</span>Português</div>
+      <div class="lp-area" style="border-color:rgba(34,197,94,0.4);background:rgba(34,197,94,0.07)"><span class="lp-area-icon">🌱</span>Agronomia</div>
     </div>
 
     <div class="lp-feats">
@@ -853,7 +905,10 @@ body{font-family:'Plus Jakarta Sans',sans-serif;-webkit-font-smoothing:antialias
         <label class="field-label">E-mail</label>
         <input type="email" id="loginEmail" placeholder="seu@email.com" />
         <label class="field-label">Senha</label>
-        <input type="password" id="loginPassword" placeholder="••••••••" onkeydown="if(event.key==='Enter')handleLogin()" />
+        <div style="position:relative;margin-bottom:14px">
+          <input type="password" id="loginPassword" placeholder="••••••••" onkeydown="if(event.key==='Enter')handleLogin()" style="margin-bottom:0;padding-right:44px" />
+          <button type="button" onclick="toggleSenha('loginPassword','eyeLogin')" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;padding:0;width:auto;color:var(--muted);font-size:18px;cursor:pointer;line-height:1" id="eyeLogin">👁️</button>
+        </div>
         <button onclick="handleLogin()" id="loginBtn">Entrar</button>
         <div style="text-align:center;margin-top:12px">
           <span onclick="switchAuthTab('forgot')" style="font-size:13px;color:#2563eb;cursor:pointer;font-weight:500;text-decoration:underline">Esqueci minha senha</span>
@@ -885,7 +940,10 @@ body{font-family:'Plus Jakarta Sans',sans-serif;-webkit-font-smoothing:antialias
         <label class="field-label">E-mail</label>
         <input type="email" id="regEmail" placeholder="seu@email.com" onblur="if(this.value.trim())registrarVisitanteCadastro('email_digitado', this.value.trim())" />
         <label class="field-label">Senha</label>
-        <input type="password" id="regPassword" placeholder="mínimo 6 caracteres" />
+        <div style="position:relative;margin-bottom:14px">
+          <input type="password" id="regPassword" placeholder="mínimo 6 caracteres" style="margin-bottom:0;padding-right:44px" />
+          <button type="button" onclick="toggleSenha('regPassword','eyeReg')" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;padding:0;width:auto;color:var(--muted);font-size:18px;cursor:pointer;line-height:1" id="eyeReg">👁️</button>
+        </div>
         <button onclick="handleRegister()" id="registerBtn">Criar conta</button>
       </div>
 
@@ -1118,6 +1176,17 @@ body{font-family:'Plus Jakarta Sans',sans-serif;-webkit-font-smoothing:antialias
           </div>
           <div id="historicoEstudo">
             <div class="empty-state"><div class="empty-icon">⏱️</div>Clique em uma matéria para iniciar o cronômetro!</div>
+          </div>
+        </div>
+
+        <!-- ══ FEEDBACK IA POR MATÉRIA ══ -->
+        <div class="card card-pad" style="margin-top:18px" id="cardFeedbackIA">
+          <div class="card-head">
+            <h3>🤖 Análise Inteligente por Matéria</h3>
+            <button class="mini-btn" style="width:auto;background:linear-gradient(135deg,#2563eb,#7c3aed);color:#fff;border:none" onclick="gerarFeedbackIA()" id="btnFeedbackIA">✨ Gerar análise</button>
+          </div>
+          <div id="feedbackIAConteudo">
+            <div class="empty-state"><div class="empty-icon">🤖</div>Clique em "Gerar análise" para receber um diagnóstico personalizado de cada matéria.</div>
           </div>
         </div>
       </div>
@@ -1917,6 +1986,19 @@ function clearAuthMsg() {
   el.className = 'msg-box';
 }
 
+function toggleSenha(inputId, btnId) {
+  const input = document.getElementById(inputId);
+  const btn = document.getElementById(btnId);
+  if (!input) return;
+  if (input.type === 'password') {
+    input.type = 'text';
+    if (btn) btn.textContent = '🙈';
+  } else {
+    input.type = 'password';
+    if (btn) btn.textContent = '👁️';
+  }
+}
+
 async function handleLogin() {
   const email = document.getElementById('loginEmail').value.trim();
   const password = document.getElementById('loginPassword').value;
@@ -1952,7 +2034,7 @@ async function handleRegister() {
 
   const { error } = await db.auth.signUp({
     email, password,
-    options: { data: { nome } }
+    options: { data: { nome, telefone } }
   });
 
   btn.innerHTML = 'Criar conta';
@@ -2072,6 +2154,7 @@ function goTab(tab) {
   document.getElementById('topbarSub').textContent = sub;
 
   if (tab === 'admin') adminCarregarUsuarios();
+  if (tab === 'dashboard') atualizarDashboard();
 
   // Update bottom nav active state
   setActiveBottomNav(tab);
@@ -2475,8 +2558,10 @@ function atualizarDashboard() {
 }
 
 function renderChart() {
-  const ctx = document.getElementById('chartMaterias').getContext('2d');
-  if (chartInstance) chartInstance.destroy();
+  const canvas = document.getElementById('chartMaterias');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  if (chartInstance) { chartInstance.destroy(); chartInstance = null; }
 
   if (!materias.length) {
     ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
@@ -3488,6 +3573,7 @@ async function pararEstudo(id) {
   toast('✅ ' + formatarTempoTotal(seg) + ' registrados em ' + nome);
   await carregarMaterias();
   await carregarHistoricoEstudo();
+  atualizarDashboard();
 }
 
 async function carregarHistoricoEstudo() {
@@ -3834,6 +3920,8 @@ async function adminCarregarNovosCadastros() {
   el.innerHTML = emails.map(u => {
     const assin = assinMap[u.id];
     const agora = new Date();
+    const nomeDisplay = u.raw_user_meta_data?.nome || u.nome || '';
+    const telefoneDisplay = u.raw_user_meta_data?.telefone || u.telefone || '';
 
     // Calcular tempo restante do trial
     let trialInfo = '';
@@ -3867,7 +3955,8 @@ async function adminCarregarNovosCadastros() {
     return `<div style="display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--border)">
       <div style="width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#2563eb,#3b82f6);display:grid;place-items:center;font-size:14px;font-weight:700;color:#fff;flex-shrink:0">${u.email.charAt(0).toUpperCase()}</div>
       <div style="flex:1">
-        <div style="font-size:13px;font-weight:600;color:var(--text)">${u.email}</div>
+        <div style="font-size:13px;font-weight:600;color:var(--text)">${nomeDisplay ? nomeDisplay + ' — ' : ''}${u.email}</div>
+        ${telefoneDisplay ? `<div style="font-size:11px;color:#2563eb;font-weight:600">📱 ${telefoneDisplay}</div>` : ''}
         ${trialInfo}${dataPag}
       </div>
       <div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px">
@@ -4093,6 +4182,77 @@ function mostrarCompartilharMsg(txt, tipo) {
   else if (tipo === 'warn') { el.style.color = '#d97706'; el.style.background = '#fffbeb'; el.style.border = '1px solid #fde68a'; }
   else { el.style.color = '#1d4ed8'; el.style.background = '#eff6ff'; el.style.border = '1px solid #dbeafe'; }
   if (tipo !== 'info') setTimeout(() => { el.style.display = 'none'; }, 5000);
+}
+
+// ══ FEEDBACK IA POR MATÉRIA ══
+async function gerarFeedbackIA() {
+  if (!materias.length) return toast('⚠️ Adicione matérias primeiro!');
+
+  const btn = document.getElementById('btnFeedbackIA');
+  const el = document.getElementById('feedbackIAConteudo');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span> Analisando...';
+
+  el.innerHTML = `<div style="display:flex;flex-direction:column;gap:12px" id="feedbackIAList">
+    ${materias.map(m => `<div id="fb-${m.id}" style="border:1px solid var(--border);border-radius:12px;padding:14px;border-left:4px solid ${m.cor||'#2563eb'}">
+      <div style="font-weight:600;font-size:14px;margin-bottom:6px">${m.nome}</div>
+      <div style="font-size:13px;color:var(--muted);display:flex;align-items:center;gap:6px"><span class="spinner" style="border-top-color:${m.cor||'#2563eb'}"></span> Analisando...</div>
+    </div>`).join('')}
+  </div>`;
+
+  for (const m of materias) {
+    const fbEl = document.getElementById('fb-' + m.id);
+    if (!fbEl) continue;
+    try {
+      const prompt = `Você é um consultor de estudos especialista. Analise os dados desta matéria e dê um feedback direto, prático e motivador, no estilo de uma consultoria de alta performance. Seja específico e use emojis estrategicamente.
+
+Matéria: ${m.nome}
+Progresso: ${m.progresso || 0}%
+Tempo estudado: ${formatarTempoTotal(m.tempo_total || 0)}
+${m.data_prova ? 'Data da prova: ' + new Date(m.data_prova + 'T00:00:00').toLocaleDateString('pt-BR') : 'Sem data de prova definida'}
+
+Formate exatamente assim (3 linhas separadas):
+📊 Diagnóstico: [status atual em 1 frase]
+⚠️ Atenção: [ponto de risco ou gargalo em 1 frase]
+🚀 Ação: [recomendação concreta e específica em 1 frase]
+
+Seja direto como um coach sênior. Sem introdução, sem conclusão.`;
+
+      const resp = await fetch('https://api.anthropic.com/v1/messages', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          model: 'claude-sonnet-4-20250514',
+          max_tokens: 1000,
+          messages: [{ role: 'user', content: prompt }]
+        })
+      });
+      const data = await resp.json();
+      const texto = (data.content || []).map(b => b.text || '').join('');
+
+      const pct = m.progresso || 0;
+      const cor = pct >= 80 ? '#059669' : pct >= 50 ? '#d97706' : '#dc2626';
+      const bgCor = pct >= 80 ? '#f0fdf4' : pct >= 50 ? '#fffbeb' : '#fef2f2';
+      const status = pct >= 80 ? '✅ Em dia' : pct >= 50 ? '⚠️ Atenção' : '🔴 Urgente';
+
+      fbEl.innerHTML = `
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px;flex-wrap:wrap;gap:8px">
+          <div style="font-weight:600;font-size:14px">${m.nome}</div>
+          <span style="font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px;background:${bgCor};color:${cor}">${status}</span>
+        </div>
+        <div style="display:flex;gap:14px;margin-bottom:10px;flex-wrap:wrap">
+          <span style="font-size:12px;color:var(--muted)">📊 ${pct}% concluído</span>
+          <span style="font-size:12px;color:var(--muted)">⏱️ ${formatarTempoTotal(m.tempo_total||0)}</span>
+          ${m.data_prova ? '<span style="font-size:12px;color:var(--muted)">🏁 ' + new Date(m.data_prova + 'T00:00:00').toLocaleDateString('pt-BR') + '</span>' : ''}
+        </div>
+        <div style="background:#f8faff;border-radius:10px;padding:12px 14px;font-size:13px;line-height:2;color:var(--text);white-space:pre-wrap;border:1px solid #e0e7ff">${texto}</div>`;
+    } catch(e) {
+      if (fbEl) fbEl.innerHTML = `<div style="font-weight:600;font-size:14px;margin-bottom:6px">${m.nome}</div><span style="color:#dc2626;font-size:13px">❌ Erro ao gerar análise. Tente novamente.</span>`;
+    }
+  }
+
+  btn.disabled = false;
+  btn.innerHTML = '🔄 Atualizar análise';
 }
 
 // START — init só roda quando usuário clica em um botão da landing
