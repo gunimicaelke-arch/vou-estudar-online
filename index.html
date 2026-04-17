@@ -1872,8 +1872,8 @@ body{font-family:'Plus Jakarta Sans',sans-serif;-webkit-font-smoothing:antialias
       <div onclick="goTab('prioridades');toggleMobileMenu()" style="display:flex;align-items:center;gap:10px;padding:12px;border-radius:12px;background:rgba(255,255,255,0.05);color:rgba(255,255,255,0.7);font-size:13px;cursor:pointer">
         <span style="font-size:18px">🎯</span> Prioridades
       </div>
-      <div onclick="goTab('lembretes');toggleMobileMenu()" style="display:flex;align-items:center;gap:10px;padding:12px;border-radius:12px;background:rgba(255,255,255,0.05);color:rgba(255,255,255,0.7);font-size:13px;cursor:pointer">
-        <span style="font-size:18px">🔔</span> Lembretes
+      <div onclick="goTab('dashboard');toggleMobileMenu()" style="display:flex;align-items:center;gap:10px;padding:12px;border-radius:12px;background:rgba(255,255,255,0.05);color:rgba(255,255,255,0.7);font-size:13px;cursor:pointer">
+        <span style="font-size:18px">🔔</span> Dashboard
       </div>
       <div id="bnAdminItem" onclick="goTab('admin');toggleMobileMenu()" style="display:none;align-items:center;gap:10px;padding:12px;border-radius:12px;background:rgba(245,158,11,0.15);color:#fbbf24;font-size:13px;cursor:pointer">
         <span style="font-size:18px">🛡️</span> Admin
@@ -1917,6 +1917,26 @@ let notas = [];
 let planos = [];
 let prioridades = [];
 let chartInstance = null;
+
+function renderPainelDiagnostico() {
+  const alvo = document.getElementById('dashNotas');
+  if (!alvo || document.getElementById('painelDiagnostico')) return;
+  const semDados = !materias.length && !notas.length && !planos.length && !prioridades.length;
+  if (!semDados) return;
+  const userId = currentUser?.id || 'não identificado';
+  const email = currentUser?.email || 'não identificado';
+  alvo.innerHTML = `
+    <div id="painelDiagnostico" style="border:1px solid #dbeafe;background:#eff6ff;border-radius:12px;padding:14px">
+      <div style="font-weight:700;color:#1d4ed8;margin-bottom:8px">ℹ️ Conexão com o banco está funcionando</div>
+      <div style="font-size:13px;color:#1e3a8a;line-height:1.6">
+        As consultas para <strong>matérias</strong>, <strong>notas</strong> e <strong>sessões</strong> terminaram de carregar, então o problema agora é <strong>falta de registros</strong> ou <strong>filtro por user_id</strong>.
+      </div>
+      <div style="margin-top:10px;font-size:12px;color:#475569">
+        <strong>E-mail:</strong> ${email}<br>
+        <strong>User ID:</strong> ${userId}
+      </div>
+    </div>`;
+}
 
 // ═══════════════════════════════════════
 // INICIALIZAÇÃO
@@ -2067,6 +2087,7 @@ async function carregarApp() {
   ]);
 
   atualizarDashboard();
+  renderPainelDiagnostico();
   mostrarBadgeTrial();
   mostrarMenuAdmin();
   registrarPresenca();
@@ -2077,6 +2098,7 @@ async function carregarApp() {
     try {
       await Promise.all([carregarMaterias(), carregarNotas(), carregarHistoricoEstudo()]);
       atualizarDashboard();
+      renderPainelDiagnostico();
       // Atualiza feedback IA automaticamente se já foi gerado antes
       const fbEl = document.getElementById('feedbackIAConteudo');
       const jaGerado = fbEl && fbEl.querySelector('.fb-bloco');
@@ -2305,7 +2327,15 @@ function goTab(tab) {
   if (tab !== 'materias' && estudoAtivoId) pararEstudo(estudoAtivoId);
   document.querySelectorAll('.tab-page').forEach(p => p.classList.remove('active'));
   document.querySelectorAll('.menu-item').forEach(m => m.classList.remove('active'));
-  document.getElementById(`tab-${tab}`).classList.add('active');
+  const destinoTab = document.getElementById(`tab-${tab}`);
+  if (!destinoTab) {
+    toast('Essa área ainda não está disponível nesta versão.');
+    const tabDashboard = document.getElementById('tab-dashboard');
+    if (tabDashboard) tabDashboard.classList.add('active');
+    setActiveBottomNav('dashboard');
+    return;
+  }
+  destinoTab.classList.add('active');
 
   // Mapeamento explícito: tab → trecho do texto do menu-item
   const menuMap = {
@@ -2363,7 +2393,7 @@ async function carregarMaterias() {
     .eq('user_id', currentUser.id)
     .order('created_at', { ascending: false });
 
-  if (error) { console.error('Erro ao carregar matérias:', error); return; }
+  if (error) { console.error('Erro ao carregar matérias:', error); const el=document.getElementById('listaMaterias'); if(el) el.innerHTML = `<div class="empty-state" style="color:#dc2626"><div class="empty-icon">⚠️</div>${error.message || 'Erro ao carregar matérias.'}</div>`; return; }
   materias = data || [];
   renderMaterias();
   atualizarSelectMateria();
@@ -2511,7 +2541,7 @@ async function carregarNotas() {
     .eq('user_id', currentUser.id)
     .order('created_at', { ascending: false });
 
-  if (error) { console.error('Erro ao carregar notas:', error); return; }
+  if (error) { console.error('Erro ao carregar notas:', error); const el=document.getElementById('listaNotas'); if(el) el.innerHTML = `<div class="empty-state" style="color:#dc2626"><div class="empty-icon">⚠️</div>${error.message || 'Erro ao carregar notas.'}</div>`; return; }
   notas = data || [];
   renderNotas();
 }
@@ -4333,7 +4363,7 @@ async function adminCarregarUsuarios() {
 
   // ── 5. Renderiza lista de usuários (baseado em assinaturas) ──
   if (!assinList.length && !emailData) {
-    if (elLista) elLista.innerHTML = '<div class="empty-state"><div class="empty-icon">👥</div>Nenhum usuário cadastrado ainda.</div>';
+    if (elLista) elLista.innerHTML = '<div class="empty-state"><div class="empty-icon">👥</div>O painel abriu, mas a tabela <strong>assinaturas</strong> ainda está vazia. Isso não é erro de conexão.</div>';
   } else {
     // Usa emailData se disponível, senão usa assinaturas
     const listaRender = emailData && emailData.length
