@@ -4610,8 +4610,7 @@ async function adminCompartilharModulos() {
   marcar('⏳ Transferindo...');
   const relatorio = [];
 
-  // Tenta RPC security definer por tabela (bypassa RLS)
-  let usouRPC = false;
+  // Usa RPC security definer (bypassa RLS)
   for (const m of modulos) {
     try {
       const { data: n, error } = await db.rpc('admin_copiar_dados', {
@@ -4619,75 +4618,10 @@ async function adminCompartilharModulos() {
         p_destino: destino,
         p_tabela: m.tabela
       });
-      if (!error) {
-        relatorio.push(`✅ ${m.label}: ${n || 0} item(ns)`);
-        usouRPC = true;
-        continue;
-      }
-    } catch(e) {}
-
-    // Fallback direto se RPC não existir
-    try {
-      const { data, error } = await db.from(m.tabela).select('*').eq('user_id', currentUser.id);
-      if (error) { relatorio.push(`${m.label}: erro ao ler`); continue; }
-      if (!data?.length) { relatorio.push(`${m.label}: nada para transferir`); continue; }
-
-      const payload = data.map(item => {
-        const novo = {};
-        Object.keys(item).forEach(k => {
-          if (!['id','created_at','updated_at'].includes(k)) novo[k] = item[k];
-        });
-        novo.user_id = destino;
-        return novo;
-      });
-
-      let enviados = 0, falhas = 0;
-      for (let i = 0; i < payload.length; i += 10) {
-        const { error: err } = await db.from(m.tabela).insert(payload.slice(i, i+10));
-        if (err) falhas += Math.min(10, payload.length-i);
-        else enviados += Math.min(10, payload.length-i);
-      }
-
-      if (falhas > 0) relatorio.push(`⚠️ ${m.label}: bloqueado pela RLS — rode o SQL admin_copiar_dados no Supabase`);
-      else relatorio.push(`✅ ${m.label}: ${enviados} item(ns)`);
+      if (!error) relatorio.push(`✅ ${m.label}: ${n || 0} item(ns)`);
+      else relatorio.push(`⚠️ ${m.label}: ${error.message}`);
     } catch(e) {
-      relatorio.push(`${m.label}: erro`);
-    }
-  }
-
-  // Fallback: insere direto (pode falhar por RLS se não tiver a RPC)
-  for (const m of modulos) {
-    try {
-      const { data, error } = await db.from(m.tabela).select('*').eq('user_id', currentUser.id);
-      if (error) { relatorio.push(`${m.label}: erro ao ler`); continue; }
-      if (!data?.length) { relatorio.push(`${m.label}: nada para transferir`); continue; }
-
-      const payload = data.map(item => {
-        const novo = {};
-        // Copia todos os campos exceto id e timestamps
-        Object.keys(item).forEach(k => {
-          if (!['id','created_at','updated_at'].includes(k)) {
-            novo[k] = item[k];
-          }
-        });
-        novo.user_id = destino; // sobrescreve user_id para o destino
-        return novo;
-      });
-
-      let enviados = 0, falhas = 0;
-      for (let i = 0; i < payload.length; i += 10) {
-        const lote = payload.slice(i, i + 10);
-        const { error: err } = await db.from(m.tabela).insert(lote);
-        if (err) { console.warn(m.label, err.message); falhas += lote.length; }
-        else enviados += lote.length;
-      }
-
-      if (falhas > 0) {
-        relatorio.push(`⚠️ ${m.label}: ${enviados} ok, ${falhas} bloqueados pela RLS — rode o SQL de transferência no Supabase`);
-      } else relatorio.push(`✅ ${m.label}: ${enviados} item(ns)`);
-
-    } catch (e) {
-      relatorio.push(`${m.label}: erro inesperado`);
+      relatorio.push(`⚠️ ${m.label}: rode SQL admin_copiar_dados no Supabase`);
     }
   }
 
