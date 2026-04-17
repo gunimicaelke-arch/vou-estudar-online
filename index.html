@@ -1487,7 +1487,10 @@ body{font-family:'Plus Jakarta Sans',sans-serif;-webkit-font-smoothing:antialias
                   <div style="font-size:11px;color:rgba(255,255,255,0.4)">Todos os módulos disponíveis abaixo</div>
                 </div>
               </div>
-              <div style="display:flex;gap:8px;flex-wrap:wrap">
+              <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+                <select id="planoSalvarMateria" style="flex:1;margin-bottom:0;font-size:12px;min-width:140px">
+                  <option value="">📚 Vincular a uma matéria...</option>
+                </select>
                 <button onclick="exportarPlanoAtualPDF()" style="width:auto;padding:8px 16px;background:rgba(255,255,255,0.1);color:#fff;border:1px solid rgba(255,255,255,0.2);border-radius:8px;font-size:12px;font-weight:600">📄 PDF</button>
                 <button onclick="salvarPlanoInteligente()" style="width:auto;padding:8px 16px;background:linear-gradient(135deg,#2563eb,#7c3aed);color:#fff;border:none;border-radius:8px;font-size:12px;font-weight:700">💾 Salvar Plano</button>
               </div>
@@ -3365,17 +3368,31 @@ function switchPlanoTab(tab) {
 async function salvarPlanoInteligente() {
   if (!planoGeradoAtual) return;
   const { titulo, resultado } = planoGeradoAtual;
+  const selMateria = document.getElementById('planoSalvarMateria');
+  const materiaId = selMateria?.value || null;
+  const materiaNome = selMateria?.options[selMateria.selectedIndex]?.text?.replace('📚 ','') || '';
+
   const { error } = await db.from('planos_ia').insert([{
     user_id: currentUser.id,
     titulo,
     pdf_nome: document.getElementById('pdfNome').textContent,
     analise: resultado,
     plano_gerado: resultado.plano,
-    data_prova: planoGeradoAtual.dataProva || null
+    data_prova: planoGeradoAtual.dataProva || null,
+    materia_id: materiaId || null,
+    materia_nome: materiaId ? materiaNome : null
   }]);
   if (error) return toast('❌ Erro ao salvar: ' + error.message);
-  toast('✅ Plano salvo com sucesso!');
+  toast('✅ Plano salvo' + (materiaId ? ' em ' + materiaNome : '') + '!');
   await carregarPlanosInteligentes();
+}
+
+function _atualizarSelectMateriaPlano() {
+  const sel = document.getElementById('planoSalvarMateria');
+  if (!sel) return;
+  const atual = sel.value;
+  sel.innerHTML = '<option value="">📚 Vincular a uma matéria...</option>' +
+    materias.map(m => `<option value="${m.id}" ${atual===m.id?'selected':''}>${m.nome}</option>`).join('');
 }
 
 async function carregarPlanosInteligentes() {
@@ -3383,6 +3400,7 @@ async function carregarPlanosInteligentes() {
   if (error) return;
   const lista = data || [];
   renderListaPlanosInt(lista);
+  _atualizarSelectMateriaPlano();
   const badge = document.getElementById('badgePlanosInt');
   if (badge) badge.textContent = lista.length || 'NEW';
 
@@ -3403,21 +3421,80 @@ function renderListaPlanosInt(lista) {
     el.innerHTML = '<div class="empty-state"><div class="empty-icon">✨</div>Nenhum plano salvo ainda.</div>';
     return;
   }
-  el.innerHTML = lista.map(p => `
-    <div class="item-card" style="margin-bottom:10px">
-      <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:8px">
-        <div>
-          <h4>${p.titulo}</h4>
-          <p style="font-size:12px;margin-top:2px">${p.pdf_nome||''} — ${new Date(p.created_at).toLocaleDateString('pt-BR')}</p>
+
+  // Agrupa por matéria
+  const grupos = {};
+  lista.forEach(p => {
+    const chave = p.materia_id || '__sem_materia__';
+    const nome = p.materia_nome || (materias.find(m => m.id === p.materia_id)?.nome) || null;
+    if (!grupos[chave]) grupos[chave] = { nome, planos: [] };
+    grupos[chave].planos.push(p);
+  });
+
+  // Ordena: com matéria primeiro, sem matéria por último
+  const ordenados = Object.entries(grupos).sort(([a], [b]) => {
+    if (a === '__sem_materia__') return 1;
+    if (b === '__sem_materia__') return -1;
+    return (grupos[a].nome || '').localeCompare(grupos[b].nome || '');
+  });
+
+  el.innerHTML = ordenados.map(([chave, grupo]) => {
+    const cor = materias.find(m => m.id === chave)?.cor || '#6366f1';
+    const header = grupo.nome
+      ? `<div style="display:flex;align-items:center;gap:8px;padding:8px 0;margin-bottom:8px;border-bottom:2px solid ${cor}20">
+           <div style="width:10px;height:10px;border-radius:50%;background:${cor};flex-shrink:0"></div>
+           <span style="font-size:13px;font-weight:700;color:var(--text)">${grupo.nome}</span>
+           <span style="font-size:11px;color:var(--muted)">${grupo.planos.length} plano(s)</span>
+         </div>`
+      : `<div style="font-size:11px;color:var(--muted);padding:6px 0;margin-bottom:6px;border-bottom:1px dashed var(--border)">📂 Sem matéria vinculada</div>`;
+
+    const itens = grupo.planos.map(p => `
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 12px;border-radius:10px;background:#f8faff;border:1px solid #e8eef8;margin-bottom:6px;flex-wrap:wrap;gap:8px">
+        <div style="flex:1;min-width:0">
+          <div style="font-size:13px;font-weight:600;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${p.titulo}</div>
+          <div style="font-size:11px;color:var(--muted);margin-top:2px">
+            ${p.pdf_nome ? p.pdf_nome + ' · ' : ''}${new Date(p.created_at).toLocaleDateString('pt-BR')}
+            ${p.data_prova ? ' · 🏁 ' + new Date(p.data_prova+'T00:00:00').toLocaleDateString('pt-BR') : ''}
+          </div>
         </div>
-        <div style="display:flex;gap:6px;flex-wrap:wrap">
-          <button class="mini-btn" onclick="verPlanoSalvo('${p.id}')">👁️ Ver</button>
-          <button class="mini-btn btn-secondary" style="background:#eff6ff;color:#2563eb;border-color:#dbeafe" onclick="exportarPlanoPDF('${p.id}')">📄 PDF</button>
-          <button class="mini-btn btn-danger" onclick="deletarPlanoInt('${p.id}')">🗑️</button>
+        <div style="display:flex;gap:5px;flex-shrink:0">
+          <button class="mini-btn" onclick="verPlanoSalvo('${p.id}')" style="font-size:11px;padding:4px 10px">👁️ Ver</button>
+          <button class="mini-btn btn-secondary" onclick="exportarPlanoPDF('${p.id}')" style="font-size:11px;padding:4px 10px;background:#eff6ff;color:#2563eb;border-color:#dbeafe">📄 PDF</button>
+          <button onclick="abrirModalVincularMateria('${p.id}')" style="font-size:11px;padding:4px 10px;border-radius:8px;background:#f5f3ff;color:#7c3aed;border:1px solid #ddd6fe;cursor:pointer;width:auto">🔗</button>
+          <button class="mini-btn btn-danger" onclick="deletarPlanoInt('${p.id}')" style="font-size:11px;padding:4px 10px">🗑️</button>
         </div>
-      </div>
+      </div>`).join('');
+
+    return `<div style="margin-bottom:18px">${header}${itens}</div>`;
+  }).join('');
+}
+
+// Vincular plano existente a uma matéria
+function abrirModalVincularMateria(planoId) {
+  const opcoes = materias.map(m => `<option value="${m.id}">${m.nome}</option>`).join('');
+  const div = document.createElement('div');
+  div.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:9999;display:flex;align-items:center;justify-content:center';
+  div.innerHTML = `<div style="background:#fff;border-radius:16px;padding:24px;width:320px;box-shadow:0 20px 60px rgba(0,0,0,0.3)">
+    <div style="font-size:15px;font-weight:700;margin-bottom:14px">🔗 Vincular a uma Matéria</div>
+    <select id="vincularMateriaSelect" style="margin-bottom:14px">
+      <option value="">Sem matéria</option>${opcoes}
+    </select>
+    <div style="display:flex;gap:8px">
+      <button onclick="confirmarVincularMateria('${planoId}',this.closest('div[style]'))" style="flex:1;background:#2563eb;color:#fff;border:none;padding:10px;border-radius:8px;font-weight:700;cursor:pointer">Salvar</button>
+      <button onclick="this.closest('div[style]').remove()" style="flex:1;background:#f1f5f9;color:#64748b;border:none;padding:10px;border-radius:8px;cursor:pointer">Cancelar</button>
     </div>
-  `).join('');
+  </div>`;
+  document.body.appendChild(div);
+}
+
+async function confirmarVincularMateria(planoId, modal) {
+  const sel = document.getElementById('vincularMateriaSelect');
+  const materiaId = sel.value || null;
+  const materiaNome = materiaId ? materias.find(m => m.id === materiaId)?.nome || null : null;
+  await db.from('planos_ia').update({ materia_id: materiaId, materia_nome: materiaNome }).eq('id', planoId);
+  modal.remove();
+  toast('🔗 Plano vinculado' + (materiaNome ? ' a ' + materiaNome : ' sem matéria') + '!');
+  await carregarPlanosInteligentes();
 }
 
 function verPlanoSalvo(id) {
@@ -5605,6 +5682,10 @@ function _mostrarFimJogo(venceu) {
 SQL PARA CRIAR AS TABELAS NO SUPABASE
 (Rode no SQL Editor do painel Supabase)
 ═══════════════════════════════════════
+
+-- Adicionar colunas de matéria na tabela planos_ia (rode se ainda não tiver):
+alter table planos_ia add column if not exists materia_id uuid references materias(id) on delete set null;
+alter table planos_ia add column if not exists materia_nome text;
 
 -- ⚠️ RPC PRINCIPAL — rode este para o painel admin funcionar:
 create or replace function get_admin_users_overview()
