@@ -1010,6 +1010,27 @@ body{font-family:'Plus Jakarta Sans',sans-serif;-webkit-font-smoothing:antialias
   </div>
 </div>
 
+
+<!-- ─── MODAL COMPARTILHAR REGISTRO ─── -->
+<div id="modalCompartilharRegistro" class="hidden" style="position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:10000;align-items:center;justify-content:center">
+  <div class="card card-pad" style="width:100%;max-width:460px;margin:20px">
+    <div class="card-head">
+      <h3 id="compartilharRegistroTitulo">📤 Compartilhar</h3>
+      <button class="btn-secondary mini-btn" style="width:auto" onclick="fecharCompartilharRegistro()">✕</button>
+    </div>
+    <div style="font-size:13px;color:var(--muted);margin-bottom:10px" id="compartilharRegistroResumo">Selecione um usuário cadastrado para receber este conteúdo.</div>
+    <select id="compartilharRegistroUsuario" style="margin-bottom:10px">
+      <option value="">Selecione o usuário...</option>
+    </select>
+    <div style="font-size:12px;color:var(--muted);margin-bottom:14px">O usuário precisa já estar cadastrado no sistema.</div>
+    <div style="display:flex;gap:8px;justify-content:flex-end">
+      <button class="btn-secondary" style="width:auto" onclick="fecharCompartilharRegistro()">Cancelar</button>
+      <button style="width:auto;background:linear-gradient(135deg,#2563eb,#3b82f6)" onclick="confirmarCompartilharRegistro()" id="btnConfirmarCompartilharRegistro">📤 Compartilhar</button>
+    </div>
+  </div>
+</div>
+
+
 <!-- ═══════════════════════════════════════
      APP
 ═══════════════════════════════════════ -->
@@ -2444,7 +2465,10 @@ function renderMaterias() {
           ${m.data_prova ? `<p style="margin:4px 0 0;font-size:12px;color:var(--muted)">🏁 Prova: ${new Date(m.data_prova + 'T00:00:00').toLocaleDateString('pt-BR')}</p>` : ''}
           <div style="font-size:12px;color:var(--muted);margin-top:4px">⏱️ Total: <span id="tempo-total-${m.id}">${formatarTempoTotal(m.tempo_total || 0)}</span> &nbsp;|&nbsp; Sessão: <span id="display-timer-${m.id}" style="color:var(--primary);font-weight:700">--</span></div>
         </div>
-        <button class="mini-btn btn-danger" onclick="event.stopPropagation();deletarMateria('${m.id}')">🗑️</button>
+        <div style="display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end">
+          <button class="mini-btn btn-secondary" style="width:auto;padding:6px 10px" onclick="event.stopPropagation();abrirCompartilharRegistro('materia','${m.id}')">📤</button>
+          <button class="mini-btn btn-danger" onclick="event.stopPropagation();deletarMateria('${m.id}')">🗑️</button>
+        </div>
       </div>
       <div class="subject-progress" style="margin-top:10px">
         <div class="progress-bar"><div style="width:${m.progresso || 0}%"></div></div>
@@ -2626,7 +2650,10 @@ function renderPlanos() {
           ${p.data_inicio ? `<span class="tag tag-blue">📅 ${fmtData(p.data_inicio)} → ${fmtData(p.data_fim)}</span>` : ''}
           <p style="margin-top:8px">${p.conteudo}</p>
         </div>
-        <button class="mini-btn btn-danger" onclick="deletarPlano('${p.id}')" style="margin-left:10px">🗑️</button>
+        <div style="display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end;margin-left:10px">
+          <button class="mini-btn btn-secondary" style="width:auto;padding:6px 10px" onclick="abrirCompartilharRegistro('plano','${p.id}')">📤</button>
+          <button class="mini-btn btn-danger" onclick="deletarPlano('${p.id}')" style="margin-left:0">🗑️</button>
+        </div>
       </div>
     </div>
   `).join('');
@@ -4546,48 +4573,97 @@ function adminExportarVisitantesExcel() {
 }
 
 async function adminExcluirCliente(userId, email = '') {
-  const ok = confirm(`Excluir cadastro deste cliente no sistema?\n\n${email || userId}\n\nIsso remove dados do app (matérias, notas, planos, sessões, lembretes, assinaturas e presença).`);
+  const alvo = email || userId;
+  const ok = confirm(`Excluir este cadastro do sistema?
+
+${alvo}
+
+Isso vai remover os dados do app e tentar apagar também o perfil auxiliar.`);
   if (!ok) return;
 
-  const tabelasPorUser = ['materias','notas','planos_estudo','prioridades','planos_personalizados','lembretes','sessoes_estudo','presencas','assinaturas'];
+  const tabelasPorUser = [
+    'materias','notas','planos_estudo','planos','planos_ia','prioridades',
+    'planos_personalizados','lembretes','sessoes_estudo','presencas',
+    'assinaturas','profiles','compartilhamentos','flashcards'
+  ];
+
   const resultados = await Promise.allSettled(
-    tabelasPorUser.map(t => db.from(t).delete().eq('user_id', userId))
+    tabelasPorUser.map(async (t) => {
+      try {
+        const campo = t === 'profiles' ? 'id' : 'user_id';
+        const { error } = await db.from(t).delete().eq(campo, userId);
+        return { tabela: t, error };
+      } catch (e) {
+        return { tabela: t, error: e };
+      }
+    })
   );
 
+  const extras = [];
   if (email) {
-    await Promise.allSettled([
-      db.from('visitantes_cadastro').delete().eq('email', email)
-    ]);
+    extras.push(db.from('visitantes_cadastro').delete().eq('email', email));
+    extras.push(db.from('profiles').delete().eq('email', email));
   }
 
-  const falhas = resultados.filter(r => r.status === 'fulfilled' && r.value && r.value.error).length +
-                 resultados.filter(r => r.status === 'rejected').length;
+  try {
+    extras.push(db.rpc('admin_delete_user', { p_user_id: userId }));
+  } catch(e) {}
 
-  if (falhas) {
-    toast('⚠️ Parte dos dados foi removida, mas algumas tabelas recusaram a exclusão.');
+  const extrasRes = await Promise.allSettled(extras);
+
+  const falhas = [
+    ...resultados.filter(r => r.status === 'rejected'),
+    ...resultados.filter(r => r.status === 'fulfilled' && r.value?.error),
+    ...extrasRes.filter(r => r.status === 'rejected'),
+    ...extrasRes.filter(r => r.status === 'fulfilled' && r.value?.error)
+  ];
+
+  if (falhas.length) {
+    console.warn('Falhas ao excluir cliente:', falhas);
+    toast('⚠️ Parte do cadastro foi excluída. Se o login continuar existindo, falta função admin no Supabase.');
   } else {
-    toast('🗑️ Cadastro removido do sistema.');
+    toast('🗑️ Cadastro excluído com sucesso.');
   }
 
-  // oculta do painel atual mesmo se o auth user ainda existir
   window.adminClientesExcluidos = window.adminClientesExcluidos || {};
   window.adminClientesExcluidos[userId] = true;
   await adminCarregarUsuarios();
 }
 
-async function adminExcluirVisitante(email, origem = '') {
-  const chave = email || origem || 'visitante';
-  if (!confirm(`Excluir registros deste visitante?\n\n${chave}`)) return;
+async function adminExcluirVisitante(chave = '') {
+  const visitante = (window.adminVisitantesCache || []).find(v => v.chave === chave) || null;
+  const rotulo = visitante?.email || visitante?.origem || chave || 'visitante';
+  if (!confirm(`Excluir registros deste visitante?
 
-  let req;
-  if (email) req = db.from('visitantes_cadastro').delete().eq('email', email);
-  else req = db.from('visitantes_cadastro').delete().eq('user_agent', origem);
+${rotulo}`)) return;
 
-  const { error } = await req;
+  let error = null;
+
+  if (visitante?.ids?.length) {
+    const tentativa = await db.from('visitantes_cadastro').delete().in('id', visitante.ids);
+    error = tentativa.error || null;
+  }
+
+  if (error && visitante?.email) {
+    const tentativa2 = await db.from('visitantes_cadastro').delete().eq('email', visitante.email);
+    error = tentativa2.error || null;
+  }
+
+  if (error && visitante?.origem) {
+    const tentativa3 = await db.from('visitantes_cadastro').delete().eq('user_agent', visitante.origem);
+    error = tentativa3.error || null;
+  }
+
+  if (!visitante) {
+    const tentativa4 = await db.from('visitantes_cadastro').delete().eq('email', chave);
+    error = tentativa4.error || null;
+  }
+
   if (error) {
     toast('⚠️ Não foi possível excluir: ' + error.message);
     return;
   }
+
   toast('🗑️ Visitante removido.');
   await adminCarregarTentativasCadastro();
 }
@@ -4824,6 +4900,8 @@ async function adminCarregarTentativasCadastro() {
       : ordenados.some(i => i.acao === 'tentativa') ? '🟡 Em triagem'
       : '👀 Visitou';
     return {
+      chave,
+      ids: ordenados.map(i => i.id).filter(Boolean),
       email: primeiro.email || '',
       origem: primeiro.user_agent || '',
       acoes: ordenados.length,
@@ -4874,7 +4952,7 @@ async function adminCarregarTentativasCadastro() {
             </div>
             <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">
               <span style="font-size:10px;padding:4px 10px;border-radius:999px;background:#eff6ff;color:#2563eb;font-weight:700">${v.status}</span>
-              <button onclick="adminExcluirVisitante('${(v.email || '').replace(/'/g, "\'")}','${(v.origem || '').replace(/'/g, "\'")}')" style="font-size:10px;padding:4px 8px;border-radius:8px;background:#fef2f2;color:#dc2626;border:1px solid #fecaca;cursor:pointer;width:auto">🗑️ Excluir</button>
+              <button onclick="adminExcluirVisitante('${(v.chave || '').replace(/'/g, \"\'\")}')" style="font-size:10px;padding:4px 8px;border-radius:8px;background:#fef2f2;color:#dc2626;border:1px solid #fecaca;cursor:pointer;width:auto">🗑️ Excluir</button>
             </div>
           </div>
           ${v.origem ? `<div style="font-size:10px;color:#94a3b8;margin-top:6px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${v.origem}</div>` : ''}
@@ -5500,6 +5578,131 @@ function irParaEsqueci()  { _abrirApp('forgot'); }
 function irParaCadastro() { _abrirApp('register'); }
 function irParaLogin()    { _abrirApp('login'); }
 function irParaEsqueci()  { _abrirApp('forgot'); }
+
+window._compartilharRegistroAtual = null;
+
+async function carregarUsuariosCompartilhamento() {
+  let usuarios = Array.isArray(window.adminUsersEmails) ? window.adminUsersEmails.filter(u => u && u.id && u.email) : [];
+  if (!usuarios.length) {
+    try {
+      const { data } = await db.rpc('get_admin_users_overview');
+      if (data?.length) usuarios = data.map(u => ({
+        id: u.id, email: u.email || '', nome: u.nome || '', telefone: u.telefone || ''
+      })).filter(u => u.id && u.email);
+    } catch(e) {}
+  }
+  if (!usuarios.length) {
+    try {
+      const { data } = await db.rpc('get_users_emails');
+      if (data?.length) usuarios = data.map(u => ({
+        id: u.id, email: u.email || '', nome: u.nome || '', telefone: u.telefone || ''
+      })).filter(u => u.id && u.email);
+    } catch(e) {}
+  }
+  if (!usuarios.length) {
+    throw new Error('Não foi possível carregar os usuários cadastrados.');
+  }
+  window.adminUsersEmails = usuarios;
+  return usuarios;
+}
+
+async function abrirCompartilharRegistro(tipo, id) {
+  try {
+    let item = null;
+    if (tipo === 'materia') item = (materias || []).find(x => x.id === id);
+    if (tipo === 'plano') item = (planos || []).find(x => x.id === id);
+    if (!item) return toast('Registro não encontrado.');
+
+    const usuarios = await carregarUsuariosCompartilhamento();
+    const select = document.getElementById('compartilharRegistroUsuario');
+    const titulo = document.getElementById('compartilharRegistroTitulo');
+    const resumo = document.getElementById('compartilharRegistroResumo');
+    if (!select || !titulo || !resumo) return;
+
+    const outros = usuarios.filter(u => u.id !== currentUser?.id);
+    select.innerHTML = '<option value="">Selecione o usuário...</option>' +
+      outros.map(u => `<option value="${u.id}">${u.nome ? (u.nome + ' — ') : ''}${u.email}</option>`).join('');
+
+    if (!outros.length) {
+      return toast('Nenhum outro usuário cadastrado encontrado.');
+    }
+
+    window._compartilharRegistroAtual = { tipo, id };
+    titulo.textContent = tipo === 'materia' ? '📤 Compartilhar matéria' : '📤 Compartilhar plano';
+    resumo.textContent = tipo === 'materia'
+      ? `Matéria: ${item.nome}. Selecione o usuário cadastrado que vai receber.`
+      : `Plano: ${item.titulo}. Selecione o usuário cadastrado que vai receber.`;
+
+    document.getElementById('modalCompartilharRegistro').classList.remove('hidden');
+    document.getElementById('modalCompartilharRegistro').style.display = 'flex';
+  } catch (e) {
+    console.error(e);
+    toast('Erro ao abrir compartilhamento: ' + (e.message || e));
+  }
+}
+
+function fecharCompartilharRegistro() {
+  const modal = document.getElementById('modalCompartilharRegistro');
+  if (modal) {
+    modal.classList.add('hidden');
+    modal.style.display = 'none';
+  }
+  window._compartilharRegistroAtual = null;
+}
+
+async function confirmarCompartilharRegistro() {
+  const ref = window._compartilharRegistroAtual;
+  const select = document.getElementById('compartilharRegistroUsuario');
+  const btn = document.getElementById('btnConfirmarCompartilharRegistro');
+  if (!ref) return toast('Nada selecionado para compartilhar.');
+  if (!select?.value) return toast('Selecione o usuário que vai receber.');
+
+  const destinatarioId = select.value;
+  const usuarios = window.adminUsersEmails || [];
+  const destinatario = usuarios.find(u => u.id === destinatarioId);
+  const originalLabel = btn ? btn.innerHTML : '';
+  if (btn) { btn.disabled = true; btn.innerHTML = '<span class="spinner"></span>'; }
+
+  try {
+    if (ref.tipo === 'materia') {
+      const origem = (materias || []).find(x => x.id === ref.id);
+      if (!origem) throw new Error('Matéria não encontrada.');
+      const payload = { ...origem };
+      delete payload.id;
+      delete payload.created_at;
+      delete payload.updated_at;
+      payload.user_id = destinatarioId;
+      const { error } = await db.from('materias').insert([payload]);
+      if (error) throw error;
+      toast('✅ Matéria compartilhada com ' + (destinatario?.email || 'o usuário') + '!');
+    } else if (ref.tipo === 'plano') {
+      const origem = (planos || []).find(x => x.id === ref.id);
+      if (!origem) throw new Error('Plano não encontrado.');
+      const payload = { ...origem };
+      delete payload.id;
+      delete payload.created_at;
+      delete payload.updated_at;
+      payload.user_id = destinatarioId;
+      const { error } = await db.from('planos').insert([payload]);
+      if (error) throw error;
+      toast('✅ Plano compartilhado com ' + (destinatario?.email || 'o usuário') + '!');
+    } else {
+      throw new Error('Tipo de compartilhamento inválido.');
+    }
+    fecharCompartilharRegistro();
+  } catch (e) {
+    console.error('Erro ao compartilhar registro:', e);
+    const msg = e?.message || 'Falha ao compartilhar.';
+    if (/row-level security|permission|policy/i.test(msg)) {
+      toast('Seu Supabase bloqueou o compartilhamento. Libere insert para o destino ou use função admin.');
+    } else {
+      toast('Erro ao compartilhar: ' + msg);
+    }
+  } finally {
+    if (btn) { btn.disabled = false; btn.innerHTML = originalLabel; }
+  }
+}
+
 </script>
 </body>
 </html>
