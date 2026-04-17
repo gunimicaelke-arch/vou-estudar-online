@@ -1010,27 +1010,6 @@ body{font-family:'Plus Jakarta Sans',sans-serif;-webkit-font-smoothing:antialias
   </div>
 </div>
 
-
-<!-- ─── MODAL COMPARTILHAR REGISTRO ─── -->
-<div id="modalCompartilharRegistro" class="hidden" style="position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:10000;align-items:center;justify-content:center">
-  <div class="card card-pad" style="width:100%;max-width:460px;margin:20px">
-    <div class="card-head">
-      <h3 id="compartilharRegistroTitulo">📤 Compartilhar</h3>
-      <button class="btn-secondary mini-btn" style="width:auto" onclick="fecharCompartilharRegistro()">✕</button>
-    </div>
-    <div style="font-size:13px;color:var(--muted);margin-bottom:10px" id="compartilharRegistroResumo">Selecione um usuário cadastrado para receber este conteúdo.</div>
-    <select id="compartilharRegistroUsuario" style="margin-bottom:10px">
-      <option value="">Selecione o usuário...</option>
-    </select>
-    <div style="font-size:12px;color:var(--muted);margin-bottom:14px">O usuário precisa já estar cadastrado no sistema.</div>
-    <div style="display:flex;gap:8px;justify-content:flex-end">
-      <button class="btn-secondary" style="width:auto" onclick="fecharCompartilharRegistro()">Cancelar</button>
-      <button style="width:auto;background:linear-gradient(135deg,#2563eb,#3b82f6)" onclick="confirmarCompartilharRegistro()" id="btnConfirmarCompartilharRegistro">📤 Compartilhar</button>
-    </div>
-  </div>
-</div>
-
-
 <!-- ═══════════════════════════════════════
      APP
 ═══════════════════════════════════════ -->
@@ -1707,9 +1686,6 @@ body{font-family:'Plus Jakarta Sans',sans-serif;-webkit-font-smoothing:antialias
         </div>
       </div>
 
-      
-      </div>
-
       <!-- ─── ADMIN ─── -->
       <div class="tab-page" id="tab-admin">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;flex-wrap:wrap;gap:10px">
@@ -1780,10 +1756,7 @@ body{font-family:'Plus Jakarta Sans',sans-serif;-webkit-font-smoothing:antialias
         <div class="card card-pad" style="margin-bottom:20px">
           <div class="card-head">
             <h3>👥 Todos os Clientes</h3>
-            <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
-              <span style="font-size:11px;color:var(--muted)">Mostrando os 5 últimos visitantes</span>
-              <button class="mini-btn btn-secondary" style="width:auto" onclick="adminExportarClientesExcel()">📥 Excel clientes</button>
-            </div>
+            <span style="font-size:11px;color:var(--muted)">Todos os registros</span>
           </div>
           <div id="adminNovosCadastros">
             <div class="empty-state"><div class="empty-icon">🆕</div>Carregando...</div>
@@ -1794,9 +1767,12 @@ body{font-family:'Plus Jakarta Sans',sans-serif;-webkit-font-smoothing:antialias
         <div class="card card-pad" style="margin-bottom:20px">
           <div class="card-head">
             <h3>👀 Visitantes na Tela de Cadastro</h3>
-            <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
-              <span style="font-size:11px;color:var(--muted)">Mostrando os 5 últimos visitantes</span>
-              <button class="mini-btn btn-secondary" style="width:auto" onclick="adminExportarVisitantesExcel()">📥 Excel visitantes</button>
+            <div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center">
+              <button onclick="adminFiltrarVisitantes('hoje')" id="filtroHoje" class="mini-btn" style="width:auto;padding:4px 12px;font-size:11px;background:#2563eb;color:#fff;border:none">Hoje</button>
+              <button onclick="adminFiltrarVisitantes('ontem')" id="filtroOntem" class="mini-btn btn-secondary" style="width:auto;padding:4px 12px;font-size:11px">Ontem</button>
+              <button onclick="adminFiltrarVisitantes('semana')" id="filtroSemana" class="mini-btn btn-secondary" style="width:auto;padding:4px 12px;font-size:11px">Semana</button>
+              <button onclick="adminFiltrarVisitantes('mes')" id="filtroMes" class="mini-btn btn-secondary" style="width:auto;padding:4px 12px;font-size:11px">Mês</button>
+              <button onclick="adminFiltrarVisitantes('tudo')" id="filtroTudo" class="mini-btn btn-secondary" style="width:auto;padding:4px 12px;font-size:11px">Tudo</button>
             </div>
           </div>
           <div id="adminTentativasCadastro">
@@ -2465,10 +2441,7 @@ function renderMaterias() {
           ${m.data_prova ? `<p style="margin:4px 0 0;font-size:12px;color:var(--muted)">🏁 Prova: ${new Date(m.data_prova + 'T00:00:00').toLocaleDateString('pt-BR')}</p>` : ''}
           <div style="font-size:12px;color:var(--muted);margin-top:4px">⏱️ Total: <span id="tempo-total-${m.id}">${formatarTempoTotal(m.tempo_total || 0)}</span> &nbsp;|&nbsp; Sessão: <span id="display-timer-${m.id}" style="color:var(--primary);font-weight:700">--</span></div>
         </div>
-        <div style="display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end">
-          <button class="mini-btn btn-secondary" style="width:auto;padding:6px 10px" onclick="event.stopPropagation();abrirCompartilharRegistro('materia','${m.id}')">📤</button>
-          <button class="mini-btn btn-danger" onclick="event.stopPropagation();deletarMateria('${m.id}')">🗑️</button>
-        </div>
+        <button class="mini-btn btn-danger" onclick="event.stopPropagation();deletarMateria('${m.id}')">🗑️</button>
       </div>
       <div class="subject-progress" style="margin-top:10px">
         <div class="progress-bar"><div style="width:${m.progresso || 0}%"></div></div>
@@ -2650,10 +2623,7 @@ function renderPlanos() {
           ${p.data_inicio ? `<span class="tag tag-blue">📅 ${fmtData(p.data_inicio)} → ${fmtData(p.data_fim)}</span>` : ''}
           <p style="margin-top:8px">${p.conteudo}</p>
         </div>
-        <div style="display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end;margin-left:10px">
-          <button class="mini-btn btn-secondary" style="width:auto;padding:6px 10px" onclick="abrirCompartilharRegistro('plano','${p.id}')">📤</button>
-          <button class="mini-btn btn-danger" onclick="deletarPlano('${p.id}')" style="margin-left:0">🗑️</button>
-        </div>
+        <button class="mini-btn btn-danger" onclick="deletarPlano('${p.id}')" style="margin-left:10px">🗑️</button>
       </div>
     </div>
   `).join('');
@@ -4504,241 +4474,18 @@ async function adminCarregarOnline() {
   }).join('');
 }
 
-
-function formatarDuracaoAdmin(totalSegundos) {
-  totalSegundos = Math.max(0, parseInt(totalSegundos || 0, 10));
-  const h = Math.floor(totalSegundos / 3600);
-  const m = Math.floor((totalSegundos % 3600) / 60);
-  if (h <= 0) return `${m}min`;
-  return `${h}h ${m}min`;
-}
-
-function baixarExcelHtml(nomeArquivo, linhas, titulo = 'Relatório') {
-  if (!linhas || !linhas.length) {
-    toast('⚠️ Não há dados para exportar.');
-    return;
-  }
-  const colunas = Object.keys(linhas[0]);
-  const escapeHtml = (v) => String(v ?? '')
-    .replace(/&/g, '&amp;').replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
-  const tabela = `
-    <html xmlns:o="urn:schemas-microsoft-com:office:office"
-          xmlns:x="urn:schemas-microsoft-com:office:excel"
-          xmlns="http://www.w3.org/TR/REC-html40">
-    <head><meta charset="UTF-8"></head>
-    <body>
-      <table border="1">
-        <tr>${colunas.map(c => `<th>${escapeHtml(c)}</th>`).join('')}</tr>
-        ${linhas.map(l => `<tr>${colunas.map(c => `<td>${escapeHtml(l[c])}</td>`).join('')}</tr>`).join('')}
-      </table>
-    </body></html>`;
-  const blob = new Blob([tabela], { type: 'application/vnd.ms-excel;charset=utf-8;' });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = nomeArquivo;
-  document.body.appendChild(a);
-  a.click();
-  a.remove();
-  setTimeout(() => URL.revokeObjectURL(url), 1000);
-  toast('📥 Excel gerado: ' + nomeArquivo);
-}
-
-function adminExportarClientesExcel() {
-  const linhas = (window.adminClientesCache || []).map(c => ({
-    Nome: c.nome || '',
-    Email: c.email || '',
-    Telefone: c.telefone || '',
-    Status: c.status || '',
-    'Cliente desde': c.desde || '',
-    'Tempo registrado de estudo': c.tempo_estudo || '',
-    'Último acesso': c.ultimo_acesso || '',
-    'Pagamento': c.pagamento || ''
-  }));
-  baixarExcelHtml('clientes_vou_estudar.xls', linhas, 'Clientes');
-}
-
-function adminExportarVisitantesExcel() {
-  const linhas = (window.adminVisitantesCache || []).map(v => ({
-    Email: v.email || '',
-    Acoes: v.acoes || 0,
-    'Primeira ação': v.primeira_acao || '',
-    'Última ação': v.ultima_acao || '',
-    'Tempo de triagem': v.tempo_triagem || '',
-    Status: v.status || '',
-    Origem: v.origem || ''
-  }));
-  baixarExcelHtml('visitantes_vou_estudar.xls', linhas, 'Visitantes');
-}
-
-async function adminExcluirCliente(userId, email = '') {
-  const alvo = email || userId;
-  const ok = confirm(`Excluir este cadastro do sistema?
-
-${alvo}
-
-Isso vai remover os dados do app e tentar apagar também o perfil auxiliar.`);
-  if (!ok) return;
-
-  const tabelasPorUser = [
-    'materias','notas','planos_estudo','planos','planos_ia','prioridades',
-    'planos_personalizados','lembretes','sessoes_estudo','presencas',
-    'assinaturas','profiles','compartilhamentos','flashcards'
-  ];
-
-  const resultados = await Promise.allSettled(
-    tabelasPorUser.map(async (t) => {
-      try {
-        const campo = t === 'profiles' ? 'id' : 'user_id';
-        const { error } = await db.from(t).delete().eq(campo, userId);
-        return { tabela: t, error };
-      } catch (e) {
-        return { tabela: t, error: e };
-      }
-    })
-  );
-
-  const extras = [];
-  if (email) {
-    extras.push(db.from('visitantes_cadastro').delete().eq('email', email));
-    extras.push(db.from('profiles').delete().eq('email', email));
-  }
-
-  try {
-    extras.push(db.rpc('admin_delete_user', { p_user_id: userId }));
-  } catch(e) {}
-
-  const extrasRes = await Promise.allSettled(extras);
-
-  const falhas = [
-    ...resultados.filter(r => r.status === 'rejected'),
-    ...resultados.filter(r => r.status === 'fulfilled' && r.value?.error),
-    ...extrasRes.filter(r => r.status === 'rejected'),
-    ...extrasRes.filter(r => r.status === 'fulfilled' && r.value?.error)
-  ];
-
-  if (falhas.length) {
-    console.warn('Falhas ao excluir cliente:', falhas);
-    toast('⚠️ Parte do cadastro foi excluída. Se o login continuar existindo, falta função admin no Supabase.');
-  } else {
-    toast('🗑️ Cadastro excluído com sucesso.');
-  }
-
-  window.adminClientesExcluidos = window.adminClientesExcluidos || {};
-  window.adminClientesExcluidos[userId] = true;
-  await adminCarregarUsuarios();
-}
-
-async function adminExcluirVisitante(chave = '') {
-  try { chave = decodeURIComponent(chave || ''); } catch(e) {}
-  const visitante = (window.adminVisitantesCache || []).find(v => v.chave === chave) || null;
-  const rotulo = visitante?.email || visitante?.origem || chave || 'visitante';
-  if (!confirm(`Excluir registros deste visitante?
-
-${rotulo}`)) return;
-
-  const tentarExcluir = async (builder) => {
-    try {
-      const resp = await builder.select('id');
-      return {
-        error: resp?.error || null,
-        count: Array.isArray(resp?.data) ? resp.data.length : (resp?.count || 0)
-      };
-    } catch (e) {
-      return { error: e, count: 0 };
-    }
-  };
-
-  let totalExcluido = 0;
-  let ultimoErro = null;
-
-  if (visitante?.ids?.length) {
-    const idsValidos = [...new Set((visitante.ids || []).filter(Boolean))];
-    if (idsValidos.length) {
-      const tentativa = await tentarExcluir(
-        db.from('visitantes_cadastro').delete().in('id', idsValidos)
-      );
-      totalExcluido += tentativa.count || 0;
-      ultimoErro = tentativa.error || null;
-    }
-  }
-
-  if (totalExcluido === 0 && visitante?.email) {
-    const tentativa2 = await tentarExcluir(
-      db.from('visitantes_cadastro').delete().eq('email', visitante.email)
-    );
-    totalExcluido += tentativa2.count || 0;
-    ultimoErro = tentativa2.error || null;
-  }
-
-  if (totalExcluido === 0 && visitante?.origem) {
-    const tentativa3 = await tentarExcluir(
-      db.from('visitantes_cadastro').delete().eq('user_agent', visitante.origem)
-    );
-    totalExcluido += tentativa3.count || 0;
-    ultimoErro = tentativa3.error || null;
-  }
-
-  if (totalExcluido === 0 && visitante?.email && visitante?.origem) {
-    const tentativa4 = await tentarExcluir(
-      db.from('visitantes_cadastro').delete().match({
-        email: visitante.email,
-        user_agent: visitante.origem
-      })
-    );
-    totalExcluido += tentativa4.count || 0;
-    ultimoErro = tentativa4.error || null;
-  }
-
-  if (totalExcluido === 0 && !visitante && chave) {
-    const tentativa5 = await tentarExcluir(
-      db.from('visitantes_cadastro').delete().eq('email', chave)
-    );
-    totalExcluido += tentativa5.count || 0;
-    ultimoErro = tentativa5.error || null;
-  }
-
-  if (totalExcluido === 0) {
-    if (ultimoErro) {
-      const msg = (ultimoErro.message || '').toLowerCase();
-      if (msg.includes('policy') || msg.includes('permission') || msg.includes('not allowed')) {
-        toast('⚠️ O banco bloqueou a exclusão deste visitante. Falta permissão de DELETE no Supabase.');
-      } else {
-        toast('⚠️ Não foi possível excluir: ' + ultimoErro.message);
-      }
-    } else {
-      toast('⚠️ Nenhum registro foi excluído. Pode ser que já tenha sido removido ou que o banco esteja bloqueando a exclusão.');
-    }
-    return;
-  }
-
-  window.adminVisitantesCache = (window.adminVisitantesCache || []).filter(v => v.chave !== chave);
-  toast('🗑️ Visitante removido.');
-  await adminCarregarTentativasCadastro();
-}
-
 async function adminCarregarNovosCadastros() {
   const el = document.getElementById('adminNovosCadastros');
   if (!el) return;
 
+  // Busca assinaturas diretamente — sem RPC
   const { data: assinData } = await db.from('assinaturas')
     .select('user_id, ativa, trial_fim, data_pagamento, created_at')
     .order('created_at', { ascending: false });
   const assinMap = {};
   (assinData || []).forEach(a => { assinMap[a.user_id] = a; });
 
-  // Busca total de estudo por usuário
-  const { data: sessoesData } = await db.from('sessoes_estudo')
-    .select('user_id, segundos, data')
-    .order('data', { ascending: false });
-  const estudoMap = {};
-  const ultimoAcessoMap = {};
-  (sessoesData || []).forEach(s => {
-    estudoMap[s.user_id] = (estudoMap[s.user_id] || 0) + (s.segundos || 0);
-    if (!ultimoAcessoMap[s.user_id] && s.data) ultimoAcessoMap[s.user_id] = s.data;
-  });
-
+  // Tenta RPCs de email — com fallback silencioso
   let emails = window.adminUsersEmails || [];
   if (!emails.length) {
     try {
@@ -4755,12 +4502,14 @@ async function adminCarregarNovosCadastros() {
         if (d2?.length) emails = d2.map(u => ({ id: u.id, email: u.email || '', nome: '', telefone: '' }));
       } catch(e) {}
     }
+    // Fallback final: usa user_ids das assinaturas
     if (!emails.length && Object.keys(assinMap).length) {
       emails = Object.keys(assinMap).map(uid => ({ id: uid, email: '', nome: '', telefone: '' }));
     }
     if (emails.length) window.adminUsersEmails = emails;
   }
 
+  // Atualiza contadores
   const ativos = Object.values(assinMap).filter(a => a.ativa).length;
   const trial = Object.values(assinMap).filter(a => !a.ativa && a.trial_fim && new Date(a.trial_fim) > new Date()).length;
   const el1 = document.getElementById('adminTotalUsers');
@@ -4770,6 +4519,7 @@ async function adminCarregarNovosCadastros() {
   if (el2) el2.textContent = ativos;
   if (el3) el3.textContent = trial;
 
+  // Popula select compartilhar
   const sel = document.getElementById('compartilharUsuario');
   if (sel && emails.length) {
     sel.innerHTML = '<option value="">Selecione o usuário...</option>' +
@@ -4778,19 +4528,21 @@ async function adminCarregarNovosCadastros() {
         .join('');
   }
 
-  const excluidos = window.adminClientesExcluidos || {};
-  emails = emails.filter(u => !excluidos[u.id]);
-
+  // Sem dados
   if (!emails.length) {
     el.innerHTML = `<div style="padding:20px;text-align:center">
       <div style="font-size:32px;margin-bottom:10px">👥</div>
       <div style="font-size:14px;font-weight:600;margin-bottom:6px">Nenhum usuário encontrado</div>
-      <div style="font-size:12px;color:var(--muted)">Quando houver clientes cadastrados, eles aparecerão aqui.</div>
+      <div style="font-size:12px;color:var(--muted);margin-bottom:14px">Para ver emails e nomes, rode este SQL no Supabase:</div>
+      <code style="display:block;background:#f1f5f9;padding:10px 14px;border-radius:8px;font-size:11px;text-align:left;white-space:pre-wrap;color:#334155">create or replace function get_users_emails()
+returns table(id uuid, email text)
+language sql security definer as $$
+  select id, email from auth.users order by created_at desc;
+$$;</code>
+      <button onclick="adminCarregarUsuarios()" style="margin-top:12px;width:auto;padding:8px 20px;background:#2563eb;color:#fff;border:none;border-radius:8px;font-weight:700;cursor:pointer">🔄 Tentar novamente</button>
     </div>`;
     return;
   }
-
-  window.adminClientesCache = [];
 
   el.innerHTML = emails.map(u => {
     const assin = assinMap[u.id];
@@ -4799,11 +4551,9 @@ async function adminCarregarNovosCadastros() {
     const telefoneDisplay = u.telefone || '';
     const emailDisplay = u.email || u.id?.substring(0,12) + '…';
     const avatar = (nomeDisplay || emailDisplay || '?').charAt(0).toUpperCase();
-    const estudoSeg = estudoMap[u.id] || 0;
-    const estudoFmt = formatarDuracaoAdmin(estudoSeg);
-    const ultimoAcesso = ultimoAcessoMap[u.id] ? new Date(ultimoAcessoMap[u.id]).toLocaleString('pt-BR') : 'Sem sessão registrada';
 
     let trialInfo = '', statusBg, statusColor, status;
+
     if (assin?.ativa) {
       statusBg = '#f0fdf4'; statusColor = '#16a34a'; status = '✅ Ativo';
     } else if (assin?.trial_fim) {
@@ -4815,7 +4565,7 @@ async function adminCarregarNovosCadastros() {
         const mins = Math.floor((diffMs % 3600000) / 60000);
         const tempoStr = dias > 0 ? `${dias}d ${horas}h` : horas > 0 ? `${horas}h ${mins}min` : `${mins}min`;
         const urgente = diffMs < 24 * 3600000;
-        trialInfo = `<div style="font-size:11px;color:${urgente?'#dc2626':'#d97706'};font-weight:600">⏱️ Trial restante: ${tempoStr}</div>`;
+        trialInfo = `<div style="font-size:11px;color:${urgente?'#dc2626':'#d97706'};font-weight:600">⏱️ ${tempoStr} restantes</div>`;
         statusBg = urgente ? '#fef2f2' : '#fffbeb';
         statusColor = urgente ? '#dc2626' : '#d97706';
         status = urgente ? '🔴 Expirando' : '⏳ Trial';
@@ -4827,22 +4577,8 @@ async function adminCarregarNovosCadastros() {
       statusBg = '#fffbeb'; statusColor = '#d97706'; status = '⏳ Novo';
     }
 
-    const dataPagTxt = assin?.data_pagamento ? new Date(assin.data_pagamento).toLocaleDateString('pt-BR') : '';
-    const dataPag = dataPagTxt ? `<div style="font-size:11px;color:#059669;font-weight:600">💳 Pagou em: ${dataPagTxt}</div>` : '';
-    const dataEntradaTxt = assin?.created_at ? new Date(assin.created_at).toLocaleDateString('pt-BR') : '';
-    const dataEntrada = dataEntradaTxt ? `<div style="font-size:10px;color:var(--muted)">Cliente desde: ${dataEntradaTxt}</div>` : '';
-
-    window.adminClientesCache.push({
-      id: u.id,
-      nome: nomeDisplay,
-      email: u.email || '',
-      telefone: telefoneDisplay,
-      status,
-      desde: dataEntradaTxt,
-      tempo_estudo: estudoFmt,
-      ultimo_acesso: ultimoAcesso,
-      pagamento: dataPagTxt
-    });
+    const dataPag = assin?.data_pagamento ? `<div style="font-size:11px;color:#059669;font-weight:600">💳 Pagou em: ${new Date(assin.data_pagamento).toLocaleDateString('pt-BR')}</div>` : '';
+    const dataEntrada = assin?.created_at ? `<div style="font-size:10px;color:var(--muted)">Desde: ${new Date(assin.created_at).toLocaleDateString('pt-BR')}</div>` : '';
 
     return `<div style="display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--border);flex-wrap:wrap">
       <div style="width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,#2563eb,#3b82f6);display:grid;place-items:center;font-size:15px;font-weight:700;color:#fff;flex-shrink:0">${avatar}</div>
@@ -4852,17 +4588,12 @@ async function adminCarregarNovosCadastros() {
         </div>
         ${telefoneDisplay ? `<div style="font-size:11px;color:#059669;font-weight:600">📱 ${telefoneDisplay}</div>` : ''}
         ${trialInfo}${dataPag}${dataEntrada}
-        <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:4px">
-          <div style="font-size:11px;color:#1d4ed8;font-weight:600">⏱️ Tempo registrado no sistema: ${estudoFmt}</div>
-          <div style="font-size:11px;color:var(--muted)">🕓 Último uso: ${ultimoAcesso}</div>
-        </div>
       </div>
       <div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px;flex-shrink:0">
         <span style="font-size:10px;background:${statusBg};color:${statusColor};padding:3px 10px;border-radius:20px;font-weight:700;white-space:nowrap">${status}</span>
-        <div style="display:flex;gap:4px;flex-wrap:wrap;justify-content:flex-end">
+        <div style="display:flex;gap:4px">
           ${!assin?.ativa ? `<button onclick="adminAtivarPorId('${u.id}')" class="mini-btn" style="width:auto;padding:3px 10px;font-size:10px">Ativar</button>` : `<button onclick="adminDesativarPorId('${u.id}')" class="mini-btn btn-secondary" style="width:auto;padding:3px 10px;font-size:10px">Desativar</button>`}
           ${u.email ? `<button onclick="adminEnviarEmail('${u.email}')" style="font-size:10px;padding:3px 8px;border-radius:8px;background:#eff6ff;color:#2563eb;border:1px solid #dbeafe;cursor:pointer;width:auto">📧</button>` : ''}
-          <button onclick="adminExcluirCliente('${u.id}','${(u.email || '').replace(/'/g, "\'")}')" style="font-size:10px;padding:3px 8px;border-radius:8px;background:#fef2f2;color:#dc2626;border:1px solid #fecaca;cursor:pointer;width:auto">🗑️</button>
         </div>
       </div>
     </div>`;
@@ -4907,66 +4638,66 @@ async function registrarVisitanteCadastro(acao, email = null) {
   } catch(e) {}
 }
 
-async function adminCarregarTentativasCadastro() {
+let _visitantesFiltro = 'hoje';
+let _visitantesData = [];
+
+function adminFiltrarVisitantes(periodo) {
+  _visitantesFiltro = periodo;
+  // Atualiza botões
+  ['hoje','ontem','semana','mes','tudo'].forEach(p => {
+    const btn = document.getElementById('filtro' + p.charAt(0).toUpperCase() + p.slice(1));
+    if (!btn) return;
+    if (p === periodo) {
+      btn.style.background = '#2563eb'; btn.style.color = '#fff'; btn.style.border = 'none';
+    } else {
+      btn.style.background = ''; btn.style.color = ''; btn.style.border = '';
+      btn.classList.add('btn-secondary');
+    }
+  });
+  _renderVisitantes(_visitantesData, periodo);
+}
+
+function _renderVisitantes(data, periodo) {
   const el = document.getElementById('adminTentativasCadastro');
   if (!el) return;
 
-  const { data, error } = await db.from('visitantes_cadastro')
-    .select('*')
-    .order('created_at', { ascending: false })
-    .limit(500);
+  const agora = new Date();
+  const inicioDia = new Date(agora); inicioDia.setHours(0,0,0,0);
+  const inicioOntem = new Date(inicioDia); inicioOntem.setDate(inicioOntem.getDate()-1);
+  const fimOntem = new Date(inicioDia);
+  const inicioSemana = new Date(inicioDia); inicioSemana.setDate(inicioSemana.getDate()-7);
+  const inicioMes = new Date(inicioDia); inicioMes.setDate(1);
 
-  if (error) {
-    el.innerHTML = '<div class="empty-state" style="padding:16px;font-size:12px;color:var(--red)">⚠️ Erro: ' + error.message + '<br>Verifique se a tabela "visitantes_cadastro" existe no Supabase.</div>';
+  let filtrado = data;
+  if (periodo === 'hoje') filtrado = data.filter(d => new Date(d.created_at) >= inicioDia);
+  else if (periodo === 'ontem') filtrado = data.filter(d => new Date(d.created_at) >= inicioOntem && new Date(d.created_at) < fimOntem);
+  else if (periodo === 'semana') filtrado = data.filter(d => new Date(d.created_at) >= inicioSemana);
+  else if (periodo === 'mes') filtrado = data.filter(d => new Date(d.created_at) >= inicioMes);
+
+  const periodoLabel = {hoje:'hoje',ontem:'ontem',semana:'últimos 7 dias',mes:'este mês',tudo:'todos os registros'};
+
+  if (!filtrado.length) {
+    el.innerHTML = `<div class="empty-state"><div class="empty-icon">👀</div>Nenhuma visita registrada ${periodoLabel[periodo]}.</div>`;
     return;
   }
 
-  if (!data || !data.length) {
-    el.innerHTML = '<div class="empty-state"><div class="empty-icon">👀</div>Nenhuma visita registrada ainda.</div>';
-    window.adminVisitantesCache = [];
-    return;
-  }
-
-  const abriuForm = data.filter(d => d.acao === 'abriu_form').length;
-  const tentativas = data.filter(d => d.acao === 'tentativa').length;
-  const sucessos = data.filter(d => d.acao === 'sucesso').length;
+  const abriuForm = filtrado.filter(d => d.acao === 'abriu_form').length;
+  const tentativas = filtrado.filter(d => d.acao === 'tentativa').length;
+  const sucessos = filtrado.filter(d => d.acao === 'sucesso').length;
   const abandonos = Math.max(0, abriuForm - tentativas);
   const taxaConversao = tentativas > 0 ? Math.round(sucessos / tentativas * 100) : 0;
 
-  const grupos = {};
-  data.slice().reverse().forEach(d => {
-    const chave = d.email || d.user_agent || ('registro-' + d.id);
-    if (!grupos[chave]) grupos[chave] = [];
-    grupos[chave].push(d);
+  // Agrupa por visitante (email ou session)
+  const visitantes = {};
+  filtrado.forEach(d => {
+    const key = d.email || d.session_id || 'anon_' + d.id;
+    if (!visitantes[key]) visitantes[key] = { email: d.email, acoes: [], primeiraAcao: d.created_at, ultimaAcao: d.created_at, dispositivo: d.user_agent || '' };
+    visitantes[key].acoes.push(d);
+    if (new Date(d.created_at) < new Date(visitantes[key].primeiraAcao)) visitantes[key].primeiraAcao = d.created_at;
+    if (new Date(d.created_at) > new Date(visitantes[key].ultimaAcao)) visitantes[key].ultimaAcao = d.created_at;
   });
 
-  const agrupados = Object.entries(grupos).map(([chave, itens]) => {
-    const ordenados = itens.slice().sort((a,b) => new Date(a.created_at) - new Date(b.created_at));
-    const primeiro = ordenados[0];
-    const ultimo = ordenados[ordenados.length - 1];
-    const duracaoSeg = Math.max(0, Math.floor((new Date(ultimo.created_at) - new Date(primeiro.created_at)) / 1000));
-    const status = ordenados.some(i => i.acao === 'sucesso') ? '✅ Cadastrou'
-      : ordenados.some(i => i.acao === 'erro') ? '⚠️ Com erro'
-      : ordenados.some(i => i.acao === 'tentativa') ? '🟡 Em triagem'
-      : '👀 Visitou';
-    return {
-      chave,
-      ids: ordenados.map(i => i.id).filter(Boolean),
-      email: primeiro.email || '',
-      origem: primeiro.user_agent || '',
-      acoes: ordenados.length,
-      primeira_acao: new Date(primeiro.created_at).toLocaleString('pt-BR'),
-      ultima_acao: new Date(ultimo.created_at).toLocaleString('pt-BR'),
-      tempo_triagem: formatarDuracaoAdmin(duracaoSeg),
-      status
-    };
-  }).sort((a,b) => {
-    const pa = a.ultima_acao.split(/[\/,: ]/).reverse().join('');
-    const pb = b.ultima_acao.split(/[\/,: ]/).reverse().join('');
-    return pb.localeCompare(pa);
-  });
-
-  window.adminVisitantesCache = agrupados;
+  const listaVisitantes = Object.values(visitantes).sort((a,b) => new Date(b.ultimaAcao) - new Date(a.ultimaAcao));
 
   el.innerHTML = `
     <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:16px">
@@ -4987,30 +4718,204 @@ async function adminCarregarTentativasCadastro() {
         <div style="font-size:11px;color:#15803d;font-weight:600">Taxa conversão</div>
       </div>
     </div>
-    <div style="display:flex;flex-direction:column;gap:10px">
-      ${agrupados.map(v => `
-        <div style="border:1px solid var(--border);border-radius:12px;padding:12px;background:#fff">
-          <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:10px;flex-wrap:wrap">
-            <div style="min-width:0;flex:1">
-              <div style="font-size:13px;font-weight:700;color:var(--text);overflow:hidden;text-overflow:ellipsis">${v.email || 'Visitante sem e-mail'}</div>
-              <div style="font-size:11px;color:var(--muted);margin-top:3px">Primeira ação: ${v.primeira_acao}</div>
-              <div style="font-size:11px;color:var(--muted)">Última ação: ${v.ultima_acao}</div>
-              <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:6px">
-                <span style="font-size:11px;color:#2563eb;font-weight:700">⏱️ Tempo de triagem: ${v.tempo_triagem}</span>
-                <span style="font-size:11px;color:#475569">🧩 ${v.acoes} ação(ões)</span>
+    <div style="font-size:11px;color:var(--muted);margin-bottom:10px;display:flex;justify-content:space-between;align-items:center">
+      <span>${listaVisitantes.length} visitante(s) — ${periodoLabel[periodo]}</span>
+      ${listaVisitantes.length > 5 ? `<button onclick="adminVerTodosVisitantes()" style="font-size:11px;background:none;border:none;color:#2563eb;cursor:pointer;font-weight:600;padding:0">Ver todos ${listaVisitantes.length} →</button>` : ''}
+    </div>
+    <div id="listaVisitantesWrap">
+      ${listaVisitantes.slice(0, 5).map(v => {
+        const cadastrou = v.acoes.some(a => a.acao === 'sucesso');
+        const tentou = v.acoes.some(a => a.acao === 'tentativa');
+        const statusCor = cadastrou ? '#059669' : tentou ? '#d97706' : '#94a3b8';
+        const statusBg = cadastrou ? '#f0fdf4' : tentou ? '#fffbeb' : '#f8fafc';
+        const statusLabel = cadastrou ? '✅ Cadastrou' : tentou ? '📝 Tentou' : '👀 Visitou';
+        const tempoTotal = Math.round((new Date(v.ultimaAcao) - new Date(v.primeiraAcao)) / 60000);
+        const tempoStr = tempoTotal < 1 ? '< 1min' : tempoTotal < 60 ? tempoTotal + 'min' : Math.round(tempoTotal/60) + 'h ' + (tempoTotal%60) + 'min';
+        const primeiraFmt = new Date(v.primeiraAcao).toLocaleString('pt-BR', {day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'});
+        const ultimaFmt = new Date(v.ultimaAcao).toLocaleString('pt-BR', {day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'});
+        const dispositivo = v.dispositivo ? v.dispositivo.substring(0, 80) : '';
+        return `<div style="padding:12px 0;border-bottom:1px solid var(--border)">
+          <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px;flex-wrap:wrap">
+            <div style="flex:1;min-width:0">
+              <div style="font-size:13px;font-weight:600;color:var(--text)">${v.email || 'Visitante sem e-mail'}</div>
+              <div style="font-size:11px;color:var(--muted);margin-top:2px">
+                Primeira ação: ${primeiraFmt} · Última ação: ${ultimaFmt}
               </div>
+              <div style="font-size:11px;color:#2563eb;font-weight:600;margin-top:2px">
+                ⏱️ Tempo de triagem: ${tempoStr} &nbsp;·&nbsp; 🔘 ${v.acoes.length} ação(ões)
+              </div>
+              ${dispositivo ? `<div style="font-size:10px;color:var(--muted);margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${dispositivo}</div>` : ''}
             </div>
-            <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">
-              <span style="font-size:10px;padding:4px 10px;border-radius:999px;background:#eff6ff;color:#2563eb;font-weight:700">${v.status}</span>
-              <button onclick="adminExcluirVisitante(encodeURIComponent('${v.chave || ''}'))" style="font-size:10px;padding:4px 8px;border-radius:8px;background:#fef2f2;color:#dc2626;border:1px solid #fecaca;cursor:pointer;width:auto">🗑️ Excluir</button>
-            </div>
+            <span style="font-size:10px;font-weight:700;padding:3px 10px;border-radius:20px;background:${statusBg};color:${statusCor};white-space:nowrap;flex-shrink:0">${statusLabel}</span>
           </div>
-          ${v.origem ? `<div style="font-size:10px;color:#94a3b8;margin-top:6px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${v.origem}</div>` : ''}
-        </div>
-      `).join('')}
+        </div>`;
+      }).join('')}
     </div>`;
+
+  // Guarda lista completa para o botão "ver todos"
+  window._listaVisitantesCompleta = listaVisitantes;
 }
 
+function adminVerTodosVisitantes() {
+  const lista = window._listaVisitantesCompleta || [];
+  const wrap = document.getElementById('listaVisitantesWrap');
+  if (!wrap) return;
+  wrap.innerHTML = lista.map(v => {
+    const cadastrou = v.acoes.some(a => a.acao === 'sucesso');
+    const tentou = v.acoes.some(a => a.acao === 'tentativa');
+    const statusCor = cadastrou ? '#059669' : tentou ? '#d97706' : '#94a3b8';
+    const statusBg = cadastrou ? '#f0fdf4' : tentou ? '#fffbeb' : '#f8fafc';
+    const statusLabel = cadastrou ? '✅ Cadastrou' : tentou ? '📝 Tentou' : '👀 Visitou';
+    const tempoTotal = Math.round((new Date(v.ultimaAcao) - new Date(v.primeiraAcao)) / 60000);
+    const tempoStr = tempoTotal < 1 ? '< 1min' : tempoTotal < 60 ? tempoTotal + 'min' : Math.round(tempoTotal/60) + 'h ' + (tempoTotal%60) + 'min';
+    const primeiraFmt = new Date(v.primeiraAcao).toLocaleString('pt-BR', {day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'});
+    const ultimaFmt = new Date(v.ultimaAcao).toLocaleString('pt-BR', {day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'});
+    const dispositivo = v.dispositivo ? v.dispositivo.substring(0, 80) : '';
+    return `<div style="padding:12px 0;border-bottom:1px solid var(--border)">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px;flex-wrap:wrap">
+        <div style="flex:1;min-width:0">
+          <div style="font-size:13px;font-weight:600;color:var(--text)">${v.email || 'Visitante sem e-mail'}</div>
+          <div style="font-size:11px;color:var(--muted);margin-top:2px">Primeira ação: ${primeiraFmt} · Última ação: ${ultimaFmt}</div>
+          <div style="font-size:11px;color:#2563eb;font-weight:600;margin-top:2px">⏱️ ${tempoStr} &nbsp;·&nbsp; 🔘 ${v.acoes.length} ação(ões)</div>
+          ${dispositivo ? `<div style="font-size:10px;color:var(--muted);margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${dispositivo}</div>` : ''}
+        </div>
+        <span style="font-size:10px;font-weight:700;padding:3px 10px;border-radius:20px;background:${statusBg};color:${statusCor};white-space:nowrap;flex-shrink:0">${statusLabel}</span>
+      </div>
+    </div>`;
+  }).join('') + `<button onclick="adminVerTodosVisitantes._collapsed=true;adminFiltrarVisitantes('${_visitantesFiltro}')" style="margin-top:10px;font-size:11px;background:none;border:none;color:#94a3b8;cursor:pointer;padding:0">← Mostrar menos</button>`;
+}
+
+async function adminCarregarTentativasCadastro() {
+  const el = document.getElementById('adminTentativasCadastro');
+  if (!el) return;
+
+  const { data, error } = await db.from('visitantes_cadastro')
+    .select('*')
+    .order('created_at', { ascending: false })
+    .limit(500);
+
+  if (error) {
+    el.innerHTML = '<div class="empty-state" style="color:#dc2626">⚠️ Erro: ' + error.message + '</div>';
+    return;
+  }
+
+  _visitantesData = data || [];
+  _renderVisitantes(_visitantesData, _visitantesFiltro);
+}
+
+// ══ COMPARTILHAR MÓDULOS ══
+function adminCompartilharComUsuario(userId) {
+  const sel = document.getElementById('compartilharUsuario');
+  if (sel) sel.value = userId;
+  document.getElementById('compMaterias').checked = true;
+  document.getElementById('compNotas').checked = true;
+  document.getElementById('compPlanos').checked = true;
+  document.getElementById('compPrioridades').checked = true;
+  document.getElementById('compPlanosInt').checked = true;
+  document.getElementById('compartilharUsuario').scrollIntoView({ behavior: 'smooth' });
+  toast('👆 Usuário selecionado! Confirme os módulos e clique em Compartilhar.');
+}
+
+async function adminCompartilharModulos() {
+  const userId = document.getElementById('compartilharUsuario').value;
+  if (!userId) return mostrarCompartilharMsg('Selecione um usuário.', 'error');
+
+  const modMaterias = document.getElementById('compMaterias').checked;
+  const modNotas = document.getElementById('compNotas').checked;
+  const modPlanos = document.getElementById('compPlanos').checked;
+  const modPrioridades = document.getElementById('compPrioridades').checked;
+  const modPlanosInt = document.getElementById('compPlanosInt').checked;
+
+  if (!modMaterias && !modNotas && !modPlanos && !modPrioridades && !modPlanosInt) {
+    return mostrarCompartilharMsg('Selecione pelo menos um módulo.', 'error');
+  }
+
+  mostrarCompartilharMsg('⏳ Compartilhando...', 'info');
+
+  let total = 0;
+  let erros = 0;
+
+  // Compartilhar Matérias
+  if (modMaterias) {
+    const { data } = await db.from('materias').select('*').eq('user_id', currentUser.id);
+    if (data && data.length) {
+      for (const item of data) {
+        const novo = { ...item, id: undefined, user_id: userId, created_at: undefined };
+        const { error } = await db.from('materias').insert([novo]);
+        if (!error) total++; else erros++;
+      }
+    }
+  }
+
+  // Compartilhar Notas
+  if (modNotas) {
+    const { data } = await db.from('notas').select('*').eq('user_id', currentUser.id);
+    if (data && data.length) {
+      for (const item of data) {
+        const novo = { ...item, id: undefined, user_id: userId, created_at: undefined, materia_id: null };
+        const { error } = await db.from('notas').insert([novo]);
+        if (!error) total++; else erros++;
+      }
+    }
+  }
+
+  // Compartilhar Planos de Estudo
+  if (modPlanos) {
+    const { data } = await db.from('planos').select('*').eq('user_id', currentUser.id);
+    if (data && data.length) {
+      for (const item of data) {
+        const novo = { ...item, id: undefined, user_id: userId, created_at: undefined };
+        const { error } = await db.from('planos').insert([novo]);
+        if (!error) total++; else erros++;
+      }
+    }
+  }
+
+  // Compartilhar Prioridades
+  if (modPrioridades) {
+    const { data } = await db.from('prioridades').select('*').eq('user_id', currentUser.id);
+    if (data && data.length) {
+      for (const item of data) {
+        const novo = { ...item, id: undefined, user_id: userId, created_at: undefined };
+        const { error } = await db.from('prioridades').insert([novo]);
+        if (!error) total++; else erros++;
+      }
+    }
+  }
+
+  // Compartilhar Planos Inteligentes
+  if (modPlanosInt) {
+    const { data } = await db.from('planos_ia').select('*').eq('user_id', currentUser.id);
+    if (data && data.length) {
+      for (const item of data) {
+        const novo = { ...item, id: undefined, user_id: userId, created_at: undefined };
+        const { error } = await db.from('planos_ia').insert([novo]);
+        if (!error) total++; else erros++;
+      }
+    }
+  }
+
+  if (erros === 0) {
+    mostrarCompartilharMsg('✅ ' + total + ' item(ns) compartilhado(s) com sucesso!', 'success');
+  } else {
+    mostrarCompartilharMsg('⚠️ ' + total + ' compartilhados, ' + erros + ' erros (itens duplicados ignorados).', 'warn');
+  }
+}
+
+function mostrarCompartilharMsg(txt, tipo) {
+  const el = document.getElementById('compartilharMsg');
+  el.textContent = txt;
+  el.style.display = 'block';
+  el.style.padding = '10px 14px';
+  el.style.borderRadius = '8px';
+  if (tipo === 'success') { el.style.color = '#059669'; el.style.background = '#f0fdf4'; el.style.border = '1px solid #bbf7d0'; }
+  else if (tipo === 'error') { el.style.color = '#dc2626'; el.style.background = '#fef2f2'; el.style.border = '1px solid #fecaca'; }
+  else if (tipo === 'warn') { el.style.color = '#d97706'; el.style.background = '#fffbeb'; el.style.border = '1px solid #fde68a'; }
+  else { el.style.color = '#1d4ed8'; el.style.background = '#eff6ff'; el.style.border = '1px solid #dbeafe'; }
+  if (tipo !== 'info') setTimeout(() => { el.style.display = 'none'; }, 5000);
+}
+
+// ══ TEMPO DE ACESSO POR DIA ══
 async function adminCarregarTempoAcesso() {
   const el = document.getElementById('adminTempoAcesso');
   if (!el) return;
@@ -5057,9 +4962,8 @@ async function adminCarregarTempoAcesso() {
 
   // Ordenar por total desc
   const lista = Object.values(porUser).sort((a,b) => b.totalSeg - a.totalSeg);
-  const totalGeralSeg = lista.reduce((acc, u) => acc + u.totalSeg, 0);
 
-  el.innerHTML = `<div style="margin-bottom:12px;padding:12px 14px;border:1px solid #dbeafe;background:#eff6ff;border-radius:12px;font-size:13px;color:#1d4ed8;font-weight:700">⏱️ Tempo total registrado no sistema neste período: ${formatarDuracaoAdmin(totalGeralSeg)}</div>` + lista.map(u => {
+  el.innerHTML = lista.map(u => {
     const emailInfo = emails.find(e => e.id === u.user_id);
     const email = emailInfo ? (emailInfo.raw_user_meta_data?.nome || emailInfo.nome || emailInfo.email) + ' — ' + emailInfo.email : u.user_id.substring(0,12) + '...';
     const totalH = Math.floor(u.totalSeg / 3600);
@@ -5628,131 +5532,6 @@ function irParaEsqueci()  { _abrirApp('forgot'); }
 function irParaCadastro() { _abrirApp('register'); }
 function irParaLogin()    { _abrirApp('login'); }
 function irParaEsqueci()  { _abrirApp('forgot'); }
-
-window._compartilharRegistroAtual = null;
-
-async function carregarUsuariosCompartilhamento() {
-  let usuarios = Array.isArray(window.adminUsersEmails) ? window.adminUsersEmails.filter(u => u && u.id && u.email) : [];
-  if (!usuarios.length) {
-    try {
-      const { data } = await db.rpc('get_admin_users_overview');
-      if (data?.length) usuarios = data.map(u => ({
-        id: u.id, email: u.email || '', nome: u.nome || '', telefone: u.telefone || ''
-      })).filter(u => u.id && u.email);
-    } catch(e) {}
-  }
-  if (!usuarios.length) {
-    try {
-      const { data } = await db.rpc('get_users_emails');
-      if (data?.length) usuarios = data.map(u => ({
-        id: u.id, email: u.email || '', nome: u.nome || '', telefone: u.telefone || ''
-      })).filter(u => u.id && u.email);
-    } catch(e) {}
-  }
-  if (!usuarios.length) {
-    throw new Error('Não foi possível carregar os usuários cadastrados.');
-  }
-  window.adminUsersEmails = usuarios;
-  return usuarios;
-}
-
-async function abrirCompartilharRegistro(tipo, id) {
-  try {
-    let item = null;
-    if (tipo === 'materia') item = (materias || []).find(x => x.id === id);
-    if (tipo === 'plano') item = (planos || []).find(x => x.id === id);
-    if (!item) return toast('Registro não encontrado.');
-
-    const usuarios = await carregarUsuariosCompartilhamento();
-    const select = document.getElementById('compartilharRegistroUsuario');
-    const titulo = document.getElementById('compartilharRegistroTitulo');
-    const resumo = document.getElementById('compartilharRegistroResumo');
-    if (!select || !titulo || !resumo) return;
-
-    const outros = usuarios.filter(u => u.id !== currentUser?.id);
-    select.innerHTML = '<option value="">Selecione o usuário...</option>' +
-      outros.map(u => `<option value="${u.id}">${u.nome ? (u.nome + ' — ') : ''}${u.email}</option>`).join('');
-
-    if (!outros.length) {
-      return toast('Nenhum outro usuário cadastrado encontrado.');
-    }
-
-    window._compartilharRegistroAtual = { tipo, id };
-    titulo.textContent = tipo === 'materia' ? '📤 Compartilhar matéria' : '📤 Compartilhar plano';
-    resumo.textContent = tipo === 'materia'
-      ? `Matéria: ${item.nome}. Selecione o usuário cadastrado que vai receber.`
-      : `Plano: ${item.titulo}. Selecione o usuário cadastrado que vai receber.`;
-
-    document.getElementById('modalCompartilharRegistro').classList.remove('hidden');
-    document.getElementById('modalCompartilharRegistro').style.display = 'flex';
-  } catch (e) {
-    console.error(e);
-    toast('Erro ao abrir compartilhamento: ' + (e.message || e));
-  }
-}
-
-function fecharCompartilharRegistro() {
-  const modal = document.getElementById('modalCompartilharRegistro');
-  if (modal) {
-    modal.classList.add('hidden');
-    modal.style.display = 'none';
-  }
-  window._compartilharRegistroAtual = null;
-}
-
-async function confirmarCompartilharRegistro() {
-  const ref = window._compartilharRegistroAtual;
-  const select = document.getElementById('compartilharRegistroUsuario');
-  const btn = document.getElementById('btnConfirmarCompartilharRegistro');
-  if (!ref) return toast('Nada selecionado para compartilhar.');
-  if (!select?.value) return toast('Selecione o usuário que vai receber.');
-
-  const destinatarioId = select.value;
-  const usuarios = window.adminUsersEmails || [];
-  const destinatario = usuarios.find(u => u.id === destinatarioId);
-  const originalLabel = btn ? btn.innerHTML : '';
-  if (btn) { btn.disabled = true; btn.innerHTML = '<span class="spinner"></span>'; }
-
-  try {
-    if (ref.tipo === 'materia') {
-      const origem = (materias || []).find(x => x.id === ref.id);
-      if (!origem) throw new Error('Matéria não encontrada.');
-      const payload = { ...origem };
-      delete payload.id;
-      delete payload.created_at;
-      delete payload.updated_at;
-      payload.user_id = destinatarioId;
-      const { error } = await db.from('materias').insert([payload]);
-      if (error) throw error;
-      toast('✅ Matéria compartilhada com ' + (destinatario?.email || 'o usuário') + '!');
-    } else if (ref.tipo === 'plano') {
-      const origem = (planos || []).find(x => x.id === ref.id);
-      if (!origem) throw new Error('Plano não encontrado.');
-      const payload = { ...origem };
-      delete payload.id;
-      delete payload.created_at;
-      delete payload.updated_at;
-      payload.user_id = destinatarioId;
-      const { error } = await db.from('planos').insert([payload]);
-      if (error) throw error;
-      toast('✅ Plano compartilhado com ' + (destinatario?.email || 'o usuário') + '!');
-    } else {
-      throw new Error('Tipo de compartilhamento inválido.');
-    }
-    fecharCompartilharRegistro();
-  } catch (e) {
-    console.error('Erro ao compartilhar registro:', e);
-    const msg = e?.message || 'Falha ao compartilhar.';
-    if (/row-level security|permission|policy/i.test(msg)) {
-      toast('Seu Supabase bloqueou o compartilhamento. Libere insert para o destino ou use função admin.');
-    } else {
-      toast('Erro ao compartilhar: ' + msg);
-    }
-  } finally {
-    if (btn) { btn.disabled = false; btn.innerHTML = originalLabel; }
-  }
-}
-
 </script>
 </body>
 </html>
