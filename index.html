@@ -1932,8 +1932,11 @@ async function carregarApp() {
   document.getElementById('sidebarEmail').textContent = currentUser.email;
   document.getElementById('sidebarAvatar').textContent = inicial;
 
+  // Carrega matérias primeiro (base do gráfico do dashboard)
+  await carregarMaterias();
+
+  // Resto em paralelo
   await Promise.all([
-    carregarMaterias(),
     carregarNotas(),
     carregarPlanos(),
     carregarPrioridades(),
@@ -2188,7 +2191,10 @@ function goTab(tab) {
   document.getElementById('topbarSub').textContent = sub;
 
   if (tab === 'admin') adminCarregarUsuarios();
-  if (tab === 'dashboard') atualizarDashboard();
+  if (tab === 'dashboard') {
+    // Aguarda a aba ficar visível antes de renderizar o gráfico
+    setTimeout(() => atualizarDashboard(), 50);
+  }
 
   // Update bottom nav active state
   setActiveBottomNav(tab);
@@ -2208,6 +2214,8 @@ async function carregarMaterias() {
   materias = data || [];
   renderMaterias();
   atualizarSelectMateria();
+  // Sempre atualiza o dashboard ao carregar matérias (garante gráfico atualizado)
+  atualizarDashboard();
 }
 
 function renderMaterias() {
@@ -2592,44 +2600,71 @@ function atualizarDashboard() {
 }
 
 function renderChart() {
-  const canvas = document.getElementById('chartMaterias');
-  if (!canvas) return;
+  const wrap = document.querySelector('.chart-wrap');
+  const old = document.getElementById('chartMaterias');
+  if (!wrap) return;
 
-  // Destrói instância anterior de forma segura
+  // Destrói instância anterior
   if (chartInstance) {
     try { chartInstance.destroy(); } catch(e) {}
     chartInstance = null;
   }
 
-  // Recria o canvas para evitar state corrompido
-  const parent = canvas.parentElement;
+  // Recria canvas limpo
+  if (old) old.remove();
   const newCanvas = document.createElement('canvas');
   newCanvas.id = 'chartMaterias';
-  parent.innerHTML = '';
-  parent.appendChild(newCanvas);
+  newCanvas.setAttribute('role', 'img');
+  newCanvas.setAttribute('aria-label', 'Gráfico de progresso por matéria');
+  wrap.appendChild(newCanvas);
 
   if (!materias.length) return;
 
-  chartInstance = new Chart(newCanvas.getContext('2d'), {
-    type: 'bar',
-    data: {
-      labels: materias.map(m => m.nome.length > 14 ? m.nome.substring(0,13)+'…' : m.nome),
-      datasets: [{
-        label: 'Progresso (%)',
-        data: materias.map(m => m.progresso || 0),
-        backgroundColor: materias.map(m => (m.cor || '#4f5ef7') + '33'),
-        borderColor: materias.map(m => m.cor || '#4f5ef7'),
-        borderWidth: 2, borderRadius: 8
-      }]
-    },
-    options: {
-      responsive: true, maintainAspectRatio: false,
-      scales: {
-        y: { beginAtZero: true, max: 100, grid: { color: '#e4e8f5' }, ticks: { callback: v => v + '%' } },
-        x: { grid: { display: false } }
-      },
-      plugins: { legend: { display: false } }
-    }
+  // Pequeno delay para o canvas ter dimensões reais no DOM
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+      try {
+        chartInstance = new Chart(newCanvas.getContext('2d'), {
+          type: 'bar',
+          data: {
+            labels: materias.map(m => m.nome.length > 14 ? m.nome.substring(0,13)+'…' : m.nome),
+            datasets: [{
+              label: 'Progresso (%)',
+              data: materias.map(m => m.progresso || 0),
+              backgroundColor: materias.map(m => (m.cor || '#4f5ef7') + '33'),
+              borderColor: materias.map(m => m.cor || '#4f5ef7'),
+              borderWidth: 2,
+              borderRadius: 8
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            animation: { duration: 600 },
+            scales: {
+              y: {
+                beginAtZero: true,
+                max: 100,
+                grid: { color: '#e4e8f5' },
+                ticks: { callback: v => v + '%', font: { size: 11 } }
+              },
+              x: {
+                grid: { display: false },
+                ticks: { font: { size: 11 }, maxRotation: 30 }
+              }
+            },
+            plugins: {
+              legend: { display: false },
+              tooltip: {
+                callbacks: {
+                  label: ctx => ' ' + ctx.raw + '% concluído'
+                }
+              }
+            }
+          }
+        });
+      } catch(e) { console.warn('Chart render erro:', e); }
+    });
   });
 }
 
