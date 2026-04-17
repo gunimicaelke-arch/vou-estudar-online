@@ -4572,143 +4572,208 @@ function adminExportarVisitantesExcel() {
   baixarExcelHtml('visitantes_vou_estudar.xls', linhas, 'Visitantes');
 }
 
+
+async function adminCompartilharModulos() {
+  const sel = document.getElementById('compartilharUsuario');
+  const msg = document.getElementById('compartilharMsg');
+  const destino = sel?.value || '';
+
+  const marcar = (texto, tipo = 'info') => {
+    if (!msg) return;
+    msg.style.display = 'block';
+    msg.style.color = tipo === 'error' ? '#dc2626' : (tipo === 'success' ? '#059669' : 'var(--muted)');
+    msg.textContent = texto;
+  };
+
+  if (!destino) return marcar('Selecione um usuário para compartilhar.', 'error');
+  if (!currentUser?.id) return marcar('Usuário atual não identificado.', 'error');
+
+  const modulos = [
+    { check: 'compMaterias', tabela: 'materias', label: 'Matérias' },
+    { check: 'compNotas', tabela: 'notas', label: 'Notas' },
+    { check: 'compPlanos', tabela: 'planos_estudo', label: 'Planos de estudo' },
+    { check: 'compPrioridades', tabela: 'prioridades', label: 'Prioridades' },
+    { check: 'compPlanosInt', tabela: 'planos_personalizados', label: 'Planos personalizados' },
+  ].filter(m => document.getElementById(m.check)?.checked);
+
+  if (!modulos.length) return marcar('Marque pelo menos um módulo.', 'error');
+
+  marcar('Compartilhando...');
+  const relatorio = [];
+
+  for (const m of modulos) {
+    try {
+      const { data, error } = await db.from(m.tabela).select('*').eq('user_id', currentUser.id);
+      if (error) {
+        relatorio.push(`${m.label}: erro ao ler (${error.message})`);
+        continue;
+      }
+      if (!data?.length) {
+        relatorio.push(`${m.label}: nada para compartilhar`);
+        continue;
+      }
+
+      const payload = data.map(item => {
+        const novo = { ...item };
+        delete novo.id;
+        delete novo.created_at;
+        delete novo.updated_at;
+        novo.user_id = destino;
+        return novo;
+      });
+
+      const { error: insertError } = await db.from(m.tabela).insert(payload);
+      if (insertError) relatorio.push(`${m.label}: erro ao enviar (${insertError.message})`);
+      else relatorio.push(`${m.label}: ${payload.length} item(ns) enviado(s)`);
+    } catch (e) {
+      relatorio.push(`${m.label}: erro inesperado (${e.message || e})`);
+    }
+  }
+
+  const houveErro = relatorio.some(x => x.includes('erro'));
+  marcar(relatorio.join(' | '), houveErro ? 'error' : 'success');
+}
+
 async function adminExcluirCliente(userId, email = '') {
   const alvo = email || userId;
-  const ok = confirm(`Excluir este cadastro do sistema?
-
-${alvo}
-
-Isso vai remover os dados do app e tentar apagar também o perfil auxiliar.`);
+  const ok = confirm(`Excluir este cadastro do sistema?\n\n${alvo}\n\nIsso vai remover os dados do app. Se a função admin_delete_user existir no Supabase, o login também será apagado.`);
   if (!ok) return;
 
   const tabelasPorUser = [
     'materias','notas','planos_estudo','planos','planos_ia','prioridades',
     'planos_personalizados','lembretes','sessoes_estudo','presencas',
-    'assinaturas','profiles','compartilhamentos','flashcards'
+    'assinaturas','compartilhamentos','flashcards'
   ];
 
-  const resultados = await Promise.allSettled(
-    tabelasPorUser.map(async (t) => {
-      try {
-        const campo = t === 'profiles' ? 'id' : 'user_id';
-        const { error } = await db.from(t).delete().eq(campo, userId);
-        return { tabela: t, error };
-      } catch (e) {
-        return { tabela: t, error: e };
-      }
-    })
-  );
+  const falhas = [];
 
-  const extras = [];
-  if (email) {
-    extras.push(db.from('visitantes_cadastro').delete().eq('email', email));
-    extras.push(db.from('profiles').delete().eq('email', email));
+  for (const t of tabelasPorUser) {
+    try {
+      const { error } = await db.from(t).delete().eq('user_id', userId);
+      if (error && !String(error.message || '').toLowerCase().includes('does not exist')) {
+        falhas.push(`${t}: ${error.message}`);
+      }
+    } catch (e) {
+      falhas.push(`${t}: ${e.message || e}`);
+    }
   }
 
   try {
-    extras.push(db.rpc('admin_delete_user', { p_user_id: userId }));
-  } catch(e) {}
+    const { error } = await db.from('profiles').delete().eq('id', userId);
+    if (error && !String(error.message || '').toLowerCase().includes('does not exist')) {
+      falhas.push(`profiles: ${error.message}`);
+    }
+  } catch (e) {
+    falhas.push(`profiles: ${e.message || e}`);
+  }
 
-  const extrasRes = await Promise.allSettled(extras);
+  if (email) {
+    try { await db.from('visitantes_cadastro').delete().eq('email', email); } catch (e) {}
+    try { await db.from('profiles').delete().eq('email', email); } catch (e) {}
+  }
 
-  const falhas = [
-    ...resultados.filter(r => r.status === 'rejected'),
-    ...resultados.filter(r => r.status === 'fulfilled' && r.value?.error),
-    ...extrasRes.filter(r => r.status === 'rejected'),
-    ...extrasRes.filter(r => r.status === 'fulfilled' && r.value?.error)
-  ];
+  let authApagado = false;
+  try {
+    const { data: sessaoData } = await db.auth.getSession();
+    const token = sessaoData?.session?.access_token;
+    if (token) {
+      const resp = await fetch(`${SUPABASE_URL}/functions/v1/admin_delete_user`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({ user_id: userId, email })
+      });
 
-  if (falhas.length) {
-    console.warn('Falhas ao excluir cliente:', falhas);
-    toast('⚠️ Parte do cadastro foi excluída. Se o login continuar existindo, falta função admin no Supabase.');
-  } else {
-    toast('🗑️ Cadastro excluído com sucesso.');
+      if (resp.ok) {
+        authApagado = true;
+      } else if (resp.status !== 404) {
+        let detalhe = '';
+        try {
+          const json = await resp.json();
+          detalhe = json?.error || JSON.stringify(json);
+        } catch (e) {
+          detalhe = await resp.text();
+        }
+        if (detalhe) falhas.push(`auth: ${detalhe}`);
+      }
+    }
+  } catch (e) {
+    falhas.push(`auth: ${e.message || e}`);
   }
 
   window.adminClientesExcluidos = window.adminClientesExcluidos || {};
   window.adminClientesExcluidos[userId] = true;
+
+  if (falhas.length) {
+    console.warn('Falhas ao excluir cliente:', falhas);
+    toast(authApagado
+      ? '⚠️ Cliente excluído, mas algumas tabelas falharam. Veja o console.'
+      : '⚠️ Dados do cliente removidos. Para apagar o login, publique a função admin_delete_user no Supabase.');
+  } else {
+    toast(authApagado ? '🗑️ Cliente excluído completamente.' : '🗑️ Cliente removido do sistema.');
+  }
+
   await adminCarregarUsuarios();
 }
 
 async function adminExcluirVisitante(chave = '') {
-  try { chave = decodeURIComponent(chave || ''); } catch(e) {}
+  try { chave = decodeURIComponent(chave || ''); } catch (e) {}
   const visitante = (window.adminVisitantesCache || []).find(v => v.chave === chave) || null;
   const rotulo = visitante?.email || visitante?.origem || chave || 'visitante';
-  if (!confirm(`Excluir registros deste visitante?
+  if (!confirm(`Excluir registros deste visitante?\n\n${rotulo}`)) return;
 
-${rotulo}`)) return;
-
-  const tentarExcluir = async (builder) => {
-    try {
-      const resp = await builder.select('id');
-      return {
-        error: resp?.error || null,
-        count: Array.isArray(resp?.data) ? resp.data.length : (resp?.count || 0)
-      };
-    } catch (e) {
-      return { error: e, count: 0 };
-    }
-  };
-
-  let totalExcluido = 0;
-  let ultimoErro = null;
+  const tentativas = [];
 
   if (visitante?.ids?.length) {
     const idsValidos = [...new Set((visitante.ids || []).filter(Boolean))];
     if (idsValidos.length) {
-      const tentativa = await tentarExcluir(
-        db.from('visitantes_cadastro').delete().in('id', idsValidos)
-      );
-      totalExcluido += tentativa.count || 0;
-      ultimoErro = tentativa.error || null;
+      tentativas.push(() => db.from('visitantes_cadastro').delete().in('id', idsValidos).select('id'));
     }
   }
 
-  if (totalExcluido === 0 && visitante?.email) {
-    const tentativa2 = await tentarExcluir(
-      db.from('visitantes_cadastro').delete().eq('email', visitante.email)
-    );
-    totalExcluido += tentativa2.count || 0;
-    ultimoErro = tentativa2.error || null;
+  if (visitante?.email) {
+    tentativas.push(() => db.from('visitantes_cadastro').delete().eq('email', visitante.email).select('id'));
   }
 
-  if (totalExcluido === 0 && visitante?.origem) {
-    const tentativa3 = await tentarExcluir(
-      db.from('visitantes_cadastro').delete().eq('user_agent', visitante.origem)
-    );
-    totalExcluido += tentativa3.count || 0;
-    ultimoErro = tentativa3.error || null;
+  if (visitante?.origem) {
+    tentativas.push(() => db.from('visitantes_cadastro').delete().eq('user_agent', visitante.origem).select('id'));
   }
 
-  if (totalExcluido === 0 && visitante?.email && visitante?.origem) {
-    const tentativa4 = await tentarExcluir(
-      db.from('visitantes_cadastro').delete().match({
-        email: visitante.email,
-        user_agent: visitante.origem
-      })
-    );
-    totalExcluido += tentativa4.count || 0;
-    ultimoErro = tentativa4.error || null;
+  if (visitante?.email && visitante?.origem) {
+    tentativas.push(() => db.from('visitantes_cadastro').delete().match({
+      email: visitante.email,
+      user_agent: visitante.origem
+    }).select('id'));
   }
 
-  if (totalExcluido === 0 && !visitante && chave) {
-    const tentativa5 = await tentarExcluir(
-      db.from('visitantes_cadastro').delete().eq('email', chave)
-    );
-    totalExcluido += tentativa5.count || 0;
-    ultimoErro = tentativa5.error || null;
+  if (!tentativas.length && chave) {
+    tentativas.push(() => db.from('visitantes_cadastro').delete().eq('email', chave).select('id'));
+  }
+
+  let totalExcluido = 0;
+  let ultimoErro = null;
+
+  for (const fn of tentativas) {
+    try {
+      const resp = await fn();
+      if (resp?.error) ultimoErro = resp.error;
+      else if (Array.isArray(resp?.data)) totalExcluido += resp.data.length;
+      if (totalExcluido > 0) break;
+    } catch (e) {
+      ultimoErro = e;
+    }
   }
 
   if (totalExcluido === 0) {
-    if (ultimoErro) {
-      const msg = (ultimoErro.message || '').toLowerCase();
-      if (msg.includes('policy') || msg.includes('permission') || msg.includes('not allowed')) {
-        toast('⚠️ O banco bloqueou a exclusão deste visitante. Falta permissão de DELETE no Supabase.');
-      } else {
-        toast('⚠️ Não foi possível excluir: ' + ultimoErro.message);
-      }
+    const msg = String(ultimoErro?.message || ultimoErro || '').toLowerCase();
+    if (msg.includes('policy') || msg.includes('permission') || msg.includes('not allowed')) {
+      toast('⚠️ O banco bloqueou a exclusão deste visitante. Libere DELETE no Supabase.');
+    } else if (ultimoErro) {
+      toast('⚠️ Não foi possível excluir: ' + (ultimoErro.message || ultimoErro));
     } else {
-      toast('⚠️ Nenhum registro foi excluído. Pode ser que já tenha sido removido ou que o banco esteja bloqueando a exclusão.');
+      toast('⚠️ Nenhum registro foi excluído.');
     }
     return;
   }
