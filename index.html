@@ -4593,33 +4593,50 @@ async function adminCompartilharModulos() {
     msg.textContent = texto;
   };
 
-  if (!destino) return marcar('Selecione um usuário para compartilhar.', 'error');
+  if (!destino) return marcar('Selecione um usuário para transferir.', 'error');
   if (!currentUser?.id) return marcar('Usuário atual não identificado.', 'error');
 
+  // Tabelas corretas do banco
   const modulos = [
-    { check: 'compMaterias', tabela: 'materias', label: 'Matérias' },
-    { check: 'compNotas', tabela: 'notas', label: 'Notas' },
-    { check: 'compPlanos', tabela: 'planos_estudo', label: 'Planos de estudo' },
-    { check: 'compPrioridades', tabela: 'prioridades', label: 'Prioridades' },
-    { check: 'compPlanosInt', tabela: 'planos_personalizados', label: 'Planos personalizados' },
+    { check: 'compMaterias',  tabela: 'materias',    label: 'Matérias',   camposExcluir: ['data_prova','tempo_total','professor'] },
+    { check: 'compNotas',     tabela: 'notas',        label: 'Notas',      camposExcluir: ['materia_id'] },
+    { check: 'compPlanos',    tabela: 'planos',       label: 'Planos',     camposExcluir: [] },
+    { check: 'compPrioridades',tabela:'prioridades',  label: 'Prioridades',camposExcluir: [] },
+    { check: 'compPlanosInt', tabela: 'planos_ia',    label: 'Planos IA',  camposExcluir: ['data_prova'] },
   ].filter(m => document.getElementById(m.check)?.checked);
 
   if (!modulos.length) return marcar('Marque pelo menos um módulo.', 'error');
 
-  marcar('Compartilhando...');
+  marcar('⏳ Transferindo...');
   const relatorio = [];
 
+  // Tenta RPC security definer primeiro (bypassa RLS)
+  const tabelasRPC = modulos.map(m => m.tabela);
+  try {
+    const { data: rpcResult, error: rpcErr } = await db.rpc('admin_transferir_dados', {
+      p_origem: currentUser.id,
+      p_destino: destino,
+      p_tabelas: tabelasRPC
+    });
+    if (!rpcErr && rpcResult) {
+      const resultados = Array.isArray(rpcResult) ? rpcResult : JSON.parse(rpcResult);
+      resultados.forEach(r => {
+        const m = modulos.find(m => m.tabela === r.tabela);
+        const label = m?.label || r.tabela;
+        if (r.ok) relatorio.push(`✅ ${label}: ${r.total} item(ns)`);
+        else relatorio.push(`⚠️ ${label}: ${r.erro}`);
+      });
+      const houveErro = relatorio.some(x => x.startsWith('⚠️'));
+      return marcar(relatorio.join(' | '), houveErro ? 'error' : 'success');
+    }
+  } catch(e) {}
+
+  // Fallback: insere direto (pode falhar por RLS se não tiver a RPC)
   for (const m of modulos) {
     try {
       const { data, error } = await db.from(m.tabela).select('*').eq('user_id', currentUser.id);
-      if (error) {
-        relatorio.push(`${m.label}: erro ao ler (${error.message})`);
-        continue;
-      }
-      if (!data?.length) {
-        relatorio.push(`${m.label}: nada para compartilhar`);
-        continue;
-      }
+      if (error) { relatorio.push(`${m.label}: erro ao ler`); continue; }
+      if (!data?.length) { relatorio.push(`${m.label}: nada para transferir`); continue; }
 
       const payload = data.map(item => {
         const novo = { ...item };
@@ -4627,14 +4644,23 @@ async function adminCompartilharModulos() {
         delete novo.created_at;
         delete novo.updated_at;
         novo.user_id = destino;
+        m.camposExcluir.forEach(c => { if (novo[c] === undefined) delete novo[c]; });
         return novo;
       });
 
-      const { error: insertError } = await db.from(m.tabela).insert(payload);
-      if (insertError) relatorio.push(`${m.label}: erro ao enviar (${insertError.message})`);
-      else relatorio.push(`${m.label}: ${payload.length} item(ns) enviado(s)`);
+      let enviados = 0, falhas = 0;
+      for (let i = 0; i < payload.length; i += 10) {
+        const lote = payload.slice(i, i + 10);
+        const { error: err } = await db.from(m.tabela).insert(lote);
+        if (err) falhas += lote.length;
+        else enviados += lote.length;
+      }
+
+      if (falhas > 0) relatorio.push(`${m.label}: ${enviados} ok, ${falhas} bloqueados pela RLS`);
+      else relatorio.push(`✅ ${m.label}: ${enviados} item(ns)`);
+
     } catch (e) {
-      relatorio.push(`${m.label}: erro inesperado (${e.message || e})`);
+      relatorio.push(`${m.label}: erro inesperado`);
     }
   }
 
@@ -4648,9 +4674,9 @@ async function adminExcluirCliente(userId, email = '') {
   if (!ok) return;
 
   const tabelasPorUser = [
-    'materias','notas','planos_estudo','planos','planos_ia','prioridades',
-    'planos_personalizados','lembretes','sessoes_estudo','presencas',
-    'assinaturas','compartilhamentos','flashcards'
+    'materias','notas','planos','planos_ia','prioridades',
+    'lembretes','sessoes_estudo','presencas',
+    'assinaturas','simulados_resultados'
   ];
 
   const falhas = [];
@@ -5636,6 +5662,40 @@ language sql security definer as $$
   from auth.users u
   left join public.assinaturas a on a.user_id = u.id
   order by u.created_at desc;
+$$;
+
+-- ⚠️ NECESSÁRIO PARA TRANSFERIR DADOS ENTRE USUÁRIOS (bypassa RLS):
+-- Rode este SQL para a função "Transferir Dados" do admin funcionar:
+create or replace function admin_transferir_dados(
+  p_origem uuid,
+  p_destino uuid,
+  p_tabelas text[]
+)
+returns jsonb
+language plpgsql security definer as $$
+declare
+  t text;
+  total int := 0;
+  relatorio jsonb := '[]'::jsonb;
+  msg text;
+begin
+  foreach t in array p_tabelas loop
+    begin
+      execute format(
+        'insert into %I (select gen_random_uuid() as id, $1 as user_id, ' ||
+        '(select string_agg(column_name, '','') from information_schema.columns ' ||
+        'where table_name = %L and column_name not in (''id'',''user_id'',''created_at'',''updated_at'')) ' ||
+        'from %I where user_id = $2)',
+        t, t, t
+      ) using p_destino, p_origem;
+      get diagnostics total = row_count;
+      relatorio := relatorio || jsonb_build_object('tabela', t, 'ok', true, 'total', total);
+    exception when others then
+      relatorio := relatorio || jsonb_build_object('tabela', t, 'ok', false, 'erro', sqlerrm);
+    end;
+  end loop;
+  return relatorio;
+end;
 $$;
 
 -- Resultados de simulados (para progresso automático)
