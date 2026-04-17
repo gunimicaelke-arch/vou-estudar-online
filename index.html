@@ -4638,33 +4638,82 @@ async function adminExcluirVisitante(chave = '') {
 
 ${rotulo}`)) return;
 
-  let error = null;
+  const tentarExcluir = async (builder) => {
+    try {
+      const resp = await builder.select('id');
+      return {
+        error: resp?.error || null,
+        count: Array.isArray(resp?.data) ? resp.data.length : (resp?.count || 0)
+      };
+    } catch (e) {
+      return { error: e, count: 0 };
+    }
+  };
+
+  let totalExcluido = 0;
+  let ultimoErro = null;
 
   if (visitante?.ids?.length) {
-    const tentativa = await db.from('visitantes_cadastro').delete().in('id', visitante.ids);
-    error = tentativa.error || null;
+    const idsValidos = [...new Set((visitante.ids || []).filter(Boolean))];
+    if (idsValidos.length) {
+      const tentativa = await tentarExcluir(
+        db.from('visitantes_cadastro').delete().in('id', idsValidos)
+      );
+      totalExcluido += tentativa.count || 0;
+      ultimoErro = tentativa.error || null;
+    }
   }
 
-  if (error && visitante?.email) {
-    const tentativa2 = await db.from('visitantes_cadastro').delete().eq('email', visitante.email);
-    error = tentativa2.error || null;
+  if (totalExcluido === 0 && visitante?.email) {
+    const tentativa2 = await tentarExcluir(
+      db.from('visitantes_cadastro').delete().eq('email', visitante.email)
+    );
+    totalExcluido += tentativa2.count || 0;
+    ultimoErro = tentativa2.error || null;
   }
 
-  if (error && visitante?.origem) {
-    const tentativa3 = await db.from('visitantes_cadastro').delete().eq('user_agent', visitante.origem);
-    error = tentativa3.error || null;
+  if (totalExcluido === 0 && visitante?.origem) {
+    const tentativa3 = await tentarExcluir(
+      db.from('visitantes_cadastro').delete().eq('user_agent', visitante.origem)
+    );
+    totalExcluido += tentativa3.count || 0;
+    ultimoErro = tentativa3.error || null;
   }
 
-  if (!visitante) {
-    const tentativa4 = await db.from('visitantes_cadastro').delete().eq('email', chave);
-    error = tentativa4.error || null;
+  if (totalExcluido === 0 && visitante?.email && visitante?.origem) {
+    const tentativa4 = await tentarExcluir(
+      db.from('visitantes_cadastro').delete().match({
+        email: visitante.email,
+        user_agent: visitante.origem
+      })
+    );
+    totalExcluido += tentativa4.count || 0;
+    ultimoErro = tentativa4.error || null;
   }
 
-  if (error) {
-    toast('⚠️ Não foi possível excluir: ' + error.message);
+  if (totalExcluido === 0 && !visitante && chave) {
+    const tentativa5 = await tentarExcluir(
+      db.from('visitantes_cadastro').delete().eq('email', chave)
+    );
+    totalExcluido += tentativa5.count || 0;
+    ultimoErro = tentativa5.error || null;
+  }
+
+  if (totalExcluido === 0) {
+    if (ultimoErro) {
+      const msg = (ultimoErro.message || '').toLowerCase();
+      if (msg.includes('policy') || msg.includes('permission') || msg.includes('not allowed')) {
+        toast('⚠️ O banco bloqueou a exclusão deste visitante. Falta permissão de DELETE no Supabase.');
+      } else {
+        toast('⚠️ Não foi possível excluir: ' + ultimoErro.message);
+      }
+    } else {
+      toast('⚠️ Nenhum registro foi excluído. Pode ser que já tenha sido removido ou que o banco esteja bloqueando a exclusão.');
+    }
     return;
   }
 
+  window.adminVisitantesCache = (window.adminVisitantesCache || []).filter(v => v.chave !== chave);
   toast('🗑️ Visitante removido.');
   await adminCarregarTentativasCadastro();
 }
