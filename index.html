@@ -1151,12 +1151,13 @@ body{font-family:'Plus Jakarta Sans',sans-serif;-webkit-font-smoothing:antialias
         </div>
 
         <div class="grid-2">
-          <div class="card card-pad">
+          <div class="card card-pad" style="background:#06081a;border:1px solid rgba(255,255,255,0.08)">
             <div class="card-head">
-              <h3>📊 Progresso por Matéria</h3>
+              <h3 style="color:#fff">📊 Progresso por Matéria</h3>
+              <span id="chartLegenda" style="display:flex;flex-wrap:wrap;gap:10px"></span>
             </div>
-            <div class="chart-wrap">
-              <canvas id="chartMaterias"></canvas>
+            <div class="chart-wrap" id="chartWrap">
+              <canvas id="chartMaterias" role="img" aria-label="Gráfico de progresso por matéria"></canvas>
             </div>
           </div>
           <div class="card card-pad">
@@ -2214,7 +2215,7 @@ async function carregarMaterias() {
   materias = data || [];
   renderMaterias();
   atualizarSelectMateria();
-  // Sempre atualiza o dashboard ao carregar matérias (garante gráfico atualizado)
+  // Atualiza dashboard sempre que matérias forem recarregadas
   atualizarDashboard();
 }
 
@@ -2600,8 +2601,7 @@ function atualizarDashboard() {
 }
 
 function renderChart() {
-  const wrap = document.querySelector('.chart-wrap');
-  const old = document.getElementById('chartMaterias');
+  const wrap = document.getElementById('chartWrap') || document.querySelector('.chart-wrap');
   if (!wrap) return;
 
   // Destrói instância anterior
@@ -2610,62 +2610,128 @@ function renderChart() {
     chartInstance = null;
   }
 
-  // Recria canvas limpo
+  // Remove canvas antigo e cria novo
+  const old = document.getElementById('chartMaterias');
   if (old) old.remove();
-  const newCanvas = document.createElement('canvas');
-  newCanvas.id = 'chartMaterias';
-  newCanvas.setAttribute('role', 'img');
-  newCanvas.setAttribute('aria-label', 'Gráfico de progresso por matéria');
-  wrap.appendChild(newCanvas);
+  const canvas = document.createElement('canvas');
+  canvas.id = 'chartMaterias';
+  canvas.setAttribute('role', 'img');
+  canvas.setAttribute('aria-label', 'Gráfico de progresso por matéria');
+  wrap.appendChild(canvas);
 
-  if (!materias.length) return;
+  const legEl = document.getElementById('chartLegenda');
+  if (!materias.length) { if (legEl) legEl.innerHTML = ''; return; }
 
-  // Pequeno delay para o canvas ter dimensões reais no DOM
-  requestAnimationFrame(() => {
-    requestAnimationFrame(() => {
-      try {
-        chartInstance = new Chart(newCanvas.getContext('2d'), {
-          type: 'bar',
-          data: {
-            labels: materias.map(m => m.nome.length > 14 ? m.nome.substring(0,13)+'…' : m.nome),
-            datasets: [{
-              label: 'Progresso (%)',
+  // Paleta neon por índice
+  const neonPalette = ['#4d9fff','#ffaa00','#00ffb3','#ff4d6d','#b47aff','#ff8c42','#00e5ff','#ff6ec7'];
+  const cores = materias.map((m, i) => {
+    const c = m.cor || '';
+    return (c && c !== '#4f5ef7' && c !== '#4f5ef700') ? c : neonPalette[i % neonPalette.length];
+  });
+
+  // Legenda
+  if (legEl) {
+    legEl.innerHTML = materias.map((m, i) =>
+      `<span style="display:flex;align-items:center;gap:5px;font-size:10px;color:rgba(255,255,255,0.5)">
+        <span style="width:8px;height:8px;border-radius:2px;background:${cores[i]};box-shadow:0 0 6px ${cores[i]};flex-shrink:0"></span>
+        ${m.nome.length > 12 ? m.nome.slice(0,11)+'…' : m.nome}
+      </span>`
+    ).join('');
+  }
+
+  function buildChart() {
+    const ctx = canvas.getContext('2d');
+    const h = wrap.offsetHeight || 220;
+
+    const bgColors = cores.map(c => {
+      const g = ctx.createLinearGradient(0, 0, 0, h);
+      g.addColorStop(0,    c + 'ff');
+      g.addColorStop(0.65, c + 'bb');
+      g.addColorStop(1,    c + '33');
+      return g;
+    });
+
+    const dimColors = materias.map(() => {
+      const g = ctx.createLinearGradient(0, 0, 0, h);
+      g.addColorStop(0, 'rgba(255,255,255,0.07)');
+      g.addColorStop(1, 'rgba(255,255,255,0.02)');
+      return g;
+    });
+
+    try {
+      chartInstance = new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: materias.map(m => m.nome.length > 11 ? m.nome.slice(0,10)+'…' : m.nome),
+          datasets: [
+            {
+              label: 'Progresso',
               data: materias.map(m => m.progresso || 0),
-              backgroundColor: materias.map(m => (m.cor || '#4f5ef7') + '33'),
-              borderColor: materias.map(m => m.cor || '#4f5ef7'),
-              borderWidth: 2,
-              borderRadius: 8
-            }]
-          },
-          options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            animation: { duration: 600 },
-            scales: {
-              y: {
-                beginAtZero: true,
-                max: 100,
-                grid: { color: '#e4e8f5' },
-                ticks: { callback: v => v + '%', font: { size: 11 } }
-              },
-              x: {
-                grid: { display: false },
-                ticks: { font: { size: 11 }, maxRotation: 30 }
-              }
+              backgroundColor: bgColors,
+              borderColor: cores,
+              borderWidth: 1.5,
+              borderRadius: 10,
+              borderSkipped: false,
+              hoverBorderWidth: 2.5,
+              hoverBorderColor: cores,
             },
-            plugins: {
-              legend: { display: false },
-              tooltip: {
-                callbacks: {
-                  label: ctx => ' ' + ctx.raw + '% concluído'
-                }
-              }
+            {
+              label: 'Restante',
+              data: materias.map(m => 100 - (m.progresso || 0)),
+              backgroundColor: dimColors,
+              borderColor: 'rgba(255,255,255,0.07)',
+              borderWidth: 1,
+              borderRadius: 10,
+              borderSkipped: false,
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          animation: { duration: 800, easing: 'easeOutQuart' },
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              filter: item => item.datasetIndex === 0,
+              callbacks: { label: c => '  ' + c.raw + '% concluído' },
+              backgroundColor: 'rgba(6,8,26,0.95)',
+              titleColor: '#fff',
+              bodyColor: 'rgba(255,255,255,0.55)',
+              borderColor: 'rgba(255,255,255,0.1)',
+              borderWidth: 1,
+              padding: 10,
+              cornerRadius: 8
+            }
+          },
+          scales: {
+            x: {
+              stacked: true,
+              grid: { display: false },
+              border: { display: false },
+              ticks: { font: { size: 10 }, color: 'rgba(255,255,255,0.4)', maxRotation: 0, autoSkip: false }
+            },
+            y: {
+              stacked: true,
+              max: 100,
+              beginAtZero: true,
+              grid: { color: 'rgba(255,255,255,0.05)' },
+              border: { display: false },
+              ticks: { callback: v => v+'%', font: { size: 10 }, color: 'rgba(255,255,255,0.35)', stepSize: 25 }
             }
           }
-        });
-      } catch(e) { console.warn('Chart render erro:', e); }
-    });
-  });
+        }
+      });
+      canvas.style.filter = 'drop-shadow(0 0 12px rgba(80,120,255,0.2))';
+    } catch(e) { console.warn('Chart render erro:', e); }
+  }
+
+  // Se o wrap já tem altura (visível), renderiza agora; senão aguarda 120ms
+  if (wrap.offsetHeight > 0) {
+    buildChart();
+  } else {
+    setTimeout(buildChart, 120);
+  }
 }
 
 // ═══════════════════════════════════════
