@@ -710,6 +710,7 @@ body{font-family:'Plus Jakarta Sans',sans-serif;-webkit-font-smoothing:antialias
   }
 
   @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+  @keyframes slideInRight { from { transform:translateX(120%);opacity:0 } to { transform:translateX(0);opacity:1 } }
 
 
 /* landing wrapper oculto quando app ativo */
@@ -1154,9 +1155,8 @@ body{font-family:'Plus Jakarta Sans',sans-serif;-webkit-font-smoothing:antialias
           <div class="card card-pad">
             <div class="card-head">
               <h3>📊 Progresso por Matéria</h3>
-              <span id="chartLegenda" style="display:flex;flex-wrap:wrap;gap:8px"></span>
             </div>
-            <div class="chart-wrap" id="chartWrap">
+            <div id="chartWrap" style="position:relative;width:100%">
               <canvas id="chartMaterias" role="img" aria-label="Gráfico de progresso por matéria"></canvas>
             </div>
           </div>
@@ -2252,11 +2252,20 @@ function goTab(tab) {
   document.querySelectorAll('.tab-page').forEach(p => p.classList.remove('active'));
   document.querySelectorAll('.menu-item').forEach(m => m.classList.remove('active'));
   document.getElementById(`tab-${tab}`).classList.add('active');
+
+  // Mapeamento explícito: tab → trecho do texto do menu-item
+  const menuMap = {
+    dashboard:        'dashboard',
+    materias:         'matéria',
+    notas:            'nota',
+    planos:           'planos de estudo',
+    prioridades:      'prioridade',
+    planointeligente: 'estudo inteligente',
+    admin:            'admin'
+  };
+  const chave = menuMap[tab] || tab;
   document.querySelectorAll('.menu-item').forEach(m => {
-    if (m.textContent.trim().toLowerCase().includes(tab === 'dashboard' ? 'dashboard' :
-        tab === 'materias' ? 'matéria' :
-        tab === 'notas' ? 'nota' :
-        tab === 'planos' ? 'plano' : 'priori')) {
+    if (m.textContent.trim().toLowerCase().includes(chave)) {
       m.classList.add('active');
     }
   });
@@ -2266,12 +2275,20 @@ function goTab(tab) {
   document.getElementById('topbarSub').textContent = sub;
 
   if (tab === 'admin') adminCarregarUsuarios();
-  if (tab === 'dashboard') {
-    setTimeout(() => atualizarDashboard(), 50);
-  }
+  if (tab === 'dashboard') setTimeout(() => atualizarDashboard(), 50);
   if (tab === 'materias' && !window._recalculouUmaVez) {
     window._recalculouUmaVez = true;
     setTimeout(() => recalcularTudoDoHistorico(), 300);
+  }
+  // Ao entrar no plano inteligente, restaura o último plano salvo
+  if (tab === 'planointeligente' && window._planoResgatado && !window._planoJaRenderizado) {
+    window._planoJaRenderizado = true;
+    const p = window._planoResgatado;
+    setTimeout(() => {
+      renderPlanoInteligente(p.titulo, p.analise);
+      if (p.data_prova) verificarModoVespera(p.data_prova);
+      toast('📂 Plano "' + p.titulo + '" restaurado do banco!');
+    }, 200);
   }
 
   // Update bottom nav active state
@@ -2675,65 +2692,51 @@ function atualizarDashboard() {
 }
 
 function renderChart() {
-  const wrap = document.getElementById('chartWrap') || document.querySelector('.chart-wrap');
+  const wrap = document.getElementById('chartWrap');
   if (!wrap) return;
 
-  if (chartInstance) {
-    try { chartInstance.destroy(); } catch(e) {}
-    chartInstance = null;
-  }
-
+  if (chartInstance) { try { chartInstance.destroy(); } catch(e) {} chartInstance = null; }
   const old = document.getElementById('chartMaterias');
   if (old) old.remove();
   const canvas = document.createElement('canvas');
   canvas.id = 'chartMaterias';
   wrap.appendChild(canvas);
 
-  const legEl = document.getElementById('chartLegenda');
-  if (legEl) legEl.innerHTML = '';
   if (!materias.length) return;
 
+  // Altura dinâmica proporcional ao número de matérias
+  const altura = Math.max(180, materias.length * 52 + 50);
+  wrap.style.height = altura + 'px';
+
   const palette = ['#2563eb','#d97706','#059669','#dc2626','#7c3aed','#db2777','#0891b2','#65a30d'];
-  const cores = materias.map((m, i) => m.cor || palette[i % palette.length]);
+  const cores = materias.map((m, i) => m.cor && m.cor !== '#4f5ef7' ? m.cor : palette[i % palette.length]);
 
-  if (legEl) {
-    legEl.innerHTML = materias.map((m, i) =>
-      `<span style="display:flex;align-items:center;gap:4px;font-size:10px;color:var(--muted)">
-        <span style="width:8px;height:8px;border-radius:2px;background:${cores[i]};flex-shrink:0"></span>
-        ${m.nome.length > 10 ? m.nome.slice(0,9)+'…' : m.nome} ${m.progresso||0}%
-      </span>`
-    ).join('');
-  }
-
-  // Snapshot dos dados agora (evita closure stale)
-  const snapshot = materias.map((m, i) => ({
-    label: m.nome.length > 11 ? m.nome.slice(0,10)+'…' : m.nome,
+  // Snapshot imutável dos dados
+  const snap = materias.map((m, i) => ({
+    nome: m.nome,
     valor: Number(m.progresso) || 0,
     cor: cores[i]
   }));
 
   function buildChart() {
-    // Força o wrap a ter altura mínima se ainda for 0
-    if (!wrap.style.height && wrap.offsetHeight === 0) {
-      wrap.style.height = '220px';
-    }
+    if (chartInstance) { try { chartInstance.destroy(); } catch(e) {} chartInstance = null; }
     try {
-      if (chartInstance) { try { chartInstance.destroy(); } catch(e) {} chartInstance = null; }
       chartInstance = new Chart(canvas.getContext('2d'), {
         type: 'bar',
         data: {
-          labels: snapshot.map(s => s.label),
+          labels: snap.map(s => s.nome),
           datasets: [{
             label: 'Progresso',
-            data: snapshot.map(s => s.valor),
-            backgroundColor: snapshot.map(s => s.cor + '30'),
-            borderColor: snapshot.map(s => s.cor),
+            data: snap.map(s => s.valor),
+            backgroundColor: snap.map(s => s.cor + '28'),
+            borderColor: snap.map(s => s.cor),
             borderWidth: 2,
-            borderRadius: 8,
+            borderRadius: 6,
             borderSkipped: false,
           }]
         },
         options: {
+          indexAxis: 'y',
           responsive: true,
           maintainAspectRatio: false,
           animation: { duration: 700, easing: 'easeOutQuart' },
@@ -2742,14 +2745,14 @@ function renderChart() {
             tooltip: { callbacks: { label: c => '  ' + c.raw + '% concluído' } }
           },
           scales: {
-            y: {
+            x: {
               beginAtZero: true, max: 100,
-              grid: { color: '#e4e8f5' },
+              grid: { color: '#f0f4ff' },
               ticks: { callback: v => v+'%', font: { size: 11 }, color: '#6b7280' }
             },
-            x: {
+            y: {
               grid: { display: false },
-              ticks: { font: { size: 10 }, color: '#6b7280', maxRotation: 0, autoSkip: false }
+              ticks: { font: { size: 12 }, color: '#374151', autoSkip: false }
             }
           }
         }
@@ -2757,10 +2760,8 @@ function renderChart() {
     } catch(e) { console.warn('renderChart erro:', e); }
   }
 
-  // Tenta imediatamente, depois 150ms, depois 500ms — garante que pelo menos um funciona
   buildChart();
-  setTimeout(buildChart, 150);
-  setTimeout(buildChart, 500);
+  setTimeout(buildChart, 200);
 }
 
 // ═══════════════════════════════════════
@@ -3295,9 +3296,20 @@ async function salvarPlanoInteligente() {
 async function carregarPlanosInteligentes() {
   const { data, error } = await db.from('planos_ia').select('*').eq('user_id', currentUser.id).order('created_at', { ascending: false });
   if (error) return;
-  renderListaPlanosInt(data || []);
+  const lista = data || [];
+  renderListaPlanosInt(lista);
   const badge = document.getElementById('badgePlanosInt');
-  if (badge) badge.textContent = (data||[]).length || 'NEW';
+  if (badge) badge.textContent = lista.length || 'NEW';
+
+  // Restaura o último plano gerado automaticamente (sem precisar clicar em "Ver")
+  if (lista.length > 0 && !planoGeradoAtual) {
+    const ultimo = lista[0];
+    if (ultimo.analise) {
+      planoGeradoAtual = { titulo: ultimo.titulo, resultado: ultimo.analise, dataProva: ultimo.data_prova };
+      // Pré-carrega os dados no estado mas não renderiza a UI ainda (só quando entrar na aba)
+      window._planoResgatado = ultimo;
+    }
+  }
 }
 
 function renderListaPlanosInt(lista) {
@@ -4001,6 +4013,7 @@ async function salvarLembrete() {
   document.getElementById('lembreteData').value = '';
   await carregarLembretes();
 }
+
 async function carregarLembretes() {
   const { data } = await db.from('lembretes').select('*').eq('user_id', currentUser.id).order('data_hora', { ascending: true });
   const el = document.getElementById('listaLembretes');
@@ -4009,16 +4022,83 @@ async function carregarLembretes() {
     el.innerHTML = '<div class="empty-state"><div class="empty-icon">🔔</div>Nenhum lembrete ainda.</div>';
     return;
   }
-  el.innerHTML = data.map(l => `
-    <div class="item-card" style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
-      <div>
-        <div style="font-weight:600;font-size:14px">${l.texto}</div>
-        ${l.data_hora ? `<div style="font-size:12px;color:var(--muted)">${new Date(l.data_hora).toLocaleString('pt-BR')}</div>` : ''}
+
+  const agora = new Date();
+  // Ordena: vencidos → urgentes → próximos → sem data
+  const comData = data.filter(l => l.data_hora).sort((a,b) => new Date(a.data_hora)-new Date(b.data_hora));
+  const semData = data.filter(l => !l.data_hora);
+  const ordenados = [...comData, ...semData];
+
+  // Dispara notificações para lembretes em até 3 dias
+  ordenados.forEach(l => {
+    if (!l.data_hora) return;
+    const diff = (new Date(l.data_hora) - agora) / (1000*60*60*24);
+    if (diff >= 0 && diff <= 3 && !window._notifLembrete?.[l.id]) {
+      window._notifLembrete = window._notifLembrete || {};
+      window._notifLembrete[l.id] = true;
+      _mostrarNotificacaoLembrete(l.texto, diff, new Date(l.data_hora));
+    }
+  });
+
+  el.innerHTML = ordenados.map(l => {
+    if (!l.data_hora) {
+      return `<div style="display:flex;justify-content:space-between;align-items:center;padding:10px 14px;border-radius:10px;margin-bottom:8px;background:#f8faff;border:1px solid #e0e7ff">
+        <div style="flex:1"><div style="font-weight:600;font-size:14px;color:var(--text)">${l.texto}</div><div style="font-size:11px;color:var(--muted);margin-top:2px">Sem data definida</div></div>
+        <button class="mini-btn btn-danger" style="width:auto" onclick="deletarLembrete('${l.id}')">🗑️</button>
+      </div>`;
+    }
+
+    const dataL = new Date(l.data_hora);
+    const diffDias = (dataL - agora) / (1000*60*60*24);
+    const vencido = diffDias < 0;
+    const urgente = diffDias >= 0 && diffDias <= 1;
+    const proximo = diffDias > 1 && diffDias <= 3;
+    const ok = diffDias > 3;
+
+    const bg = vencido ? '#fef2f2' : urgente ? '#fef2f2' : proximo ? '#fffbeb' : '#f0fdf4';
+    const borda = vencido ? '#fecaca' : urgente ? '#fca5a5' : proximo ? '#fde68a' : '#bbf7d0';
+    const cor = vencido ? '#dc2626' : urgente ? '#dc2626' : proximo ? '#d97706' : '#059669';
+    const icone = vencido ? '🔴' : urgente ? '🔴' : proximo ? '🟡' : '🟢';
+    const badge = vencido ? 'Vencido' : urgente ? 'Hoje/Amanhã' : proximo ? Math.ceil(diffDias)+'d' : Math.ceil(diffDias)+'d';
+    const dataFmt = dataL.toLocaleString('pt-BR', {day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'});
+
+    return `<div style="display:flex;justify-content:space-between;align-items:center;padding:12px 14px;border-radius:12px;margin-bottom:8px;background:${bg};border:1.5px solid ${borda};border-left:4px solid ${cor}">
+      <div style="flex:1">
+        <div style="font-weight:700;font-size:14px;color:var(--text)">${l.texto}</div>
+        <div style="font-size:11px;color:${cor};margin-top:3px;font-weight:600">${icone} ${dataFmt} · <span style="background:${borda};padding:1px 7px;border-radius:10px">${badge}</span></div>
       </div>
-      <button class="mini-btn btn-danger" style="width:auto" onclick="deletarLembrete('${l.id}')">🗑️</button>
-    </div>
-  `).join('');
+      <button class="mini-btn btn-danger" style="width:auto;margin-left:10px" onclick="deletarLembrete('${l.id}')">🗑️</button>
+    </div>`;
+  }).join('');
 }
+
+function _mostrarNotificacaoLembrete(texto, diffDias, data) {
+  const notifEl = document.createElement('div');
+  const diffTxt = diffDias < 0.04 ? 'agora' : diffDias < 1 ? 'hoje' : diffDias < 2 ? 'amanhã' : Math.ceil(diffDias) + ' dias';
+  notifEl.style.cssText = `
+    position:fixed;top:20px;right:20px;z-index:99999;
+    background:#0c1a2e;color:#fff;border-radius:14px;
+    padding:14px 18px;max-width:320px;
+    border-left:4px solid ${diffDias<=1?'#ef4444':'#f59e0b'};
+    box-shadow:0 8px 32px rgba(0,0,0,0.3);
+    animation:slideInRight .4s ease;
+    font-family:inherit;
+  `;
+  notifEl.innerHTML = `
+    <div style="display:flex;align-items:flex-start;gap:10px">
+      <div style="font-size:20px;flex-shrink:0">${diffDias<=1?'🔴':'🟡'}</div>
+      <div style="flex:1">
+        <div style="font-size:11px;font-weight:700;color:${diffDias<=1?'#f87171':'#fbbf24'};text-transform:uppercase;letter-spacing:.5px;margin-bottom:3px">Lembrete — ${diffTxt}</div>
+        <div style="font-size:13px;font-weight:600;line-height:1.4">${texto}</div>
+        <div style="font-size:11px;color:rgba(255,255,255,0.4);margin-top:4px">${data.toLocaleString('pt-BR',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'})}</div>
+      </div>
+      <button onclick="this.closest('div[style]').remove()" style="background:none;border:none;color:rgba(255,255,255,0.4);cursor:pointer;font-size:16px;padding:0;width:auto;line-height:1">✕</button>
+    </div>`;
+  document.body.appendChild(notifEl);
+  // Remove automaticamente depois de 8s
+  setTimeout(() => { if (notifEl.parentNode) notifEl.remove(); }, 8000);
+}
+
 async function deletarLembrete(id) {
   await db.from('lembretes').delete().eq('id', id);
   toast('🗑️ Lembrete removido.');
