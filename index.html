@@ -4610,26 +4610,50 @@ async function adminCompartilharModulos() {
   marcar('⏳ Transferindo...');
   const relatorio = [];
 
-  // Tenta RPC security definer primeiro (bypassa RLS)
-  const tabelasRPC = modulos.map(m => m.tabela);
-  try {
-    const { data: rpcResult, error: rpcErr } = await db.rpc('admin_transferir_dados', {
-      p_origem: currentUser.id,
-      p_destino: destino,
-      p_tabelas: tabelasRPC
-    });
-    if (!rpcErr && rpcResult) {
-      const resultados = Array.isArray(rpcResult) ? rpcResult : JSON.parse(rpcResult);
-      resultados.forEach(r => {
-        const m = modulos.find(m => m.tabela === r.tabela);
-        const label = m?.label || r.tabela;
-        if (r.ok) relatorio.push(`✅ ${label}: ${r.total} item(ns)`);
-        else relatorio.push(`⚠️ ${label}: ${r.erro}`);
+  // Tenta RPC security definer por tabela (bypassa RLS)
+  let usouRPC = false;
+  for (const m of modulos) {
+    try {
+      const { data: n, error } = await db.rpc('admin_copiar_dados', {
+        p_origem: currentUser.id,
+        p_destino: destino,
+        p_tabela: m.tabela
       });
-      const houveErro = relatorio.some(x => x.startsWith('⚠️'));
-      return marcar(relatorio.join(' | '), houveErro ? 'error' : 'success');
+      if (!error) {
+        relatorio.push(`✅ ${m.label}: ${n || 0} item(ns)`);
+        usouRPC = true;
+        continue;
+      }
+    } catch(e) {}
+
+    // Fallback direto se RPC não existir
+    try {
+      const { data, error } = await db.from(m.tabela).select('*').eq('user_id', currentUser.id);
+      if (error) { relatorio.push(`${m.label}: erro ao ler`); continue; }
+      if (!data?.length) { relatorio.push(`${m.label}: nada para transferir`); continue; }
+
+      const payload = data.map(item => {
+        const novo = {};
+        Object.keys(item).forEach(k => {
+          if (!['id','created_at','updated_at'].includes(k)) novo[k] = item[k];
+        });
+        novo.user_id = destino;
+        return novo;
+      });
+
+      let enviados = 0, falhas = 0;
+      for (let i = 0; i < payload.length; i += 10) {
+        const { error: err } = await db.from(m.tabela).insert(payload.slice(i, i+10));
+        if (err) falhas += Math.min(10, payload.length-i);
+        else enviados += Math.min(10, payload.length-i);
+      }
+
+      if (falhas > 0) relatorio.push(`⚠️ ${m.label}: bloqueado pela RLS — rode o SQL admin_copiar_dados no Supabase`);
+      else relatorio.push(`✅ ${m.label}: ${enviados} item(ns)`);
+    } catch(e) {
+      relatorio.push(`${m.label}: erro`);
     }
-  } catch(e) {}
+  }
 
   // Fallback: insere direto (pode falhar por RLS se não tiver a RPC)
   for (const m of modulos) {
@@ -4639,12 +4663,14 @@ async function adminCompartilharModulos() {
       if (!data?.length) { relatorio.push(`${m.label}: nada para transferir`); continue; }
 
       const payload = data.map(item => {
-        const novo = { ...item };
-        delete novo.id;
-        delete novo.created_at;
-        delete novo.updated_at;
-        novo.user_id = destino;
-        m.camposExcluir.forEach(c => { if (novo[c] === undefined) delete novo[c]; });
+        const novo = {};
+        // Copia todos os campos exceto id e timestamps
+        Object.keys(item).forEach(k => {
+          if (!['id','created_at','updated_at'].includes(k)) {
+            novo[k] = item[k];
+          }
+        });
+        novo.user_id = destino; // sobrescreve user_id para o destino
         return novo;
       });
 
@@ -4652,12 +4678,13 @@ async function adminCompartilharModulos() {
       for (let i = 0; i < payload.length; i += 10) {
         const lote = payload.slice(i, i + 10);
         const { error: err } = await db.from(m.tabela).insert(lote);
-        if (err) falhas += lote.length;
+        if (err) { console.warn(m.label, err.message); falhas += lote.length; }
         else enviados += lote.length;
       }
 
-      if (falhas > 0) relatorio.push(`${m.label}: ${enviados} ok, ${falhas} bloqueados pela RLS`);
-      else relatorio.push(`✅ ${m.label}: ${enviados} item(ns)`);
+      if (falhas > 0) {
+        relatorio.push(`⚠️ ${m.label}: ${enviados} ok, ${falhas} bloqueados pela RLS — rode o SQL de transferência no Supabase`);
+      } else relatorio.push(`✅ ${m.label}: ${enviados} item(ns)`);
 
     } catch (e) {
       relatorio.push(`${m.label}: erro inesperado`);
@@ -5666,6 +5693,52 @@ $$;
 
 -- ⚠️ NECESSÁRIO PARA TRANSFERIR DADOS ENTRE USUÁRIOS (bypassa RLS):
 -- Rode este SQL para a função "Transferir Dados" do admin funcionar:
+
+-- Opção 1 (mais simples): adicionar policy de insert para o admin em cada tabela
+-- Substitua 'SEU_USER_ID_ADMIN' pelo seu UUID de admin (veja em Authentication > Users)
+do $$
+declare
+  admin_id text := 'SEU_USER_ID_ADMIN'; -- substitua pelo seu UUID
+  tabelas text[] := array['materias','notas','planos','prioridades','planos_ia'];
+  t text;
+begin
+  foreach t in array tabelas loop
+    execute format(
+      'create policy "Admin pode inserir para qualquer usuário" on %I for insert with check (auth.uid()::text = %L)',
+      t, admin_id
+    );
+  end loop;
+end;
+$$;
+
+-- Opção 2 (mais robusta): RPC security definer
+create or replace function admin_copiar_dados(
+  p_origem uuid,
+  p_destino uuid,
+  p_tabela text
+) returns int language plpgsql security definer as $$
+declare n int := 0;
+begin
+  if p_tabela = 'materias' then
+    insert into materias (user_id, nome, professor, progresso, cor, data_prova, tempo_total)
+    select p_destino, nome, professor, progresso, cor, data_prova, tempo_total
+    from materias where user_id = p_origem;
+  elsif p_tabela = 'notas' then
+    insert into notas (user_id, titulo, conteudo, materia)
+    select p_destino, titulo, conteudo, materia from notas where user_id = p_origem;
+  elsif p_tabela = 'planos' then
+    insert into planos (user_id, titulo, conteudo, data_inicio, data_fim)
+    select p_destino, titulo, conteudo, data_inicio, data_fim from planos where user_id = p_origem;
+  elsif p_tabela = 'prioridades' then
+    insert into prioridades (user_id, titulo, nivel, descricao, materia)
+    select p_destino, titulo, nivel, descricao, materia from prioridades where user_id = p_origem;
+  elsif p_tabela = 'planos_ia' then
+    insert into planos_ia (user_id, titulo, pdf_nome, analise, plano_gerado, data_prova)
+    select p_destino, titulo, pdf_nome, analise, plano_gerado, data_prova from planos_ia where user_id = p_origem;
+  end if;
+  get diagnostics n = row_count;
+  return n;
+end;$$;
 create or replace function admin_transferir_dados(
   p_origem uuid,
   p_destino uuid,
