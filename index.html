@@ -359,7 +359,7 @@ body{font-family:'Plus Jakarta Sans',sans-serif;-webkit-font-smoothing:antialias
   .msg-box.error { background: var(--red-soft); color: var(--red); border: 1px solid #fecaca; display: block; }
 
   /* ── APP SHELL ── */
-  .app-screen { display: grid; grid-template-columns: 248px 1fr; height: 100vh; }
+  .app-screen { display: grid; grid-template-columns: 248px 1fr; min-height: 100vh; }
   
   /* ── SIDEBAR ── */
   .sidebar {
@@ -448,7 +448,7 @@ body{font-family:'Plus Jakarta Sans',sans-serif;-webkit-font-smoothing:antialias
   .user-info span { color: rgba(255,255,255,0.3); font-size: 11px; }
 
   /* ── MAIN ── */
-  .main-area { background: var(--bg); overflow-y: auto; }
+  .main-area { overflow-y: auto; background: var(--bg); }
 
   .topbar {
     padding: 14px 28px;
@@ -1688,13 +1688,9 @@ body{font-family:'Plus Jakarta Sans',sans-serif;-webkit-font-smoothing:antialias
 
       <!-- ─── ADMIN ─── -->
       <div class="tab-page" id="tab-admin">
-        <div style="background:linear-gradient(135deg,#0c1a2e,#1e3a5f);border-radius:14px;padding:18px 22px;margin-bottom:20px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px">
-          <div>
-            <div style="font-size:11px;font-weight:700;color:#60a5fa;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px">🛡️ Acesso Restrito</div>
-            <div style="font-size:20px;font-weight:800;color:#fff">Painel Administrativo</div>
-            <div style="font-size:12px;color:rgba(255,255,255,0.4);margin-top:2px" id="adminUltimaAtualizacao">Clique em Atualizar para carregar os dados</div>
-          </div>
-          <button onclick="adminCarregarUsuarios()" style="width:auto;padding:12px 24px;background:linear-gradient(135deg,#2563eb,#7c3aed);color:#fff;border:none;border-radius:10px;font-weight:700;font-size:13px;cursor:pointer">🔄 Atualizar tudo</button>
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;flex-wrap:wrap;gap:10px">
+          <div class="section-title" style="margin-bottom:0">🛡️ Painel Administrativo</div>
+          <button onclick="adminCarregarUsuarios()" style="width:auto;padding:10px 20px;background:linear-gradient(135deg,#2563eb,#7c3aed);color:#fff;border:none;border-radius:10px;font-weight:700;font-size:13px;cursor:pointer">🔄 Atualizar tudo</button>
         </div>
 
         <!-- Estatísticas -->
@@ -1838,12 +1834,7 @@ body{font-family:'Plus Jakarta Sans',sans-serif;-webkit-font-smoothing:antialias
             </div>
           </div>
         </div>
-
-        <!-- Diagnóstico embutido -->
-        <div id="adminDiagnostico" style="margin-top:16px;padding:14px;background:#f8faff;border:1px solid #dbeafe;border-radius:10px;font-size:12px;color:#1e40af;display:none">
-          <strong>🔍 Log de diagnóstico:</strong>
-          <div id="adminDiagLog" style="margin-top:6px;font-family:monospace;white-space:pre-wrap;font-size:11px;color:#374151"></div>
-        </div>
+</div>
       </div>
 
     </div><!-- /content -->
@@ -2347,18 +2338,7 @@ function goTab(tab) {
   document.getElementById('topbarTitle').textContent = title;
   document.getElementById('topbarSub').textContent = sub;
 
-  if (tab === 'admin') {
-    // Força scroll para o topo da área de conteúdo
-    const mainArea = document.querySelector('.main-area');
-    if (mainArea) mainArea.scrollTop = 0;
-    const contentArea = document.querySelector('.content');
-    if (contentArea) contentArea.scrollTop = 0;
-    adminCarregarUsuarios().catch(e => {
-      console.error('Admin erro:', e);
-      const el = document.getElementById('adminListaUsuarios');
-      if (el) el.innerHTML = '<div class="empty-state" style="color:#dc2626">❌ Erro: ' + (e.message || e) + '<br><small>Clique em "Atualizar tudo" para tentar novamente.</small></div>';
-    });
-  }
+  if (tab === 'admin') adminCarregarUsuarios();
   if (tab === 'dashboard') setTimeout(() => atualizarDashboard(), 50);
   if (tab === 'materias' && !window._recalculouUmaVez) {
     window._recalculouUmaVez = true;
@@ -4302,166 +4282,103 @@ function mostrarAdminMsg(txt, tipo) {
 }
 
 async function adminCarregarUsuarios() {
-  const elLista = document.getElementById('adminListaUsuarios');
-  const el1 = document.getElementById('adminTotalUsers');
-  const el2 = document.getElementById('adminAtivos');
-  const el3 = document.getElementById('adminTrial');
-  const elUpd = document.getElementById('adminUltimaAtualizacao');
-  const sel = document.getElementById('compartilharUsuario');
-  const diagEl = document.getElementById('adminDiagnostico');
-  const diagLog = document.getElementById('adminDiagLog');
+  const el = document.getElementById('adminListaUsuarios');
+  if (!el) return;
+  el.innerHTML = '<div class="empty-state"><div class="empty-icon">⏳</div>Carregando...</div>';
 
-  const log = (msg) => {
-    console.log('[Admin]', msg);
-    if (diagEl) diagEl.style.display = 'block';
-    if (diagLog) diagLog.textContent += msg + '\n';
-  };
+  const { data, error } = await db.from('assinaturas').select('*').order('created_at', { ascending: false });
 
-  if (elLista) elLista.innerHTML = '<div style="padding:16px;text-align:center;color:var(--muted)"><span class="spinner"></span> Carregando...</div>';
-  if (diagLog) diagLog.textContent = '';
-
-  log('Iniciando carga do admin...');
-
-  let listaUsuarios = [];
-
-  // 1) Tenta RPC completa
-  try {
-    log('Tentando RPC get_admin_users_overview...');
-    const { data, error } = await db.rpc('get_admin_users_overview');
-    if (!error && Array.isArray(data) && data.length) {
-      log('✅ RPC OK — ' + data.length + ' usuários');
-      listaUsuarios = data.map(u => ({
-        id: u.id, email: u.email || '',
-        nome: u.nome || '', telefone: u.telefone || '',
-        assinatura_ativa: !!u.assinatura_ativa,
-        trial_fim: u.trial_fim, data_pagamento: u.data_pagamento
-      }));
-    } else {
-      log('⚠️ RPC falhou: ' + (error?.message || 'sem dados'));
-    }
-  } catch(e) { log('⚠️ RPC exception: ' + e.message); }
-
-  // 2) Fallback — busca assinaturas direto
-  if (!listaUsuarios.length) {
-    log('Buscando tabela assinaturas...');
-    const { data: assinData, error: assinErr } = await db
-      .from('assinaturas').select('*').order('created_at', { ascending: false });
-
-    if (assinErr) {
-      log('❌ Erro assinaturas: ' + assinErr.message);
-      if (elLista) elLista.innerHTML = '<div style="padding:16px;color:#dc2626">❌ Erro: ' + assinErr.message + '</div>';
-      return;
-    }
-    log('✅ Assinaturas: ' + (assinData?.length || 0) + ' registros');
-
-    // Tenta email via RPC simples
-    let emailData = [];
-    try {
-      log('Tentando get_users_with_metadata...');
-      const { data: d1 } = await db.rpc('get_users_with_metadata');
-      if (d1?.length) {
-        emailData = d1.map(u => ({ id: u.id, email: u.email || '', nome: u.nome || u.raw_user_meta_data?.nome || '', telefone: u.telefone || u.raw_user_meta_data?.telefone || '' }));
-        log('✅ Metadata: ' + emailData.length + ' usuários');
-      }
-    } catch(e) { log('⚠️ Metadata falhou: ' + e.message); }
-
-    if (!emailData.length) {
-      try {
-        log('Tentando get_users_emails...');
-        const { data: d2 } = await db.rpc('get_users_emails');
-        if (d2?.length) {
-          emailData = d2.map(u => ({ id: u.id, email: u.email || '', nome: '', telefone: '' }));
-          log('✅ Emails: ' + emailData.length + ' usuários');
-        }
-      } catch(e) { log('⚠️ Emails falhou: ' + e.message); }
-    }
-
-    const assinMap = {};
-    (assinData || []).forEach(a => { assinMap[a.user_id] = a; });
-
-    if (emailData.length) {
-      listaUsuarios = emailData.map(u => ({
-        ...u,
-        assinatura_ativa: !!assinMap[u.id]?.ativa,
-        trial_fim: assinMap[u.id]?.trial_fim || null,
-        data_pagamento: assinMap[u.id]?.data_pagamento || null
-      }));
-    } else if (assinData?.length) {
-      log('⚠️ Sem emails — usando só assinaturas');
-      listaUsuarios = assinData.map(a => ({
-        id: a.user_id, email: '', nome: '', telefone: '',
-        assinatura_ativa: !!a.ativa,
-        trial_fim: a.trial_fim, data_pagamento: a.data_pagamento
-      }));
-    }
-  }
-
-  log('Total para renderizar: ' + listaUsuarios.length);
-  window.adminUsersEmails = listaUsuarios.map(u => ({ id: u.id, email: u.email, nome: u.nome, telefone: u.telefone }));
-
-  // Stats
-  if (el1) el1.textContent = listaUsuarios.length;
-  if (el2) el2.textContent = listaUsuarios.filter(u => u.assinatura_ativa).length;
-  if (el3) el3.textContent = listaUsuarios.filter(u => !u.assinatura_ativa && u.trial_fim && new Date(u.trial_fim) > new Date()).length;
-  if (elUpd) elUpd.textContent = 'Atualizado: ' + new Date().toLocaleTimeString('pt-BR');
-
-  if (sel) {
-    sel.innerHTML = '<option value="">Selecione o usuário...</option>' +
-      listaUsuarios.filter(u => u.email && u.email !== currentUser?.email)
-        .map(u => `<option value="${u.id}">${u.nome ? u.nome + ' — ' : ''}${u.email}</option>`).join('');
-  }
-
-  if (!listaUsuarios.length) {
-    if (elLista) elLista.innerHTML = `<div style="padding:20px;text-align:center">
-      <div style="font-size:32px;margin-bottom:10px">👥</div>
-      <div style="font-size:14px;font-weight:600;color:var(--text);margin-bottom:8px">Nenhum usuário encontrado</div>
-      <div style="font-size:12px;color:var(--muted);margin-bottom:14px">Os RPCs ainda não foram criados no Supabase. Rode o SQL abaixo:</div>
-      <div style="background:#f1f5f9;border-radius:8px;padding:12px;text-align:left;font-family:monospace;font-size:11px;color:#334155;white-space:pre-wrap">create or replace function get_users_emails()
-returns table(id uuid, email text)
-language sql security definer as $$
-  select id, email from auth.users order by created_at desc;
-$$;</div>
-      <button onclick="adminCarregarUsuarios()" style="margin-top:12px;width:auto;padding:8px 20px;background:#2563eb;color:#fff;border:none;border-radius:8px;font-weight:700;cursor:pointer">🔄 Tentar novamente</button>
-    </div>`;
+  if (error || !data) {
+    el.innerHTML = '<div class="empty-state">Erro ao carregar usuários.</div>';
     return;
   }
 
-  if (elLista) elLista.innerHTML = listaUsuarios.map(u => {
+  // Stats
+  const el1 = document.getElementById('adminTotalUsers');
+  const el2 = document.getElementById('adminAtivos');
+  const el3 = document.getElementById('adminTrial');
+  if (el1) el1.textContent = data.length;
+  if (el2) el2.textContent = data.filter(u => u.ativa).length;
+  if (el3) el3.textContent = data.filter(u => !u.ativa && u.trial_fim && new Date(u.trial_fim) > new Date()).length;
+
+  const elUpd = document.getElementById('adminUltimaAtualizacao');
+  if (elUpd) elUpd.textContent = 'Atualizado: ' + new Date().toLocaleTimeString('pt-BR');
+
+  // Tenta buscar emails via RPC para cruzar com assinaturas
+  try {
+    const { data: emailData } = await db.rpc('get_admin_users_overview');
+    if (emailData && emailData.length) {
+      window.adminUsersEmails = emailData;
+      const sel = document.getElementById('compartilharUsuario');
+      if (sel) {
+        sel.innerHTML = '<option value="">Selecione o usuário...</option>' +
+          emailData.filter(u => u.email !== currentUser.email).map(u =>
+            `<option value="${u.id}">${u.nome ? u.nome + ' — ' : ''}${u.email}</option>`
+          ).join('');
+      }
+    }
+  } catch(e) {}
+
+  // Tenta RPC simples como fallback
+  if (!window.adminUsersEmails?.length) {
+    try {
+      const { data: emailData } = await db.rpc('get_users_emails');
+      if (emailData) {
+        window.adminUsersEmails = emailData;
+        const sel = document.getElementById('compartilharUsuario');
+        if (sel) {
+          sel.innerHTML = '<option value="">Selecione o usuário...</option>' +
+            emailData.filter(u => u.email !== currentUser.email).map(u =>
+              `<option value="${u.id}">${u.email}</option>`
+            ).join('');
+        }
+      }
+    } catch(e) {}
+  }
+
+  if (!data.length) {
+    el.innerHTML = '<div class="empty-state"><div class="empty-icon">👥</div>Nenhum usuário cadastrado.</div>';
+    return;
+  }
+
+  el.innerHTML = data.map(u => {
     const trialFim = u.trial_fim ? new Date(u.trial_fim) : null;
     const trialExpirou = trialFim && trialFim < new Date();
     const diasTrial = trialFim ? Math.ceil((trialFim - new Date()) / 86400000) : null;
-    let status = '⏳ Novo', statusColor = '#d97706', statusBg = '#fffbeb';
-    if (u.assinatura_ativa) { status = '✅ Ativo'; statusColor = '#059669'; statusBg = '#f0fdf4'; }
+    let status, statusColor, statusBg;
+    if (u.ativa) { status = '✅ Ativo'; statusColor = '#059669'; statusBg = '#f0fdf4'; }
     else if (trialExpirou) { status = '❌ Expirado'; statusColor = '#dc2626'; statusBg = '#fef2f2'; }
-    else if (diasTrial !== null && diasTrial >= 0) { status = '⏳ Trial (' + diasTrial + 'd)'; }
-    const dataPag = u.data_pagamento ? new Date(u.data_pagamento).toLocaleDateString('pt-BR') : '';
-    const trialTxt = trialFim ? trialFim.toLocaleDateString('pt-BR') : '';
-    const avatar = ((u.nome || u.email || '?').charAt(0) || '?').toUpperCase();
-    return `<div style="display:flex;align-items:center;gap:10px;padding:11px 0;border-bottom:1px solid var(--border);flex-wrap:wrap">
-      <div style="width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,#2563eb,#3b82f6);display:grid;place-items:center;font-size:13px;font-weight:700;color:#fff;flex-shrink:0">${avatar}</div>
+    else if (diasTrial !== null) { status = '⏳ Trial (' + diasTrial + 'd)'; statusColor = '#d97706'; statusBg = '#fffbeb'; }
+    else { status = '—'; statusColor = '#64748b'; statusBg = '#f8fafc'; }
+
+    const emailInfo = (window.adminUsersEmails || []).find(e => e.id === u.user_id);
+    const emailDisplay = emailInfo ? (emailInfo.nome ? emailInfo.nome + ' — ' + emailInfo.email : emailInfo.email) : u.user_id.substring(0,12) + '...';
+    const telefone = emailInfo?.telefone ? `<div style="font-size:11px;color:#059669;font-weight:600">📱 ${emailInfo.telefone}</div>` : '';
+    const dataPagamento = u.data_pagamento ? new Date(u.data_pagamento).toLocaleDateString('pt-BR') : null;
+
+    return `<div style="display:flex;align-items:center;justify-content:space-between;padding:12px 0;border-bottom:1px solid var(--border);gap:10px;flex-wrap:wrap">
       <div style="flex:1;min-width:0">
-        <div style="font-size:13px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">
-          ${u.nome ? '<span style="color:#2563eb">' + u.nome + '</span> — ' : ''}${u.email || u.id?.substring(0,16) + '…'}
+        <div style="font-size:13px;font-weight:600;color:var(--text);overflow:hidden;text-overflow:ellipsis">${emailDisplay}</div>
+        ${telefone}
+        <div style="font-size:11px;color:var(--muted);margin-top:2px">
+          ${dataPagamento ? '<span style="color:#059669;font-weight:600">💳 Pagou em: ' + dataPagamento + '</span>' : (trialFim ? 'Trial até: ' + trialFim.toLocaleDateString('pt-BR') : 'Sem trial')}
         </div>
-        ${u.telefone ? `<div style="font-size:11px;color:#059669;font-weight:600">📱 ${u.telefone}</div>` : ''}
-        <div style="font-size:11px;color:var(--muted)">${dataPag ? '💳 Pagou: ' + dataPag : trialTxt ? 'Trial até: ' + trialTxt : 'Sem assinatura'}</div>
       </div>
-      <div style="display:flex;align-items:center;gap:5px;flex-shrink:0;flex-wrap:wrap">
-        <span style="font-size:10px;font-weight:700;padding:3px 9px;border-radius:20px;background:${statusBg};color:${statusColor}">${status}</span>
-        ${!u.assinatura_ativa ? `<button onclick="adminAtivarPorId('${u.id}')" class="mini-btn" style="width:auto;padding:3px 9px;font-size:11px">Ativar</button>` : `<button onclick="adminDesativarPorId('${u.id}')" class="mini-btn btn-secondary" style="width:auto;padding:3px 9px;font-size:11px">Desativar</button>`}
-        ${u.email ? `<button onclick="preencherAdminEmail('${u.email}')" class="mini-btn btn-secondary" style="width:auto;padding:3px 9px;font-size:11px">Selecionar</button>` : ''}
+      <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;flex-shrink:0">
+        <span style="font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px;background:${statusBg};color:${statusColor}">${status}</span>
+        ${!u.ativa ? `<button onclick="adminAtivarPorId('${u.user_id}')" class="mini-btn" style="width:auto;padding:4px 10px;font-size:11px">Ativar</button>` : `<button onclick="adminDesativarPorId('${u.user_id}')" class="mini-btn btn-secondary" style="width:auto;padding:4px 10px;font-size:11px">Desativar</button>`}
+        <button onclick="preencherAdminEmail('${emailInfo?.email || ''}')" class="mini-btn btn-secondary" style="width:auto;padding:4px 10px;font-size:11px">Selecionar</button>
+        <button onclick="adminCompartilharComUsuario('${u.user_id}')" class="mini-btn btn-secondary" style="width:auto;padding:4px 10px;font-size:11px">📤</button>
       </div>
     </div>`;
   }).join('');
 
-  log('✅ Renderizado com sucesso!');
-
-  // Carrega painéis extras em paralelo sem travar
+  // Carrega painéis em paralelo
   Promise.allSettled([
-    adminCarregarOnline().catch(e => log('Online erro: ' + e.message)),
-    adminCarregarNovosCadastros().catch(e => log('Cadastros erro: ' + e.message)),
-    adminCarregarTentativasCadastro().catch(e => log('Tentativas erro: ' + e.message)),
-    adminCarregarTempoAcesso().catch(e => log('Tempo erro: ' + e.message))
+    adminCarregarOnline().catch(() => {}),
+    adminCarregarNovosCadastros().catch(() => {}),
+    adminCarregarTentativasCadastro().catch(() => {}),
+    adminCarregarTempoAcesso().catch(() => {})
   ]);
 
   if (adminRefreshInterval) clearInterval(adminRefreshInterval);
