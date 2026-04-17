@@ -4500,77 +4500,40 @@ async function adminCarregarNovosCadastros() {
   const el = document.getElementById('adminNovosCadastros');
   if (!el) return;
 
-  // ── 1. Tenta buscar emails/metadata via RPC (melhor caso) ──
-  let emailData = null;
-  try {
-    const { data: d1 } = await db.rpc('get_users_with_metadata');
-    if (d1 && d1.length) emailData = d1;
-  } catch(e) {}
-  if (!emailData) {
-    try {
-      const { data: d2 } = await db.rpc('get_users_emails');
-      if (d2 && d2.length) emailData = d2;
-    } catch(e) {}
-  }
-
-  // ── 2. Busca visitantes_cadastro para cruzar nome+telefone ──
-  let visitMap = {};
-  try {
-    const { data: visitData } = await db.from('visitantes_cadastro')
-      .select('email, acao')
-      .in('acao', ['sucesso', 'tentativa', 'telefone_digitado', 'email_digitado'])
-      .order('created_at', { ascending: false });
-    // Monta mapa email → { nome, telefone } usando os dados já gravados
-    (visitData || []).forEach(v => {
-      if (v.email && !visitMap[v.email]) visitMap[v.email] = {};
-    });
-  } catch(e) {}
-
-  // ── 3. Busca assinaturas ──
-  let assinData = null;
-  try {
-    const { data: rpcData } = await db.rpc('get_all_assinaturas');
-    assinData = rpcData;
-  } catch(e) {}
-  if (!assinData) {
-    const { data: directData } = await db.from('assinaturas')
-      .select('user_id, ativa, trial_fim, data_pagamento, created_at')
-      .order('created_at', { ascending: false });
-    assinData = directData;
-  }
+  // Busca assinaturas diretamente — sem RPC
+  const { data: assinData } = await db.from('assinaturas')
+    .select('user_id, ativa, trial_fim, data_pagamento, created_at')
+    .order('created_at', { ascending: false });
   const assinMap = {};
   (assinData || []).forEach(a => { assinMap[a.user_id] = a; });
 
-  // ── 4. Normaliza emailData para ter nome e telefone ──
-  let emails = [];
-  if (emailData && emailData.length) {
-    emails = emailData.map(u => ({
-      ...u,
-      nome: u.nome || u.raw_user_meta_data?.nome || '',
-      telefone: u.telefone || u.raw_user_meta_data?.telefone || ''
-    }));
-  } else {
-    // Fallback: monta lista só dos user_ids das assinaturas
-    emails = Object.keys(assinMap).map(uid => ({
-      id: uid, email: '', nome: '', telefone: ''
-    }));
+  // Tenta RPCs de email — com fallback silencioso
+  let emails = window.adminUsersEmails || [];
+  if (!emails.length) {
+    try {
+      const { data: d1 } = await db.rpc('get_users_with_metadata');
+      if (d1?.length) emails = d1.map(u => ({
+        id: u.id, email: u.email || '',
+        nome: u.nome || u.raw_user_meta_data?.nome || '',
+        telefone: u.telefone || u.raw_user_meta_data?.telefone || ''
+      }));
+    } catch(e) {}
+    if (!emails.length) {
+      try {
+        const { data: d2 } = await db.rpc('get_users_emails');
+        if (d2?.length) emails = d2.map(u => ({ id: u.id, email: u.email || '', nome: '', telefone: '' }));
+      } catch(e) {}
+    }
+    // Fallback final: usa user_ids das assinaturas
+    if (!emails.length && Object.keys(assinMap).length) {
+      emails = Object.keys(assinMap).map(uid => ({ id: uid, email: '', nome: '', telefone: '' }));
+    }
+    if (emails.length) window.adminUsersEmails = emails;
   }
 
-  // ── 5. Popula select de compartilhamento ──
-  window.adminUsersEmails = emails;
-  const sel = document.getElementById('compartilharUsuario');
-  if (sel && emails.length) {
-    sel.innerHTML = '<option value="">Selecione o usuário...</option>' +
-      emails.filter(u => u.email && u.email !== currentUser.email).map(u =>
-        `<option value="${u.id}">${u.nome ? u.nome + ' — ' : ''}${u.email}</option>`
-      ).join('');
-  }
-
-  // ── 6. Atualiza contadores ──
+  // Atualiza contadores
   const ativos = Object.values(assinMap).filter(a => a.ativa).length;
-  const comAssin = new Set(Object.keys(assinMap));
-  const semAssin = emails.filter(u => u.id && !comAssin.has(u.id)).length;
-  const trial = Object.values(assinMap).filter(a => !a.ativa).length + semAssin;
+  const trial = Object.values(assinMap).filter(a => !a.ativa && a.trial_fim && new Date(a.trial_fim) > new Date()).length;
   const el1 = document.getElementById('adminTotalUsers');
   const el2 = document.getElementById('adminAtivos');
   const el3 = document.getElementById('adminTrial');
@@ -4578,24 +4541,38 @@ async function adminCarregarNovosCadastros() {
   if (el2) el2.textContent = ativos;
   if (el3) el3.textContent = trial;
 
-  if (!emails.length && !Object.keys(assinMap).length) {
-    el.innerHTML = '<div class="empty-state"><div class="empty-icon">🆕</div>Nenhum usuário encontrado.<br><small style="font-size:11px;color:var(--muted)">Execute o SQL do RPC no Supabase para ver todos os dados.</small></div>';
+  // Popula select compartilhar
+  const sel = document.getElementById('compartilharUsuario');
+  if (sel && emails.length) {
+    sel.innerHTML = '<option value="">Selecione o usuário...</option>' +
+      emails.filter(u => u.email && u.email !== currentUser?.email)
+        .map(u => `<option value="${u.id}">${u.nome ? u.nome + ' — ' : ''}${u.email}</option>`)
+        .join('');
+  }
+
+  // Sem dados
+  if (!emails.length) {
+    el.innerHTML = `<div style="padding:20px;text-align:center">
+      <div style="font-size:32px;margin-bottom:10px">👥</div>
+      <div style="font-size:14px;font-weight:600;margin-bottom:6px">Nenhum usuário encontrado</div>
+      <div style="font-size:12px;color:var(--muted);margin-bottom:14px">Para ver emails e nomes, rode este SQL no Supabase:</div>
+      <code style="display:block;background:#f1f5f9;padding:10px 14px;border-radius:8px;font-size:11px;text-align:left;white-space:pre-wrap;color:#334155">create or replace function get_users_emails()
+returns table(id uuid, email text)
+language sql security definer as $$
+  select id, email from auth.users order by created_at desc;
+$$;</code>
+      <button onclick="adminCarregarUsuarios()" style="margin-top:12px;width:auto;padding:8px 20px;background:#2563eb;color:#fff;border:none;border-radius:8px;font-weight:700;cursor:pointer">🔄 Tentar novamente</button>
+    </div>`;
     return;
   }
 
-  // ── 7. Renderiza lista ──
-  // Se não temos emails mas temos assinaturas, renderiza com user_id parcial
-  const listaRender = emails.length ? emails : Object.keys(assinMap).map(uid => ({
-    id: uid, email: uid.substring(0,8) + '…', nome: '', telefone: ''
-  }));
-
-  el.innerHTML = listaRender.map(u => {
+  el.innerHTML = emails.map(u => {
     const assin = assinMap[u.id];
     const agora = new Date();
     const nomeDisplay = u.nome || '';
     const telefoneDisplay = u.telefone || '';
     const emailDisplay = u.email || u.id?.substring(0,12) + '…';
-    const avatar = emailDisplay.charAt(0).toUpperCase();
+    const avatar = (nomeDisplay || emailDisplay || '?').charAt(0).toUpperCase();
 
     let trialInfo = '', statusBg, statusColor, status;
 
@@ -4622,28 +4599,23 @@ async function adminCarregarNovosCadastros() {
       statusBg = '#fffbeb'; statusColor = '#d97706'; status = '⏳ Novo';
     }
 
-    const dataPag = assin?.data_pagamento
-      ? `<div style="font-size:11px;color:#059669;font-weight:600">💳 Pagou em: ${new Date(assin.data_pagamento).toLocaleDateString('pt-BR')}</div>`
-      : '';
-    const createdAt = assin?.created_at
-      ? `<div style="font-size:10px;color:var(--muted)">Cadastro: ${new Date(assin.created_at).toLocaleDateString('pt-BR')}</div>`
-      : '';
+    const dataPag = assin?.data_pagamento ? `<div style="font-size:11px;color:#059669;font-weight:600">💳 Pagou em: ${new Date(assin.data_pagamento).toLocaleDateString('pt-BR')}</div>` : '';
+    const dataEntrada = assin?.created_at ? `<div style="font-size:10px;color:var(--muted)">Desde: ${new Date(assin.created_at).toLocaleDateString('pt-BR')}</div>` : '';
 
-    return `<div style="display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--border)">
+    return `<div style="display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--border);flex-wrap:wrap">
       <div style="width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,#2563eb,#3b82f6);display:grid;place-items:center;font-size:15px;font-weight:700;color:#fff;flex-shrink:0">${avatar}</div>
       <div style="flex:1;min-width:0">
         <div style="font-size:13px;font-weight:600;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">
           ${nomeDisplay ? '<span style="color:#2563eb">' + nomeDisplay + '</span> — ' : ''}${emailDisplay}
         </div>
         ${telefoneDisplay ? `<div style="font-size:11px;color:#059669;font-weight:600">📱 ${telefoneDisplay}</div>` : ''}
-        ${trialInfo}${dataPag}${createdAt}
+        ${trialInfo}${dataPag}${dataEntrada}
       </div>
-      <div style="display:flex;flex-direction:column;align-items:flex-end;gap:5px;flex-shrink:0">
+      <div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px;flex-shrink:0">
         <span style="font-size:10px;background:${statusBg};color:${statusColor};padding:3px 10px;border-radius:20px;font-weight:700;white-space:nowrap">${status}</span>
         <div style="display:flex;gap:4px">
+          ${!assin?.ativa ? `<button onclick="adminAtivarPorId('${u.id}')" class="mini-btn" style="width:auto;padding:3px 10px;font-size:10px">Ativar</button>` : `<button onclick="adminDesativarPorId('${u.id}')" class="mini-btn btn-secondary" style="width:auto;padding:3px 10px;font-size:10px">Desativar</button>`}
           ${u.email ? `<button onclick="adminEnviarEmail('${u.email}')" style="font-size:10px;padding:3px 8px;border-radius:8px;background:#eff6ff;color:#2563eb;border:1px solid #dbeafe;cursor:pointer;width:auto">📧</button>` : ''}
-          ${u.id && !assin?.ativa ? `<button onclick="adminAtivarPorId('${u.id}')" class="mini-btn" style="width:auto;padding:3px 10px;font-size:10px">Ativar</button>` : ''}
-          ${u.id && assin?.ativa ? `<button onclick="adminDesativarPorId('${u.id}')" class="mini-btn btn-secondary" style="width:auto;padding:3px 10px;font-size:10px">Desativar</button>` : ''}
         </div>
       </div>
     </div>`;
