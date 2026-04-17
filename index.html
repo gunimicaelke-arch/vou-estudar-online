@@ -359,7 +359,7 @@ body{font-family:'Plus Jakarta Sans',sans-serif;-webkit-font-smoothing:antialias
   .msg-box.error { background: var(--red-soft); color: var(--red); border: 1px solid #fecaca; display: block; }
 
   /* ── APP SHELL ── */
-  .app-screen { display: grid; grid-template-columns: 248px 1fr; min-height: 100vh; }
+  .app-screen { display: grid; grid-template-columns: 248px 1fr; height: 100vh; overflow: hidden; }
 
   /* ── SIDEBAR ── */
   .sidebar {
@@ -448,7 +448,7 @@ body{font-family:'Plus Jakarta Sans',sans-serif;-webkit-font-smoothing:antialias
   .user-info span { color: rgba(255,255,255,0.3); font-size: 11px; }
 
   /* ── MAIN ── */
-  .main-area { overflow-y: auto; background: var(--bg); }
+  .main-area { overflow-y: auto; background: var(--bg); height: 100vh; }
 
   .topbar {
     padding: 14px 28px;
