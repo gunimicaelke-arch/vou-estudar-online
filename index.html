@@ -1415,7 +1415,10 @@ body{font-family:'Plus Jakarta Sans',sans-serif;-webkit-font-smoothing:antialias
           <div class="card card-pad" style="margin-bottom:18px;border-left:4px solid var(--primary)">
             <div class="card-head">
               <h3 id="planoIATituloResult">Plano Gerado</h3>
-              <button class="mini-btn" onclick="salvarPlanoInteligente()" style="width:auto">💾 Salvar Plano</button>
+              <div style="display:flex;gap:6px;flex-wrap:wrap">
+                <button class="mini-btn btn-secondary" style="width:auto;background:#eff6ff;color:#2563eb;border-color:#dbeafe" onclick="exportarPlanoAtualPDF()">📄 Exportar PDF</button>
+                <button class="mini-btn" onclick="salvarPlanoInteligente()" style="width:auto">💾 Salvar Plano</button>
+              </div>
             </div>
 
             <!-- Abas -->
@@ -1607,6 +1610,24 @@ body{font-family:'Plus Jakarta Sans',sans-serif;-webkit-font-smoothing:antialias
           </div>
           <div id="adminOnlineList">
             <div class="empty-state"><div class="empty-icon">🟢</div>Nenhum usuário online no momento.</div>
+          </div>
+        </div>
+
+        <!-- Tempo de acesso por dia -->
+        <div class="card card-pad" style="margin-bottom:20px">
+          <div class="card-head">
+            <h3>📅 Tempo de Acesso por Usuário/Dia</h3>
+            <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+              <select id="adminTempoFiltro" style="width:auto;margin-bottom:0;font-size:12px;padding:5px 10px" onchange="adminCarregarTempoAcesso()">
+                <option value="7">Últimos 7 dias</option>
+                <option value="14">Últimos 14 dias</option>
+                <option value="30">Últimos 30 dias</option>
+              </select>
+              <button class="mini-btn btn-secondary" style="width:auto" onclick="adminCarregarTempoAcesso()">🔄 Atualizar</button>
+            </div>
+          </div>
+          <div id="adminTempoAcesso">
+            <div class="empty-state"><div class="empty-icon">📅</div>Carregando dados de acesso...</div>
           </div>
         </div>
 
@@ -1925,6 +1946,19 @@ async function carregarApp() {
   mostrarBadgeTrial();
   mostrarMenuAdmin();
   registrarPresenca();
+
+  // Auto-refresh do dashboard a cada 60 segundos
+  if (window._dashInterval) clearInterval(window._dashInterval);
+  window._dashInterval = setInterval(async () => {
+    try {
+      await Promise.all([carregarMaterias(), carregarNotas(), carregarHistoricoEstudo()]);
+      atualizarDashboard();
+      // Atualiza feedback IA automaticamente se já foi gerado antes
+      const fbEl = document.getElementById('feedbackIAConteudo');
+      const jaGerado = fbEl && fbEl.querySelector('.fb-bloco');
+      if (jaGerado) gerarFeedbackIA();
+    } catch(e) {}
+  }, 60000);
 }
 
 async function registrarPresenca() {
@@ -2560,18 +2594,26 @@ function atualizarDashboard() {
 function renderChart() {
   const canvas = document.getElementById('chartMaterias');
   if (!canvas) return;
-  const ctx = canvas.getContext('2d');
-  if (chartInstance) { chartInstance.destroy(); chartInstance = null; }
 
-  if (!materias.length) {
-    ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
-    return;
+  // Destrói instância anterior de forma segura
+  if (chartInstance) {
+    try { chartInstance.destroy(); } catch(e) {}
+    chartInstance = null;
   }
 
-  chartInstance = new Chart(ctx, {
+  // Recria o canvas para evitar state corrompido
+  const parent = canvas.parentElement;
+  const newCanvas = document.createElement('canvas');
+  newCanvas.id = 'chartMaterias';
+  parent.innerHTML = '';
+  parent.appendChild(newCanvas);
+
+  if (!materias.length) return;
+
+  chartInstance = new Chart(newCanvas.getContext('2d'), {
     type: 'bar',
     data: {
-      labels: materias.map(m => m.nome),
+      labels: materias.map(m => m.nome.length > 14 ? m.nome.substring(0,13)+'…' : m.nome),
       datasets: [{
         label: 'Progresso (%)',
         data: materias.map(m => m.progresso || 0),
@@ -2583,7 +2625,7 @@ function renderChart() {
     options: {
       responsive: true, maintainAspectRatio: false,
       scales: {
-        y: { beginAtZero: true, max: 100, grid: { color: '#e4e8f5' } },
+        y: { beginAtZero: true, max: 100, grid: { color: '#e4e8f5' }, ticks: { callback: v => v + '%' } },
         x: { grid: { display: false } }
       },
       plugins: { legend: { display: false } }
@@ -3115,13 +3157,14 @@ function renderListaPlanosInt(lista) {
   }
   el.innerHTML = lista.map(p => `
     <div class="item-card" style="margin-bottom:10px">
-      <div style="display:flex;justify-content:space-between;align-items:flex-start">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:8px">
         <div>
           <h4>${p.titulo}</h4>
           <p style="font-size:12px;margin-top:2px">${p.pdf_nome||''} — ${new Date(p.created_at).toLocaleDateString('pt-BR')}</p>
         </div>
-        <div style="display:flex;gap:6px">
+        <div style="display:flex;gap:6px;flex-wrap:wrap">
           <button class="mini-btn" onclick="verPlanoSalvo('${p.id}')">👁️ Ver</button>
+          <button class="mini-btn btn-secondary" style="background:#eff6ff;color:#2563eb;border-color:#dbeafe" onclick="exportarPlanoPDF('${p.id}')">📄 PDF</button>
           <button class="mini-btn btn-danger" onclick="deletarPlanoInt('${p.id}')">🗑️</button>
         </div>
       </div>
@@ -3734,39 +3777,49 @@ async function adminCarregarUsuarios() {
   const el = document.getElementById('adminListaUsuarios');
   el.innerHTML = '<div class="empty-state"><div class="empty-icon">⏳</div>Carregando...</div>';
 
+  // Busca assinaturas
   const { data, error } = await db.from('assinaturas').select('*').order('created_at', { ascending: false });
-
   if (error || !data) {
     el.innerHTML = '<div class="empty-state">Erro ao carregar usuários.</div>';
     return;
   }
 
+  // Busca emails/metadata para cruzar com assinaturas
+  let emailData = null;
+  try {
+    const { data: d1 } = await db.rpc('get_users_with_metadata');
+    if (d1 && d1.length) emailData = d1;
+  } catch(e) {}
+  if (!emailData) {
+    try {
+      const { data: d2 } = await db.rpc('get_users_emails');
+      if (d2 && d2.length) emailData = d2;
+    } catch(e) {}
+  }
+  if (emailData) {
+    emailData = emailData.map(u => ({
+      ...u,
+      nome: u.nome || u.raw_user_meta_data?.nome || '',
+      telefone: u.telefone || u.raw_user_meta_data?.telefone || ''
+    }));
+    window.adminUsersEmails = emailData;
+  }
+
+  // Popula select compartilhar
+  const sel = document.getElementById('compartilharUsuario');
+  if (sel && emailData) {
+    sel.innerHTML = '<option value="">Selecione o usuário...</option>' +
+      emailData.filter(u => u.email && u.email !== currentUser.email).map(u =>
+        `<option value="${u.id}">${u.nome ? u.nome + ' — ' : ''}${u.email}</option>`
+      ).join('');
+  }
+
   // Atualiza stats
-  document.getElementById('adminTotalUsers').textContent = data.length;
+  document.getElementById('adminTotalUsers').textContent = emailData ? emailData.length : data.length;
   document.getElementById('adminAtivos').textContent = data.filter(u => u.ativa).length;
   document.getElementById('adminTrial').textContent = data.filter(u => !u.ativa && u.trial_fim && new Date(u.trial_fim) > new Date()).length;
 
-  if (!data.length) {
-    el.innerHTML = '<div class="empty-state"><div class="empty-icon">👥</div>Nenhum usuário cadastrado.</div>';
-    return;
-  }
-
-  // Populate sharing dropdown with emails via RPC
-  try {
-    const { data: emailData } = await db.rpc('get_users_emails');
-    if (emailData) {
-      window.adminUsersEmails = emailData;
-      const sel = document.getElementById('compartilharUsuario');
-      if (sel) {
-        sel.innerHTML = '<option value="">Selecione o usuário...</option>' +
-          emailData.filter(u => u.email !== currentUser.email).map(u =>
-            `<option value="${u.id}">${u.email}</option>`
-          ).join('');
-      }
-    }
-  } catch(e) { console.log('RPC emails erro:', e); }
-
-  // Load real-time data AFTER emails are loaded
+  // Load real-time data
   await adminCarregarTempoReal();
 
   // Auto-refresh every 30 seconds
@@ -3779,6 +3832,11 @@ async function adminCarregarUsuarios() {
     }
   }, 30000);
 
+  if (!data.length) {
+    el.innerHTML = '<div class="empty-state"><div class="empty-icon">👥</div>Nenhum usuário cadastrado.</div>';
+    return;
+  }
+
   el.innerHTML = data.map(u => {
     const trialFim = u.trial_fim ? new Date(u.trial_fim) : null;
     const trialExpirou = trialFim && trialFim < new Date();
@@ -3789,19 +3847,24 @@ async function adminCarregarUsuarios() {
     else if (diasTrial !== null) { status = '⏳ Trial (' + diasTrial + 'd)'; statusColor = '#d97706'; statusBg = '#fffbeb'; }
     else { status = '—'; statusColor = '#64748b'; statusBg = '#f8fafc'; }
 
-    const emailInfo = window.adminUsersEmails?.find(e => e.id === u.user_id);
-    const emailDisplay = emailInfo ? emailInfo.email : u.user_id.substring(0,8) + '...';
+    const userInfo = (window.adminUsersEmails||[]).find(e => e.id === u.user_id);
+    const emailDisplay = userInfo ? userInfo.email : u.user_id.substring(0,8) + '...';
+    const nomeDisplay = userInfo?.nome || '';
+    const telefoneDisplay = userInfo?.telefone || '';
     const dataPagamento = u.data_pagamento ? new Date(u.data_pagamento).toLocaleDateString('pt-BR', { day:'2-digit', month:'2-digit', year:'numeric', hour:'2-digit', minute:'2-digit' }) : null;
 
     return `
-    <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 0;border-bottom:1px solid var(--border)">
-      <div>
-        <div style="font-size:13px;font-weight:600;color:var(--text)">${emailDisplay}</div>
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 0;border-bottom:1px solid var(--border);gap:10px;flex-wrap:wrap">
+      <div style="flex:1;min-width:0">
+        <div style="font-size:13px;font-weight:600;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">
+          ${nomeDisplay ? '<span style="color:#2563eb">' + nomeDisplay + '</span> — ' : ''}${emailDisplay}
+        </div>
+        ${telefoneDisplay ? `<div style="font-size:11px;color:#059669;font-weight:600">📱 ${telefoneDisplay}</div>` : ''}
         <div style="font-size:11px;color:var(--muted);margin-top:2px">
           ${dataPagamento ? '<span style="color:#059669;font-weight:600">💳 Pagou em: ' + dataPagamento + '</span>' : (trialFim ? 'Trial até: ' + trialFim.toLocaleDateString('pt-BR') : 'Sem trial')}
         </div>
       </div>
-      <div style="display:flex;align-items:center;gap:8px">
+      <div style="display:flex;align-items:center;gap:6px;flex-shrink:0">
         <span style="font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px;background:${statusBg};color:${statusColor}">${status}</span>
         ${!u.ativa ? `<button onclick="adminAtivarPorId('${u.user_id}')" class="mini-btn" style="width:auto;padding:4px 10px;font-size:11px">Ativar</button>` : `<button onclick="adminDesativarPorId('${u.user_id}')" class="mini-btn btn-secondary" style="width:auto;padding:4px 10px;font-size:11px">Desativar</button>`}
         <button onclick="adminCompartilharComUsuario('${u.user_id}')" class="mini-btn btn-secondary" style="width:auto;padding:4px 10px;font-size:11px">📤</button>
@@ -3833,7 +3896,8 @@ async function adminCarregarTempoReal() {
   await Promise.all([
     adminCarregarOnline(),
     adminCarregarNovosCadastros(),
-    adminCarregarTentativasCadastro()
+    adminCarregarTentativasCadastro(),
+    adminCarregarTempoAcesso()
   ]);
   document.getElementById('adminUltimaAtualizacao').textContent =
     'Atualizado: ' + new Date().toLocaleTimeString('pt-BR');
@@ -3885,47 +3949,104 @@ async function adminCarregarNovosCadastros() {
   const el = document.getElementById('adminNovosCadastros');
   if (!el) return;
 
-  const emails = window.adminUsersEmails || [];
-
-  if (!emails.length) {
-    el.innerHTML = '<div class="empty-state"><div class="empty-icon">🆕</div>Nenhum usuário encontrado. Clique em Atualizar.</div>';
-    return;
+  // ── 1. Tenta buscar emails/metadata via RPC (melhor caso) ──
+  let emailData = null;
+  try {
+    const { data: d1 } = await db.rpc('get_users_with_metadata');
+    if (d1 && d1.length) emailData = d1;
+  } catch(e) {}
+  if (!emailData) {
+    try {
+      const { data: d2 } = await db.rpc('get_users_emails');
+      if (d2 && d2.length) emailData = d2;
+    } catch(e) {}
   }
 
-  // Use RPC to bypass RLS and get all subscriptions
+  // ── 2. Busca visitantes_cadastro para cruzar nome+telefone ──
+  let visitMap = {};
+  try {
+    const { data: visitData } = await db.from('visitantes_cadastro')
+      .select('email, acao')
+      .in('acao', ['sucesso', 'tentativa', 'telefone_digitado', 'email_digitado'])
+      .order('created_at', { ascending: false });
+    // Monta mapa email → { nome, telefone } usando os dados já gravados
+    (visitData || []).forEach(v => {
+      if (v.email && !visitMap[v.email]) visitMap[v.email] = {};
+    });
+  } catch(e) {}
+
+  // ── 3. Busca assinaturas ──
   let assinData = null;
   try {
     const { data: rpcData } = await db.rpc('get_all_assinaturas');
     assinData = rpcData;
-  } catch(e) {
-    // Fallback to direct query
-    const { data: directData } = await db.from('assinaturas').select('user_id, ativa, trial_fim, data_pagamento, created_at').order('created_at', { ascending: false });
+  } catch(e) {}
+  if (!assinData) {
+    const { data: directData } = await db.from('assinaturas')
+      .select('user_id, ativa, trial_fim, data_pagamento, created_at')
+      .order('created_at', { ascending: false });
     assinData = directData;
   }
   const assinMap = {};
   (assinData || []).forEach(a => { assinMap[a.user_id] = a; });
 
+  // ── 4. Normaliza emailData para ter nome e telefone ──
+  let emails = [];
+  if (emailData && emailData.length) {
+    emails = emailData.map(u => ({
+      ...u,
+      nome: u.nome || u.raw_user_meta_data?.nome || '',
+      telefone: u.telefone || u.raw_user_meta_data?.telefone || ''
+    }));
+  } else {
+    // Fallback: monta lista só dos user_ids das assinaturas
+    emails = Object.keys(assinMap).map(uid => ({
+      id: uid, email: '', nome: '', telefone: ''
+    }));
+  }
+
+  // ── 5. Popula select de compartilhamento ──
+  window.adminUsersEmails = emails;
+  const sel = document.getElementById('compartilharUsuario');
+  if (sel && emails.length) {
+    sel.innerHTML = '<option value="">Selecione o usuário...</option>' +
+      emails.filter(u => u.email && u.email !== currentUser.email).map(u =>
+        `<option value="${u.id}">${u.nome ? u.nome + ' — ' : ''}${u.email}</option>`
+      ).join('');
+  }
+
+  // ── 6. Atualiza contadores ──
   const ativos = Object.values(assinMap).filter(a => a.ativa).length;
-  // Trial = users with assinatura record but not ativa, OR users without any assinatura record
-  const comAssinatura = new Set(Object.keys(assinMap));
-  const semAssinatura = emails.filter(u => !comAssinatura.has(u.id)).length;
-  const trial = Object.values(assinMap).filter(a => !a.ativa).length + semAssinatura;
+  const comAssin = new Set(Object.keys(assinMap));
+  const semAssin = emails.filter(u => u.id && !comAssin.has(u.id)).length;
+  const trial = Object.values(assinMap).filter(a => !a.ativa).length + semAssin;
   const el1 = document.getElementById('adminTotalUsers');
   const el2 = document.getElementById('adminAtivos');
   const el3 = document.getElementById('adminTrial');
-  if (el1) el1.textContent = emails.length;
+  if (el1) el1.textContent = emails.length || Object.keys(assinMap).length;
   if (el2) el2.textContent = ativos;
   if (el3) el3.textContent = trial;
 
-  el.innerHTML = emails.map(u => {
+  if (!emails.length && !Object.keys(assinMap).length) {
+    el.innerHTML = '<div class="empty-state"><div class="empty-icon">🆕</div>Nenhum usuário encontrado.<br><small style="font-size:11px;color:var(--muted)">Execute o SQL do RPC no Supabase para ver todos os dados.</small></div>';
+    return;
+  }
+
+  // ── 7. Renderiza lista ──
+  // Se não temos emails mas temos assinaturas, renderiza com user_id parcial
+  const listaRender = emails.length ? emails : Object.keys(assinMap).map(uid => ({
+    id: uid, email: uid.substring(0,8) + '…', nome: '', telefone: ''
+  }));
+
+  el.innerHTML = listaRender.map(u => {
     const assin = assinMap[u.id];
     const agora = new Date();
-    const nomeDisplay = u.raw_user_meta_data?.nome || u.nome || '';
-    const telefoneDisplay = u.raw_user_meta_data?.telefone || u.telefone || '';
+    const nomeDisplay = u.nome || '';
+    const telefoneDisplay = u.telefone || '';
+    const emailDisplay = u.email || u.id?.substring(0,12) + '…';
+    const avatar = emailDisplay.charAt(0).toUpperCase();
 
-    // Calcular tempo restante do trial
-    let trialInfo = '';
-    let statusBg, statusColor, status;
+    let trialInfo = '', statusBg, statusColor, status;
 
     if (assin?.ativa) {
       statusBg = '#f0fdf4'; statusColor = '#16a34a'; status = '✅ Ativo';
@@ -3936,9 +4057,9 @@ async function adminCarregarNovosCadastros() {
         const dias = Math.floor(diffMs / 86400000);
         const horas = Math.floor((diffMs % 86400000) / 3600000);
         const mins = Math.floor((diffMs % 3600000) / 60000);
-        const tempoStr = dias > 0 ? `${dias}d ${horas}h restantes` : horas > 0 ? `${horas}h ${mins}min restantes` : `${mins}min restantes`;
+        const tempoStr = dias > 0 ? `${dias}d ${horas}h` : horas > 0 ? `${horas}h ${mins}min` : `${mins}min`;
         const urgente = diffMs < 24 * 3600000;
-        trialInfo = `<div style="font-size:11px;color:${urgente ? '#dc2626' : '#d97706'};font-weight:600">⏱️ ${tempoStr}</div>`;
+        trialInfo = `<div style="font-size:11px;color:${urgente?'#dc2626':'#d97706'};font-weight:600">⏱️ ${tempoStr} restantes</div>`;
         statusBg = urgente ? '#fef2f2' : '#fffbeb';
         statusColor = urgente ? '#dc2626' : '#d97706';
         status = urgente ? '🔴 Expirando' : '⏳ Trial';
@@ -3947,21 +4068,32 @@ async function adminCarregarNovosCadastros() {
         statusBg = '#fef2f2'; statusColor = '#dc2626'; status = '❌ Expirado';
       }
     } else {
-      statusBg = '#fffbeb'; statusColor = '#d97706'; status = '⏳ Trial';
+      statusBg = '#fffbeb'; statusColor = '#d97706'; status = '⏳ Novo';
     }
 
-    const dataPag = assin?.data_pagamento ? `<div style="font-size:11px;color:#059669">💳 Pagou em: ${new Date(assin.data_pagamento).toLocaleDateString('pt-BR')}</div>` : '';
+    const dataPag = assin?.data_pagamento
+      ? `<div style="font-size:11px;color:#059669;font-weight:600">💳 Pagou em: ${new Date(assin.data_pagamento).toLocaleDateString('pt-BR')}</div>`
+      : '';
+    const createdAt = assin?.created_at
+      ? `<div style="font-size:10px;color:var(--muted)">Cadastro: ${new Date(assin.created_at).toLocaleDateString('pt-BR')}</div>`
+      : '';
 
     return `<div style="display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--border)">
-      <div style="width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#2563eb,#3b82f6);display:grid;place-items:center;font-size:14px;font-weight:700;color:#fff;flex-shrink:0">${u.email.charAt(0).toUpperCase()}</div>
-      <div style="flex:1">
-        <div style="font-size:13px;font-weight:600;color:var(--text)">${nomeDisplay ? nomeDisplay + ' — ' : ''}${u.email}</div>
-        ${telefoneDisplay ? `<div style="font-size:11px;color:#2563eb;font-weight:600">📱 ${telefoneDisplay}</div>` : ''}
-        ${trialInfo}${dataPag}
+      <div style="width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,#2563eb,#3b82f6);display:grid;place-items:center;font-size:15px;font-weight:700;color:#fff;flex-shrink:0">${avatar}</div>
+      <div style="flex:1;min-width:0">
+        <div style="font-size:13px;font-weight:600;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">
+          ${nomeDisplay ? '<span style="color:#2563eb">' + nomeDisplay + '</span> — ' : ''}${emailDisplay}
+        </div>
+        ${telefoneDisplay ? `<div style="font-size:11px;color:#059669;font-weight:600">📱 ${telefoneDisplay}</div>` : ''}
+        ${trialInfo}${dataPag}${createdAt}
       </div>
-      <div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px">
-        <span style="font-size:10px;background:${statusBg};color:${statusColor};padding:2px 8px;border-radius:20px;font-weight:700">${status}</span>
-        ${!assin?.ativa ? `<button onclick="adminEnviarEmail('${u.email}')" style="font-size:10px;padding:3px 8px;border-radius:8px;background:#eff6ff;color:#2563eb;border:1px solid #dbeafe;cursor:pointer;width:auto">📧 Enviar</button>` : ''}
+      <div style="display:flex;flex-direction:column;align-items:flex-end;gap:5px;flex-shrink:0">
+        <span style="font-size:10px;background:${statusBg};color:${statusColor};padding:3px 10px;border-radius:20px;font-weight:700;white-space:nowrap">${status}</span>
+        <div style="display:flex;gap:4px">
+          ${u.email ? `<button onclick="adminEnviarEmail('${u.email}')" style="font-size:10px;padding:3px 8px;border-radius:8px;background:#eff6ff;color:#2563eb;border:1px solid #dbeafe;cursor:pointer;width:auto">📧</button>` : ''}
+          ${u.id && !assin?.ativa ? `<button onclick="adminAtivarPorId('${u.id}')" class="mini-btn" style="width:auto;padding:3px 10px;font-size:10px">Ativar</button>` : ''}
+          ${u.id && assin?.ativa ? `<button onclick="adminDesativarPorId('${u.id}')" class="mini-btn btn-secondary" style="width:auto;padding:3px 10px;font-size:10px">Desativar</button>` : ''}
+        </div>
       </div>
     </div>`;
   }).join('');
@@ -4184,7 +4316,254 @@ function mostrarCompartilharMsg(txt, tipo) {
   if (tipo !== 'info') setTimeout(() => { el.style.display = 'none'; }, 5000);
 }
 
-// ══ FEEDBACK IA POR MATÉRIA ══
+// ══ TEMPO DE ACESSO POR DIA ══
+async function adminCarregarTempoAcesso() {
+  const el = document.getElementById('adminTempoAcesso');
+  if (!el) return;
+  el.innerHTML = '<div class="empty-state"><div class="empty-icon">⏳</div>Calculando tempo de acesso...</div>';
+
+  const dias = parseInt(document.getElementById('adminTempoFiltro')?.value || '7');
+  const desde = new Date(Date.now() - dias * 24 * 60 * 60 * 1000).toISOString();
+
+  const { data, error } = await db.from('sessoes_estudo')
+    .select('user_id, segundos, data, materia_nome')
+    .gte('data', desde)
+    .order('data', { ascending: false });
+
+  if (error) {
+    el.innerHTML = `<div class="empty-state" style="color:var(--red)">⚠️ Erro: ${error.message}<br><small>Verifique se a tabela "sessoes_estudo" existe.</small></div>`;
+    return;
+  }
+
+  if (!data || !data.length) {
+    el.innerHTML = '<div class="empty-state"><div class="empty-icon">📅</div>Nenhuma sessão registrada neste período.</div>';
+    return;
+  }
+
+  const emails = window.adminUsersEmails || [];
+
+  // Agrupar por user_id + dia
+  const mapa = {};
+  data.forEach(s => {
+    const dia = new Date(s.data).toLocaleDateString('pt-BR', { day:'2-digit', month:'2-digit', year:'numeric' });
+    const key = s.user_id + '|' + dia;
+    if (!mapa[key]) mapa[key] = { user_id: s.user_id, dia, segundos: 0, sessoes: 0, materias: new Set() };
+    mapa[key].segundos += s.segundos || 0;
+    mapa[key].sessoes++;
+    if (s.materia_nome) mapa[key].materias.add(s.materia_nome);
+  });
+
+  // Agrupar por user_id para total
+  const porUser = {};
+  Object.values(mapa).forEach(r => {
+    if (!porUser[r.user_id]) porUser[r.user_id] = { user_id: r.user_id, totalSeg: 0, dias: [] };
+    porUser[r.user_id].totalSeg += r.segundos;
+    porUser[r.user_id].dias.push(r);
+  });
+
+  // Ordenar por total desc
+  const lista = Object.values(porUser).sort((a,b) => b.totalSeg - a.totalSeg);
+
+  el.innerHTML = lista.map(u => {
+    const emailInfo = emails.find(e => e.id === u.user_id);
+    const email = emailInfo ? (emailInfo.raw_user_meta_data?.nome || emailInfo.nome || emailInfo.email) + ' — ' + emailInfo.email : u.user_id.substring(0,12) + '...';
+    const totalH = Math.floor(u.totalSeg / 3600);
+    const totalM = Math.floor((u.totalSeg % 3600) / 60);
+    const maxSeg = Math.max(...u.dias.map(d => d.segundos));
+
+    const diasHTML = u.dias
+      .sort((a,b) => new Date(b.dia.split('/').reverse().join('-')) - new Date(a.dia.split('/').reverse().join('-')))
+      .map(d => {
+        const h = Math.floor(d.segundos/3600);
+        const m = Math.floor((d.segundos%3600)/60);
+        const pct = maxSeg > 0 ? Math.round(d.segundos/maxSeg*100) : 0;
+        const cor = d.segundos >= 3600 ? '#059669' : d.segundos >= 1800 ? '#d97706' : '#2563eb';
+        const materiasList = Array.from(d.materias).join(', ');
+        return `<div style="display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:1px solid var(--border)">
+          <div style="font-size:12px;color:var(--muted);width:80px;flex-shrink:0">${d.dia}</div>
+          <div style="flex:1;height:6px;background:var(--border);border-radius:99px;overflow:hidden">
+            <div style="width:${pct}%;height:100%;background:${cor};border-radius:99px"></div>
+          </div>
+          <div style="font-size:12px;font-weight:600;color:${cor};width:60px;text-align:right;flex-shrink:0">${h > 0 ? h+'h ' : ''}${m}min</div>
+          <div style="font-size:11px;color:var(--muted);width:80px;text-align:right;flex-shrink:0">${d.sessoes} sessão(ões)</div>
+          ${materiasList ? `<div style="font-size:10px;color:var(--muted);max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${materiasList}">📖 ${materiasList}</div>` : ''}
+        </div>`;
+      }).join('');
+
+    return `<div style="border:1px solid var(--border);border-radius:12px;margin-bottom:14px;overflow:hidden">
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 14px;background:#f8faff;cursor:pointer;user-select:none"
+        onclick="this.nextElementSibling.classList.toggle('hidden')">
+        <div style="display:flex;align-items:center;gap:10px">
+          <div style="width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,#2563eb,#3b82f6);display:grid;place-items:center;font-size:13px;font-weight:700;color:#fff;flex-shrink:0">${(emailInfo?.email||'?').charAt(0).toUpperCase()}</div>
+          <div>
+            <div style="font-size:13px;font-weight:600;color:var(--text)">${email}</div>
+            <div style="font-size:11px;color:var(--muted);margin-top:1px">Total no período: ${totalH}h ${totalM}min • ${u.dias.length} dia(s) com estudo</div>
+          </div>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px">
+          <span style="font-size:12px;font-weight:700;padding:3px 10px;border-radius:20px;background:${u.totalSeg >= 7200 ? '#f0fdf4' : u.totalSeg >= 3600 ? '#fffbeb' : '#eff6ff'};color:${u.totalSeg >= 7200 ? '#059669' : u.totalSeg >= 3600 ? '#d97706' : '#2563eb'}">${totalH}h ${totalM}m</span>
+          <span style="font-size:16px;color:var(--muted)">▼</span>
+        </div>
+      </div>
+      <div class="hidden" style="padding:4px 14px 10px">
+        ${diasHTML}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ══ EXPORTAR PDF DO PLANO INTELIGENTE ══
+async function exportarPlanoAtualPDF() {
+  if (!planoGeradoAtual) return toast('⚠️ Nenhum plano gerado ainda.');
+  await _gerarPDFPlano(planoGeradoAtual.titulo, planoGeradoAtual.resultado, planoGeradoAtual.dataProva);
+}
+
+async function exportarPlanoPDF(id) {
+  toast('⏳ Carregando plano...');
+  const { data, error } = await db.from('planos_ia').select('*').eq('id', id).single();
+  if (error || !data) return toast('❌ Erro ao carregar plano.');
+  await _gerarPDFPlano(data.titulo, data.analise, data.data_prova);
+}
+
+function _gerarPDFPlano(titulo, r, dataProva) {
+  return new Promise(resolve => {
+    toast('📄 Gerando PDF...');
+    const agora = new Date().toLocaleDateString('pt-BR', { day:'2-digit', month:'2-digit', year:'numeric', hour:'2-digit', minute:'2-digit' });
+
+    function esc(s) {
+      if (!s) return '';
+      return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+    }
+
+    const topicosHTML = (r.topicos||[]).map(t => `
+      <div style="margin-bottom:12px;padding:12px 14px;border-left:4px solid ${t.probabilidade>=90?'#059669':t.probabilidade>=75?'#d97706':'#2563eb'};background:${t.probabilidade>=90?'#f0fdf4':t.probabilidade>=75?'#fffbeb':'#eff6ff'};border-radius:0 8px 8px 0">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
+          <strong style="font-size:13px">${esc(t.tema)}</strong>
+          <span style="font-size:11px;font-weight:700;padding:2px 8px;border-radius:20px;background:${t.probabilidade>=90?'#dcfce7':t.probabilidade>=75?'#fef9c3':'#dbeafe'};color:${t.probabilidade>=90?'#059669':t.probabilidade>=75?'#b45309':'#1d4ed8'}">${t.probabilidade}% provável</span>
+        </div>
+        <div style="font-size:12px;color:#555">${esc(t.justificativa)}</div>
+        ${t.explicacao_detalhada ? `<div style="font-size:12px;color:#333;margin-top:8px;line-height:1.7">${esc(t.explicacao_detalhada)}</div>` : ''}
+      </div>`).join('');
+
+    const flashHTML = (r.flashcards||[]).map((f,i) => `
+      <div style="margin-bottom:10px;border:1px solid #e0e7ff;border-radius:10px;overflow:hidden">
+        <div style="background:#eff6ff;padding:10px 14px;font-size:12px;font-weight:600;color:#1d4ed8">❓ ${esc(f.pergunta)}</div>
+        <div style="padding:10px 14px;font-size:12px;color:#1e3a5f;line-height:1.6">💡 ${esc(f.resposta)}</div>
+      </div>`).join('');
+
+    const exercHTML = (r.exercicios||[]).map((e,i) => `
+      <div style="margin-bottom:14px;padding:12px 14px;border:1px solid #e5e7eb;border-radius:10px">
+        <div style="font-size:13px;font-weight:600;margin-bottom:10px">📌 ${i+1}. ${esc(e.pergunta)}</div>
+        ${(e.alternativas||[]).map((a,j) => `<div style="font-size:12px;padding:5px 8px;margin-bottom:4px;border-radius:6px;background:${j===e.correta?'#f0fdf4':'#f9fafb'};border:1px solid ${j===e.correta?'#bbf7d0':'#e5e7eb'};color:${j===e.correta?'#059669':'#374151'}">${esc(a)} ${j===e.correta?'✅':''}</div>`).join('')}
+        ${e.explicacao ? `<div style="font-size:11px;color:#6b7280;margin-top:8px;padding:8px;background:#f9fafb;border-radius:6px">${esc(e.explicacao)}</div>` : ''}
+      </div>`).join('');
+
+    const cronoHTML = (r.cronograma||[]).map(s => `
+      <div style="margin-bottom:10px;padding:12px 14px;border-left:4px solid #2563eb;background:#eff6ff;border-radius:0 8px 8px 0">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
+          <strong style="font-size:13px">${esc(s.semana)}</strong>
+          <span style="font-size:11px;background:#dbeafe;color:#1d4ed8;padding:2px 8px;border-radius:20px">${s.horas||0}h previstas</span>
+        </div>
+        <div style="font-size:12px;font-weight:600;color:#1e3a5f">${esc(s.tema)}</div>
+        <div style="font-size:12px;color:#555;margin-top:3px">${esc(s.atividades)}</div>
+      </div>`).join('');
+
+    const html = `<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8"/>
+<title>Plano Inteligente — ${esc(titulo)}</title>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:Arial,Helvetica,sans-serif;color:#1a1a2e;background:#fff;font-size:14px;line-height:1.6}
+  .cover{background:linear-gradient(135deg,#0c1a2e,#1e3a5f);color:#fff;padding:52px 48px;page-break-after:always}
+  .cover h1{font-size:30px;font-weight:800;letter-spacing:-0.5px;margin-bottom:8px}
+  .cover p{font-size:15px;opacity:0.6;margin-bottom:4px}
+  .section{padding:32px 48px;page-break-inside:avoid}
+  .section-title{font-size:20px;font-weight:800;color:#1e3a5f;border-bottom:3px solid #2563eb;padding-bottom:10px;margin-bottom:20px}
+  .plano-texto{font-size:13px;line-height:2;white-space:pre-wrap;color:#1a1a2e;background:#f9fafb;padding:16px;border-radius:10px;border:1px solid #e5e7eb}
+  .resumo-texto{font-size:13px;line-height:2;white-space:pre-wrap;color:#1a1a2e}
+  @media print{.section{page-break-before:always}}
+</style>
+</head>
+<body>
+  <div class="cover">
+    <div style="font-size:12px;opacity:0.4;text-transform:uppercase;letter-spacing:2px;margin-bottom:20px">Vou Estudar+</div>
+    <h1>✨ ${esc(titulo)}</h1>
+    ${dataProva ? `<p>📅 Data da prova: ${new Date(dataProva+'T00:00:00').toLocaleDateString('pt-BR')}</p>` : ''}
+    <p>Gerado em: ${agora}</p>
+    <div style="margin-top:28px;display:flex;gap:16px;flex-wrap:wrap">
+      <div style="background:rgba(255,255,255,0.1);border-radius:10px;padding:12px 18px;text-align:center">
+        <div style="font-size:24px;font-weight:800">${(r.topicos||[]).length}</div>
+        <div style="font-size:11px;opacity:0.6">tópicos</div>
+      </div>
+      <div style="background:rgba(255,255,255,0.1);border-radius:10px;padding:12px 18px;text-align:center">
+        <div style="font-size:24px;font-weight:800">${(r.flashcards||[]).length}</div>
+        <div style="font-size:11px;opacity:0.6">flashcards</div>
+      </div>
+      <div style="background:rgba(255,255,255,0.1);border-radius:10px;padding:12px 18px;text-align:center">
+        <div style="font-size:24px;font-weight:800">${(r.exercicios||[]).length}</div>
+        <div style="font-size:11px;opacity:0.6">exercícios</div>
+      </div>
+      <div style="background:rgba(255,255,255,0.1);border-radius:10px;padding:12px 18px;text-align:center">
+        <div style="font-size:24px;font-weight:800">${(r.cronograma||[]).length}</div>
+        <div style="font-size:11px;opacity:0.6">semanas</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">📚 Plano Semanal de Estudos</div>
+    <div class="plano-texto">${esc(r.plano||'Não disponível.')}</div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">🎯 Tópicos Mais Prováveis de Cair</div>
+    ${topicosHTML || '<p style="color:#888">Nenhum tópico.</p>'}
+  </div>
+
+  <div class="section">
+    <div class="section-title">📝 Resumo Completo — Aula Detalhada</div>
+    <div class="resumo-texto">${esc(r.resumo||'Não disponível.')}</div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">🧠 Flashcards</div>
+    ${flashHTML || '<p style="color:#888">Nenhum flashcard.</p>'}
+  </div>
+
+  <div class="section">
+    <div class="section-title">💡 Simulado — Questões com Gabarito</div>
+    ${exercHTML || '<p style="color:#888">Nenhuma questão.</p>'}
+  </div>
+
+  <div class="section">
+    <div class="section-title">📅 Cronograma Semanal</div>
+    ${cronoHTML || '<p style="color:#888">Sem cronograma.</p>'}
+  </div>
+</body>
+</html>`;
+
+    const blob = new Blob([html], { type: 'text/html;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const w = window.open(url, '_blank');
+    if (w) {
+      w.onload = () => { setTimeout(() => { w.print(); URL.revokeObjectURL(url); resolve(); }, 600); };
+    } else {
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = titulo.replace(/[^a-z0-9]/gi,'_') + '_plano.html';
+      a.click();
+      setTimeout(() => URL.revokeObjectURL(url), 3000);
+      toast('📄 Arquivo HTML baixado! Abra e use Ctrl+P para imprimir/salvar como PDF.');
+      resolve();
+    }
+  });
+}
+
+// START — init só roda quando usuário clica em um botão da landing
+// ═══════════════════════════════════════
+// init() chamado pelos botões da landing
 async function gerarFeedbackIA() {
   if (!materias.length) return toast('⚠️ Adicione matérias primeiro!');
 
@@ -4218,17 +4597,21 @@ Formate exatamente assim (3 linhas separadas):
 
 Seja direto como um coach sênior. Sem introdução, sem conclusão.`;
 
-      const resp = await fetch('https://api.anthropic.com/v1/messages', {
+      const resp = await fetch('https://jamsxocejgxyzopgcqdv.supabase.co/functions/v1/gerar-plano', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
+        },
         body: JSON.stringify({
           model: 'claude-sonnet-4-20250514',
-          max_tokens: 1000,
+          max_tokens: 400,
           messages: [{ role: 'user', content: prompt }]
         })
       });
       const data = await resp.json();
-      const texto = (data.content || []).map(b => b.text || '').join('');
+      const texto = (data.content || []).map(b => b.text || '').join('').trim();
+      if (!texto) throw new Error('Resposta vazia');
 
       const pct = m.progresso || 0;
       const cor = pct >= 80 ? '#059669' : pct >= 50 ? '#d97706' : '#dc2626';
@@ -4236,7 +4619,7 @@ Seja direto como um coach sênior. Sem introdução, sem conclusão.`;
       const status = pct >= 80 ? '✅ Em dia' : pct >= 50 ? '⚠️ Atenção' : '🔴 Urgente';
 
       fbEl.innerHTML = `
-        <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px;flex-wrap:wrap;gap:8px">
+        <div class="fb-bloco" style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px;flex-wrap:wrap;gap:8px">
           <div style="font-weight:600;font-size:14px">${m.nome}</div>
           <span style="font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px;background:${bgCor};color:${cor}">${status}</span>
         </div>
@@ -4264,6 +4647,27 @@ Seja direto como um coach sênior. Sem introdução, sem conclusão.`;
 SQL PARA CRIAR AS TABELAS NO SUPABASE
 (Rode no SQL Editor do painel Supabase)
 ═══════════════════════════════════════
+
+-- ⚠️ ADICIONAR ESTE RPC PARA NOMES E TELEFONES APARECEREM NO ADMIN:
+create or replace function get_users_with_metadata()
+returns table(id uuid, email text, nome text, telefone text, raw_user_meta_data jsonb)
+language sql security definer as $$
+  select
+    id,
+    email,
+    coalesce(raw_user_meta_data->>'nome','') as nome,
+    coalesce(raw_user_meta_data->>'telefone','') as telefone,
+    raw_user_meta_data
+  from auth.users
+  order by created_at desc;
+$$;
+
+-- RPC original (manter também):
+create or replace function get_users_emails()
+returns table(id uuid, email text)
+language sql security definer as $$
+  select id, email from auth.users order by created_at desc;
+$$;
 
 -- Matérias
 create table materias (
