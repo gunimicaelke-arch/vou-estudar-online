@@ -603,7 +603,7 @@ body{font-family:'Plus Jakarta Sans',sans-serif;-webkit-font-smoothing:antialias
   }
   .file-label:hover { border-color: var(--accent); color: var(--accent); background: #dbeafe; }
 
-  .chart-wrap { position: relative; height: 220px; }
+  .chart-wrap { position: relative; height: 220px; min-height: 220px; }
 
   .empty-state {
     text-align: center; padding: 40px 20px;
@@ -2604,33 +2604,24 @@ function renderChart() {
   const wrap = document.getElementById('chartWrap') || document.querySelector('.chart-wrap');
   if (!wrap) return;
 
-  // Destroi instância anterior com segurança
   if (chartInstance) {
     try { chartInstance.destroy(); } catch(e) {}
     chartInstance = null;
   }
 
-  // Recria canvas limpo
   const old = document.getElementById('chartMaterias');
   if (old) old.remove();
   const canvas = document.createElement('canvas');
   canvas.id = 'chartMaterias';
   wrap.appendChild(canvas);
 
-  // Limpa legenda
   const legEl = document.getElementById('chartLegenda');
   if (legEl) legEl.innerHTML = '';
-
   if (!materias.length) return;
 
-  // Log para debug — confirma que os dados chegaram
-  console.log('renderChart — matérias:', materias.map(m => m.nome + ':' + m.progresso));
-
-  // Cores: usa a cor salva na matéria, com fallback por índice
   const palette = ['#2563eb','#d97706','#059669','#dc2626','#7c3aed','#db2777','#0891b2','#65a30d'];
   const cores = materias.map((m, i) => m.cor || palette[i % palette.length]);
 
-  // Legenda compacta
   if (legEl) {
     legEl.innerHTML = materias.map((m, i) =>
       `<span style="display:flex;align-items:center;gap:4px;font-size:10px;color:var(--muted)">
@@ -2640,17 +2631,29 @@ function renderChart() {
     ).join('');
   }
 
+  // Snapshot dos dados agora (evita closure stale)
+  const snapshot = materias.map((m, i) => ({
+    label: m.nome.length > 11 ? m.nome.slice(0,10)+'…' : m.nome,
+    valor: Number(m.progresso) || 0,
+    cor: cores[i]
+  }));
+
   function buildChart() {
+    // Força o wrap a ter altura mínima se ainda for 0
+    if (!wrap.style.height && wrap.offsetHeight === 0) {
+      wrap.style.height = '220px';
+    }
     try {
+      if (chartInstance) { try { chartInstance.destroy(); } catch(e) {} chartInstance = null; }
       chartInstance = new Chart(canvas.getContext('2d'), {
         type: 'bar',
         data: {
-          labels: materias.map(m => m.nome.length > 11 ? m.nome.slice(0,10)+'…' : m.nome),
+          labels: snapshot.map(s => s.label),
           datasets: [{
             label: 'Progresso',
-            data: materias.map(m => Number(m.progresso) || 0),
-            backgroundColor: cores.map(c => c + '30'),
-            borderColor: cores,
+            data: snapshot.map(s => s.valor),
+            backgroundColor: snapshot.map(s => s.cor + '30'),
+            borderColor: snapshot.map(s => s.cor),
             borderWidth: 2,
             borderRadius: 8,
             borderSkipped: false,
@@ -2662,14 +2665,11 @@ function renderChart() {
           animation: { duration: 700, easing: 'easeOutQuart' },
           plugins: {
             legend: { display: false },
-            tooltip: {
-              callbacks: { label: c => '  ' + c.raw + '% concluído' }
-            }
+            tooltip: { callbacks: { label: c => '  ' + c.raw + '% concluído' } }
           },
           scales: {
             y: {
-              beginAtZero: true,
-              max: 100,
+              beginAtZero: true, max: 100,
               grid: { color: '#e4e8f5' },
               ticks: { callback: v => v+'%', font: { size: 11 }, color: '#6b7280' }
             },
@@ -2683,11 +2683,10 @@ function renderChart() {
     } catch(e) { console.warn('renderChart erro:', e); }
   }
 
-  if (wrap.offsetHeight > 0) {
-    buildChart();
-  } else {
-    setTimeout(buildChart, 150);
-  }
+  // Tenta imediatamente, depois 150ms, depois 500ms — garante que pelo menos um funciona
+  buildChart();
+  setTimeout(buildChart, 150);
+  setTimeout(buildChart, 500);
 }
 
 // ═══════════════════════════════════════
