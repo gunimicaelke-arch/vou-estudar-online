@@ -1829,8 +1829,16 @@ body{font-family:'Plus Jakarta Sans',sans-serif;-webkit-font-smoothing:antialias
             <button onclick="adminCarregarUsuarios()" class="mini-btn btn-secondary" style="width:auto">🔄 Atualizar</button>
           </div>
           <div id="adminListaUsuarios">
-            <div class="empty-state"><div class="empty-icon">👥</div>Clique em Atualizar para carregar.</div>
+            <div style="padding:16px;background:#fffbeb;border:1px solid #fde68a;border-radius:10px;font-size:13px;color:#92400e">
+              ⏳ Carregando... Se demorar, clique em "Atualizar tudo" acima.
+            </div>
           </div>
+        </div>
+
+        <!-- Diagnóstico embutido -->
+        <div id="adminDiagnostico" style="margin-top:16px;padding:14px;background:#f8faff;border:1px solid #dbeafe;border-radius:10px;font-size:12px;color:#1e40af;display:none">
+          <strong>🔍 Log de diagnóstico:</strong>
+          <div id="adminDiagLog" style="margin-top:6px;font-family:monospace;white-space:pre-wrap;font-size:11px;color:#374151"></div>
         </div>
       </div>
 
@@ -4291,147 +4299,166 @@ async function adminCarregarUsuarios() {
   const el3 = document.getElementById('adminTrial');
   const elUpd = document.getElementById('adminUltimaAtualizacao');
   const sel = document.getElementById('compartilharUsuario');
+  const diagEl = document.getElementById('adminDiagnostico');
+  const diagLog = document.getElementById('adminDiagLog');
 
-  if (elLista) {
-    elLista.innerHTML = '<div class="empty-state"><div class="empty-icon">⏳</div>Carregando usuários...</div>';
-  }
+  const log = (msg) => {
+    console.log('[Admin]', msg);
+    if (diagEl) diagEl.style.display = 'block';
+    if (diagLog) diagLog.textContent += msg + '\n';
+  };
+
+  if (elLista) elLista.innerHTML = '<div style="padding:16px;text-align:center;color:var(--muted)"><span class="spinner"></span> Carregando...</div>';
+  if (diagLog) diagLog.textContent = '';
+
+  log('Iniciando carga do admin...');
 
   let listaUsuarios = [];
 
-  // Busca assinaturas diretamente (sem RPC)
-  const { data: assinData, error: assinErr } = await db
-    .from('assinaturas')
-    .select('*')
-    .order('created_at', { ascending: false });
-
-  if (assinErr && elLista) {
-    elLista.innerHTML = '<div class="empty-state" style="color:#dc2626">❌ Erro ao carregar assinaturas: ' + assinErr.message + '</div>';
-    return;
-  }
-
-  let emailData = [];
+  // 1) Tenta RPC completa
   try {
-    const { data: d1 } = await db.rpc('get_users_with_metadata');
-    if (Array.isArray(d1)) {
-      emailData = d1.map(u => ({
-        id: u.id,
-        email: u.email || '',
-        nome: u.nome || u.raw_user_meta_data?.nome || '',
-        telefone: u.telefone || u.raw_user_meta_data?.telefone || '',
-        created_at: u.created_at || null
+    log('Tentando RPC get_admin_users_overview...');
+    const { data, error } = await db.rpc('get_admin_users_overview');
+    if (!error && Array.isArray(data) && data.length) {
+      log('✅ RPC OK — ' + data.length + ' usuários');
+      listaUsuarios = data.map(u => ({
+        id: u.id, email: u.email || '',
+        nome: u.nome || '', telefone: u.telefone || '',
+        assinatura_ativa: !!u.assinatura_ativa,
+        trial_fim: u.trial_fim, data_pagamento: u.data_pagamento
+      }));
+    } else {
+      log('⚠️ RPC falhou: ' + (error?.message || 'sem dados'));
+    }
+  } catch(e) { log('⚠️ RPC exception: ' + e.message); }
+
+  // 2) Fallback — busca assinaturas direto
+  if (!listaUsuarios.length) {
+    log('Buscando tabela assinaturas...');
+    const { data: assinData, error: assinErr } = await db
+      .from('assinaturas').select('*').order('created_at', { ascending: false });
+
+    if (assinErr) {
+      log('❌ Erro assinaturas: ' + assinErr.message);
+      if (elLista) elLista.innerHTML = '<div style="padding:16px;color:#dc2626">❌ Erro: ' + assinErr.message + '</div>';
+      return;
+    }
+    log('✅ Assinaturas: ' + (assinData?.length || 0) + ' registros');
+
+    // Tenta email via RPC simples
+    let emailData = [];
+    try {
+      log('Tentando get_users_with_metadata...');
+      const { data: d1 } = await db.rpc('get_users_with_metadata');
+      if (d1?.length) {
+        emailData = d1.map(u => ({ id: u.id, email: u.email || '', nome: u.nome || u.raw_user_meta_data?.nome || '', telefone: u.telefone || u.raw_user_meta_data?.telefone || '' }));
+        log('✅ Metadata: ' + emailData.length + ' usuários');
+      }
+    } catch(e) { log('⚠️ Metadata falhou: ' + e.message); }
+
+    if (!emailData.length) {
+      try {
+        log('Tentando get_users_emails...');
+        const { data: d2 } = await db.rpc('get_users_emails');
+        if (d2?.length) {
+          emailData = d2.map(u => ({ id: u.id, email: u.email || '', nome: '', telefone: '' }));
+          log('✅ Emails: ' + emailData.length + ' usuários');
+        }
+      } catch(e) { log('⚠️ Emails falhou: ' + e.message); }
+    }
+
+    const assinMap = {};
+    (assinData || []).forEach(a => { assinMap[a.user_id] = a; });
+
+    if (emailData.length) {
+      listaUsuarios = emailData.map(u => ({
+        ...u,
+        assinatura_ativa: !!assinMap[u.id]?.ativa,
+        trial_fim: assinMap[u.id]?.trial_fim || null,
+        data_pagamento: assinMap[u.id]?.data_pagamento || null
+      }));
+    } else if (assinData?.length) {
+      log('⚠️ Sem emails — usando só assinaturas');
+      listaUsuarios = assinData.map(a => ({
+        id: a.user_id, email: '', nome: '', telefone: '',
+        assinatura_ativa: !!a.ativa,
+        trial_fim: a.trial_fim, data_pagamento: a.data_pagamento
       }));
     }
-  } catch (e) {}
-
-  if (!emailData.length) {
-    try {
-      const { data: d2 } = await db.rpc('get_users_emails');
-      if (Array.isArray(d2)) {
-        emailData = d2.map(u => ({
-          id: u.id, email: u.email || '',
-          nome: '', telefone: '', created_at: null
-        }));
-      }
-    } catch (e) {}
   }
 
-  const assinMap = {};
-  (assinData || []).forEach(a => { assinMap[a.user_id] = a; });
+  log('Total para renderizar: ' + listaUsuarios.length);
+  window.adminUsersEmails = listaUsuarios.map(u => ({ id: u.id, email: u.email, nome: u.nome, telefone: u.telefone }));
 
-  if (emailData.length) {
-    listaUsuarios = emailData.map(u => ({
-      ...u,
-      assinatura_ativa: !!assinMap[u.id]?.ativa,
-      trial_fim: assinMap[u.id]?.trial_fim || null,
-      data_pagamento: assinMap[u.id]?.data_pagamento || null
-    }));
-  } else {
-    listaUsuarios = (assinData || []).map(a => ({
-      id: a.user_id, email: '', nome: '', telefone: '',
-      created_at: a.created_at || null,
-      assinatura_ativa: !!a.ativa,
-      trial_fim: a.trial_fim || null,
-      data_pagamento: a.data_pagamento || null
-    }));
-  }
-
-  window.adminUsersEmails = listaUsuarios.map(u => ({
-    id: u.id,
-    email: u.email || '',
-    nome: u.nome || '',
-    telefone: u.telefone || ''
-  }));
-
-  const totalUsers = listaUsuarios.length;
-  const ativos = listaUsuarios.filter(u => u.assinatura_ativa).length;
-  const trial = listaUsuarios.filter(u => !u.assinatura_ativa && u.trial_fim && new Date(u.trial_fim) > new Date()).length;
-
-  if (el1) el1.textContent = totalUsers;
-  if (el2) el2.textContent = ativos;
-  if (el3) el3.textContent = trial;
+  // Stats
+  if (el1) el1.textContent = listaUsuarios.length;
+  if (el2) el2.textContent = listaUsuarios.filter(u => u.assinatura_ativa).length;
+  if (el3) el3.textContent = listaUsuarios.filter(u => !u.assinatura_ativa && u.trial_fim && new Date(u.trial_fim) > new Date()).length;
   if (elUpd) elUpd.textContent = 'Atualizado: ' + new Date().toLocaleTimeString('pt-BR');
 
   if (sel) {
     sel.innerHTML = '<option value="">Selecione o usuário...</option>' +
-      listaUsuarios
-        .filter(u => u.id && u.email && (!currentUser || u.email !== currentUser.email))
-        .map(u => `<option value="${u.id}">${u.nome ? u.nome + ' — ' : ''}${u.email}</option>`)
-        .join('');
+      listaUsuarios.filter(u => u.email && u.email !== currentUser?.email)
+        .map(u => `<option value="${u.id}">${u.nome ? u.nome + ' — ' : ''}${u.email}</option>`).join('');
   }
 
   if (!listaUsuarios.length) {
-    if (elLista) {
-      elLista.innerHTML = '<div class="empty-state"><div class="empty-icon">👥</div>Nenhum usuário encontrado.<div style="font-size:12px;margin-top:8px;color:var(--muted)">Verifique se a tabela <code>assinaturas</code> existe no Supabase e se o RPC <code>get_users_emails</code> foi criado.</div></div>';
-    }
-  } else if (elLista) {
-    elLista.innerHTML = listaUsuarios.map(u => {
-      const trialFim = u.trial_fim ? new Date(u.trial_fim) : null;
-      const trialExpirou = trialFim && trialFim < new Date();
-      const diasTrial = trialFim ? Math.ceil((trialFim - new Date()) / 86400000) : null;
-      let status = '⏳ Novo', statusColor = '#d97706', statusBg = '#fffbeb';
-      if (u.assinatura_ativa) {
-        status = '✅ Ativo'; statusColor = '#059669'; statusBg = '#f0fdf4';
-      } else if (trialExpirou) {
-        status = '❌ Expirado'; statusColor = '#dc2626'; statusBg = '#fef2f2';
-      } else if (diasTrial !== null && diasTrial >= 0) {
-        status = '⏳ Trial (' + diasTrial + 'd)'; statusColor = '#d97706'; statusBg = '#fffbeb';
-      }
-      const dataPag = u.data_pagamento ? new Date(u.data_pagamento).toLocaleDateString('pt-BR') : '';
-      const trialTxt = trialFim ? trialFim.toLocaleDateString('pt-BR') : '';
-      const avatar = ((u.nome || u.email || '?').trim().charAt(0) || '?').toUpperCase();
-      return `<div style="display:flex;align-items:center;gap:10px;padding:11px 0;border-bottom:1px solid var(--border);flex-wrap:wrap">
-        <div style="width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,#2563eb,#3b82f6);display:grid;place-items:center;font-size:13px;font-weight:700;color:#fff;flex-shrink:0">${avatar}</div>
-        <div style="flex:1;min-width:0">
-          <div style="font-size:13px;font-weight:600;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">
-            ${u.nome ? '<span style="color:#2563eb">' + u.nome + '</span> — ' : ''}${u.email || u.id}
-          </div>
-          ${u.telefone ? `<div style="font-size:11px;color:#059669;font-weight:600">📱 ${u.telefone}</div>` : ''}
-          <div style="font-size:11px;color:var(--muted)">
-            ${dataPag ? '<span style="color:#059669;font-weight:600">💳 Pagou em: ' + dataPag + '</span>' : (trialTxt ? 'Trial até: ' + trialTxt : 'Sem dados de assinatura')}
-          </div>
-        </div>
-        <div style="display:flex;align-items:center;gap:5px;flex-shrink:0;flex-wrap:wrap">
-          <span style="font-size:10px;font-weight:700;padding:3px 9px;border-radius:20px;background:${statusBg};color:${statusColor}">${status}</span>
-          ${!u.assinatura_ativa ? `<button onclick="adminAtivarPorId('${u.id}')" class="mini-btn" style="width:auto;padding:3px 9px;font-size:11px">Ativar</button>` : `<button onclick="adminDesativarPorId('${u.id}')" class="mini-btn btn-secondary" style="width:auto;padding:3px 9px;font-size:11px">Desativar</button>`}
-          ${u.email ? `<button onclick="preencherAdminEmail('${String(u.email).replace(/'/g, "&#39;")}')" class="mini-btn btn-secondary" style="width:auto;padding:3px 9px;font-size:11px">Selecionar</button>` : ''}
-          <button onclick="adminCompartilharComUsuario('${u.id}')" class="mini-btn btn-secondary" style="width:auto;padding:3px 9px;font-size:11px">📤</button>
-        </div>
-      </div>`;
-    }).join('');
+    if (elLista) elLista.innerHTML = `<div style="padding:20px;text-align:center">
+      <div style="font-size:32px;margin-bottom:10px">👥</div>
+      <div style="font-size:14px;font-weight:600;color:var(--text);margin-bottom:8px">Nenhum usuário encontrado</div>
+      <div style="font-size:12px;color:var(--muted);margin-bottom:14px">Os RPCs ainda não foram criados no Supabase. Rode o SQL abaixo:</div>
+      <div style="background:#f1f5f9;border-radius:8px;padding:12px;text-align:left;font-family:monospace;font-size:11px;color:#334155;white-space:pre-wrap">create or replace function get_users_emails()
+returns table(id uuid, email text)
+language sql security definer as $$
+  select id, email from auth.users order by created_at desc;
+$$;</div>
+      <button onclick="adminCarregarUsuarios()" style="margin-top:12px;width:auto;padding:8px 20px;background:#2563eb;color:#fff;border:none;border-radius:8px;font-weight:700;cursor:pointer">🔄 Tentar novamente</button>
+    </div>`;
+    return;
   }
 
-  await Promise.allSettled([
-    adminCarregarOnline(),
-    adminCarregarNovosCadastros(),
-    adminCarregarTentativasCadastro(),
-    adminCarregarTempoAcesso()
+  if (elLista) elLista.innerHTML = listaUsuarios.map(u => {
+    const trialFim = u.trial_fim ? new Date(u.trial_fim) : null;
+    const trialExpirou = trialFim && trialFim < new Date();
+    const diasTrial = trialFim ? Math.ceil((trialFim - new Date()) / 86400000) : null;
+    let status = '⏳ Novo', statusColor = '#d97706', statusBg = '#fffbeb';
+    if (u.assinatura_ativa) { status = '✅ Ativo'; statusColor = '#059669'; statusBg = '#f0fdf4'; }
+    else if (trialExpirou) { status = '❌ Expirado'; statusColor = '#dc2626'; statusBg = '#fef2f2'; }
+    else if (diasTrial !== null && diasTrial >= 0) { status = '⏳ Trial (' + diasTrial + 'd)'; }
+    const dataPag = u.data_pagamento ? new Date(u.data_pagamento).toLocaleDateString('pt-BR') : '';
+    const trialTxt = trialFim ? trialFim.toLocaleDateString('pt-BR') : '';
+    const avatar = ((u.nome || u.email || '?').charAt(0) || '?').toUpperCase();
+    return `<div style="display:flex;align-items:center;gap:10px;padding:11px 0;border-bottom:1px solid var(--border);flex-wrap:wrap">
+      <div style="width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,#2563eb,#3b82f6);display:grid;place-items:center;font-size:13px;font-weight:700;color:#fff;flex-shrink:0">${avatar}</div>
+      <div style="flex:1;min-width:0">
+        <div style="font-size:13px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">
+          ${u.nome ? '<span style="color:#2563eb">' + u.nome + '</span> — ' : ''}${u.email || u.id?.substring(0,16) + '…'}
+        </div>
+        ${u.telefone ? `<div style="font-size:11px;color:#059669;font-weight:600">📱 ${u.telefone}</div>` : ''}
+        <div style="font-size:11px;color:var(--muted)">${dataPag ? '💳 Pagou: ' + dataPag : trialTxt ? 'Trial até: ' + trialTxt : 'Sem assinatura'}</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:5px;flex-shrink:0;flex-wrap:wrap">
+        <span style="font-size:10px;font-weight:700;padding:3px 9px;border-radius:20px;background:${statusBg};color:${statusColor}">${status}</span>
+        ${!u.assinatura_ativa ? `<button onclick="adminAtivarPorId('${u.id}')" class="mini-btn" style="width:auto;padding:3px 9px;font-size:11px">Ativar</button>` : `<button onclick="adminDesativarPorId('${u.id}')" class="mini-btn btn-secondary" style="width:auto;padding:3px 9px;font-size:11px">Desativar</button>`}
+        ${u.email ? `<button onclick="preencherAdminEmail('${u.email}')" class="mini-btn btn-secondary" style="width:auto;padding:3px 9px;font-size:11px">Selecionar</button>` : ''}
+      </div>
+    </div>`;
+  }).join('');
+
+  log('✅ Renderizado com sucesso!');
+
+  // Carrega painéis extras em paralelo sem travar
+  Promise.allSettled([
+    adminCarregarOnline().catch(e => log('Online erro: ' + e.message)),
+    adminCarregarNovosCadastros().catch(e => log('Cadastros erro: ' + e.message)),
+    adminCarregarTentativasCadastro().catch(e => log('Tentativas erro: ' + e.message)),
+    adminCarregarTempoAcesso().catch(e => log('Tempo erro: ' + e.message))
   ]);
 
   if (adminRefreshInterval) clearInterval(adminRefreshInterval);
   adminRefreshInterval = setInterval(async () => {
-    const tabAdmin = document.getElementById('tab-admin');
-    if (tabAdmin && tabAdmin.classList.contains('active')) {
-      await adminCarregarOnline();
+    if (document.getElementById('tab-admin')?.classList.contains('active')) {
+      await adminCarregarOnline().catch(() => {});
       const el = document.getElementById('adminUltimaAtualizacao');
       if (el) el.textContent = 'Atualizado: ' + new Date().toLocaleTimeString('pt-BR');
     }
