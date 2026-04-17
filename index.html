@@ -172,6 +172,7 @@ body{font-family:'Plus Jakarta Sans',sans-serif;-webkit-font-smoothing:antialias
 
 /* ══ APP ══ */
 
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 
   * { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -1872,8 +1873,8 @@ body{font-family:'Plus Jakarta Sans',sans-serif;-webkit-font-smoothing:antialias
       <div onclick="goTab('prioridades');toggleMobileMenu()" style="display:flex;align-items:center;gap:10px;padding:12px;border-radius:12px;background:rgba(255,255,255,0.05);color:rgba(255,255,255,0.7);font-size:13px;cursor:pointer">
         <span style="font-size:18px">🎯</span> Prioridades
       </div>
-      <div onclick="goTab('dashboard');toggleMobileMenu()" style="display:flex;align-items:center;gap:10px;padding:12px;border-radius:12px;background:rgba(255,255,255,0.05);color:rgba(255,255,255,0.7);font-size:13px;cursor:pointer">
-        <span style="font-size:18px">🔔</span> Dashboard
+      <div onclick="goTab('lembretes');toggleMobileMenu()" style="display:flex;align-items:center;gap:10px;padding:12px;border-radius:12px;background:rgba(255,255,255,0.05);color:rgba(255,255,255,0.7);font-size:13px;cursor:pointer">
+        <span style="font-size:18px">🔔</span> Lembretes
       </div>
       <div id="bnAdminItem" onclick="goTab('admin');toggleMobileMenu()" style="display:none;align-items:center;gap:10px;padding:12px;border-radius:12px;background:rgba(245,158,11,0.15);color:#fbbf24;font-size:13px;cursor:pointer">
         <span style="font-size:18px">🛡️</span> Admin
@@ -1917,26 +1918,6 @@ let notas = [];
 let planos = [];
 let prioridades = [];
 let chartInstance = null;
-
-function renderPainelDiagnostico() {
-  const alvo = document.getElementById('dashNotas');
-  if (!alvo || document.getElementById('painelDiagnostico')) return;
-  const semDados = !materias.length && !notas.length && !planos.length && !prioridades.length;
-  if (!semDados) return;
-  const userId = currentUser?.id || 'não identificado';
-  const email = currentUser?.email || 'não identificado';
-  alvo.innerHTML = `
-    <div id="painelDiagnostico" style="border:1px solid #dbeafe;background:#eff6ff;border-radius:12px;padding:14px">
-      <div style="font-weight:700;color:#1d4ed8;margin-bottom:8px">ℹ️ Conexão com o banco está funcionando</div>
-      <div style="font-size:13px;color:#1e3a8a;line-height:1.6">
-        As consultas para <strong>matérias</strong>, <strong>notas</strong> e <strong>sessões</strong> terminaram de carregar, então o problema agora é <strong>falta de registros</strong> ou <strong>filtro por user_id</strong>.
-      </div>
-      <div style="margin-top:10px;font-size:12px;color:#475569">
-        <strong>E-mail:</strong> ${email}<br>
-        <strong>User ID:</strong> ${userId}
-      </div>
-    </div>`;
-}
 
 // ═══════════════════════════════════════
 // INICIALIZAÇÃO
@@ -2087,7 +2068,6 @@ async function carregarApp() {
   ]);
 
   atualizarDashboard();
-  renderPainelDiagnostico();
   mostrarBadgeTrial();
   mostrarMenuAdmin();
   registrarPresenca();
@@ -2098,7 +2078,6 @@ async function carregarApp() {
     try {
       await Promise.all([carregarMaterias(), carregarNotas(), carregarHistoricoEstudo()]);
       atualizarDashboard();
-      renderPainelDiagnostico();
       // Atualiza feedback IA automaticamente se já foi gerado antes
       const fbEl = document.getElementById('feedbackIAConteudo');
       const jaGerado = fbEl && fbEl.querySelector('.fb-bloco');
@@ -2271,14 +2250,6 @@ function traduzirErro(msg) {
   return msg;
 }
 
-window.addEventListener('error', (e) => {
-  console.error('ERRO JS:', e.message, e.filename, e.lineno);
-});
-
-window.addEventListener('unhandledrejection', (e) => {
-  console.error('PROMISE REJEITADA:', e.reason);
-});
-
 // ═══════════════════════════════════════
 // NAVEGAÇÃO
 // ═══════════════════════════════════════
@@ -2327,15 +2298,7 @@ function goTab(tab) {
   if (tab !== 'materias' && estudoAtivoId) pararEstudo(estudoAtivoId);
   document.querySelectorAll('.tab-page').forEach(p => p.classList.remove('active'));
   document.querySelectorAll('.menu-item').forEach(m => m.classList.remove('active'));
-  const destinoTab = document.getElementById(`tab-${tab}`);
-  if (!destinoTab) {
-    toast('Essa área ainda não está disponível nesta versão.');
-    const tabDashboard = document.getElementById('tab-dashboard');
-    if (tabDashboard) tabDashboard.classList.add('active');
-    setActiveBottomNav('dashboard');
-    return;
-  }
-  destinoTab.classList.add('active');
+  document.getElementById(`tab-${tab}`).classList.add('active');
 
   // Mapeamento explícito: tab → trecho do texto do menu-item
   const menuMap = {
@@ -2358,11 +2321,7 @@ function goTab(tab) {
   document.getElementById('topbarTitle').textContent = title;
   document.getElementById('topbarSub').textContent = sub;
 
-  if (tab === 'admin') {
-    const adminTab = document.getElementById('tab-admin');
-    if (adminTab) adminTab.style.display = 'block';
-    setTimeout(() => adminCarregarUsuarios(), 50);
-  }
+  if (tab === 'admin') adminCarregarUsuarios();
   if (tab === 'dashboard') setTimeout(() => atualizarDashboard(), 50);
   if (tab === 'materias' && !window._recalculouUmaVez) {
     window._recalculouUmaVez = true;
@@ -2393,7 +2352,7 @@ async function carregarMaterias() {
     .eq('user_id', currentUser.id)
     .order('created_at', { ascending: false });
 
-  if (error) { console.error('Erro ao carregar matérias:', error); const el=document.getElementById('listaMaterias'); if(el) el.innerHTML = `<div class="empty-state" style="color:#dc2626"><div class="empty-icon">⚠️</div>${error.message || 'Erro ao carregar matérias.'}</div>`; return; }
+  if (error) { console.error('Erro ao carregar matérias:', error); return; }
   materias = data || [];
   renderMaterias();
   atualizarSelectMateria();
@@ -2541,7 +2500,7 @@ async function carregarNotas() {
     .eq('user_id', currentUser.id)
     .order('created_at', { ascending: false });
 
-  if (error) { console.error('Erro ao carregar notas:', error); const el=document.getElementById('listaNotas'); if(el) el.innerHTML = `<div class="empty-state" style="color:#dc2626"><div class="empty-icon">⚠️</div>${error.message || 'Erro ao carregar notas.'}</div>`; return; }
+  if (error) { console.error('Erro ao carregar notas:', error); return; }
   notas = data || [];
   renderNotas();
 }
@@ -4228,7 +4187,7 @@ const ADMIN_EMAIL = 'gunimicaelke@gmail.com';
 
 function verificarAdmin() {
   if (!currentUser) return false;
-  return currentUser.email === ADMIN_EMAIL;
+  return String(currentUser.email || '').toLowerCase() === String(ADMIN_EMAIL).toLowerCase();
 }
 
 function isAdmin() {
@@ -4236,10 +4195,12 @@ function isAdmin() {
 }
 
 function mostrarMenuAdmin() {
-  const menuAdmin = document.getElementById('menuAdmin');
-  if (!menuAdmin) return;
-  if (verificarAdmin()) menuAdmin.classList.remove('hidden');
-  else menuAdmin.classList.add('hidden');
+  if (verificarAdmin()) {
+    const menu = document.getElementById('menuAdmin');
+    if (menu) menu.classList.remove('hidden');
+    const mobileAdmin = document.getElementById('bnAdminItem');
+    if (mobileAdmin) mobileAdmin.style.display = 'flex';
+  }
 }
 
 async function adminAtivarAssinatura() {
@@ -4299,117 +4260,172 @@ function mostrarAdminMsg(txt, tipo) {
 }
 
 async function adminCarregarUsuarios() {
-  try {
-  // Mostra loading em todos os painéis
   const elLista = document.getElementById('adminListaUsuarios');
-  const elNovos = document.getElementById('adminNovosCadastros');
-  if (elLista) elLista.innerHTML = '<div class="empty-state"><div class="empty-icon">⏳</div>Carregando...</div>';
-
-  // ── 1. Busca assinaturas (sempre funciona, sem RPC) ──
-  const { data: assinData, error: assinErr } = await db
-    .from('assinaturas')
-    .select('*')
-    .order('created_at', { ascending: false });
-
-  if (assinErr) {
-    if (elLista) elLista.innerHTML = '<div class="empty-state" style="color:#dc2626">❌ Erro ao carregar: ' + assinErr.message + '</div>';
-    return;
-  }
-  const assinList = assinData || [];
-
-  // ── 2. Tenta buscar emails via RPC (opcional, melhor caso) ──
-  let emailData = null;
-  try {
-    const { data: d1 } = await db.rpc('get_users_with_metadata');
-    if (d1 && d1.length) emailData = d1.map(u => ({
-      ...u,
-      nome: u.nome || u.raw_user_meta_data?.nome || '',
-      telefone: u.telefone || u.raw_user_meta_data?.telefone || ''
-    }));
-  } catch(e) {}
-  if (!emailData) {
-    try {
-      const { data: d2 } = await db.rpc('get_users_emails');
-      if (d2 && d2.length) emailData = d2.map(u => ({ ...u, nome: '', telefone: '' }));
-    } catch(e) {}
-  }
-  if (emailData) window.adminUsersEmails = emailData;
-
-  // Mapa rápido user_id → info
-  const emailMap = {};
-  (window.adminUsersEmails || []).forEach(u => { emailMap[u.id] = u; });
-
-  // ── 3. Atualiza stats ──
-  const totalUsers = emailData ? emailData.length : assinList.length;
-  const ativos = assinList.filter(u => u.ativa).length;
-  const trial = assinList.filter(u => !u.ativa && u.trial_fim && new Date(u.trial_fim) > new Date()).length;
   const el1 = document.getElementById('adminTotalUsers');
   const el2 = document.getElementById('adminAtivos');
   const el3 = document.getElementById('adminTrial');
+  const elUpd = document.getElementById('adminUltimaAtualizacao');
+  const sel = document.getElementById('compartilharUsuario');
+
+  if (elLista) {
+    elLista.innerHTML = '<div class="empty-state"><div class="empty-icon">⏳</div>Carregando usuários...</div>';
+  }
+
+  let listaUsuarios = [];
+  let overviewErr = null;
+
+  // 1) Melhor cenário: RPC admin completa
+  try {
+    const { data, error } = await db.rpc('get_admin_users_overview');
+    if (!error && Array.isArray(data) && data.length) {
+      listaUsuarios = data.map(u => ({
+        id: u.id,
+        email: u.email || '',
+        nome: u.nome || '',
+        telefone: u.telefone || '',
+        created_at: u.created_at,
+        assinatura_ativa: !!u.assinatura_ativa,
+        trial_fim: u.trial_fim,
+        data_pagamento: u.data_pagamento
+      }));
+    } else if (error) {
+      overviewErr = error;
+    }
+  } catch (e) {
+    overviewErr = e;
+  }
+
+  // 2) Fallback: combina assinaturas + RPCs antigas
+  if (!listaUsuarios.length) {
+    const { data: assinData, error: assinErr } = await db
+      .from('assinaturas')
+      .select('*')
+      .order('created_at', { ascending: false });
+
+    if (assinErr && elLista) {
+      elLista.innerHTML = '<div class="empty-state" style="color:#dc2626">❌ Erro ao carregar assinaturas: ' + assinErr.message + '</div>';
+      return;
+    }
+
+    let emailData = [];
+    try {
+      const { data: d1 } = await db.rpc('get_users_with_metadata');
+      if (Array.isArray(d1)) {
+        emailData = d1.map(u => ({
+          id: u.id,
+          email: u.email || '',
+          nome: u.nome || u.raw_user_meta_data?.nome || '',
+          telefone: u.telefone || u.raw_user_meta_data?.telefone || '',
+          created_at: u.created_at || null
+        }));
+      }
+    } catch (e) {}
+
+    if (!emailData.length) {
+      try {
+        const { data: d2 } = await db.rpc('get_users_emails');
+        if (Array.isArray(d2)) {
+          emailData = d2.map(u => ({
+            id: u.id,
+            email: u.email || '',
+            nome: '',
+            telefone: '',
+            created_at: null
+          }));
+        }
+      } catch (e) {}
+    }
+
+    const assinMap = {};
+    (assinData || []).forEach(a => { assinMap[a.user_id] = a; });
+
+    if (emailData.length) {
+      listaUsuarios = emailData.map(u => ({
+        ...u,
+        assinatura_ativa: !!assinMap[u.id]?.ativa,
+        trial_fim: assinMap[u.id]?.trial_fim || null,
+        data_pagamento: assinMap[u.id]?.data_pagamento || null
+      }));
+    } else {
+      listaUsuarios = (assinData || []).map(a => ({
+        id: a.user_id,
+        email: '',
+        nome: '',
+        telefone: '',
+        created_at: a.created_at || null,
+        assinatura_ativa: !!a.ativa,
+        trial_fim: a.trial_fim || null,
+        data_pagamento: a.data_pagamento || null
+      }));
+    }
+  }
+
+  window.adminUsersEmails = listaUsuarios.map(u => ({
+    id: u.id,
+    email: u.email || '',
+    nome: u.nome || '',
+    telefone: u.telefone || ''
+  }));
+
+  const totalUsers = listaUsuarios.length;
+  const ativos = listaUsuarios.filter(u => u.assinatura_ativa).length;
+  const trial = listaUsuarios.filter(u => !u.assinatura_ativa && u.trial_fim && new Date(u.trial_fim) > new Date()).length;
+
   if (el1) el1.textContent = totalUsers;
   if (el2) el2.textContent = ativos;
   if (el3) el3.textContent = trial;
-  const elUpd = document.getElementById('adminUltimaAtualizacao');
   if (elUpd) elUpd.textContent = 'Atualizado: ' + new Date().toLocaleTimeString('pt-BR');
 
-  // ── 4. Popula select de compartilhar ──
-  const sel = document.getElementById('compartilharUsuario');
-  if (sel && emailData) {
+  if (sel) {
     sel.innerHTML = '<option value="">Selecione o usuário...</option>' +
-      emailData.filter(u => u.email && u.email !== currentUser.email).map(u =>
-        `<option value="${u.id}">${u.nome ? u.nome + ' — ' : ''}${u.email}</option>`
-      ).join('');
+      listaUsuarios
+        .filter(u => u.id && u.email && (!currentUser || u.email !== currentUser.email))
+        .map(u => `<option value="${u.id}">${u.nome ? u.nome + ' — ' : ''}${u.email}</option>`)
+        .join('');
   }
 
-  // ── 5. Renderiza lista de usuários (baseado em assinaturas) ──
-  if (!assinList.length && !emailData) {
-    if (elLista) elLista.innerHTML = '<div class="empty-state"><div class="empty-icon">👥</div>O painel abriu, mas a tabela <strong>assinaturas</strong> ainda está vazia. Isso não é erro de conexão.</div>';
-  } else {
-    // Usa emailData se disponível, senão usa assinaturas
-    const listaRender = emailData && emailData.length
-      ? emailData.map(u => {
-          const assin = assinList.find(a => a.user_id === u.id);
-          return { ...u, assin };
-        })
-      : assinList.map(u => ({
-          id: u.user_id, email: u.user_id.substring(0,8)+'…',
-          nome: '', telefone: '', assin: u
-        }));
-
-    if (elLista) elLista.innerHTML = listaRender.map(u => {
-      const assin = u.assin;
-      const trialFim = assin?.trial_fim ? new Date(assin.trial_fim) : null;
+  if (!listaUsuarios.length) {
+    if (elLista) {
+      const detalhe = overviewErr?.message ? '<div style="font-size:12px;margin-top:8px;color:var(--muted)">Dica: rode no Supabase a função <code>get_admin_users_overview()</code> e confirme se existem usuários no Auth.</div>' : '';
+      elLista.innerHTML = '<div class="empty-state"><div class="empty-icon">👥</div>Nenhum usuário encontrado.' + detalhe + '</div>';
+    }
+  } else if (elLista) {
+    elLista.innerHTML = listaUsuarios.map(u => {
+      const trialFim = u.trial_fim ? new Date(u.trial_fim) : null;
       const trialExpirou = trialFim && trialFim < new Date();
       const diasTrial = trialFim ? Math.ceil((trialFim - new Date()) / 86400000) : null;
-      let status, statusColor, statusBg;
-      if (assin?.ativa) { status = '✅ Ativo'; statusColor = '#059669'; statusBg = '#f0fdf4'; }
-      else if (trialExpirou) { status = '❌ Expirado'; statusColor = '#dc2626'; statusBg = '#fef2f2'; }
-      else if (diasTrial !== null && diasTrial >= 0) { status = '⏳ Trial (' + diasTrial + 'd)'; statusColor = '#d97706'; statusBg = '#fffbeb'; }
-      else { status = '⏳ Novo'; statusColor = '#d97706'; statusBg = '#fffbeb'; }
-      const dataPag = assin?.data_pagamento ? new Date(assin.data_pagamento).toLocaleDateString('pt-BR') : null;
-      const avatar = (u.email || '?').charAt(0).toUpperCase();
-
+      let status = '⏳ Novo', statusColor = '#d97706', statusBg = '#fffbeb';
+      if (u.assinatura_ativa) {
+        status = '✅ Ativo'; statusColor = '#059669'; statusBg = '#f0fdf4';
+      } else if (trialExpirou) {
+        status = '❌ Expirado'; statusColor = '#dc2626'; statusBg = '#fef2f2';
+      } else if (diasTrial !== null && diasTrial >= 0) {
+        status = '⏳ Trial (' + diasTrial + 'd)'; statusColor = '#d97706'; statusBg = '#fffbeb';
+      }
+      const dataPag = u.data_pagamento ? new Date(u.data_pagamento).toLocaleDateString('pt-BR') : '';
+      const trialTxt = trialFim ? trialFim.toLocaleDateString('pt-BR') : '';
+      const avatar = ((u.nome || u.email || '?').trim().charAt(0) || '?').toUpperCase();
       return `<div style="display:flex;align-items:center;gap:10px;padding:11px 0;border-bottom:1px solid var(--border);flex-wrap:wrap">
         <div style="width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,#2563eb,#3b82f6);display:grid;place-items:center;font-size:13px;font-weight:700;color:#fff;flex-shrink:0">${avatar}</div>
         <div style="flex:1;min-width:0">
           <div style="font-size:13px;font-weight:600;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">
-            ${u.nome ? '<span style="color:#2563eb">' + u.nome + '</span> — ' : ''}${u.email}
+            ${u.nome ? '<span style="color:#2563eb">' + u.nome + '</span> — ' : ''}${u.email || u.id}
           </div>
           ${u.telefone ? `<div style="font-size:11px;color:#059669;font-weight:600">📱 ${u.telefone}</div>` : ''}
           <div style="font-size:11px;color:var(--muted)">
-            ${dataPag ? '<span style="color:#059669;font-weight:600">💳 Pagou em: ' + dataPag + '</span>' : (trialFim ? 'Trial até: ' + trialFim.toLocaleDateString('pt-BR') : '')}
+            ${dataPag ? '<span style="color:#059669;font-weight:600">💳 Pagou em: ' + dataPag + '</span>' : (trialTxt ? 'Trial até: ' + trialTxt : 'Sem dados de assinatura')}
           </div>
         </div>
-        <div style="display:flex;align-items:center;gap:5px;flex-shrink:0">
+        <div style="display:flex;align-items:center;gap:5px;flex-shrink:0;flex-wrap:wrap">
           <span style="font-size:10px;font-weight:700;padding:3px 9px;border-radius:20px;background:${statusBg};color:${statusColor}">${status}</span>
-          ${!assin?.ativa ? `<button onclick="adminAtivarPorId('${u.id}')" class="mini-btn" style="width:auto;padding:3px 9px;font-size:11px">Ativar</button>` : `<button onclick="adminDesativarPorId('${u.id}')" class="mini-btn btn-secondary" style="width:auto;padding:3px 9px;font-size:11px">Desativar</button>`}
+          ${!u.assinatura_ativa ? `<button onclick="adminAtivarPorId('${u.id}')" class="mini-btn" style="width:auto;padding:3px 9px;font-size:11px">Ativar</button>` : `<button onclick="adminDesativarPorId('${u.id}')" class="mini-btn btn-secondary" style="width:auto;padding:3px 9px;font-size:11px">Desativar</button>`}
+          ${u.email ? `<button onclick="preencherAdminEmail('${String(u.email).replace(/'/g, "&#39;")}')" class="mini-btn btn-secondary" style="width:auto;padding:3px 9px;font-size:11px">Selecionar</button>` : ''}
           <button onclick="adminCompartilharComUsuario('${u.id}')" class="mini-btn btn-secondary" style="width:auto;padding:3px 9px;font-size:11px">📤</button>
         </div>
       </div>`;
     }).join('');
   }
 
-  // ── 6. Carrega os outros painéis em paralelo ──
   await Promise.all([
     adminCarregarOnline(),
     adminCarregarNovosCadastros(),
@@ -4417,20 +4433,15 @@ async function adminCarregarUsuarios() {
     adminCarregarTempoAcesso()
   ]);
 
-  // Auto-refresh a cada 30s
   if (adminRefreshInterval) clearInterval(adminRefreshInterval);
   adminRefreshInterval = setInterval(async () => {
-    if (document.getElementById('tab-admin').classList.contains('active')) {
+    const tabAdmin = document.getElementById('tab-admin');
+    if (tabAdmin && tabAdmin.classList.contains('active')) {
       await adminCarregarOnline();
       const el = document.getElementById('adminUltimaAtualizacao');
       if (el) el.textContent = 'Atualizado: ' + new Date().toLocaleTimeString('pt-BR');
     }
   }, 30000);
-  } catch (err) {
-    console.error('Erro no adminCarregarUsuarios:', err);
-    const elLista = document.getElementById('adminListaUsuarios');
-    if (elLista) elLista.innerHTML = '<div class="empty-state" style="color:#dc2626">❌ Erro ao abrir painel: ' + (err?.message || err) + '</div>';
-  }
 }
 
 async function adminAtivarPorId(userId) {
