@@ -4272,92 +4272,62 @@ async function adminCarregarUsuarios() {
   }
 
   let listaUsuarios = [];
-  let overviewErr = null;
 
-  // 1) Melhor cenário: RPC admin completa
-  try {
-    const { data, error } = await db.rpc('get_admin_users_overview');
-    if (!error && Array.isArray(data) && data.length) {
-      listaUsuarios = data.map(u => ({
-        id: u.id,
-        email: u.email || '',
-        nome: u.nome || '',
-        telefone: u.telefone || '',
-        created_at: u.created_at,
-        assinatura_ativa: !!u.assinatura_ativa,
-        trial_fim: u.trial_fim,
-        data_pagamento: u.data_pagamento
-      }));
-    } else if (error) {
-      overviewErr = error;
-    }
-  } catch (e) {
-    overviewErr = e;
+  // Busca assinaturas diretamente (sem RPC)
+  const { data: assinData, error: assinErr } = await db
+    .from('assinaturas')
+    .select('*')
+    .order('created_at', { ascending: false });
+
+  if (assinErr && elLista) {
+    elLista.innerHTML = '<div class="empty-state" style="color:#dc2626">❌ Erro ao carregar assinaturas: ' + assinErr.message + '</div>';
+    return;
   }
 
-  // 2) Fallback: combina assinaturas + RPCs antigas
-  if (!listaUsuarios.length) {
-    const { data: assinData, error: assinErr } = await db
-      .from('assinaturas')
-      .select('*')
-      .order('created_at', { ascending: false });
-
-    if (assinErr && elLista) {
-      elLista.innerHTML = '<div class="empty-state" style="color:#dc2626">❌ Erro ao carregar assinaturas: ' + assinErr.message + '</div>';
-      return;
+  let emailData = [];
+  try {
+    const { data: d1 } = await db.rpc('get_users_with_metadata');
+    if (Array.isArray(d1)) {
+      emailData = d1.map(u => ({
+        id: u.id,
+        email: u.email || '',
+        nome: u.nome || u.raw_user_meta_data?.nome || '',
+        telefone: u.telefone || u.raw_user_meta_data?.telefone || '',
+        created_at: u.created_at || null
+      }));
     }
+  } catch (e) {}
 
-    let emailData = [];
+  if (!emailData.length) {
     try {
-      const { data: d1 } = await db.rpc('get_users_with_metadata');
-      if (Array.isArray(d1)) {
-        emailData = d1.map(u => ({
-          id: u.id,
-          email: u.email || '',
-          nome: u.nome || u.raw_user_meta_data?.nome || '',
-          telefone: u.telefone || u.raw_user_meta_data?.telefone || '',
-          created_at: u.created_at || null
+      const { data: d2 } = await db.rpc('get_users_emails');
+      if (Array.isArray(d2)) {
+        emailData = d2.map(u => ({
+          id: u.id, email: u.email || '',
+          nome: '', telefone: '', created_at: null
         }));
       }
     } catch (e) {}
+  }
 
-    if (!emailData.length) {
-      try {
-        const { data: d2 } = await db.rpc('get_users_emails');
-        if (Array.isArray(d2)) {
-          emailData = d2.map(u => ({
-            id: u.id,
-            email: u.email || '',
-            nome: '',
-            telefone: '',
-            created_at: null
-          }));
-        }
-      } catch (e) {}
-    }
+  const assinMap = {};
+  (assinData || []).forEach(a => { assinMap[a.user_id] = a; });
 
-    const assinMap = {};
-    (assinData || []).forEach(a => { assinMap[a.user_id] = a; });
-
-    if (emailData.length) {
-      listaUsuarios = emailData.map(u => ({
-        ...u,
-        assinatura_ativa: !!assinMap[u.id]?.ativa,
-        trial_fim: assinMap[u.id]?.trial_fim || null,
-        data_pagamento: assinMap[u.id]?.data_pagamento || null
-      }));
-    } else {
-      listaUsuarios = (assinData || []).map(a => ({
-        id: a.user_id,
-        email: '',
-        nome: '',
-        telefone: '',
-        created_at: a.created_at || null,
-        assinatura_ativa: !!a.ativa,
-        trial_fim: a.trial_fim || null,
-        data_pagamento: a.data_pagamento || null
-      }));
-    }
+  if (emailData.length) {
+    listaUsuarios = emailData.map(u => ({
+      ...u,
+      assinatura_ativa: !!assinMap[u.id]?.ativa,
+      trial_fim: assinMap[u.id]?.trial_fim || null,
+      data_pagamento: assinMap[u.id]?.data_pagamento || null
+    }));
+  } else {
+    listaUsuarios = (assinData || []).map(a => ({
+      id: a.user_id, email: '', nome: '', telefone: '',
+      created_at: a.created_at || null,
+      assinatura_ativa: !!a.ativa,
+      trial_fim: a.trial_fim || null,
+      data_pagamento: a.data_pagamento || null
+    }));
   }
 
   window.adminUsersEmails = listaUsuarios.map(u => ({
@@ -4386,8 +4356,7 @@ async function adminCarregarUsuarios() {
 
   if (!listaUsuarios.length) {
     if (elLista) {
-      const detalhe = overviewErr?.message ? '<div style="font-size:12px;margin-top:8px;color:var(--muted)">Dica: rode no Supabase a função <code>get_admin_users_overview()</code> e confirme se existem usuários no Auth.</div>' : '';
-      elLista.innerHTML = '<div class="empty-state"><div class="empty-icon">👥</div>Nenhum usuário encontrado.' + detalhe + '</div>';
+      elLista.innerHTML = '<div class="empty-state"><div class="empty-icon">👥</div>Nenhum usuário encontrado.<div style="font-size:12px;margin-top:8px;color:var(--muted)">Verifique se a tabela <code>assinaturas</code> existe no Supabase e se o RPC <code>get_users_emails</code> foi criado.</div></div>';
     }
   } else if (elLista) {
     elLista.innerHTML = listaUsuarios.map(u => {
@@ -4442,6 +4411,12 @@ async function adminCarregarUsuarios() {
       if (el) el.textContent = 'Atualizado: ' + new Date().toLocaleTimeString('pt-BR');
     }
   }, 30000);
+}
+
+function preencherAdminEmail(email) {
+  const el = document.getElementById('adminEmail');
+  if (el) { el.value = email; el.scrollIntoView({ behavior: 'smooth', block: 'center' }); }
+  toast('📧 E-mail selecionado: ' + email);
 }
 
 async function adminAtivarPorId(userId) {
@@ -5363,6 +5338,25 @@ function _mostrarFimJogo(venceu) {
 SQL PARA CRIAR AS TABELAS NO SUPABASE
 (Rode no SQL Editor do painel Supabase)
 ═══════════════════════════════════════
+
+-- ⚠️ RPC PRINCIPAL — rode este para o painel admin funcionar:
+create or replace function get_admin_users_overview()
+returns table(
+  id uuid, email text, nome text, telefone text, created_at timestamptz,
+  assinatura_ativa boolean, trial_fim timestamptz, data_pagamento timestamptz
+)
+language sql security definer as $$
+  select
+    u.id, u.email,
+    coalesce(u.raw_user_meta_data->>'nome','') as nome,
+    coalesce(u.raw_user_meta_data->>'telefone','') as telefone,
+    u.created_at,
+    coalesce(a.ativa, false) as assinatura_ativa,
+    a.trial_fim, a.data_pagamento
+  from auth.users u
+  left join public.assinaturas a on a.user_id = u.id
+  order by u.created_at desc;
+$$;
 
 -- Resultados de simulados (para progresso automático)
 create table if not exists simulados_resultados (
