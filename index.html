@@ -1220,27 +1220,40 @@ body{font-family:'Plus Jakarta Sans',sans-serif;-webkit-font-smoothing:antialias
       <div class="tab-page" id="tab-materias">
         <div class="section-title">📖 Matérias</div>
 
+        <!-- Botão recalcular com base no histórico -->
+        <div class="card card-pad" style="margin-bottom:20px;background:linear-gradient(135deg,#0c1a2e,#1e3a5f);border:1px solid rgba(147,197,253,0.15)">
+          <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px">
+            <div>
+              <div style="font-size:14px;font-weight:700;color:#fff;margin-bottom:4px">⚡ Atualizar progresso pelo histórico</div>
+              <div style="font-size:12px;color:rgba(255,255,255,0.45)">Recalcula o % de cada matéria com base no tempo já estudado, planos e simulados realizados</div>
+            </div>
+            <button id="btnRecalcularProgresso" onclick="recalcularTudoDoHistorico()" style="width:auto;padding:10px 20px;background:#2563eb;color:#fff;border:none;border-radius:10px;font-weight:700;white-space:nowrap">🔄 Recalcular progresso</button>
+          </div>
+          <div id="resumoRecalculo" style="display:none;margin-top:14px;border-top:1px solid rgba(255,255,255,0.08);padding-top:14px"></div>
+        </div>
+
         <div class="card card-pad" style="margin-bottom:20px">
-          <div class="card-head"><h3>Adicionar Matéria</h3></div>
+          <div class="card-head">
+            <h3>➕ Adicionar Matéria</h3>
+            <span style="font-size:11px;color:var(--muted);background:#eff6ff;padding:3px 10px;border-radius:20px;border:1px solid #dbeafe">⚡ Progresso calculado automaticamente</span>
+          </div>
           <div class="row">
-            <input type="text" id="novaMateria" placeholder="Ex: Matemática" />
+            <input type="text" id="novaMateria" placeholder="Nome da matéria (ex: Direito Civil)" />
             <input type="text" id="novaMateriaProfessor" placeholder="Professor (opcional)" />
           </div>
-          <div class="row" style="align-items:center">
-            <div>
-              <label class="field-label">Progresso (%)</label>
-              <input type="number" id="novaMateriaProgresso" placeholder="0" min="0" max="100" />
+          <div class="row" style="align-items:flex-end">
+            <div style="flex:2">
+              <label class="field-label">🏁 Data da Prova (opcional)</label>
+              <input type="date" id="novaMateriaDataProva" style="margin-bottom:0" />
             </div>
-            <div>
-              <label class="field-label">Cor</label>
-              <input type="color" id="novaMateriaColor" value="#4f5ef7" style="height:46px;padding:4px 8px;cursor:pointer" />
+            <div style="flex:1">
+              <label class="field-label">Cor da matéria</label>
+              <input type="color" id="novaMateriaColor" value="#2563eb" style="height:46px;padding:4px 8px;cursor:pointer;margin-bottom:0;width:100%" />
             </div>
           </div>
-          <div class="row">
-            <div style="flex:1">
-              <label class="field-label">🏁 Data da Prova (opcional)</label>
-              <input type="date" id="novaMateriaDataProva" />
-            </div>
+          <div style="margin:12px 0 16px;padding:10px 14px;background:#f0fdf4;border:1px solid #bbf7d0;border-radius:10px;font-size:12px;color:#15803d;line-height:1.7">
+            💡 O progresso é calculado automaticamente com base em:<br>
+            <strong>⏱️ Tempo estudado (40%)</strong> + <strong>🎯 Acertos no simulado (40%)</strong> + <strong>📖 Tópicos marcados (20%)</strong>
           </div>
           <button onclick="salvarMateria()">➕ Adicionar Matéria</button>
         </div>
@@ -2193,8 +2206,11 @@ function goTab(tab) {
 
   if (tab === 'admin') adminCarregarUsuarios();
   if (tab === 'dashboard') {
-    // Aguarda a aba ficar visível antes de renderizar o gráfico
     setTimeout(() => atualizarDashboard(), 50);
+  }
+  if (tab === 'materias' && !window._recalculouUmaVez) {
+    window._recalculouUmaVez = true;
+    setTimeout(() => recalcularTudoDoHistorico(), 300);
   }
 
   // Update bottom nav active state
@@ -2281,12 +2297,9 @@ function renderMaterias() {
         <div class="progress-bar"><div style="width:${m.progresso || 0}%"></div></div>
         <strong>${m.progresso || 0}%</strong>
       </div>
-      <div class="item-actions">
-        <input type="range" min="0" max="100" value="${m.progresso || 0}"
-          style="flex:1;accent-color:var(--primary)"
-          onclick="event.stopPropagation()"
-          oninput="atualizarProgressoMateria('${m.id}', this.value)"
-          onchange="salvarProgressoMateria('${m.id}', this.value)" />
+      <div style="margin-top:6px;display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+        <span style="font-size:10px;padding:2px 8px;border-radius:20px;background:#eff6ff;color:#2563eb;border:1px solid #dbeafe;font-weight:600">⚡ Progresso automático</span>
+        <span style="font-size:10px;color:var(--muted)">⏱️ Tempo + 🎯 Simulado + 📖 Tópicos</span>
       </div>
     </div>`;
   }).join('');
@@ -2300,7 +2313,7 @@ async function salvarMateria() {
     user_id: currentUser.id,
     nome,
     professor: document.getElementById('novaMateriaProfessor').value.trim(),
-    progresso: parseInt(document.getElementById('novaMateriaProgresso').value) || 0,
+    progresso: 0,
     cor: document.getElementById('novaMateriaColor').value,
     data_prova: document.getElementById('novaMateriaDataProva').value || null
   };
@@ -2310,9 +2323,9 @@ async function salvarMateria() {
 
   document.getElementById('novaMateria').value = '';
   document.getElementById('novaMateriaProfessor').value = '';
-  document.getElementById('novaMateriaProgresso').value = '';
   document.getElementById('novaMateriaDataProva').value = '';
-  toast('✅ Matéria adicionada!');
+  document.getElementById('novaMateriaColor').value = '#2563eb';
+  toast('✅ Matéria adicionada! O progresso será calculado automaticamente.');
   await carregarMaterias();
   atualizarDashboard();
 }
@@ -3084,9 +3097,28 @@ function verGabarito() {
       exEl.appendChild(exp);
     }
   });
+  const pctAcertos = exercicios.length ? Math.round(acertos / exercicios.length * 100) : 0;
   document.getElementById('notaSimulado').textContent = acertos + '/' + exercicios.length;
   document.getElementById('resultadoSimulado').classList.remove('hidden');
-  document.getElementById('statProgInt').textContent = Math.round(acertos/exercicios.length*100) + '%';
+  document.getElementById('statProgInt').textContent = pctAcertos + '%';
+
+  window._ultimoAcertoPct = pctAcertos;
+
+  // Salva resultado permanentemente no banco
+  if (currentUser && planoGeradoAtual) {
+    const materiaId = _encontrarMateriaDoPlano();
+    db.from('simulados_resultados').insert([{
+      user_id: currentUser.id,
+      materia_id: materiaId || null,
+      materia_nome: planoGeradoAtual.titulo || '',
+      acertos,
+      total: exercicios.length,
+      pct_acertos: pctAcertos,
+      data: new Date().toISOString()
+    }]).catch(() => {});
+  }
+
+  if (planoGeradoAtual) recalcularProgressoMateria();
 }
 
 function renderCronograma(crono) {
@@ -3130,6 +3162,8 @@ function atualizarProgTopic(tema, idx, val) {
   const vals = Object.values(progressoTopicosLocal);
   const media = vals.length ? Math.round(vals.reduce((a,b)=>a+b,0)/vals.length) : 0;
   document.getElementById('statProgInt').textContent = media + '%';
+  // Recalcula progresso da matéria ao mover slider de tópico
+  if (planoGeradoAtual) recalcularProgressoMateria();
 }
 
 function renderExplicacoesTopicos(topicos) {
@@ -3632,6 +3666,175 @@ function iniciarEstudo(id, nome) {
   toast('▶ Cronômetro iniciado: ' + nome);
 }
 
+// ══ RECALCULAR PROGRESSO DE TODAS AS MATÉRIAS COM BASE NO HISTÓRICO ══
+async function recalcularTudoDoHistorico() {
+  if (!materias.length) return toast('⚠️ Nenhuma matéria cadastrada.');
+
+  const btn = document.getElementById('btnRecalcularProgresso');
+  if (btn) { btn.disabled = true; btn.innerHTML = '<span class="spinner"></span> Calculando...'; }
+
+  toast('⏳ Recalculando com base em tudo que você já fez...');
+
+  // 1. Busca todas as sessões de estudo
+  const { data: sessoes } = await db.from('sessoes_estudo')
+    .select('materia_id, segundos')
+    .eq('user_id', currentUser.id);
+
+  // 2. Busca todos os resultados de simulados salvos
+  const { data: simulados } = await db.from('simulados_resultados')
+    .select('materia_id, materia_nome, pct_acertos')
+    .eq('user_id', currentUser.id)
+    .order('data', { ascending: false });
+
+  // 3. Busca planos salvos para vincular tópicos
+  const { data: planosIA } = await db.from('planos_ia')
+    .select('titulo, analise')
+    .eq('user_id', currentUser.id);
+
+  // Mapa de tempo por materia_id
+  const tempoMap = {};
+  (sessoes || []).forEach(s => {
+    if (!s.materia_id) return;
+    tempoMap[s.materia_id] = (tempoMap[s.materia_id] || 0) + (s.segundos || 0);
+  });
+
+  // Mapa de melhor acerto por materia_id ou nome
+  const acertosMap = {};
+  (simulados || []).forEach(s => {
+    const key = s.materia_id || s.materia_nome;
+    if (!key) return;
+    // Guarda o melhor resultado
+    if (!acertosMap[key] || s.pct_acertos > acertosMap[key]) {
+      acertosMap[key] = s.pct_acertos;
+    }
+  });
+
+  const metaSegundos = 10 * 3600;
+  const detalhes = [];
+
+  for (const mat of materias) {
+    // Tempo
+    const tempoTotal = tempoMap[mat.id] || mat.tempo_total || 0;
+    const pctTempo = Math.min(100, Math.round((tempoTotal / metaSegundos) * 100));
+
+    // Acertos — busca por materia_id ou por match de nome no título do plano
+    let pctAcertos = acertosMap[mat.id] || 0;
+    if (!pctAcertos) {
+      // Tenta pelo nome da matéria nos resultados por nome
+      const nomeLower = mat.nome.toLowerCase();
+      const chave = Object.keys(acertosMap).find(k =>
+        k.toLowerCase().includes(nomeLower) || nomeLower.includes(k.toLowerCase().split(/[\s\-]/)[0])
+      );
+      if (chave) pctAcertos = acertosMap[chave];
+    }
+
+    // Tópicos — verifica plano vinculado
+    let pctTopicos = 0;
+    const planoVinculado = (planosIA || []).find(p => {
+      const t = (p.titulo || '').toLowerCase();
+      const n = mat.nome.toLowerCase();
+      return t.includes(n) || n.includes(t.split(/[\s\-–]/)[0]);
+    });
+    if (planoVinculado?.analise?.topicos?.length > 0) {
+      pctTopicos = Math.min(100, Math.round(pctTempo * 0.7));
+    }
+
+    // Fórmula
+    let progresso = 0;
+    if (pctTempo > 0 || pctAcertos > 0 || pctTopicos > 0) {
+      progresso = Math.min(100, Math.round(
+        (pctTempo   * 0.40) +
+        (pctAcertos * 0.40) +
+        (pctTopicos * 0.20)
+      ));
+    }
+
+    await db.from('materias').update({ progresso, tempo_total: tempoTotal }).eq('id', mat.id);
+
+    detalhes.push({ nome: mat.nome, progresso, pctTempo, pctAcertos, pctTopicos, tempoTotal });
+  }
+
+  await carregarMaterias();
+  atualizarDashboard();
+
+  if (btn) { btn.disabled = false; btn.innerHTML = '🔄 Recalcular progresso'; }
+
+  const resumoEl = document.getElementById('resumoRecalculo');
+  if (resumoEl) {
+    resumoEl.innerHTML = detalhes.map(d => `
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid rgba(255,255,255,0.08)">
+        <div>
+          <div style="font-size:13px;font-weight:600;color:#fff">${d.nome}</div>
+          <div style="font-size:11px;color:rgba(255,255,255,0.4);margin-top:2px">
+            ⏱️ ${formatarTempoTotal(d.tempoTotal)} (${d.pctTempo}%)
+            ${d.pctAcertos ? ' · 🎯 Simulado: ' + d.pctAcertos + '%' : ' · 🎯 Sem simulado'}
+            ${d.pctTopicos ? ' · 📖 Tópicos: ' + d.pctTopicos + '%' : ''}
+          </div>
+        </div>
+        <div style="font-size:20px;font-weight:700;color:${d.progresso>=80?'#4ade80':d.progresso>=40?'#fbbf24':'#60a5fa'}">${d.progresso}%</div>
+      </div>`).join('');
+    resumoEl.style.display = 'block';
+  }
+
+  toast(`✅ ${detalhes.length} matéria(s) atualizadas com base no histórico completo!`);
+}
+
+// ══ PROGRESSO AUTOMÁTICO POR MATÉRIA ══
+async function recalcularProgressoMateria(materiaId) {
+  const alvoId = materiaId || _encontrarMateriaDoPlano();
+  if (!alvoId) return;
+
+  // Busca dados frescos do banco (garante tempo_total já atualizado)
+  const { data: matData } = await db.from('materias').select('*').eq('id', alvoId).single();
+  if (!matData) return;
+
+  // ── Fator 1: TEMPO (40%) ──
+  // Soma todas as sessões salvas para esta matéria (fonte de verdade)
+  const { data: sessoes } = await db.from('sessoes_estudo')
+    .select('segundos')
+    .eq('user_id', currentUser.id)
+    .eq('materia_id', alvoId);
+
+  const tempoTotal = (sessoes || []).reduce((s, r) => s + (r.segundos || 0), 0);
+  const metaSegundos = 10 * 3600; // 10h = 100%
+  const pctTempo = Math.min(100, Math.round((tempoTotal / metaSegundos) * 100));
+
+  // ── Fator 2: ACERTOS NO SIMULADO (40%) ──
+  const pctAcertos = window._ultimoAcertoPct !== undefined ? window._ultimoAcertoPct : 0;
+
+  // ── Fator 3: TÓPICOS ESTUDADOS (20%) ──
+  const vals = Object.values(progressoTopicosLocal);
+  const pctTopicos = vals.length ? Math.round(vals.reduce((a, b) => a + b, 0) / vals.length) : 0;
+
+  // ── Fórmula ponderada ──
+  const progresso = Math.min(100, Math.round(
+    (pctTempo   * 0.40) +
+    (pctAcertos * 0.40) +
+    (pctTopicos * 0.20)
+  ));
+
+  if (matData.progresso === progresso) return;
+
+  await db.from('materias').update({ progresso, tempo_total: tempoTotal }).eq('id', alvoId);
+
+  toast(`📊 "${matData.nome}" → ${progresso}%  (⏱️${pctTempo}% tempo | 🎯${pctAcertos}% simulado | 📖${pctTopicos}% tópicos)`);
+
+  await carregarMaterias();
+  atualizarDashboard();
+}
+
+function _encontrarMateriaDoPlano() {
+  if (!planoGeradoAtual) return null;
+  const titulo = planoGeradoAtual.titulo || '';
+  // Tenta match pelo nome da matéria dentro do título do plano
+  const mat = materias.find(m =>
+    titulo.toLowerCase().includes(m.nome.toLowerCase()) ||
+    m.nome.toLowerCase().includes(titulo.toLowerCase().split(/[\s\-–]/)[0].toLowerCase())
+  );
+  // Se cronômetro está ativo, prioriza a matéria sendo estudada
+  if (estudoAtivoId) return estudoAtivoId;
+  return mat ? mat.id : null;
+}
 async function pararEstudo(id) {
   if (!estudoAtivoId || estudoAtivoId !== id) return;
   clearInterval(estudoInterval);
@@ -3673,6 +3876,8 @@ async function pararEstudo(id) {
   await carregarMaterias();
   await carregarHistoricoEstudo();
   atualizarDashboard();
+  // Recalcula progresso automático baseado no tempo acumulado
+  await recalcularProgressoMateria(id);
 }
 
 async function carregarHistoricoEstudo() {
@@ -4704,7 +4909,20 @@ SQL PARA CRIAR AS TABELAS NO SUPABASE
 (Rode no SQL Editor do painel Supabase)
 ═══════════════════════════════════════
 
--- ⚠️ ADICIONAR ESTE RPC PARA NOMES E TELEFONES APARECEREM NO ADMIN:
+-- Resultados de simulados (para progresso automático)
+create table if not exists simulados_resultados (
+  id uuid default gen_random_uuid() primary key,
+  user_id uuid references auth.users not null,
+  materia_id uuid references materias(id) on delete set null,
+  materia_nome text,
+  acertos integer default 0,
+  total integer default 0,
+  pct_acertos integer default 0,
+  data timestamptz default now()
+);
+alter table simulados_resultados enable row level security;
+create policy "Usuário vê só seus simulados" on simulados_resultados
+  for all using (auth.uid() = user_id);
 create or replace function get_users_with_metadata()
 returns table(id uuid, email text, nome text, telefone text, raw_user_meta_data jsonb)
 language sql security definer as $$
