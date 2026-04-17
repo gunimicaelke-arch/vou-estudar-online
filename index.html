@@ -1446,6 +1446,7 @@ body{font-family:'Plus Jakarta Sans',sans-serif;-webkit-font-smoothing:antialias
               <button class="mini-btn btn-secondary" id="tabBtnChat" onclick="switchPlanoTab('chat')" style="width:auto">💬 Chat com PDF</button>
               <button class="mini-btn btn-secondary" id="tabBtnTopicos" onclick="switchPlanoTab('topicos')" style="width:auto">📖 Explicações</button>
               <button class="mini-btn btn-secondary" id="tabBtnVespera" onclick="switchPlanoTab('vespera')" style="width:auto;display:none">🌙 Modo Véspera</button>
+              <button class="mini-btn btn-secondary" id="tabBtnJogo" onclick="switchPlanoTab('jogo')" style="width:auto;background:linear-gradient(135deg,#7c3aed,#2563eb);color:#fff;border:none">🕹️ Jogo da Trilha</button>
             </div>
 
             <!-- Aba: Plano Semanal -->
@@ -1564,7 +1565,67 @@ body{font-family:'Plus Jakarta Sans',sans-serif;-webkit-font-smoothing:antialias
               </div>
             </div>
 
-          </div>
+            <!-- Aba: Jogo da Trilha -->
+            <div id="tabJogo" class="hidden">
+              <div id="jogoContainer">
+                <div style="background:linear-gradient(135deg,#1e1b4b,#312e81);border-radius:16px;padding:24px;text-align:center;margin-bottom:16px">
+                  <div style="font-size:36px;margin-bottom:8px">🕹️</div>
+                  <div style="font-size:20px;font-weight:800;color:#fff;margin-bottom:6px">Trilha do Conhecimento</div>
+                  <div style="font-size:13px;color:rgba(255,255,255,0.5);margin-bottom:20px">Avance na trilha respondendo certo. Perca uma vida se errar!</div>
+                  <button onclick="iniciarJogoTrilha()" style="background:linear-gradient(135deg,#7c3aed,#2563eb);color:#fff;border:none;padding:14px 32px;border-radius:12px;font-size:15px;font-weight:700;cursor:pointer">🚀 Iniciar Jogo</button>
+                </div>
+                <div id="jogoVazio" style="text-align:center;padding:20px;color:var(--muted);font-size:13px">Gere um plano inteligente para desbloquear o jogo!</div>
+              </div>
+
+              <!-- Tela do jogo -->
+              <div id="jogoTela" style="display:none">
+                <!-- HUD -->
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;flex-wrap:wrap;gap:8px">
+                  <div style="display:flex;gap:6px;align-items:center">
+                    <span id="jogoVidas" style="font-size:22px">❤️❤️❤️</span>
+                  </div>
+                  <div style="background:#eff6ff;border-radius:20px;padding:6px 16px;font-size:13px;font-weight:700;color:#2563eb">
+                    🏆 <span id="jogoPontos">0</span> pts
+                  </div>
+                  <div style="background:#f0fdf4;border-radius:20px;padding:6px 16px;font-size:13px;font-weight:700;color:#059669">
+                    📍 Casa <span id="jogoCasaAtual">1</span> / <span id="jogoTotalCasas">10</span>
+                  </div>
+                </div>
+
+                <!-- Trilha visual -->
+                <div id="jogoTrilha" style="display:flex;gap:4px;flex-wrap:wrap;margin-bottom:20px;padding:12px;background:#f8faff;border-radius:12px;border:1px solid #dbeafe"></div>
+
+                <!-- Carta da pergunta -->
+                <div id="jogoCartaPergunta" style="background:linear-gradient(135deg,#1e1b4b,#312e81);border-radius:16px;padding:22px;margin-bottom:14px">
+                  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
+                    <span id="jogoCategoria" style="font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px;background:rgba(255,255,255,0.15);color:rgba(255,255,255,0.8)">📚 Conceito</span>
+                    <span id="jogoDificuldade" style="font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px"></span>
+                  </div>
+                  <div id="jogoPerguntaTexto" style="font-size:15px;font-weight:700;color:#fff;line-height:1.6;margin-bottom:18px"></div>
+                  <div id="jogoAlternativas" style="display:flex;flex-direction:column;gap:8px"></div>
+                </div>
+
+                <!-- Feedback -->
+                <div id="jogoFeedback" style="display:none;border-radius:12px;padding:16px;text-align:center;margin-bottom:14px">
+                  <div style="font-size:32px;margin-bottom:6px" id="jogoFeedbackEmoji"></div>
+                  <div style="font-size:15px;font-weight:800" id="jogoFeedbackTitulo"></div>
+                  <div style="font-size:13px;margin-top:6px;line-height:1.6" id="jogoFeedbackExp"></div>
+                  <button onclick="proximaCasaJogo()" id="btnProximaCasa" style="margin-top:14px;background:linear-gradient(135deg,#7c3aed,#2563eb);color:#fff;border:none;padding:12px 28px;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer">Próxima casa →</button>
+                </div>
+              </div>
+
+              <!-- Tela de Game Over -->
+              <div id="jogoGameOver" style="display:none;text-align:center;padding:32px;background:linear-gradient(135deg,#1e1b4b,#312e81);border-radius:16px">
+                <div style="font-size:48px;margin-bottom:12px" id="jogoFimEmoji">💀</div>
+                <div style="font-size:22px;font-weight:800;color:#fff;margin-bottom:8px" id="jogoFimTitulo">Game Over</div>
+                <div style="font-size:14px;color:rgba(255,255,255,0.5);margin-bottom:8px" id="jogoFimSub"></div>
+                <div style="font-size:28px;font-weight:800;color:#fbbf24;margin-bottom:20px">🏆 <span id="jogoFimPontos">0</span> pts</div>
+                <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap">
+                  <button onclick="iniciarJogoTrilha()" style="background:linear-gradient(135deg,#7c3aed,#2563eb);color:#fff;border:none;padding:12px 24px;border-radius:10px;font-weight:700;cursor:pointer">🔄 Jogar novamente</button>
+                  <button onclick="switchPlanoTab('simulado')" style="background:rgba(255,255,255,0.1);color:#fff;border:1px solid rgba(255,255,255,0.2);padding:12px 24px;border-radius:10px;font-weight:700;cursor:pointer">📝 Ver simulado</button>
+                </div>
+              </div>
+            </div>
         </div>
 
         <!-- Progresso por tópico -->
@@ -3203,7 +3264,7 @@ function toggleExplicacao(i) {
 }
 
 function switchPlanoTab(tab) {
-  ['plano','flash','simulado','progres','resumo','crono','chat','topicos','vespera'].forEach(t => {
+  ['plano','flash','simulado','progres','resumo','crono','chat','topicos','vespera','jogo'].forEach(t => {
     const el = document.getElementById('tab' + t.charAt(0).toUpperCase() + t.slice(1));
     if (el) el.classList.add('hidden');
     const btn = document.getElementById('tabBtn' + t.charAt(0).toUpperCase() + t.slice(1));
@@ -4897,6 +4958,151 @@ Seja direto como um coach sênior. Sem introdução, sem conclusão.`;
 
   btn.disabled = false;
   btn.innerHTML = '🔄 Atualizar análise';
+}
+
+// ══ JOGO DA TRILHA ══
+let jogoState = null;
+
+function iniciarJogoTrilha() {
+  if (!planoGeradoAtual || !planoGeradoAtual.resultado) {
+    document.getElementById('jogoVazio') && (document.getElementById('jogoVazio').style.display = 'block');
+    return;
+  }
+  const r = planoGeradoAtual.resultado;
+  const exercicios = r.exercicios || [];
+  const topicos = r.topicos || [];
+  const flashcards = r.flashcards || [];
+  const cartas = [];
+
+  exercicios.forEach(e => {
+    cartas.push({ tipo:'multipla', categoria:'📝 Questão', dificuldade:'normal',
+      pergunta:e.pergunta, alternativas:e.alternativas, correta:e.correta,
+      explicacao:e.explicacao||'', pontos:100 });
+  });
+
+  flashcards.slice(0,5).forEach(f => {
+    const fake = topicos.length ? topicos[Math.floor(Math.random()*topicos.length)].tema : 'Nenhuma das anteriores';
+    cartas.push({ tipo:'flashcard', categoria:'🧠 Flashcard', dificuldade:'fácil',
+      pergunta:f.pergunta, alternativas:[f.resposta, fake], correta:0,
+      explicacao:f.resposta, pontos:50 });
+  });
+
+  if (topicos.length >= 2) {
+    topicos.slice(0,4).forEach((t,i) => {
+      const outros = topicos.filter((_,j)=>j!==i).slice(0,3);
+      cartas.push({ tipo:'multipla', categoria:'🎯 Tópico Provável', dificuldade:'difícil',
+        pergunta:`Qual é a probabilidade de "${t.tema}" cair na prova?`,
+        alternativas:[t.probabilidade+'%',...outros.map(o=>o.probabilidade+'%')].slice(0,4),
+        correta:0, explicacao:t.justificativa||'', pontos:150 });
+    });
+  }
+
+  const embaralhado = cartas.sort(()=>Math.random()-0.5).slice(0,10);
+  jogoState = { cartas:embaralhado, casaAtual:0, vidas:3, pontos:0, acertos:0, respondeu:false };
+
+  document.getElementById('jogoContainer').style.display = 'none';
+  document.getElementById('jogoGameOver').style.display = 'none';
+  document.getElementById('jogoTela').style.display = 'block';
+  document.getElementById('jogoTotalCasas').textContent = embaralhado.length;
+  _renderizarJogo();
+}
+
+function _renderizarJogo() {
+  if (!jogoState) return;
+  const { cartas, casaAtual, vidas, pontos } = jogoState;
+  document.getElementById('jogoVidas').textContent = '❤️'.repeat(vidas)+'🖤'.repeat(3-vidas);
+  document.getElementById('jogoPontos').textContent = pontos;
+  document.getElementById('jogoCasaAtual').textContent = casaAtual+1;
+
+  document.getElementById('jogoTrilha').innerHTML = cartas.map((_,i) => {
+    const passou=i<casaAtual, atual=i===casaAtual;
+    return `<div style="width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;background:${passou?'#059669':atual?'#7c3aed':'#e5e7eb'};color:${passou||atual?'#fff':'#9ca3af'};border:2px solid ${atual?'#a78bfa':'transparent'};box-shadow:${atual?'0 0 12px rgba(124,58,237,0.6)':'none'};flex-shrink:0">${passou?'✓':atual?'★':i+1}</div>`;
+  }).join('');
+
+  const carta = cartas[casaAtual];
+  document.getElementById('jogoCategoria').textContent = carta.categoria;
+  const difCor = carta.dificuldade==='fácil'?'#10b981':carta.dificuldade==='difícil'?'#ef4444':'#f59e0b';
+  const difEl = document.getElementById('jogoDificuldade');
+  difEl.style.background=difCor+'33'; difEl.style.color=difCor;
+  difEl.textContent = carta.dificuldade==='fácil'?'⭐ Fácil':carta.dificuldade==='difícil'?'🔥 Difícil':'⚡ Normal';
+  document.getElementById('jogoPerguntaTexto').textContent = carta.pergunta;
+
+  const alts = carta.alternativas.map((a,i)=>({texto:a,original:i}));
+  if(carta.tipo==='multipla') alts.sort(()=>Math.random()-0.5);
+  const novoCorreta = alts.findIndex(a=>a.original===carta.correta);
+  jogoState._novoCorreta = novoCorreta;
+
+  document.getElementById('jogoAlternativas').innerHTML = alts.map((a,i)=>`
+    <button onclick="responderJogo(${i},${novoCorreta},${carta.pontos})" id="jogoAlt${i}"
+      style="width:100%;text-align:left;padding:12px 16px;border-radius:10px;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);color:#fff;font-size:13px;cursor:pointer;transition:all .15s;font-family:inherit;margin-bottom:0"
+      onmouseover="this.style.background='rgba(255,255,255,0.15)'" onmouseout="this.style.background='rgba(255,255,255,0.08)'">
+      <span style="display:inline-block;width:24px;height:24px;border-radius:50%;background:rgba(255,255,255,0.15);text-align:center;line-height:24px;font-size:11px;font-weight:700;margin-right:10px">${String.fromCharCode(65+i)}</span>${a.texto}
+    </button>`).join('');
+
+  document.getElementById('jogoFeedback').style.display = 'none';
+  jogoState.respondeu = false;
+}
+
+function responderJogo(escolhida, correta, pts) {
+  if (!jogoState || jogoState.respondeu) return;
+  jogoState.respondeu = true;
+  const acertou = escolhida === correta;
+  const carta = jogoState.cartas[jogoState.casaAtual];
+
+  document.querySelectorAll('[id^="jogoAlt"]').forEach((btn,i) => {
+    btn.disabled = true;
+    if(i===correta){ btn.style.background='rgba(16,185,129,0.35)'; btn.style.borderColor='#10b981'; }
+    else if(i===escolhida&&!acertou){ btn.style.background='rgba(239,68,68,0.35)'; btn.style.borderColor='#ef4444'; }
+  });
+
+  const fb = document.getElementById('jogoFeedback');
+  if(acertou){
+    jogoState.pontos+=pts; jogoState.acertos++;
+    fb.style.background='rgba(16,185,129,0.15)'; fb.style.border='1px solid rgba(16,185,129,0.3)';
+    document.getElementById('jogoFeedbackEmoji').textContent=['🎉','✨','🔥','⚡','💥'][Math.floor(Math.random()*5)];
+    document.getElementById('jogoFeedbackTitulo').style.color='#10b981';
+    document.getElementById('jogoFeedbackTitulo').textContent='Correto! +'+pts+' pts';
+  } else {
+    jogoState.vidas--;
+    fb.style.background='rgba(239,68,68,0.15)'; fb.style.border='1px solid rgba(239,68,68,0.3)';
+    document.getElementById('jogoFeedbackEmoji').textContent=['💔','😬','🫣','😰'][Math.floor(Math.random()*4)];
+    document.getElementById('jogoFeedbackTitulo').style.color='#ef4444';
+    document.getElementById('jogoFeedbackTitulo').textContent='Errou! -1 vida ❤️';
+  }
+  document.getElementById('jogoFeedbackExp').textContent = carta.explicacao||'';
+  document.getElementById('jogoFeedbackExp').style.color='rgba(255,255,255,0.55)';
+  fb.style.display='block';
+  document.getElementById('jogoPontos').textContent=jogoState.pontos;
+  document.getElementById('jogoVidas').textContent='❤️'.repeat(jogoState.vidas)+'🖤'.repeat(3-jogoState.vidas);
+
+  const btnProx = document.getElementById('btnProximaCasa');
+  if(jogoState.vidas<=0){
+    btnProx.textContent='💀 Ver resultado'; btnProx.onclick=()=>_mostrarFimJogo(false);
+  } else if(jogoState.casaAtual>=jogoState.cartas.length-1){
+    btnProx.textContent='🏆 Finalizar!'; btnProx.onclick=()=>_mostrarFimJogo(true);
+  } else {
+    btnProx.textContent='Próxima casa →'; btnProx.onclick=proximaCasaJogo;
+  }
+}
+
+function proximaCasaJogo() {
+  if(!jogoState) return;
+  if(jogoState.vidas<=0){_mostrarFimJogo(false);return;}
+  jogoState.casaAtual++;
+  if(jogoState.casaAtual>=jogoState.cartas.length){_mostrarFimJogo(true);return;}
+  _renderizarJogo();
+}
+
+function _mostrarFimJogo(venceu) {
+  document.getElementById('jogoTela').style.display='none';
+  const go=document.getElementById('jogoGameOver'); go.style.display='block';
+  document.getElementById('jogoFimPontos').textContent=jogoState.pontos;
+  document.getElementById('jogoFimEmoji').textContent=venceu?'🏆':'💀';
+  const pct=Math.round(jogoState.acertos/jogoState.cartas.length*100);
+  document.getElementById('jogoFimTitulo').textContent=venceu?(pct>=80?'🎉 Mestre da Trilha!':pct>=50?'✨ Muito bem!':'👏 Completou!'):'Game Over!';
+  document.getElementById('jogoFimSub').textContent=jogoState.acertos+' de '+jogoState.cartas.length+' corretas ('+pct+'%)';
+  window._ultimoAcertoPct=pct;
+  if(planoGeradoAtual) recalcularProgressoMateria();
 }
 
 // START — init só roda quando usuário clica em um botão da landing
