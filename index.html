@@ -8,6 +8,7 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.49.4/dist/umd/supabase.min.js"></script>
 <style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 /* ══ RESET ══ */
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:'Plus Jakarta Sans',sans-serif;-webkit-font-smoothing:antialiased}
@@ -171,8 +172,6 @@ body{font-family:'Plus Jakarta Sans',sans-serif;-webkit-font-smoothing:antialias
 }
 
 /* ══ APP ══ */
-
-  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 
   * { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -1688,7 +1687,7 @@ body{font-family:'Plus Jakarta Sans',sans-serif;-webkit-font-smoothing:antialias
       </div>
 
       <!-- ─── ADMIN ─── -->
-      <div class="tab-page" id="tab-admin">
+      <div class="tab-page" id="tab-admin" style="min-height:400px">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;flex-wrap:wrap;gap:10px">
           <div class="section-title" style="margin-bottom:0">🛡️ Painel Administrativo</div>
           <button onclick="adminCarregarUsuarios()" style="width:auto;padding:10px 20px;background:linear-gradient(135deg,#2563eb,#7c3aed);color:#fff;border:none;border-radius:10px;font-weight:700;font-size:13px">🔄 Atualizar tudo</button>
@@ -2058,7 +2057,7 @@ async function carregarApp() {
   await carregarMaterias();
 
   // Resto em paralelo
-  await Promise.all([
+  await Promise.allSettled([
     carregarNotas(),
     carregarPlanos(),
     carregarPrioridades(),
@@ -2321,7 +2320,13 @@ function goTab(tab) {
   document.getElementById('topbarTitle').textContent = title;
   document.getElementById('topbarSub').textContent = sub;
 
-  if (tab === 'admin') adminCarregarUsuarios();
+  if (tab === 'admin') {
+    adminCarregarUsuarios().catch(e => {
+      console.error('Admin erro:', e);
+      const el = document.getElementById('adminListaUsuarios');
+      if (el) el.innerHTML = '<div class="empty-state" style="color:#dc2626">❌ Erro: ' + (e.message || e) + '<br><small>Clique em "Atualizar tudo" para tentar novamente.</small></div>';
+    });
+  }
   if (tab === 'dashboard') setTimeout(() => atualizarDashboard(), 50);
   if (tab === 'materias' && !window._recalculouUmaVez) {
     window._recalculouUmaVez = true;
@@ -4395,7 +4400,7 @@ async function adminCarregarUsuarios() {
     }).join('');
   }
 
-  await Promise.all([
+  await Promise.allSettled([
     adminCarregarOnline(),
     adminCarregarNovosCadastros(),
     adminCarregarTentativasCadastro(),
@@ -4439,7 +4444,7 @@ async function adminDesativarPorId(userId) {
 let adminRefreshInterval = null;
 
 async function adminCarregarTempoReal() {
-  await Promise.all([
+  await Promise.allSettled([
     adminCarregarOnline(),
     adminCarregarNovosCadastros(),
     adminCarregarTentativasCadastro(),
