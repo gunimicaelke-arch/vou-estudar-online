@@ -359,7 +359,7 @@ body{font-family:'Plus Jakarta Sans',sans-serif;-webkit-font-smoothing:antialias
   .msg-box.error { background: var(--red-soft); color: var(--red); border: 1px solid #fecaca; display: block; }
 
   /* ── APP SHELL ── */
-  .app-screen { display: grid; grid-template-columns: 248px 1fr; height: 100vh; }
+  .app-screen { display: grid; grid-template-columns: 248px 1fr; min-height: 100vh; }
   
   /* ── SIDEBAR ── */
   .sidebar {
@@ -448,7 +448,7 @@ body{font-family:'Plus Jakarta Sans',sans-serif;-webkit-font-smoothing:antialias
   .user-info span { color: rgba(255,255,255,0.3); font-size: 11px; }
 
   /* ── MAIN ── */
-  .main-area { display: flex; flex-direction: column; height: 100%; background: var(--bg); overflow: hidden; }
+  .main-area { overflow-y: auto; background: #fff; }
 
   .topbar {
     padding: 14px 28px;
@@ -463,7 +463,7 @@ body{font-family:'Plus Jakarta Sans',sans-serif;-webkit-font-smoothing:antialias
   .topbar h2 { font-size: 17px; font-weight: 700; letter-spacing: -0.3px; color: var(--text); }
   .topbar .muted { color: var(--muted); font-size: 12px; margin-top: 1px; }
 
-  .content { padding: 28px; flex: 1; overflow-y: auto; min-height: 0; }
+  .content { padding: 28px; background: #fff; }
 
   .tab-page { display: none; }
   .tab-page.active { display: block; }
