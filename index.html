@@ -4253,38 +4253,59 @@ function mostrarAdminMsg(txt, tipo) {
 }
 
 async function adminCarregarUsuarios() {
-  const el = document.getElementById('adminListaUsuarios');
-  el.innerHTML = '<div class="empty-state"><div class="empty-icon">⏳</div>Carregando...</div>';
+  // Mostra loading em todos os painéis
+  const elLista = document.getElementById('adminListaUsuarios');
+  const elNovos = document.getElementById('adminNovosCadastros');
+  if (elLista) elLista.innerHTML = '<div class="empty-state"><div class="empty-icon">⏳</div>Carregando...</div>';
 
-  // Busca assinaturas
-  const { data, error } = await db.from('assinaturas').select('*').order('created_at', { ascending: false });
-  if (error || !data) {
-    el.innerHTML = '<div class="empty-state">Erro ao carregar usuários.</div>';
+  // ── 1. Busca assinaturas (sempre funciona, sem RPC) ──
+  const { data: assinData, error: assinErr } = await db
+    .from('assinaturas')
+    .select('*')
+    .order('created_at', { ascending: false });
+
+  if (assinErr) {
+    if (elLista) elLista.innerHTML = '<div class="empty-state" style="color:#dc2626">❌ Erro ao carregar: ' + assinErr.message + '</div>';
     return;
   }
+  const assinList = assinData || [];
 
-  // Busca emails/metadata para cruzar com assinaturas
+  // ── 2. Tenta buscar emails via RPC (opcional, melhor caso) ──
   let emailData = null;
   try {
     const { data: d1 } = await db.rpc('get_users_with_metadata');
-    if (d1 && d1.length) emailData = d1;
-  } catch(e) {}
-  if (!emailData) {
-    try {
-      const { data: d2 } = await db.rpc('get_users_emails');
-      if (d2 && d2.length) emailData = d2;
-    } catch(e) {}
-  }
-  if (emailData) {
-    emailData = emailData.map(u => ({
+    if (d1 && d1.length) emailData = d1.map(u => ({
       ...u,
       nome: u.nome || u.raw_user_meta_data?.nome || '',
       telefone: u.telefone || u.raw_user_meta_data?.telefone || ''
     }));
-    window.adminUsersEmails = emailData;
+  } catch(e) {}
+  if (!emailData) {
+    try {
+      const { data: d2 } = await db.rpc('get_users_emails');
+      if (d2 && d2.length) emailData = d2.map(u => ({ ...u, nome: '', telefone: '' }));
+    } catch(e) {}
   }
+  if (emailData) window.adminUsersEmails = emailData;
 
-  // Popula select compartilhar
+  // Mapa rápido user_id → info
+  const emailMap = {};
+  (window.adminUsersEmails || []).forEach(u => { emailMap[u.id] = u; });
+
+  // ── 3. Atualiza stats ──
+  const totalUsers = emailData ? emailData.length : assinList.length;
+  const ativos = assinList.filter(u => u.ativa).length;
+  const trial = assinList.filter(u => !u.ativa && u.trial_fim && new Date(u.trial_fim) > new Date()).length;
+  const el1 = document.getElementById('adminTotalUsers');
+  const el2 = document.getElementById('adminAtivos');
+  const el3 = document.getElementById('adminTrial');
+  if (el1) el1.textContent = totalUsers;
+  if (el2) el2.textContent = ativos;
+  if (el3) el3.textContent = trial;
+  const elUpd = document.getElementById('adminUltimaAtualizacao');
+  if (elUpd) elUpd.textContent = 'Atualizado: ' + new Date().toLocaleTimeString('pt-BR');
+
+  // ── 4. Popula select de compartilhar ──
   const sel = document.getElementById('compartilharUsuario');
   if (sel && emailData) {
     sel.innerHTML = '<option value="">Selecione o usuário...</option>' +
@@ -4293,63 +4314,71 @@ async function adminCarregarUsuarios() {
       ).join('');
   }
 
-  // Atualiza stats
-  document.getElementById('adminTotalUsers').textContent = emailData ? emailData.length : data.length;
-  document.getElementById('adminAtivos').textContent = data.filter(u => u.ativa).length;
-  document.getElementById('adminTrial').textContent = data.filter(u => !u.ativa && u.trial_fim && new Date(u.trial_fim) > new Date()).length;
+  // ── 5. Renderiza lista de usuários (baseado em assinaturas) ──
+  if (!assinList.length && !emailData) {
+    if (elLista) elLista.innerHTML = '<div class="empty-state"><div class="empty-icon">👥</div>Nenhum usuário cadastrado ainda.</div>';
+  } else {
+    // Usa emailData se disponível, senão usa assinaturas
+    const listaRender = emailData && emailData.length
+      ? emailData.map(u => {
+          const assin = assinList.find(a => a.user_id === u.id);
+          return { ...u, assin };
+        })
+      : assinList.map(u => ({
+          id: u.user_id, email: u.user_id.substring(0,8)+'…',
+          nome: '', telefone: '', assin: u
+        }));
 
-  // Load real-time data
-  await adminCarregarTempoReal();
+    if (elLista) elLista.innerHTML = listaRender.map(u => {
+      const assin = u.assin;
+      const trialFim = assin?.trial_fim ? new Date(assin.trial_fim) : null;
+      const trialExpirou = trialFim && trialFim < new Date();
+      const diasTrial = trialFim ? Math.ceil((trialFim - new Date()) / 86400000) : null;
+      let status, statusColor, statusBg;
+      if (assin?.ativa) { status = '✅ Ativo'; statusColor = '#059669'; statusBg = '#f0fdf4'; }
+      else if (trialExpirou) { status = '❌ Expirado'; statusColor = '#dc2626'; statusBg = '#fef2f2'; }
+      else if (diasTrial !== null && diasTrial >= 0) { status = '⏳ Trial (' + diasTrial + 'd)'; statusColor = '#d97706'; statusBg = '#fffbeb'; }
+      else { status = '⏳ Novo'; statusColor = '#d97706'; statusBg = '#fffbeb'; }
+      const dataPag = assin?.data_pagamento ? new Date(assin.data_pagamento).toLocaleDateString('pt-BR') : null;
+      const avatar = (u.email || '?').charAt(0).toUpperCase();
 
-  // Auto-refresh every 30 seconds
+      return `<div style="display:flex;align-items:center;gap:10px;padding:11px 0;border-bottom:1px solid var(--border);flex-wrap:wrap">
+        <div style="width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,#2563eb,#3b82f6);display:grid;place-items:center;font-size:13px;font-weight:700;color:#fff;flex-shrink:0">${avatar}</div>
+        <div style="flex:1;min-width:0">
+          <div style="font-size:13px;font-weight:600;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">
+            ${u.nome ? '<span style="color:#2563eb">' + u.nome + '</span> — ' : ''}${u.email}
+          </div>
+          ${u.telefone ? `<div style="font-size:11px;color:#059669;font-weight:600">📱 ${u.telefone}</div>` : ''}
+          <div style="font-size:11px;color:var(--muted)">
+            ${dataPag ? '<span style="color:#059669;font-weight:600">💳 Pagou em: ' + dataPag + '</span>' : (trialFim ? 'Trial até: ' + trialFim.toLocaleDateString('pt-BR') : '')}
+          </div>
+        </div>
+        <div style="display:flex;align-items:center;gap:5px;flex-shrink:0">
+          <span style="font-size:10px;font-weight:700;padding:3px 9px;border-radius:20px;background:${statusBg};color:${statusColor}">${status}</span>
+          ${!assin?.ativa ? `<button onclick="adminAtivarPorId('${u.id}')" class="mini-btn" style="width:auto;padding:3px 9px;font-size:11px">Ativar</button>` : `<button onclick="adminDesativarPorId('${u.id}')" class="mini-btn btn-secondary" style="width:auto;padding:3px 9px;font-size:11px">Desativar</button>`}
+          <button onclick="adminCompartilharComUsuario('${u.id}')" class="mini-btn btn-secondary" style="width:auto;padding:3px 9px;font-size:11px">📤</button>
+        </div>
+      </div>`;
+    }).join('');
+  }
+
+  // ── 6. Carrega os outros painéis em paralelo ──
+  await Promise.all([
+    adminCarregarOnline(),
+    adminCarregarNovosCadastros(),
+    adminCarregarTentativasCadastro(),
+    adminCarregarTempoAcesso()
+  ]);
+
+  // Auto-refresh a cada 30s
   if (adminRefreshInterval) clearInterval(adminRefreshInterval);
   adminRefreshInterval = setInterval(async () => {
     if (document.getElementById('tab-admin').classList.contains('active')) {
       await adminCarregarOnline();
-      document.getElementById('adminUltimaAtualizacao').textContent =
-        'Atualizado: ' + new Date().toLocaleTimeString('pt-BR');
+      const el = document.getElementById('adminUltimaAtualizacao');
+      if (el) el.textContent = 'Atualizado: ' + new Date().toLocaleTimeString('pt-BR');
     }
   }, 30000);
-
-  if (!data.length) {
-    el.innerHTML = '<div class="empty-state"><div class="empty-icon">👥</div>Nenhum usuário cadastrado.</div>';
-    return;
-  }
-
-  el.innerHTML = data.map(u => {
-    const trialFim = u.trial_fim ? new Date(u.trial_fim) : null;
-    const trialExpirou = trialFim && trialFim < new Date();
-    const diasTrial = trialFim ? Math.ceil((trialFim - new Date()) / 86400000) : null;
-    let status, statusColor, statusBg;
-    if (u.ativa) { status = '✅ Ativo'; statusColor = '#059669'; statusBg = '#f0fdf4'; }
-    else if (trialExpirou) { status = '❌ Expirado'; statusColor = '#dc2626'; statusBg = '#fef2f2'; }
-    else if (diasTrial !== null) { status = '⏳ Trial (' + diasTrial + 'd)'; statusColor = '#d97706'; statusBg = '#fffbeb'; }
-    else { status = '—'; statusColor = '#64748b'; statusBg = '#f8fafc'; }
-
-    const userInfo = (window.adminUsersEmails||[]).find(e => e.id === u.user_id);
-    const emailDisplay = userInfo ? userInfo.email : u.user_id.substring(0,8) + '...';
-    const nomeDisplay = userInfo?.nome || '';
-    const telefoneDisplay = userInfo?.telefone || '';
-    const dataPagamento = u.data_pagamento ? new Date(u.data_pagamento).toLocaleDateString('pt-BR', { day:'2-digit', month:'2-digit', year:'numeric', hour:'2-digit', minute:'2-digit' }) : null;
-
-    return `
-    <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 0;border-bottom:1px solid var(--border);gap:10px;flex-wrap:wrap">
-      <div style="flex:1;min-width:0">
-        <div style="font-size:13px;font-weight:600;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">
-          ${nomeDisplay ? '<span style="color:#2563eb">' + nomeDisplay + '</span> — ' : ''}${emailDisplay}
-        </div>
-        ${telefoneDisplay ? `<div style="font-size:11px;color:#059669;font-weight:600">📱 ${telefoneDisplay}</div>` : ''}
-        <div style="font-size:11px;color:var(--muted);margin-top:2px">
-          ${dataPagamento ? '<span style="color:#059669;font-weight:600">💳 Pagou em: ' + dataPagamento + '</span>' : (trialFim ? 'Trial até: ' + trialFim.toLocaleDateString('pt-BR') : 'Sem trial')}
-        </div>
-      </div>
-      <div style="display:flex;align-items:center;gap:6px;flex-shrink:0">
-        <span style="font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px;background:${statusBg};color:${statusColor}">${status}</span>
-        ${!u.ativa ? `<button onclick="adminAtivarPorId('${u.user_id}')" class="mini-btn" style="width:auto;padding:4px 10px;font-size:11px">Ativar</button>` : `<button onclick="adminDesativarPorId('${u.user_id}')" class="mini-btn btn-secondary" style="width:auto;padding:4px 10px;font-size:11px">Desativar</button>`}
-        <button onclick="adminCompartilharComUsuario('${u.user_id}')" class="mini-btn btn-secondary" style="width:auto;padding:4px 10px;font-size:11px">📤</button>
-      </div>
-    </div>`;
-  }).join('');
 }
 
 async function adminAtivarPorId(userId) {
