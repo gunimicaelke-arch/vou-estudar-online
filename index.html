@@ -1923,18 +1923,28 @@ let chartInstance = null;
 // ═══════════════════════════════════════
 async function init() {
   try {
-    // Tenta sessão existente
     const { data: { session } } = await db.auth.getSession();
     if (session) {
       currentUser = session.user;
+      // Esconde landing imediatamente — sessão já existe
+      const lw = document.getElementById('landingWrap');
+      if (lw) lw.classList.add('hidden');
+      _appIniciado = true;
       await carregarApp();
+      // Restaura a última aba visitada
+      const ultimaAba = localStorage.getItem('vs_ultima_aba');
+      if (ultimaAba) {
+        try { goTab(ultimaAba); } catch(e) {}
+      }
       return;
     }
 
-    // Escuta mudanças de autenticação (login via handleLogin, etc.)
     db.auth.onAuthStateChange(async (_event, session) => {
       if (session && !currentUser) {
         currentUser = session.user;
+        const lw = document.getElementById('landingWrap');
+        if (lw) lw.classList.add('hidden');
+        _appIniciado = true;
         await carregarApp();
       } else if (!session && currentUser) {
         currentUser = null;
@@ -1942,7 +1952,7 @@ async function init() {
       }
     });
 
-    // Nenhuma sessão — mostra tela de login
+    // Sem sessão — mostra landing normalmente
     mostrarAuth();
 
   } catch (err) {
@@ -1950,6 +1960,11 @@ async function init() {
     mostrarAuth();
   }
 }
+
+// Chama init automaticamente ao carregar a página
+window.addEventListener('DOMContentLoaded', () => {
+  init().catch(e => console.warn('init error', e));
+});
 
 function mostrarAuth() {
   document.getElementById('authScreen').classList.remove('hidden');
@@ -2342,6 +2357,9 @@ function goTab(tab) {
       toast('📂 Plano "' + p.titulo + '" restaurado do banco!');
     }, 200);
   }
+
+  // Salva aba atual para restaurar ao F5
+  try { localStorage.setItem('vs_ultima_aba', tab); } catch(e) {}
 
   // Update bottom nav active state
   setActiveBottomNav(tab);
@@ -2906,6 +2924,8 @@ function atualizarDiasProva() {
 document.addEventListener('DOMContentLoaded', () => {
   const dp = document.getElementById('planoDataProva');
   if (dp) dp.addEventListener('change', atualizarDiasProva);
+  // Inicia o app automaticamente (restaura sessão ao F5)
+  init().catch(e => console.warn('init error', e));
 });
 
 function switchInputTab(tab) {
@@ -5440,7 +5460,6 @@ function _abrirApp(tab) {
 
   _appIniciado = true;
 
-  // Mostra authScreen imediatamente enquanto init carrega
   var authEl = document.getElementById('authScreen');
   var appEl  = document.getElementById('appScreen');
   var payEl  = document.getElementById('paywallScreen');
@@ -5448,10 +5467,11 @@ function _abrirApp(tab) {
   if (appEl)  appEl.classList.add('hidden');
   if (payEl)  payEl.classList.add('hidden');
   switchAuthTab(tab);
-
-  // Inicia o app em background (verifica sessão existente etc.)
-  init().catch(function(e){ console.warn('init error', e); });
 }
+
+function irParaCadastro() { _abrirApp('register'); }
+function irParaLogin()    { _abrirApp('login'); }
+function irParaEsqueci()  { _abrirApp('forgot'); }
 
 function irParaCadastro() { _abrirApp('register'); }
 function irParaLogin()    { _abrirApp('login'); }
