@@ -783,7 +783,7 @@ body{font-family:'Plus Jakarta Sans',sans-serif;-webkit-font-smoothing:antialias
       var frases = [
         { t:'97% dos aprovados tinham um plano de estudos organizado', s:'Você está preparado para ser um deles?' },
         { t:'Quem estuda com método aprova em metade do tempo', s:'Descubra o método que está mudando resultados.' },
-        { t:'Seu concorrente já está estudando com IA — e você?', s:'Gere seu plano inteligente em segundos.' },
+        { t:'Seu concorrente já estuda com método — e você?', s:'Gere seu plano inteligente em segundos.' },
         { t:'A diferença entre passar e reprovar é a organização', s:'Organize tudo em um só lugar, de graça.' },
         { t:'Estudantes com cronograma têm 3× mais chances de aprovação', s:'Monte o seu agora sem precisar de planilha.' },
       ];
@@ -883,7 +883,7 @@ body{font-family:'Plus Jakarta Sans',sans-serif;-webkit-font-smoothing:antialias
         <div class="feature-icon">🤖</div>
         <div>
           <h3>Estudo Inteligente</h3>
-          <p>Gere planos e flashcards automaticamente com IA</p>
+          <p>Gere planos e flashcards automaticamente</p>
         </div>
       </div>
 
@@ -996,7 +996,7 @@ body{font-family:'Plus Jakarta Sans',sans-serif;-webkit-font-smoothing:antialias
       <div style="font-size:11px;font-weight:700;color:rgba(255,255,255,0.25);text-transform:uppercase;letter-spacing:1px;margin-bottom:12px">O que você terá acesso</div>
       <div style="display:flex;flex-direction:column;gap:9px">
         <div style="display:flex;align-items:center;gap:10px;font-size:13px;color:rgba(255,255,255,0.75)"><span style="color:#3b82f6">✓</span> Matérias, Notas e Planos ilimitados</div>
-        <div style="display:flex;align-items:center;gap:10px;font-size:13px;color:rgba(255,255,255,0.75)"><span style="color:#3b82f6">✓</span> Plano de Estudo Inteligente</div>
+        <div style="display:flex;align-items:center;gap:10px;font-size:13px;color:rgba(255,255,255,0.75)"><span style="color:#3b82f6">✓</span> Plano de Estudo Personalizado</div>
         <div style="display:flex;align-items:center;gap:10px;font-size:13px;color:rgba(255,255,255,0.75)"><span style="color:#3b82f6">✓</span> Flashcards e Simulados automáticos</div>
         <div style="display:flex;align-items:center;gap:10px;font-size:13px;color:rgba(255,255,255,0.75)"><span style="color:#3b82f6">✓</span> Modo Véspera de Prova</div>
         <div style="display:flex;align-items:center;gap:10px;font-size:13px;color:rgba(255,255,255,0.75)"><span style="color:#3b82f6">✓</span> Cronômetro e histórico de estudo</div>
@@ -1183,7 +1183,7 @@ body{font-family:'Plus Jakarta Sans',sans-serif;-webkit-font-smoothing:antialias
         <!-- ══ FEEDBACK IA POR MATÉRIA ══ -->
         <div class="card card-pad" style="margin-top:18px" id="cardFeedbackIA">
           <div class="card-head">
-            <h3>🤖 Análise Inteligente por Matéria</h3>
+            <h3>🤖 Análise por Matéria</h3>
             <button class="mini-btn" style="width:auto;background:linear-gradient(135deg,#2563eb,#7c3aed);color:#fff;border:none" onclick="gerarFeedbackIA()" id="btnFeedbackIA">✨ Gerar análise</button>
           </div>
           <div id="feedbackIAConteudo">
@@ -1330,95 +1330,126 @@ body{font-family:'Plus Jakarta Sans',sans-serif;-webkit-font-smoothing:antialias
 
       <!-- ─── PLANO INTELIGENTE ─── -->
       <div class="tab-page" id="tab-planointeligente">
-        <div class="section-title">✨ Plano de Estudo Inteligente</div>
 
-        <!-- Layout 2 colunas -->
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-bottom:18px">
-
-          <!-- Coluna Esquerda: Upload + Pomodoro -->
+        <!-- Hero banner da tela -->
+        <div style="background:linear-gradient(135deg,#0c1a2e 0%,#1e3a5f 50%,#0c1a2e 100%);border-radius:18px;padding:28px 32px;margin-bottom:22px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:16px;border:1px solid rgba(147,197,253,0.1)">
           <div>
-            <div class="card card-pad" style="margin-bottom:14px">
-              <div class="card-head"><h3>📄 Material de Estudo</h3></div>
-              <div style="display:flex;gap:6px;margin-bottom:14px;background:#eff6ff;border-radius:10px;padding:4px">
-                <button id="btnTabPDF" onclick="switchInputTab('pdf')" class="mini-btn active-tab-btn" style="flex:1;border-radius:8px">📎 Upload PDF</button>
-                <button id="btnTabTexto" onclick="switchInputTab('texto')" class="mini-btn btn-secondary" style="flex:1;border-radius:8px">📝 Colar Texto</button>
-              </div>
-              <div id="inputPDF">
-                <label class="file-label" for="pdfInput">
-                  📎 Clique para selecionar o PDF
-                  <span id="pdfNome" style="display:block;font-size:12px;margin-top:4px;color:var(--accent)"></span>
-                </label>
-                <input type="file" id="pdfInput" accept=".pdf" class="hidden" onchange="selecionarPDF(this)" />
-              </div>
-              <div id="inputTexto" class="hidden">
-                <textarea id="textoColado" placeholder="Cole aqui o conteúdo do edital, resumo ou material de estudo..." style="min-height:130px;margin-bottom:0;font-size:13px"></textarea>
-                <div style="font-size:11px;color:var(--muted);margin-top:4px;margin-bottom:10px">💡 Mais rápido que PDF — cole direto do Word, site ou apostila</div>
-              </div>
-              <input type="text" id="planoIATitulo" placeholder="Nome do plano (ex: Direito Civil)" style="margin-top:4px" />
-              <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px">
+            <div style="font-size:11px;font-weight:700;color:#60a5fa;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:6px">✨ Planos personalizados</div>
+            <div style="font-size:24px;font-weight:800;color:#fff;letter-spacing:-0.5px;margin-bottom:4px">Plano de Estudos</div>
+            <div style="font-size:13px;color:rgba(255,255,255,0.4)">Envie seu material e receba: plano, flashcards, simulado e cronograma.</div>
+          </div>
+          <!-- Mini stats dinâmicos -->
+          <div style="display:flex;gap:12px;flex-wrap:wrap">
+            <div style="background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.1);border-radius:12px;padding:12px 18px;text-align:center;min-width:80px">
+              <div id="statTopicos" style="font-size:26px;font-weight:800;color:#60a5fa">0</div>
+              <div style="font-size:10px;color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:.5px">tópicos</div>
+            </div>
+            <div style="background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.1);border-radius:12px;padding:12px 18px;text-align:center;min-width:80px">
+              <div id="statProgInt" style="font-size:26px;font-weight:800;color:#4ade80">0%</div>
+              <div style="font-size:10px;color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:.5px">progresso</div>
+            </div>
+            <div style="background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.1);border-radius:12px;padding:12px 18px;text-align:center;min-width:80px">
+              <div id="statDiasProva" style="font-size:26px;font-weight:800;color:#fb923c">—</div>
+              <div style="font-size:10px;color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:.5px">dias prova</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Grid principal: Upload + Pomodoro | Tópicos -->
+        <div style="display:grid;grid-template-columns:1.1fr 0.9fr;gap:18px;margin-bottom:18px">
+
+          <!-- Coluna Esquerda -->
+          <div style="display:flex;flex-direction:column;gap:14px">
+
+            <!-- Card upload com visual melhorado -->
+            <div style="background:var(--card);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;box-shadow:var(--shadow-sm)">
+              <!-- Header colorido -->
+              <div style="background:linear-gradient(90deg,#2563eb,#7c3aed);padding:14px 20px;display:flex;align-items:center;gap:10px">
+                <div style="width:32px;height:32px;background:rgba(255,255,255,0.15);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:16px">📄</div>
                 <div>
-                  <label class="field-label">📅 Início dos estudos</label>
-                  <input type="date" id="planoDataInicioInt" />
-                </div>
-                <div>
-                  <label class="field-label">🏁 Data da prova</label>
-                  <input type="date" id="planoDataProva" />
+                  <div style="font-size:14px;font-weight:700;color:#fff">Material de Estudo</div>
+                  <div style="font-size:11px;color:rgba(255,255,255,0.6)">PDF ou texto colado</div>
                 </div>
               </div>
-              <button onclick="gerarPlanoInteligente()" id="btnGerarPlano">🚀 Gerar Plano Inteligente</button>
+              <div style="padding:18px 20px">
+                <!-- Toggle PDF/Texto -->
+                <div style="display:flex;gap:4px;margin-bottom:14px;background:#f1f5f9;border-radius:10px;padding:3px">
+                  <button id="btnTabPDF" onclick="switchInputTab('pdf')" class="mini-btn active-tab-btn" style="flex:1;border-radius:8px;font-size:12px">📎 Upload PDF</button>
+                  <button id="btnTabTexto" onclick="switchInputTab('texto')" class="mini-btn btn-secondary" style="flex:1;border-radius:8px;font-size:12px">📝 Colar Texto</button>
+                </div>
+                <div id="inputPDF">
+                  <label class="file-label" for="pdfInput" style="border-style:dashed;border-color:#c7d2fe;background:#f5f3ff;color:#7c3aed;font-size:13px">
+                    <span style="font-size:24px;display:block;margin-bottom:6px">📎</span>
+                    Clique para selecionar o PDF
+                    <span id="pdfNome" style="display:block;font-size:12px;margin-top:4px;color:#7c3aed;font-weight:700"></span>
+                  </label>
+                  <input type="file" id="pdfInput" accept=".pdf" class="hidden" onchange="selecionarPDF(this)" />
+                </div>
+                <div id="inputTexto" class="hidden">
+                  <textarea id="textoColado" placeholder="Cole aqui o conteúdo do edital, resumo ou material..." style="min-height:110px;margin-bottom:6px;font-size:13px;border-color:#c7d2fe;background:#f5f3ff"></textarea>
+                  <div style="font-size:11px;color:var(--muted);margin-bottom:10px">💡 Cole direto do Word, site ou apostila</div>
+                </div>
+                <input type="text" id="planoIATitulo" placeholder="Nome do plano (ex: Direito Civil)" style="margin-top:2px;margin-bottom:10px;font-size:13px" />
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px">
+                  <div>
+                    <label class="field-label">📅 Início</label>
+                    <input type="date" id="planoDataInicioInt" style="margin-bottom:0;font-size:12px" />
+                  </div>
+                  <div>
+                    <label class="field-label">🏁 Data da prova</label>
+                    <input type="date" id="planoDataProva" onchange="atualizarDiasProva()" style="margin-bottom:0;font-size:12px" />
+                  </div>
+                </div>
+                <button onclick="gerarPlanoInteligente()" id="btnGerarPlano" style="background:linear-gradient(135deg,#2563eb,#7c3aed);border:none;font-size:14px;font-weight:700">🚀 Gerar Plano Inteligente</button>
+              </div>
             </div>
 
-            <!-- Pomodoro -->
-            <div class="card card-pad">
-              <div class="card-head"><h3>⏱️ Pomodoro</h3></div>
-              <div style="text-align:center;padding:10px 0">
-                <div id="pomTimer" style="font-size:48px;font-weight:800;color:var(--primary);letter-spacing:2px">25:00</div>
-                <div id="pomLabel" style="color:var(--muted);font-size:13px;margin-top:4px">Foco — pronto para começar</div>
-              </div>
-              <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:12px">
-                <button class="btn-secondary mini-btn" style="width:100%" onclick="setPomTimer(25,'Foco')">25min</button>
-                <button class="btn-secondary mini-btn" style="width:100%" onclick="setPomTimer(5,'Pausa curta')">5min</button>
-                <button class="btn-secondary mini-btn" style="width:100%" onclick="setPomTimer(15,'Pausa longa')">15min</button>
-              </div>
-              <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
-                <button id="btnPomStart" onclick="togglePomodoro()">▶ Iniciar</button>
-                <button class="btn-secondary" onclick="resetPomodoro()">↺ Resetar</button>
-              </div>
-              <div style="margin-top:12px">
-                <div style="display:flex;justify-content:space-between;font-size:12px;color:var(--muted);margin-bottom:4px">
-                  <span>Sessões hoje</span><span id="pomSessoes">0 / 4</span>
+            <!-- Pomodoro compacto -->
+            <div style="background:linear-gradient(135deg,#0f172a,#1e293b);border-radius:12px;padding:14px 16px;border:1px solid rgba(99,102,241,0.2);margin-top:12px">
+              <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+                <div style="display:flex;align-items:center;gap:6px">
+                  <div style="width:6px;height:6px;background:#ef4444;border-radius:50%" id="pomDot"></div>
+                  <span style="font-size:12px;font-weight:700;color:#fff">Pomodoro</span>
+                  <span id="pomLabel" style="font-size:10px;color:rgba(255,255,255,0.35)">Foco</span>
                 </div>
-                <div class="progress-bar"><div id="pomBar" style="width:0%"></div></div>
+                <div style="font-size:11px;color:rgba(255,255,255,0.3)" id="pomSessoes">0 / 4</div>
+              </div>
+              <div style="display:flex;align-items:center;gap:12px">
+                <div id="pomTimer" style="font-size:36px;font-weight:900;color:#fff;letter-spacing:3px;font-variant-numeric:tabular-nums;line-height:1;flex-shrink:0">25:00</div>
+                <div style="flex:1">
+                  <div style="display:flex;gap:4px;margin-bottom:6px">
+                    <button onclick="setPomTimer(25,'Foco')" class="btn-secondary mini-btn" style="flex:1;background:rgba(255,255,255,0.07);color:rgba(255,255,255,0.6);border-color:rgba(255,255,255,0.1);font-size:10px;padding:4px">25m</button>
+                    <button onclick="setPomTimer(5,'Pausa curta')" class="btn-secondary mini-btn" style="flex:1;background:rgba(255,255,255,0.07);color:rgba(255,255,255,0.6);border-color:rgba(255,255,255,0.1);font-size:10px;padding:4px">5m</button>
+                    <button onclick="setPomTimer(15,'Pausa longa')" class="btn-secondary mini-btn" style="flex:1;background:rgba(255,255,255,0.07);color:rgba(255,255,255,0.6);border-color:rgba(255,255,255,0.1);font-size:10px;padding:4px">15m</button>
+                  </div>
+                  <div style="display:grid;grid-template-columns:1fr 1fr;gap:5px">
+                    <button id="btnPomStart" onclick="togglePomodoro()" style="background:linear-gradient(135deg,#6366f1,#8b5cf6);border:none;font-size:11px;font-weight:700;padding:7px">▶ Iniciar</button>
+                    <button onclick="resetPomodoro()" style="background:rgba(255,255,255,0.07);color:rgba(255,255,255,0.5);border:1px solid rgba(255,255,255,0.1);font-size:11px;padding:7px">↺</button>
+                  </div>
+                  <div style="margin-top:6px;height:2px;background:rgba(255,255,255,0.07);border-radius:99px">
+                    <div id="pomBar" style="width:0%;height:100%;background:linear-gradient(90deg,#6366f1,#8b5cf6);border-radius:99px;transition:width .5s"></div>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
 
-          <!-- Coluna Direita: Stats + Tópicos -->
+          <!-- Coluna Direita: Tópicos prováveis -->
           <div>
-            <!-- Stats -->
-            <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:14px">
-              <div class="card" style="padding:14px;text-align:center">
-                <div style="font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;margin-bottom:4px">Tópicos</div>
-                <div id="statTopicos" style="font-size:24px;font-weight:800">0</div>
-                <div style="font-size:11px;color:var(--muted)">identificados</div>
+            <div style="background:var(--card);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;height:100%;box-shadow:var(--shadow-sm)">
+              <div style="background:linear-gradient(90deg,#059669,#0891b2);padding:14px 20px;display:flex;align-items:center;gap:10px">
+                <div style="width:32px;height:32px;background:rgba(255,255,255,0.15);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:16px">🎯</div>
+                <div>
+                  <div style="font-size:14px;font-weight:700;color:#fff">Tópicos mais prováveis</div>
+                  <div style="font-size:11px;color:rgba(255,255,255,0.6)">Baseado na análise do material</div>
+                </div>
               </div>
-              <div class="card" style="padding:14px;text-align:center">
-                <div style="font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;margin-bottom:4px">Progresso</div>
-                <div id="statProgInt" style="font-size:24px;font-weight:800;color:var(--green)">0%</div>
-                <div style="font-size:11px;color:var(--muted)">concluído</div>
-              </div>
-              <div class="card" style="padding:14px;text-align:center">
-                <div style="font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;margin-bottom:4px">Dias</div>
-                <div id="statDiasProva" style="font-size:24px;font-weight:800;color:var(--orange)">—</div>
-                <div style="font-size:11px;color:var(--muted)">até a prova</div>
-              </div>
-            </div>
-
-            <!-- Tópicos mais prováveis -->
-            <div class="card card-pad">
-              <div class="card-head"><h3>🎯 Mais prováveis de cair</h3></div>
-              <div id="topicosProvaveis">
-                <div class="empty-state" style="padding:20px"><div class="empty-icon">🎯</div>Gere um plano para ver os tópicos.</div>
+              <div style="padding:16px 20px" id="topicosProvaveis">
+                <div class="empty-state" style="padding:30px 20px">
+                  <div style="font-size:40px;margin-bottom:12px">🎯</div>
+                  <div style="font-size:14px;font-weight:600;color:var(--text);margin-bottom:4px">Ainda sem tópicos</div>
+                  <div style="font-size:12px;color:var(--muted)">Gere um plano para ver os tópicos mais prováveis de cair na prova.</div>
+                </div>
               </div>
             </div>
           </div>
@@ -1426,28 +1457,37 @@ body{font-family:'Plus Jakarta Sans',sans-serif;-webkit-font-smoothing:antialias
 
         <!-- Resultado completo com abas -->
         <div id="resultadoPlanoIA" class="hidden">
-          <div class="card card-pad" style="margin-bottom:18px;border-left:4px solid var(--primary)">
-            <div class="card-head">
-              <h3 id="planoIATituloResult">Plano Gerado</h3>
-              <div style="display:flex;gap:6px;flex-wrap:wrap">
-                <button class="mini-btn btn-secondary" style="width:auto;background:#eff6ff;color:#2563eb;border-color:#dbeafe" onclick="exportarPlanoAtualPDF()">📄 Exportar PDF</button>
-                <button class="mini-btn" onclick="salvarPlanoInteligente()" style="width:auto">💾 Salvar Plano</button>
+          <div style="background:var(--card);border:1px solid var(--border);border-radius:var(--radius);margin-bottom:18px;overflow:hidden;box-shadow:var(--shadow)">
+            <!-- Header do resultado -->
+            <div style="background:linear-gradient(90deg,#0c1a2e,#1e3a5f);padding:18px 22px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px">
+              <div style="display:flex;align-items:center;gap:12px">
+                <div style="width:36px;height:36px;background:rgba(255,255,255,0.12);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px">✨</div>
+                <div>
+                  <div id="planoIATituloResult" style="font-size:16px;font-weight:800;color:#fff">Plano Gerado</div>
+                  <div style="font-size:11px;color:rgba(255,255,255,0.4)">Todos os módulos disponíveis abaixo</div>
+                </div>
+              </div>
+              <div style="display:flex;gap:8px;flex-wrap:wrap">
+                <button onclick="exportarPlanoAtualPDF()" style="width:auto;padding:8px 16px;background:rgba(255,255,255,0.1);color:#fff;border:1px solid rgba(255,255,255,0.2);border-radius:8px;font-size:12px;font-weight:600">📄 PDF</button>
+                <button onclick="salvarPlanoInteligente()" style="width:auto;padding:8px 16px;background:linear-gradient(135deg,#2563eb,#7c3aed);color:#fff;border:none;border-radius:8px;font-size:12px;font-weight:700">💾 Salvar Plano</button>
               </div>
             </div>
 
-            <!-- Abas -->
-            <div style="display:flex;gap:8px;margin-bottom:18px;flex-wrap:wrap">
-              <button class="mini-btn active-tab-btn" id="tabBtnPlano" onclick="switchPlanoTab('plano')" style="width:auto">📚 Plano Semanal</button>
-              <button class="mini-btn btn-secondary" id="tabBtnFlash" onclick="switchPlanoTab('flash')" style="width:auto">🧠 Flashcards</button>
-              <button class="mini-btn btn-secondary" id="tabBtnSimulado" onclick="switchPlanoTab('simulado')" style="width:auto">💡 Simulado</button>
-              <button class="mini-btn btn-secondary" id="tabBtnProgres" onclick="switchPlanoTab('progres')" style="width:auto">🎯 Simulado Progressivo</button>
-              <button class="mini-btn btn-secondary" id="tabBtnResumo" onclick="switchPlanoTab('resumo')" style="width:auto">📝 Resumo</button>
-              <button class="mini-btn btn-secondary" id="tabBtnCrono" onclick="switchPlanoTab('crono')" style="width:auto">📅 Cronograma</button>
-              <button class="mini-btn btn-secondary" id="tabBtnChat" onclick="switchPlanoTab('chat')" style="width:auto">💬 Chat com PDF</button>
-              <button class="mini-btn btn-secondary" id="tabBtnTopicos" onclick="switchPlanoTab('topicos')" style="width:auto">📖 Explicações</button>
-              <button class="mini-btn btn-secondary" id="tabBtnVespera" onclick="switchPlanoTab('vespera')" style="width:auto;display:none">🌙 Modo Véspera</button>
-              <button class="mini-btn btn-secondary" id="tabBtnJogo" onclick="switchPlanoTab('jogo')" style="width:auto;background:linear-gradient(135deg,#7c3aed,#2563eb);color:#fff;border:none">🕹️ Jogo da Trilha</button>
+            <!-- Abas em scroll horizontal com destaque visual -->
+            <div style="display:flex;gap:6px;padding:14px 16px;overflow-x:auto;background:#f8faff;border-bottom:1px solid #e0e7ff;scrollbar-width:none;-webkit-overflow-scrolling:touch">
+              <button class="mini-btn active-tab-btn" id="tabBtnPlano" onclick="switchPlanoTab('plano')" style="white-space:nowrap;width:auto;font-size:11px;padding:6px 12px">📚 Plano</button>
+              <button class="mini-btn btn-secondary" id="tabBtnFlash" onclick="switchPlanoTab('flash')" style="white-space:nowrap;width:auto;font-size:11px;padding:6px 12px;background:#fef3c7;border-color:#fde68a;color:#92400e">🧠 Flashcards</button>
+              <button class="mini-btn btn-secondary" id="tabBtnSimulado" onclick="switchPlanoTab('simulado')" style="white-space:nowrap;width:auto;font-size:11px;padding:6px 12px;background:#ede9fe;border-color:#ddd6fe;color:#5b21b6">💡 Simulado</button>
+              <button class="mini-btn btn-secondary" id="tabBtnProgres" onclick="switchPlanoTab('progres')" style="white-space:nowrap;width:auto;font-size:11px;padding:6px 12px;background:#fce7f3;border-color:#fbcfe8;color:#9d174d">🎯 Progressivo</button>
+              <button class="mini-btn btn-secondary" id="tabBtnResumo" onclick="switchPlanoTab('resumo')" style="white-space:nowrap;width:auto;font-size:11px;padding:6px 12px;background:#ecfdf5;border-color:#a7f3d0;color:#065f46">📝 Resumo</button>
+              <button class="mini-btn btn-secondary" id="tabBtnCrono" onclick="switchPlanoTab('crono')" style="white-space:nowrap;width:auto;font-size:11px;padding:6px 12px;background:#eff6ff;border-color:#bfdbfe;color:#1e40af">📅 Cronograma</button>
+              <button class="mini-btn btn-secondary" id="tabBtnChat" onclick="switchPlanoTab('chat')" style="white-space:nowrap;width:auto;font-size:11px;padding:6px 12px;background:#f0fdf4;border-color:#bbf7d0;color:#14532d">💬 Chat</button>
+              <button class="mini-btn btn-secondary" id="tabBtnTopicos" onclick="switchPlanoTab('topicos')" style="white-space:nowrap;width:auto;font-size:11px;padding:6px 12px;background:#fff7ed;border-color:#fed7aa;color:#7c2d12">📖 Explicações</button>
+              <button class="mini-btn btn-secondary" id="tabBtnVespera" onclick="switchPlanoTab('vespera')" style="white-space:nowrap;width:auto;font-size:11px;padding:6px 12px;display:none">🌙 Véspera</button>
+              <button id="tabBtnJogo" onclick="switchPlanoTab('jogo')" style="white-space:nowrap;width:auto;font-size:11px;padding:6px 14px;background:linear-gradient(135deg,#7c3aed,#2563eb);color:#fff;border:none;border-radius:8px;font-weight:800;cursor:pointer;box-shadow:0 2px 8px rgba(124,58,237,0.4)">🕹️ Jogo da Trilha</button>
             </div>
+
+            <div style="padding:20px 22px">
 
             <!-- Aba: Plano Semanal -->
             <div id="tabPlano">
@@ -1574,7 +1614,7 @@ body{font-family:'Plus Jakarta Sans',sans-serif;-webkit-font-smoothing:antialias
                   <div style="font-size:13px;color:rgba(255,255,255,0.5);margin-bottom:20px">Avance na trilha respondendo certo. Perca uma vida se errar!</div>
                   <button onclick="iniciarJogoTrilha()" style="background:linear-gradient(135deg,#7c3aed,#2563eb);color:#fff;border:none;padding:14px 32px;border-radius:12px;font-size:15px;font-weight:700;cursor:pointer">🚀 Iniciar Jogo</button>
                 </div>
-                <div id="jogoVazio" style="text-align:center;padding:20px;color:var(--muted);font-size:13px">Gere um plano inteligente para desbloquear o jogo!</div>
+                <div id="jogoVazio" style="text-align:center;padding:20px;color:var(--muted);font-size:13px">Gere um plano para desbloquear o jogo!</div>
               </div>
 
               <!-- Tela do jogo -->
@@ -1626,7 +1666,8 @@ body{font-family:'Plus Jakarta Sans',sans-serif;-webkit-font-smoothing:antialias
                 </div>
               </div>
             </div>
-        </div>
+          </div><!-- fecha padding div e card resultado -->
+        </div><!-- fecha resultadoPlanoIA -->
 
         <!-- Progresso por tópico -->
         <div id="progressoTopicosCard" class="card card-pad hidden" style="margin-bottom:18px">
@@ -1635,17 +1676,23 @@ body{font-family:'Plus Jakarta Sans',sans-serif;-webkit-font-smoothing:antialias
         </div>
 
         <!-- Planos salvos -->
-        <div class="card card-pad">
-          <div class="card-head"><h3>📋 Planos Salvos</h3></div>
+        <div style="background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:20px;box-shadow:var(--shadow-sm)">
+          <div class="card-head" style="margin-bottom:14px">
+            <h3>📋 Planos Salvos</h3>
+            <span style="font-size:11px;color:var(--muted)">Clique em Ver para recarregar</span>
+          </div>
           <div id="listaPlanosInteligentes">
-            <div class="empty-state"><div class="empty-icon">✨</div>Nenhum plano inteligente salvo ainda.</div>
+            <div class="empty-state"><div class="empty-icon">✨</div>Nenhum plano salvo ainda.</div>
           </div>
         </div>
       </div>
 
       <!-- ─── ADMIN ─── -->
       <div class="tab-page" id="tab-admin">
-        <div class="section-title">🛡️ Painel Administrativo</div>
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;flex-wrap:wrap;gap:10px">
+          <div class="section-title" style="margin-bottom:0">🛡️ Painel Administrativo</div>
+          <button onclick="adminCarregarUsuarios()" style="width:auto;padding:10px 20px;background:linear-gradient(135deg,#2563eb,#7c3aed);color:#fff;border:none;border-radius:10px;font-weight:700;font-size:13px">🔄 Atualizar tudo</button>
+        </div>
 
         <!-- Estatísticas -->
         <div class="card card-pad" style="margin-bottom:20px">
@@ -1767,7 +1814,7 @@ body{font-family:'Plus Jakarta Sans',sans-serif;-webkit-font-smoothing:antialias
                 <input type="checkbox" id="compPrioridades" style="width:auto;margin:0" /> 🎯 Prioridades
               </label>
               <label style="display:flex;align-items:center;gap:8px;padding:10px;border:1px solid var(--border);border-radius:10px;cursor:pointer;font-size:13px">
-                <input type="checkbox" id="compPlanosInt" style="width:auto;margin:0" /> ✨ Planos Inteligentes
+                <input type="checkbox" id="compPlanosInt" style="width:auto;margin:0" /> ✨ Planos Personalizados
               </label>
             </div>
           </div>
@@ -1804,7 +1851,7 @@ body{font-family:'Plus Jakarta Sans',sans-serif;-webkit-font-smoothing:antialias
     </div>
     <div class="bn-item" id="bn-planointeligente" onclick="goTab('planointeligente');setActiveBottomNav('planointeligente')" style="position:relative">
       <span class="bn-icon">✨</span>
-      <span>IA</span>
+      <span>✨</span>
       <span class="bn-badge" id="bnBadgeIA" style="display:none"></span>
     </div>
     <div class="bn-item" id="bn-notas" onclick="goTab('notas');setActiveBottomNav('notas')">
@@ -3264,17 +3311,47 @@ function toggleExplicacao(i) {
   if (ch) ch.style.transform = hidden ? 'rotate(180deg)' : 'rotate(0deg)';
 }
 
+// Cores originais de cada aba para restaurar quando inativa
+const _tabCores = {
+  flash:    { bg:'#fef3c7', border:'#fde68a', color:'#92400e' },
+  simulado: { bg:'#ede9fe', border:'#ddd6fe', color:'#5b21b6' },
+  progres:  { bg:'#fce7f3', border:'#fbcfe8', color:'#9d174d' },
+  resumo:   { bg:'#ecfdf5', border:'#a7f3d0', color:'#065f46' },
+  crono:    { bg:'#eff6ff', border:'#bfdbfe', color:'#1e40af' },
+  chat:     { bg:'#f0fdf4', border:'#bbf7d0', color:'#14532d' },
+  topicos:  { bg:'#fff7ed', border:'#fed7aa', color:'#7c2d12' },
+};
+
 function switchPlanoTab(tab) {
   ['plano','flash','simulado','progres','resumo','crono','chat','topicos','vespera','jogo'].forEach(t => {
     const el = document.getElementById('tab' + t.charAt(0).toUpperCase() + t.slice(1));
     if (el) el.classList.add('hidden');
     const btn = document.getElementById('tabBtn' + t.charAt(0).toUpperCase() + t.slice(1));
-    if (btn) { btn.classList.remove('active-tab-btn'); btn.classList.add('btn-secondary'); }
+    if (btn && t !== 'jogo') {
+      btn.classList.remove('active-tab-btn');
+      btn.classList.add('btn-secondary');
+      // Restaura cor original da pill
+      if (_tabCores[t]) {
+        btn.style.background = _tabCores[t].bg;
+        btn.style.borderColor = _tabCores[t].border;
+        btn.style.color = _tabCores[t].color;
+      } else {
+        btn.style.background = '';
+        btn.style.borderColor = '';
+        btn.style.color = '';
+      }
+    }
   });
   const activeEl = document.getElementById('tab' + tab.charAt(0).toUpperCase() + tab.slice(1));
   if (activeEl) activeEl.classList.remove('hidden');
   const activeBtn = document.getElementById('tabBtn' + tab.charAt(0).toUpperCase() + tab.slice(1));
-  if (activeBtn) { activeBtn.classList.add('active-tab-btn'); activeBtn.classList.remove('btn-secondary'); }
+  if (activeBtn && tab !== 'jogo') {
+    activeBtn.classList.add('active-tab-btn');
+    activeBtn.classList.remove('btn-secondary');
+    activeBtn.style.background = '';
+    activeBtn.style.borderColor = '';
+    activeBtn.style.color = '';
+  }
 }
 
 async function salvarPlanoInteligente() {
@@ -3315,7 +3392,7 @@ async function carregarPlanosInteligentes() {
 function renderListaPlanosInt(lista) {
   const el = document.getElementById('listaPlanosInteligentes');
   if (!lista.length) {
-    el.innerHTML = '<div class="empty-state"><div class="empty-icon">✨</div>Nenhum plano inteligente salvo ainda.</div>';
+    el.innerHTML = '<div class="empty-state"><div class="empty-icon">✨</div>Nenhum plano salvo ainda.</div>';
     return;
   }
   el.innerHTML = lista.map(p => `
@@ -5037,7 +5114,7 @@ Seja direto como um coach sênior. Sem introdução, sem conclusão.`;
   }
 
   btn.disabled = false;
-  btn.innerHTML = '🔄 Atualizar análise';
+  btn.innerHTML = '🔄 Atualizar';
 }
 
 // ══ JOGO DA TRILHA ══
