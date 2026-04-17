@@ -4631,6 +4631,7 @@ Isso vai remover os dados do app e tentar apagar também o perfil auxiliar.`);
 }
 
 async function adminExcluirVisitante(chave = '') {
+  try { chave = decodeURIComponent(chave || ''); } catch(e) {}
   const visitante = (window.adminVisitantesCache || []).find(v => v.chave === chave) || null;
   const rotulo = visitante?.email || visitante?.origem || chave || 'visitante';
   if (!confirm(`Excluir registros deste visitante?
@@ -4952,7 +4953,7 @@ async function adminCarregarTentativasCadastro() {
             </div>
             <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">
               <span style="font-size:10px;padding:4px 10px;border-radius:999px;background:#eff6ff;color:#2563eb;font-weight:700">${v.status}</span>
-              <button onclick="adminExcluirVisitante('${(v.chave || '').replace(/'/g, \"\'\")}')" style="font-size:10px;padding:4px 8px;border-radius:8px;background:#fef2f2;color:#dc2626;border:1px solid #fecaca;cursor:pointer;width:auto">🗑️ Excluir</button>
+              <button onclick="adminExcluirVisitante(encodeURIComponent('${v.chave || ''}'))" style="font-size:10px;padding:4px 8px;border-radius:8px;background:#fef2f2;color:#dc2626;border:1px solid #fecaca;cursor:pointer;width:auto">🗑️ Excluir</button>
             </div>
           </div>
           ${v.origem ? `<div style="font-size:10px;color:#94a3b8;margin-top:6px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${v.origem}</div>` : ''}
