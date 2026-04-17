@@ -1759,7 +1759,10 @@ body{font-family:'Plus Jakarta Sans',sans-serif;-webkit-font-smoothing:antialias
         <div class="card card-pad" style="margin-bottom:20px">
           <div class="card-head">
             <h3>👥 Todos os Clientes</h3>
-            <span style="font-size:11px;color:var(--muted)">Todos os registros</span>
+            <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+              <span style="font-size:11px;color:var(--muted)">Todos os registros</span>
+              <button class="mini-btn btn-secondary" style="width:auto" onclick="adminExportarClientesExcel()">📥 Excel clientes</button>
+            </div>
           </div>
           <div id="adminNovosCadastros">
             <div class="empty-state"><div class="empty-icon">🆕</div>Carregando...</div>
@@ -1770,7 +1773,10 @@ body{font-family:'Plus Jakarta Sans',sans-serif;-webkit-font-smoothing:antialias
         <div class="card card-pad" style="margin-bottom:20px">
           <div class="card-head">
             <h3>👀 Visitantes na Tela de Cadastro</h3>
-            <span style="font-size:11px;color:var(--muted)">Todos os registros</span>
+            <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+              <span style="font-size:11px;color:var(--muted)">Todos os registros</span>
+              <button class="mini-btn btn-secondary" style="width:auto" onclick="adminExportarVisitantesExcel()">📥 Excel visitantes</button>
+            </div>
           </div>
           <div id="adminTentativasCadastro">
             <div class="empty-state"><div class="empty-icon">👀</div>Carregando...</div>
@@ -4471,18 +4477,142 @@ async function adminCarregarOnline() {
   }).join('');
 }
 
+
+function formatarDuracaoAdmin(totalSegundos) {
+  totalSegundos = Math.max(0, parseInt(totalSegundos || 0, 10));
+  const h = Math.floor(totalSegundos / 3600);
+  const m = Math.floor((totalSegundos % 3600) / 60);
+  if (h <= 0) return `${m}min`;
+  return `${h}h ${m}min`;
+}
+
+function baixarExcelHtml(nomeArquivo, linhas, titulo = 'Relatório') {
+  if (!linhas || !linhas.length) {
+    toast('⚠️ Não há dados para exportar.');
+    return;
+  }
+  const colunas = Object.keys(linhas[0]);
+  const escapeHtml = (v) => String(v ?? '')
+    .replace(/&/g, '&amp;').replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  const tabela = `
+    <html xmlns:o="urn:schemas-microsoft-com:office:office"
+          xmlns:x="urn:schemas-microsoft-com:office:excel"
+          xmlns="http://www.w3.org/TR/REC-html40">
+    <head><meta charset="UTF-8"></head>
+    <body>
+      <table border="1">
+        <tr>${colunas.map(c => `<th>${escapeHtml(c)}</th>`).join('')}</tr>
+        ${linhas.map(l => `<tr>${colunas.map(c => `<td>${escapeHtml(l[c])}</td>`).join('')}</tr>`).join('')}
+      </table>
+    </body></html>`;
+  const blob = new Blob([tabela], { type: 'application/vnd.ms-excel;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = nomeArquivo;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+  toast('📥 Excel gerado: ' + nomeArquivo);
+}
+
+function adminExportarClientesExcel() {
+  const linhas = (window.adminClientesCache || []).map(c => ({
+    Nome: c.nome || '',
+    Email: c.email || '',
+    Telefone: c.telefone || '',
+    Status: c.status || '',
+    'Cliente desde': c.desde || '',
+    'Tempo registrado de estudo': c.tempo_estudo || '',
+    'Último acesso': c.ultimo_acesso || '',
+    'Pagamento': c.pagamento || ''
+  }));
+  baixarExcelHtml('clientes_vou_estudar.xls', linhas, 'Clientes');
+}
+
+function adminExportarVisitantesExcel() {
+  const linhas = (window.adminVisitantesCache || []).map(v => ({
+    Email: v.email || '',
+    Acoes: v.acoes || 0,
+    'Primeira ação': v.primeira_acao || '',
+    'Última ação': v.ultima_acao || '',
+    'Tempo de triagem': v.tempo_triagem || '',
+    Status: v.status || '',
+    Origem: v.origem || ''
+  }));
+  baixarExcelHtml('visitantes_vou_estudar.xls', linhas, 'Visitantes');
+}
+
+async function adminExcluirCliente(userId, email = '') {
+  const ok = confirm(`Excluir cadastro deste cliente no sistema?\n\n${email || userId}\n\nIsso remove dados do app (matérias, notas, planos, sessões, lembretes, assinaturas e presença).`);
+  if (!ok) return;
+
+  const tabelasPorUser = ['materias','notas','planos_estudo','prioridades','planos_personalizados','lembretes','sessoes_estudo','presencas','assinaturas'];
+  const resultados = await Promise.allSettled(
+    tabelasPorUser.map(t => db.from(t).delete().eq('user_id', userId))
+  );
+
+  if (email) {
+    await Promise.allSettled([
+      db.from('visitantes_cadastro').delete().eq('email', email)
+    ]);
+  }
+
+  const falhas = resultados.filter(r => r.status === 'fulfilled' && r.value && r.value.error).length +
+                 resultados.filter(r => r.status === 'rejected').length;
+
+  if (falhas) {
+    toast('⚠️ Parte dos dados foi removida, mas algumas tabelas recusaram a exclusão.');
+  } else {
+    toast('🗑️ Cadastro removido do sistema.');
+  }
+
+  // oculta do painel atual mesmo se o auth user ainda existir
+  window.adminClientesExcluidos = window.adminClientesExcluidos || {};
+  window.adminClientesExcluidos[userId] = true;
+  await adminCarregarUsuarios();
+}
+
+async function adminExcluirVisitante(email, origem = '') {
+  const chave = email || origem || 'visitante';
+  if (!confirm(`Excluir registros deste visitante?\n\n${chave}`)) return;
+
+  let req;
+  if (email) req = db.from('visitantes_cadastro').delete().eq('email', email);
+  else req = db.from('visitantes_cadastro').delete().eq('user_agent', origem);
+
+  const { error } = await req;
+  if (error) {
+    toast('⚠️ Não foi possível excluir: ' + error.message);
+    return;
+  }
+  toast('🗑️ Visitante removido.');
+  await adminCarregarTentativasCadastro();
+}
+
 async function adminCarregarNovosCadastros() {
   const el = document.getElementById('adminNovosCadastros');
   if (!el) return;
 
-  // Busca assinaturas diretamente — sem RPC
   const { data: assinData } = await db.from('assinaturas')
     .select('user_id, ativa, trial_fim, data_pagamento, created_at')
     .order('created_at', { ascending: false });
   const assinMap = {};
   (assinData || []).forEach(a => { assinMap[a.user_id] = a; });
 
-  // Tenta RPCs de email — com fallback silencioso
+  // Busca total de estudo por usuário
+  const { data: sessoesData } = await db.from('sessoes_estudo')
+    .select('user_id, segundos, data')
+    .order('data', { ascending: false });
+  const estudoMap = {};
+  const ultimoAcessoMap = {};
+  (sessoesData || []).forEach(s => {
+    estudoMap[s.user_id] = (estudoMap[s.user_id] || 0) + (s.segundos || 0);
+    if (!ultimoAcessoMap[s.user_id] && s.data) ultimoAcessoMap[s.user_id] = s.data;
+  });
+
   let emails = window.adminUsersEmails || [];
   if (!emails.length) {
     try {
@@ -4499,14 +4629,12 @@ async function adminCarregarNovosCadastros() {
         if (d2?.length) emails = d2.map(u => ({ id: u.id, email: u.email || '', nome: '', telefone: '' }));
       } catch(e) {}
     }
-    // Fallback final: usa user_ids das assinaturas
     if (!emails.length && Object.keys(assinMap).length) {
       emails = Object.keys(assinMap).map(uid => ({ id: uid, email: '', nome: '', telefone: '' }));
     }
     if (emails.length) window.adminUsersEmails = emails;
   }
 
-  // Atualiza contadores
   const ativos = Object.values(assinMap).filter(a => a.ativa).length;
   const trial = Object.values(assinMap).filter(a => !a.ativa && a.trial_fim && new Date(a.trial_fim) > new Date()).length;
   const el1 = document.getElementById('adminTotalUsers');
@@ -4516,7 +4644,6 @@ async function adminCarregarNovosCadastros() {
   if (el2) el2.textContent = ativos;
   if (el3) el3.textContent = trial;
 
-  // Popula select compartilhar
   const sel = document.getElementById('compartilharUsuario');
   if (sel && emails.length) {
     sel.innerHTML = '<option value="">Selecione o usuário...</option>' +
@@ -4525,21 +4652,19 @@ async function adminCarregarNovosCadastros() {
         .join('');
   }
 
-  // Sem dados
+  const excluidos = window.adminClientesExcluidos || {};
+  emails = emails.filter(u => !excluidos[u.id]);
+
   if (!emails.length) {
     el.innerHTML = `<div style="padding:20px;text-align:center">
       <div style="font-size:32px;margin-bottom:10px">👥</div>
       <div style="font-size:14px;font-weight:600;margin-bottom:6px">Nenhum usuário encontrado</div>
-      <div style="font-size:12px;color:var(--muted);margin-bottom:14px">Para ver emails e nomes, rode este SQL no Supabase:</div>
-      <code style="display:block;background:#f1f5f9;padding:10px 14px;border-radius:8px;font-size:11px;text-align:left;white-space:pre-wrap;color:#334155">create or replace function get_users_emails()
-returns table(id uuid, email text)
-language sql security definer as $$
-  select id, email from auth.users order by created_at desc;
-$$;</code>
-      <button onclick="adminCarregarUsuarios()" style="margin-top:12px;width:auto;padding:8px 20px;background:#2563eb;color:#fff;border:none;border-radius:8px;font-weight:700;cursor:pointer">🔄 Tentar novamente</button>
+      <div style="font-size:12px;color:var(--muted)">Quando houver clientes cadastrados, eles aparecerão aqui.</div>
     </div>`;
     return;
   }
+
+  window.adminClientesCache = [];
 
   el.innerHTML = emails.map(u => {
     const assin = assinMap[u.id];
@@ -4548,9 +4673,11 @@ $$;</code>
     const telefoneDisplay = u.telefone || '';
     const emailDisplay = u.email || u.id?.substring(0,12) + '…';
     const avatar = (nomeDisplay || emailDisplay || '?').charAt(0).toUpperCase();
+    const estudoSeg = estudoMap[u.id] || 0;
+    const estudoFmt = formatarDuracaoAdmin(estudoSeg);
+    const ultimoAcesso = ultimoAcessoMap[u.id] ? new Date(ultimoAcessoMap[u.id]).toLocaleString('pt-BR') : 'Sem sessão registrada';
 
     let trialInfo = '', statusBg, statusColor, status;
-
     if (assin?.ativa) {
       statusBg = '#f0fdf4'; statusColor = '#16a34a'; status = '✅ Ativo';
     } else if (assin?.trial_fim) {
@@ -4562,7 +4689,7 @@ $$;</code>
         const mins = Math.floor((diffMs % 3600000) / 60000);
         const tempoStr = dias > 0 ? `${dias}d ${horas}h` : horas > 0 ? `${horas}h ${mins}min` : `${mins}min`;
         const urgente = diffMs < 24 * 3600000;
-        trialInfo = `<div style="font-size:11px;color:${urgente?'#dc2626':'#d97706'};font-weight:600">⏱️ ${tempoStr} restantes</div>`;
+        trialInfo = `<div style="font-size:11px;color:${urgente?'#dc2626':'#d97706'};font-weight:600">⏱️ Trial restante: ${tempoStr}</div>`;
         statusBg = urgente ? '#fef2f2' : '#fffbeb';
         statusColor = urgente ? '#dc2626' : '#d97706';
         status = urgente ? '🔴 Expirando' : '⏳ Trial';
@@ -4574,8 +4701,22 @@ $$;</code>
       statusBg = '#fffbeb'; statusColor = '#d97706'; status = '⏳ Novo';
     }
 
-    const dataPag = assin?.data_pagamento ? `<div style="font-size:11px;color:#059669;font-weight:600">💳 Pagou em: ${new Date(assin.data_pagamento).toLocaleDateString('pt-BR')}</div>` : '';
-    const dataEntrada = assin?.created_at ? `<div style="font-size:10px;color:var(--muted)">Desde: ${new Date(assin.created_at).toLocaleDateString('pt-BR')}</div>` : '';
+    const dataPagTxt = assin?.data_pagamento ? new Date(assin.data_pagamento).toLocaleDateString('pt-BR') : '';
+    const dataPag = dataPagTxt ? `<div style="font-size:11px;color:#059669;font-weight:600">💳 Pagou em: ${dataPagTxt}</div>` : '';
+    const dataEntradaTxt = assin?.created_at ? new Date(assin.created_at).toLocaleDateString('pt-BR') : '';
+    const dataEntrada = dataEntradaTxt ? `<div style="font-size:10px;color:var(--muted)">Cliente desde: ${dataEntradaTxt}</div>` : '';
+
+    window.adminClientesCache.push({
+      id: u.id,
+      nome: nomeDisplay,
+      email: u.email || '',
+      telefone: telefoneDisplay,
+      status,
+      desde: dataEntradaTxt,
+      tempo_estudo: estudoFmt,
+      ultimo_acesso: ultimoAcesso,
+      pagamento: dataPagTxt
+    });
 
     return `<div style="display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--border);flex-wrap:wrap">
       <div style="width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,#2563eb,#3b82f6);display:grid;place-items:center;font-size:15px;font-weight:700;color:#fff;flex-shrink:0">${avatar}</div>
@@ -4585,12 +4726,17 @@ $$;</code>
         </div>
         ${telefoneDisplay ? `<div style="font-size:11px;color:#059669;font-weight:600">📱 ${telefoneDisplay}</div>` : ''}
         ${trialInfo}${dataPag}${dataEntrada}
+        <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:4px">
+          <div style="font-size:11px;color:#1d4ed8;font-weight:600">⏱️ Tempo registrado no sistema: ${estudoFmt}</div>
+          <div style="font-size:11px;color:var(--muted)">🕓 Último uso: ${ultimoAcesso}</div>
+        </div>
       </div>
       <div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px;flex-shrink:0">
         <span style="font-size:10px;background:${statusBg};color:${statusColor};padding:3px 10px;border-radius:20px;font-weight:700;white-space:nowrap">${status}</span>
-        <div style="display:flex;gap:4px">
+        <div style="display:flex;gap:4px;flex-wrap:wrap;justify-content:flex-end">
           ${!assin?.ativa ? `<button onclick="adminAtivarPorId('${u.id}')" class="mini-btn" style="width:auto;padding:3px 10px;font-size:10px">Ativar</button>` : `<button onclick="adminDesativarPorId('${u.id}')" class="mini-btn btn-secondary" style="width:auto;padding:3px 10px;font-size:10px">Desativar</button>`}
           ${u.email ? `<button onclick="adminEnviarEmail('${u.email}')" style="font-size:10px;padding:3px 8px;border-radius:8px;background:#eff6ff;color:#2563eb;border:1px solid #dbeafe;cursor:pointer;width:auto">📧</button>` : ''}
+          <button onclick="adminExcluirCliente('${u.id}','${(u.email || '').replace(/'/g, "\'")}')" style="font-size:10px;padding:3px 8px;border-radius:8px;background:#fef2f2;color:#dc2626;border:1px solid #fecaca;cursor:pointer;width:auto">🗑️</button>
         </div>
       </div>
     </div>`;
@@ -4642,7 +4788,7 @@ async function adminCarregarTentativasCadastro() {
   const { data, error } = await db.from('visitantes_cadastro')
     .select('*')
     .order('created_at', { ascending: false })
-    .limit(200);
+    .limit(500);
 
   if (error) {
     el.innerHTML = '<div class="empty-state" style="padding:16px;font-size:12px;color:var(--red)">⚠️ Erro: ' + error.message + '<br>Verifique se a tabela "visitantes_cadastro" existe no Supabase.</div>';
@@ -4651,16 +4797,48 @@ async function adminCarregarTentativasCadastro() {
 
   if (!data || !data.length) {
     el.innerHTML = '<div class="empty-state"><div class="empty-icon">👀</div>Nenhuma visita registrada ainda.</div>';
+    window.adminVisitantesCache = [];
     return;
   }
 
-  // Summary
   const abriuForm = data.filter(d => d.acao === 'abriu_form').length;
   const tentativas = data.filter(d => d.acao === 'tentativa').length;
   const sucessos = data.filter(d => d.acao === 'sucesso').length;
-  const erros = data.filter(d => d.acao === 'erro').length;
-  const abandonos = abriuForm - tentativas;
+  const abandonos = Math.max(0, abriuForm - tentativas);
   const taxaConversao = tentativas > 0 ? Math.round(sucessos / tentativas * 100) : 0;
+
+  const grupos = {};
+  data.slice().reverse().forEach(d => {
+    const chave = d.email || d.user_agent || ('registro-' + d.id);
+    if (!grupos[chave]) grupos[chave] = [];
+    grupos[chave].push(d);
+  });
+
+  const agrupados = Object.entries(grupos).map(([chave, itens]) => {
+    const ordenados = itens.slice().sort((a,b) => new Date(a.created_at) - new Date(b.created_at));
+    const primeiro = ordenados[0];
+    const ultimo = ordenados[ordenados.length - 1];
+    const duracaoSeg = Math.max(0, Math.floor((new Date(ultimo.created_at) - new Date(primeiro.created_at)) / 1000));
+    const status = ordenados.some(i => i.acao === 'sucesso') ? '✅ Cadastrou'
+      : ordenados.some(i => i.acao === 'erro') ? '⚠️ Com erro'
+      : ordenados.some(i => i.acao === 'tentativa') ? '🟡 Em triagem'
+      : '👀 Visitou';
+    return {
+      email: primeiro.email || '',
+      origem: primeiro.user_agent || '',
+      acoes: ordenados.length,
+      primeira_acao: new Date(primeiro.created_at).toLocaleString('pt-BR'),
+      ultima_acao: new Date(ultimo.created_at).toLocaleString('pt-BR'),
+      tempo_triagem: formatarDuracaoAdmin(duracaoSeg),
+      status
+    };
+  }).sort((a,b) => {
+    const pa = a.ultima_acao.split(/[\/,: ]/).reverse().join('');
+    const pb = b.ultima_acao.split(/[\/,: ]/).reverse().join('');
+    return pb.localeCompare(pa);
+  });
+
+  window.adminVisitantesCache = agrupados;
 
   el.innerHTML = `
     <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:16px">
@@ -4669,7 +4847,7 @@ async function adminCarregarTentativasCadastro() {
         <div style="font-size:11px;color:#1d4ed8;font-weight:600">Abriram o form</div>
       </div>
       <div style="background:#fffbeb;border:1px solid #fde68a;border-radius:10px;padding:12px;text-align:center">
-        <div style="font-size:22px;font-weight:700;color:#d97706">${abandonos > 0 ? abandonos : 0}</div>
+        <div style="font-size:22px;font-weight:700;color:#d97706">${abandonos}</div>
         <div style="font-size:11px;color:#b45309;font-weight:600">Abandonaram</div>
       </div>
       <div style="background:#ecfdf5;border:1px solid #bbf7d0;border-radius:10px;padding:12px;text-align:center">
@@ -4681,140 +4859,30 @@ async function adminCarregarTentativasCadastro() {
         <div style="font-size:11px;color:#15803d;font-weight:600">Taxa conversão</div>
       </div>
     </div>
-    <div>
-      ${data.map(d => {
-        const acaoConfig = {
-          abriu_form: { cor: '#2563eb', bg: '#eff6ff', label: '👀 Abriu o form' },
-          email_digitado: { cor: '#7c3aed', bg: '#f5f3ff', label: '✉️ Digitou o email' },
-          telefone_digitado: { cor: '#2563eb', bg: '#eff6ff', label: '📱 Digitou o telefone' },
-          tentativa: { cor: '#d97706', bg: '#fffbeb', label: '📝 Tentou cadastrar' },
-          sucesso: { cor: '#059669', bg: '#f0fdf4', label: '✅ Cadastrou' },
-          erro: { cor: '#dc2626', bg: '#fef2f2', label: '❌ Erro no cadastro' }
-        };
-        const cfg = acaoConfig[d.acao] || { cor: '#64748b', bg: '#f8fafc', label: d.acao };
-        const hora = new Date(d.created_at).toLocaleString('pt-BR', { day:'2-digit', month:'2-digit', hour:'2-digit', minute:'2-digit' });
-        return `<div style="display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--border)">
-          <span style="font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px;background:${cfg.bg};color:${cfg.cor};white-space:nowrap">${cfg.label}</span>
-          <div style="flex:1;font-size:12px;color:var(--muted)">${d.email || '—'}</div>
-          <div style="font-size:11px;color:var(--muted);white-space:nowrap">${hora}</div>
-        </div>`;
-      }).join('')}
+    <div style="display:flex;flex-direction:column;gap:10px">
+      ${agrupados.map(v => `
+        <div style="border:1px solid var(--border);border-radius:12px;padding:12px;background:#fff">
+          <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:10px;flex-wrap:wrap">
+            <div style="min-width:0;flex:1">
+              <div style="font-size:13px;font-weight:700;color:var(--text);overflow:hidden;text-overflow:ellipsis">${v.email || 'Visitante sem e-mail'}</div>
+              <div style="font-size:11px;color:var(--muted);margin-top:3px">Primeira ação: ${v.primeira_acao}</div>
+              <div style="font-size:11px;color:var(--muted)">Última ação: ${v.ultima_acao}</div>
+              <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:6px">
+                <span style="font-size:11px;color:#2563eb;font-weight:700">⏱️ Tempo de triagem: ${v.tempo_triagem}</span>
+                <span style="font-size:11px;color:#475569">🧩 ${v.acoes} ação(ões)</span>
+              </div>
+            </div>
+            <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">
+              <span style="font-size:10px;padding:4px 10px;border-radius:999px;background:#eff6ff;color:#2563eb;font-weight:700">${v.status}</span>
+              <button onclick="adminExcluirVisitante('${(v.email || '').replace(/'/g, "\'")}','${(v.origem || '').replace(/'/g, "\'")}')" style="font-size:10px;padding:4px 8px;border-radius:8px;background:#fef2f2;color:#dc2626;border:1px solid #fecaca;cursor:pointer;width:auto">🗑️ Excluir</button>
+            </div>
+          </div>
+          ${v.origem ? `<div style="font-size:10px;color:#94a3b8;margin-top:6px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${v.origem}</div>` : ''}
+        </div>
+      `).join('')}
     </div>`;
 }
 
-// ══ COMPARTILHAR MÓDULOS ══
-function adminCompartilharComUsuario(userId) {
-  const sel = document.getElementById('compartilharUsuario');
-  if (sel) sel.value = userId;
-  document.getElementById('compMaterias').checked = true;
-  document.getElementById('compNotas').checked = true;
-  document.getElementById('compPlanos').checked = true;
-  document.getElementById('compPrioridades').checked = true;
-  document.getElementById('compPlanosInt').checked = true;
-  document.getElementById('compartilharUsuario').scrollIntoView({ behavior: 'smooth' });
-  toast('👆 Usuário selecionado! Confirme os módulos e clique em Compartilhar.');
-}
-
-async function adminCompartilharModulos() {
-  const userId = document.getElementById('compartilharUsuario').value;
-  if (!userId) return mostrarCompartilharMsg('Selecione um usuário.', 'error');
-
-  const modMaterias = document.getElementById('compMaterias').checked;
-  const modNotas = document.getElementById('compNotas').checked;
-  const modPlanos = document.getElementById('compPlanos').checked;
-  const modPrioridades = document.getElementById('compPrioridades').checked;
-  const modPlanosInt = document.getElementById('compPlanosInt').checked;
-
-  if (!modMaterias && !modNotas && !modPlanos && !modPrioridades && !modPlanosInt) {
-    return mostrarCompartilharMsg('Selecione pelo menos um módulo.', 'error');
-  }
-
-  mostrarCompartilharMsg('⏳ Compartilhando...', 'info');
-
-  let total = 0;
-  let erros = 0;
-
-  // Compartilhar Matérias
-  if (modMaterias) {
-    const { data } = await db.from('materias').select('*').eq('user_id', currentUser.id);
-    if (data && data.length) {
-      for (const item of data) {
-        const novo = { ...item, id: undefined, user_id: userId, created_at: undefined };
-        const { error } = await db.from('materias').insert([novo]);
-        if (!error) total++; else erros++;
-      }
-    }
-  }
-
-  // Compartilhar Notas
-  if (modNotas) {
-    const { data } = await db.from('notas').select('*').eq('user_id', currentUser.id);
-    if (data && data.length) {
-      for (const item of data) {
-        const novo = { ...item, id: undefined, user_id: userId, created_at: undefined, materia_id: null };
-        const { error } = await db.from('notas').insert([novo]);
-        if (!error) total++; else erros++;
-      }
-    }
-  }
-
-  // Compartilhar Planos de Estudo
-  if (modPlanos) {
-    const { data } = await db.from('planos').select('*').eq('user_id', currentUser.id);
-    if (data && data.length) {
-      for (const item of data) {
-        const novo = { ...item, id: undefined, user_id: userId, created_at: undefined };
-        const { error } = await db.from('planos').insert([novo]);
-        if (!error) total++; else erros++;
-      }
-    }
-  }
-
-  // Compartilhar Prioridades
-  if (modPrioridades) {
-    const { data } = await db.from('prioridades').select('*').eq('user_id', currentUser.id);
-    if (data && data.length) {
-      for (const item of data) {
-        const novo = { ...item, id: undefined, user_id: userId, created_at: undefined };
-        const { error } = await db.from('prioridades').insert([novo]);
-        if (!error) total++; else erros++;
-      }
-    }
-  }
-
-  // Compartilhar Planos Inteligentes
-  if (modPlanosInt) {
-    const { data } = await db.from('planos_ia').select('*').eq('user_id', currentUser.id);
-    if (data && data.length) {
-      for (const item of data) {
-        const novo = { ...item, id: undefined, user_id: userId, created_at: undefined };
-        const { error } = await db.from('planos_ia').insert([novo]);
-        if (!error) total++; else erros++;
-      }
-    }
-  }
-
-  if (erros === 0) {
-    mostrarCompartilharMsg('✅ ' + total + ' item(ns) compartilhado(s) com sucesso!', 'success');
-  } else {
-    mostrarCompartilharMsg('⚠️ ' + total + ' compartilhados, ' + erros + ' erros (itens duplicados ignorados).', 'warn');
-  }
-}
-
-function mostrarCompartilharMsg(txt, tipo) {
-  const el = document.getElementById('compartilharMsg');
-  el.textContent = txt;
-  el.style.display = 'block';
-  el.style.padding = '10px 14px';
-  el.style.borderRadius = '8px';
-  if (tipo === 'success') { el.style.color = '#059669'; el.style.background = '#f0fdf4'; el.style.border = '1px solid #bbf7d0'; }
-  else if (tipo === 'error') { el.style.color = '#dc2626'; el.style.background = '#fef2f2'; el.style.border = '1px solid #fecaca'; }
-  else if (tipo === 'warn') { el.style.color = '#d97706'; el.style.background = '#fffbeb'; el.style.border = '1px solid #fde68a'; }
-  else { el.style.color = '#1d4ed8'; el.style.background = '#eff6ff'; el.style.border = '1px solid #dbeafe'; }
-  if (tipo !== 'info') setTimeout(() => { el.style.display = 'none'; }, 5000);
-}
-
-// ══ TEMPO DE ACESSO POR DIA ══
 async function adminCarregarTempoAcesso() {
   const el = document.getElementById('adminTempoAcesso');
   if (!el) return;
@@ -4861,8 +4929,9 @@ async function adminCarregarTempoAcesso() {
 
   // Ordenar por total desc
   const lista = Object.values(porUser).sort((a,b) => b.totalSeg - a.totalSeg);
+  const totalGeralSeg = lista.reduce((acc, u) => acc + u.totalSeg, 0);
 
-  el.innerHTML = lista.map(u => {
+  el.innerHTML = `<div style="margin-bottom:12px;padding:12px 14px;border:1px solid #dbeafe;background:#eff6ff;border-radius:12px;font-size:13px;color:#1d4ed8;font-weight:700">⏱️ Tempo total registrado no sistema neste período: ${formatarDuracaoAdmin(totalGeralSeg)}</div>` + lista.map(u => {
     const emailInfo = emails.find(e => e.id === u.user_id);
     const email = emailInfo ? (emailInfo.raw_user_meta_data?.nome || emailInfo.nome || emailInfo.email) + ' — ' + emailInfo.email : u.user_id.substring(0,12) + '...';
     const totalH = Math.floor(u.totalSeg / 3600);
