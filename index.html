@@ -2380,8 +2380,10 @@ async function preencherDadosDemo() {
   }
 
   toast('🎉 Bem-vindo à demonstração! Explore tudo à vontade.');
-  localStorage.removeItem('vs_is_demo'); // remove flag após preencher
+  localStorage.removeItem('vs_is_demo');
 }
+
+async function handleLogin() {
   const email = document.getElementById('loginEmail').value.trim();
   const password = document.getElementById('loginPassword').value;
   if (!email || !password) return showAuthMsg('Preencha e-mail e senha.', 'error');
