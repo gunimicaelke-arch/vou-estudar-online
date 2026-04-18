@@ -739,6 +739,8 @@ body{font-family:'Plus Jakarta Sans',sans-serif;-webkit-font-smoothing:antialias
     </div>
     <div class="lp-nav-right">
       <button class="lp-nav-link" onclick="irParaLogin()">Entrar na minha conta</button>
+      <button onclick="irParaDemo()" style="background:linear-gradient(135deg,#059669,#10b981);color:#fff;border:none;padding:9px 18px;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer">🎯 Demonstração</button>
+      <button class="lp-nav-cta" onclick="irParaCadastro()">Começar grátis</button>
     </div>
   </nav>
 
@@ -6126,11 +6128,23 @@ function irParaLogin()    { _abrirApp('login'); }
 function irParaEsqueci()  { _abrirApp('forgot'); }
 
 function irParaDemo() {
-  document.getElementById('landingWrap').classList.add('hidden');
-  document.getElementById('authScreen').classList.add('hidden');
-  document.getElementById('paywallScreen').classList.add('hidden');
-  document.getElementById('appScreen').classList.add('hidden');
-  document.getElementById('demoScreen').classList.remove('hidden');
+  const landing = document.getElementById('landingWrap');
+  const auth = document.getElementById('authScreen');
+  const paywall = document.getElementById('paywallScreen');
+  const app = document.getElementById('appScreen');
+  const demo = document.getElementById('demoScreen');
+
+  if (landing) landing.classList.add('hidden');
+  if (auth) auth.classList.add('hidden');
+  if (paywall) paywall.classList.add('hidden');
+  if (app) app.classList.add('hidden');
+  if (demo) demo.classList.remove('hidden');
+
+  // Garante que o init rodou (para o Supabase estar disponível)
+  if (!_appIniciado) {
+    _appIniciado = true;
+    init().catch(e => console.warn(e));
+  }
 }
 
 function mostrarTelaLogin() {
