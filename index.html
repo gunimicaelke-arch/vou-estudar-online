@@ -2319,12 +2319,78 @@ async function carregarAppDemo() {
     { id:'dp3', titulo:'Exercícios de lógica', nivel:'low', materia:'Raciocínio Lógico', created_at: new Date().toISOString() },
   ];
 
+  // Plano inteligente simulado
+  const planoDemo = {
+    titulo: 'Direito Constitucional — Demo',
+    resultado: {
+      plano: 'DIA 1: Estudo dos princípios constitucionais e poderes da República.\nDIA 2: Revisão dos direitos fundamentais e garantias individuais.\nDIA 3: Organização do Estado e repartição de competências.\nDIA 4: Exercícios e simulado sobre todos os temas.',
+      topicos: [
+        { tema: 'Princípios constitucionais', probabilidade: 95, justificativa: 'Tema central em toda prova de Direito Constitucional.' },
+        { tema: 'Direitos e garantias fundamentais', probabilidade: 90, justificativa: 'Sempre presente nas provas de concurso.' },
+        { tema: 'Poderes da República', probabilidade: 85, justificativa: 'Cobrado em questões de organização do Estado.' },
+        { tema: 'Controle de constitucionalidade', probabilidade: 80, justificativa: 'Tema recorrente em provas de nível médio e superior.' },
+      ],
+      flashcards: [
+        { pergunta: 'Quais são os princípios da Administração Pública?', resposta: 'LIMPE: Legalidade, Impessoalidade, Moralidade, Publicidade e Eficiência.' },
+        { pergunta: 'O que é ação direta de inconstitucionalidade?', resposta: 'Ação que visa declarar a inconstitucionalidade de lei ou ato normativo federal ou estadual.' },
+        { pergunta: 'Quais são as cláusulas pétreas da CF/88?', resposta: 'Forma federativa, voto direto, separação dos poderes e direitos fundamentais.' },
+      ],
+      exercicios: [
+        { pergunta: 'Qual princípio impõe que o agente público aja conforme a lei?', alternativas: ['Moralidade','Legalidade','Publicidade','Eficiência'], correta: 1, explicacao: 'O princípio da legalidade exige que a Administração aja conforme a lei.' },
+        { pergunta: 'São cláusulas pétreas da CF/88, EXCETO:', alternativas: ['Forma federativa','Voto direto','Sistema presidencialista','Direitos fundamentais'], correta: 2, explicacao: 'O sistema de governo não é cláusula pétrea e pode ser alterado por referendo.' },
+      ],
+      resumo: 'O Direito Constitucional é o ramo do direito público que estuda a Constituição Federal. Os princípios constitucionais são as bases do ordenamento jurídico brasileiro, destacando-se os princípios da Administração Pública (LIMPE) e os direitos fundamentais garantidos a todos os cidadãos.',
+      cronograma: [
+        { semana: 'Semana 1', tema: 'Princípios e Direitos Fundamentais', horas: 8, atividades: 'Leitura do material, resumos e flashcards.' },
+        { semana: 'Semana 2', tema: 'Organização do Estado', horas: 6, atividades: 'Estudo dos poderes e competências.' },
+        { semana: 'Semana 3', tema: 'Revisão e Simulados', horas: 4, atividades: 'Exercícios e revisão geral.' },
+      ]
+    }
+  };
+
+  planoGeradoAtual = planoDemo;
+  window._planoResgatado = { titulo: planoDemo.titulo, analise: planoDemo.resultado };
+
+  // Lembretes demo
+  const amanha = new Date(); amanha.setDate(amanha.getDate()+1);
+  const semana = new Date(); semana.setDate(semana.getDate()+5);
+  window._lembretesDemo = [
+    { id:'dl1', texto:'📝 Prova de Direito Constitucional', data_hora: amanha.toISOString() },
+    { id:'dl2', texto:'📚 Revisar Direito Civil — capítulo 3', data_hora: semana.toISOString() },
+  ];
+
   // Renderiza tudo
   renderMaterias();
   renderNotas();
   renderPrioridades();
   atualizarDashboard();
   mostrarMenuAdmin();
+
+  // Renderiza plano inteligente simulado
+  setTimeout(() => {
+    try {
+      renderPlanoInteligente(planoDemo.titulo, planoDemo.resultado);
+      document.getElementById('resultadoPlanoIA')?.classList.remove('hidden');
+      // Renderiza lista de planos salvos
+      renderListaPlanosInt([{ id:'demo1', titulo: planoDemo.titulo, pdf_nome:'Material Demo', created_at: new Date().toISOString(), analise: planoDemo.resultado }]);
+      // Renderiza lembretes
+      const elLemb = document.getElementById('listaLembretes');
+      if (elLemb && window._lembretesDemo) {
+        const agora = new Date();
+        elLemb.innerHTML = window._lembretesDemo.map(l => {
+          const dataL = new Date(l.data_hora);
+          const diff = (dataL - agora) / (1000*60*60*24);
+          const cor = diff <= 1 ? '#dc2626' : diff <= 3 ? '#d97706' : '#059669';
+          const bg = diff <= 1 ? '#fef2f2' : diff <= 3 ? '#fffbeb' : '#f0fdf4';
+          const borda = diff <= 1 ? '#fca5a5' : diff <= 3 ? '#fde68a' : '#bbf7d0';
+          return `<div style="padding:12px 14px;border-radius:12px;margin-bottom:8px;background:${bg};border-left:4px solid ${cor};border:1.5px solid ${borda};border-left:4px solid ${cor}">
+            <div style="font-weight:700;font-size:14px">${l.texto}</div>
+            <div style="font-size:11px;color:${cor};margin-top:3px;font-weight:600">${dataL.toLocaleString('pt-BR',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'})}</div>
+          </div>`;
+        }).join('');
+      }
+    } catch(e) {}
+  }, 300);
 
   // Banner de demo
   const banner = document.createElement('div');
