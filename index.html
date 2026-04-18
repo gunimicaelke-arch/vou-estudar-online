@@ -715,19 +715,6 @@ body{font-family:'Plus Jakarta Sans',sans-serif;-webkit-font-smoothing:antialias
 /* landing wrapper oculto quando app ativo */
 #landingWrap { display: block }
 #landingWrap.hidden { display: none !important }
-
-  .demo-cta-wrap{margin-top:14px;display:flex;justify-content:center}
-  .demo-cadastre-btn{
-    width:auto!important;padding:12px 20px!important;border-radius:12px!important;
-    background:linear-gradient(135deg,#f59e0b,#ef4444)!important;color:#fff!important;
-    font-size:13px!important;font-weight:800!important;letter-spacing:.3px;
-    box-shadow:0 0 0 rgba(245,158,11,.0);animation:demoBlink 1.15s infinite;
-  }
-  .demo-cadastre-btn:hover{transform:translateY(-1px) scale(1.01)!important}
-  .auth-box.demo-focus{animation:demoFocus 1.2s ease 2}
-  @keyframes demoBlink{0%,100%{opacity:1;box-shadow:0 0 0 0 rgba(245,158,11,.55)}50%{opacity:.86;box-shadow:0 0 0 10px rgba(245,158,11,0)}}
-  @keyframes demoFocus{0%,100%{box-shadow:var(--shadow-lg)}50%{box-shadow:0 0 0 4px rgba(37,99,235,.16), var(--shadow-lg)}}
-
 </style>
 </head>
 <body>
@@ -753,7 +740,7 @@ body{font-family:'Plus Jakarta Sans',sans-serif;-webkit-font-smoothing:antialias
     <div class="lp-nav-right">
       <button class="lp-nav-link" onclick="irParaLogin()">Entrar na minha conta</button>
       <button class="lp-nav-link" onclick="irParaEsqueci()">Esqueci minha senha</button>
-      <button class="lp-nav-cta" onclick="irParaCadastro()">Testar grátis</button>
+      <button class="lp-nav-cta" onclick="irParaCadastro()">Começar grátis</button>
     </div>
   </nav>
 
@@ -837,7 +824,7 @@ body{font-family:'Plus Jakarta Sans',sans-serif;-webkit-font-smoothing:antialias
     </div>
 
     <div class="lp-cta-wrap">
-      <button class="lp-cta" onclick="iniciarModoDemo()">Testar grátis →</button>
+      <button class="lp-cta" onclick="irParaCadastro()">Começar grátis →</button>
       <span class="lp-cta-hint">Crie sua conta em menos de 1 minuto</span>
       <div class="lp-cta-links">
         <button class="lp-cta-link" onclick="irParaLogin()">Entrar na minha conta</button>
@@ -909,21 +896,11 @@ body{font-family:'Plus Jakarta Sans',sans-serif;-webkit-font-smoothing:antialias
         <div class="auth-tab" onclick="switchAuthTab('register')">Cadastrar</div>
       </div>
 
-      <div style="margin-bottom:18px;padding:18px;background:linear-gradient(135deg,#f0fdf4,#ecfdf5);border:1px solid #bbf7d0;border-radius:14px;text-align:center">
-        <div style="font-size:16px;font-weight:800;color:#065f46;margin-bottom:6px">🚀 Experimentar grátis</div>
-        <div style="font-size:12px;color:#047857;margin-bottom:12px">Digite seu nome e WhatsApp e entre na demonstração com simulações prontas.</div>
-        <div class="row" style="margin-bottom:10px">
-          <input type="email" id="demoEmailInput" placeholder="Seu e-mail" style="margin-bottom:0;background:#fff" />
-          <button onclick="iniciarModoDemo()" id="btnDemo" style="background:linear-gradient(135deg,#059669,#10b981);min-width:170px">Experimentar grátis</button>
-        </div>
-        <div style="font-size:11px;color:#065f46">Depois, clique em <strong>Cadastrar</strong> para criar sua conta real.</div>
-      </div>
-
-      <div id="authMsg" class="msg-box hidden" style="display:none"></div>
+      <div id="authMsg" class="msg-box"></div>
 
       <!-- Login -->
-      <div id="loginForm" class="hidden">
-        <h2>Entrar</h2>
+      <div id="loginForm">
+        <h2>Bem-vindo! 👋</h2>
         <p class="muted">Acesse sua conta para continuar</p>
         <label class="field-label">E-mail</label>
         <input type="email" id="loginEmail" placeholder="seu@email.com" />
@@ -978,6 +955,19 @@ body{font-family:'Plus Jakarta Sans',sans-serif;-webkit-font-smoothing:antialias
         </a>
       </div>
 
+      <!-- Formulário Demo -->
+      <div style="margin-top:16px;padding:18px;background:linear-gradient(135deg,#f0fdf4,#ecfdf5);border:1px solid #bbf7d0;border-radius:14px">
+        <div style="text-align:center;margin-bottom:12px">
+          <div style="font-size:15px;font-weight:800;color:#065f46;margin-bottom:3px">🚀 Experimentar grátis</div>
+          <div style="font-size:12px;color:#047857">Veja o sistema funcionando com dados reais de simulação.</div>
+        </div>
+        <input type="text" id="demoNome" placeholder="Seu nome" style="margin-bottom:8px;border-color:#a7f3d0;background:#fff" />
+        <input type="tel" id="demoWhats" placeholder="WhatsApp (ex: 11 99999-9999)" style="margin-bottom:10px;border-color:#a7f3d0;background:#fff" oninput="this.value=this.value.replace(/[^0-9()+\s-]/g,'')" />
+        <button onclick="iniciarModoDemo()" id="btnDemo" style="background:linear-gradient(135deg,#059669,#10b981);color:#fff;border:none;width:100%;padding:13px;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer">
+          🎯 Experimentar grátis
+        </button>
+        <div style="text-align:center;margin-top:10px;font-size:11px;color:#6b7280">Depois, clique em <strong>Cadastrar</strong> para criar sua conta real.</div>
+      </div>
     </div>
 
   </div>
@@ -1928,45 +1918,20 @@ let planos = [];
 let prioridades = [];
 let chartInstance = null;
 
-function isModoDemoLocal() {
-  return localStorage.getItem('vs_is_demo') === '1' || localStorage.getItem('vs_demo_mode') === '1';
-}
-
-function criarUsuarioDemoLocal() {
-  const nome = localStorage.getItem('vs_demo_nome_digitado') || 'Usuário Demo';
-  const whatsapp = localStorage.getItem('vs_demo_whatsapp_digitado') || '';
-  return {
-    id: 'demo-local-user',
-    email: 'demo@local.test',
-    user_metadata: {
-      nome: nome,
-      telefone: whatsapp,
-      is_demo: true
-    }
-  };
-}
-
 // ═══════════════════════════════════════
 // INICIALIZAÇÃO
 // ═══════════════════════════════════════
 async function init() {
   try {
-    if (isModoDemoLocal()) {
-      currentUser = criarUsuarioDemoLocal();
-      const lw = document.getElementById('landingWrap');
-      if (lw) lw.classList.add('hidden');
-      _appIniciado = true;
-      await carregarApp();
-      return;
-    }
-
     const { data: { session } } = await db.auth.getSession();
     if (session) {
       currentUser = session.user;
+      // Esconde landing imediatamente — sessão já existe
       const lw = document.getElementById('landingWrap');
       if (lw) lw.classList.add('hidden');
       _appIniciado = true;
       await carregarApp();
+      // Restaura a última aba visitada
       const ultimaAba = localStorage.getItem('vs_ultima_aba');
       if (ultimaAba) {
         try { goTab(ultimaAba); } catch(e) {}
@@ -1975,21 +1940,21 @@ async function init() {
     }
 
     db.auth.onAuthStateChange(async (_event, session) => {
-      if (isModoDemoLocal()) return;
-
       if (session && !currentUser) {
         currentUser = session.user;
         const lw = document.getElementById('landingWrap');
         if (lw) lw.classList.add('hidden');
         _appIniciado = true;
         await carregarApp();
-      } else if (!session && currentUser && !currentUser?.user_metadata?.is_demo) {
+      } else if (!session && currentUser) {
         currentUser = null;
         mostrarAuth();
       }
     });
 
+    // Sem sessão — mostra landing normalmente
     mostrarAuth();
+
   } catch (err) {
     console.error('Erro ao inicializar:', err);
     mostrarAuth();
@@ -2005,11 +1970,6 @@ function mostrarAuth() {
   document.getElementById('authScreen').classList.remove('hidden');
   document.getElementById('appScreen').classList.add('hidden');
   document.getElementById('paywallScreen').classList.add('hidden');
-  document.getElementById('loginForm').classList.add('hidden');
-  document.getElementById('registerForm').classList.add('hidden');
-  const ff = document.getElementById('forgotForm');
-  if (ff) ff.classList.add('hidden');
-  document.querySelectorAll('.auth-tab').forEach(t => t.classList.remove('active'));
   // Abre aba correta se vier da landing page via ?tab=
   const tab = new URLSearchParams(window.location.search).get('tab');
   if (tab) {
@@ -2019,21 +1979,20 @@ function mostrarAuth() {
 
 async function verificarAssinatura() {
   try {
-    if (currentUser?.user_metadata?.is_demo || isModoDemoLocal()) {
-      return true;
-    }
-
     const agora = new Date();
+
     const { data, error } = await db.from('assinaturas').select('*').eq('user_id', currentUser.id).maybeSingle();
 
-    if (error) return true;
-    if (data && data.ativa) return true;
+    if (error) return true; // erro na consulta — libera para não travar
+
+    if (data && data.ativa) return true; // assinatura ativa
 
     if (data && data.trial_fim) {
       const trialFim = new Date(data.trial_fim);
-      return agora < trialFim;
+      return agora < trialFim; // true se ainda no trial
     }
 
+    // Primeira vez — cria registro de trial (2 dias)
     const trialFim = new Date(agora.getTime() + 2 * 24 * 60 * 60 * 1000);
     await db.from('assinaturas').insert([{
       user_id: currentUser.id,
@@ -2041,9 +2000,9 @@ async function verificarAssinatura() {
       ativa: false
     }]);
 
-    return true;
+    return true; // recém criado, ainda no trial
   } catch(e) {
-    return true;
+    return true; // fallback — libera em caso de erro
   }
 }
 
@@ -2096,70 +2055,23 @@ async function carregarApp() {
     mostrarPaywall();
     return;
   }
-
   document.getElementById('authScreen').classList.add('hidden');
   document.getElementById('paywallScreen').classList.add('hidden');
   document.getElementById('appScreen').classList.remove('hidden');
 
-  const nome = currentUser?.user_metadata?.nome || (currentUser?.email ? currentUser.email.split('@')[0] : 'Usuário');
+  // Perfil do usuário
+  const nome = currentUser.user_metadata?.nome || currentUser.email.split('@')[0];
   const inicial = nome.charAt(0).toUpperCase();
 
   document.getElementById('helloName').textContent = nome;
   document.getElementById('sidebarName').textContent = nome;
-  document.getElementById('sidebarEmail').textContent = currentUser?.user_metadata?.is_demo ? 'Demonstração local' : (currentUser?.email || '');
+  document.getElementById('sidebarEmail').textContent = currentUser.email;
   document.getElementById('sidebarAvatar').textContent = inicial;
 
-  if (currentUser?.user_metadata?.is_demo || isModoDemoLocal()) {
-    materias = [];
-    notas = [];
-    planos = [];
-    prioridades = [];
-
-    if (typeof preencherDadosDemo === 'function') {
-      try { await preencherDadosDemo(); } catch (e) { console.warn('Demo local fallback', e); }
-    }
-
-    if (!materias || materias.length === 0) {
-      materias = [
-        { id: 'demo-m1', nome: 'Direito Constitucional', cor: '#2563eb', progresso: 35, professor: 'Professor Demo', tempo_total: 5400 },
-        { id: 'demo-m2', nome: 'Direito Penal', cor: '#dc2626', progresso: 52, professor: 'Professor Demo', tempo_total: 7200 },
-        { id: 'demo-m3', nome: 'Português', cor: '#059669', progresso: 70, professor: 'Professor Demo', tempo_total: 3600 }
-      ];
-      notas = [
-        { id: 'demo-n1', titulo: 'Resumo de Constitucional', conteudo: 'Princípios fundamentais, direitos e garantias.', materia_id: 'demo-m1' },
-        { id: 'demo-n2', titulo: 'Resumo de Penal', conteudo: 'Tipicidade, ilicitude e culpabilidade.', materia_id: 'demo-m2' }
-      ];
-      planos = [
-        { id: 'demo-p1', titulo: 'Plano da Semana', descricao: '2h por dia com revisão e questões.' }
-      ];
-      prioridades = [
-        { id: 'demo-pr1', titulo: 'Revisar Constitucional', nivel: 'alta' },
-        { id: 'demo-pr2', titulo: 'Fazer questões de Penal', nivel: 'media' }
-      ];
-    }
-
-    if (typeof renderMaterias === 'function') renderMaterias();
-    if (typeof carregarNotas === 'function') { try { renderNotas(); } catch(e) {} }
-    if (typeof renderPlanos === 'function') renderPlanos();
-    if (typeof renderPrioridades === 'function') renderPrioridades();
-    if (typeof atualizarDashboard === 'function') atualizarDashboard();
-    if (typeof mostrarMenuAdmin === 'function') mostrarMenuAdmin();
-
-    const antigo = document.getElementById('demoBannerTopo');
-    if (antigo) antigo.remove();
-    const banner = document.createElement('div');
-    banner.id = 'demoBannerTopo';
-    banner.style.cssText = 'background:linear-gradient(90deg,#059669,#10b981);color:#fff;text-align:center;padding:12px 14px;font-size:12px;font-weight:700;position:sticky;top:0;z-index:100;border-radius:14px;margin-bottom:14px';
-    banner.innerHTML = `🎯 Você está no modo demonstração <span style="font-weight:400">com dados simulados locais.</span>
-      <div class="demo-cta-wrap">
-        <button class="demo-cadastre-btn" onclick="abrirCadastroPosDemo()">✨ CADASTRE-SE PARA USAR DE VERDADE</button>
-      </div>`;
-    const content = document.querySelector('.content');
-    if (content) content.insertBefore(banner, content.firstChild);
-    return;
-  }
-
+  // Carrega matérias primeiro (base do gráfico do dashboard)
   await carregarMaterias();
+
+  // Resto em paralelo
   await Promise.allSettled([
     carregarNotas(),
     carregarPlanos(),
@@ -2174,11 +2086,39 @@ async function carregarApp() {
   mostrarMenuAdmin();
   registrarPresenca();
 
+  // Se for conta demo, preenche dados de exemplo
+  if (localStorage.getItem('vs_is_demo') === '1') {
+    setTimeout(() => preencherDadosDemo(), 1500);
+  }
+
+  // Banner de demo fixo no topo
+  if (currentUser?.user_metadata?.is_demo) {
+    const nomeDemo = currentUser.user_metadata.nome || 'Visitante';
+    const banner = document.createElement('div');
+    banner.id = 'demoBanner';
+    banner.style.cssText = 'background:linear-gradient(90deg,#059669,#047857);color:#fff;padding:10px 20px;display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;font-size:13px;position:sticky;top:0;z-index:50';
+    banner.innerHTML = `
+      <div style="display:flex;align-items:center;gap:8px">
+        <span style="font-size:16px">🎯</span>
+        <div>
+          <div style="font-weight:700">Olá, ${nomeDemo}! Você está explorando a demonstração.</div>
+          <div style="font-size:11px;opacity:.8">Todos os dados são simulados. Crie sua conta para começar de verdade.</div>
+        </div>
+      </div>
+      <button onclick="abrirCadastroDaDemo()" style="background:#fff;color:#059669;border:none;padding:8px 16px;border-radius:8px;font-weight:700;font-size:12px;cursor:pointer;white-space:nowrap;width:auto">
+        ✅ Criar minha conta →
+      </button>`;
+    const mainArea = document.querySelector('.main-area');
+    if (mainArea) mainArea.insertBefore(banner, mainArea.firstChild);
+  }
+
+  // Auto-refresh do dashboard a cada 60 segundos
   if (window._dashInterval) clearInterval(window._dashInterval);
   window._dashInterval = setInterval(async () => {
     try {
       await Promise.all([carregarMaterias(), carregarNotas(), carregarHistoricoEstudo()]);
       atualizarDashboard();
+      // Atualiza feedback IA automaticamente se já foi gerado antes
       const fbEl = document.getElementById('feedbackIAConteudo');
       const jaGerado = fbEl && fbEl.querySelector('.fb-bloco');
       if (jaGerado) gerarFeedbackIA();
@@ -2187,7 +2127,7 @@ async function carregarApp() {
 }
 
 async function registrarPresenca() {
-  if (!currentUser || currentUser?.user_metadata?.is_demo || isModoDemoLocal()) return;
+  if (!currentUser) return;
   try {
     await db.from('presencas').upsert([{
       user_id: currentUser.id,
@@ -2207,7 +2147,6 @@ async function registrarPresenca() {
 }
 
 async function mostrarBadgeTrial() {
-  if (currentUser?.user_metadata?.is_demo || isModoDemoLocal()) return;
   const { data } = await db.from('assinaturas').select('*').eq('user_id', currentUser.id).maybeSingle();
   if (!data || data.ativa) return;
   if (!data.trial_fim) return;
@@ -2235,43 +2174,16 @@ function switchAuthTab(tab) {
   if (tab === 'register') registrarVisitanteCadastro('abriu_form');
 }
 
-function showAuthMsg(msg, type='error') {
-  const box = document.getElementById('authMsg');
-  if (!box) return;
-  box.textContent = msg || '';
-  box.className = 'msg-box ' + (type || 'error');
-  box.style.display = 'block';
+function showAuthMsg(txt, type) {
+  const el = document.getElementById('authMsg');
+  el.textContent = txt;
+  el.className = `msg-box ${type}`;
 }
 
 function clearAuthMsg() {
   const el = document.getElementById('authMsg');
   el.className = 'msg-box';
 }
-
-async function abrirCadastroPosDemo() {
-  try {
-    if (currentUser?.user_metadata?.is_demo) {
-      await db.auth.signOut();
-      currentUser = null;
-    }
-  } catch(e) {}
-
-  document.getElementById('landingWrap').classList.add('hidden');
-  document.getElementById('appScreen').classList.add('hidden');
-  document.getElementById('paywallScreen').classList.add('hidden');
-  document.getElementById('authScreen').classList.remove('hidden');
-  switchAuthTab('register');
-
-  const box = document.querySelector('.auth-box');
-  if (box) {
-    box.classList.add('demo-focus');
-    setTimeout(() => box.classList.remove('demo-focus'), 2600);
-  }
-
-  const nome = document.getElementById('regName');
-  if (nome) nome.focus();
-}
-
 
 function toggleSenha(inputId, btnId) {
   const input = document.getElementById(inputId);
@@ -2287,174 +2199,130 @@ function toggleSenha(inputId, btnId) {
 }
 
 async function iniciarModoDemo() {
+  const nome = document.getElementById('demoNome')?.value.trim();
+  const whats = document.getElementById('demoWhats')?.value.trim();
+
+  if (!nome) { showAuthMsg('Digite seu nome para continuar.', 'error'); return; }
+  if (!whats || whats.replace(/\D/g,'').length < 10) { showAuthMsg('Digite um WhatsApp válido.', 'error'); return; }
+
   const btn = document.getElementById('btnDemo');
-  const nomeInput = document.getElementById('demoNome');
-  const whatsappInput = document.getElementById('demoWhatsapp');
+  if (btn) { btn.disabled = true; btn.innerHTML = '<span class="spinner"></span> Preparando sua demonstração...'; }
 
-  const nome = (nomeInput && typeof nomeInput.value === 'string' ? nomeInput.value : '').trim();
-  const whatsapp = (whatsappInput && typeof whatsappInput.value === 'string' ? whatsappInput.value : '').trim();
+  // Cria conta demo com email aleatório
+  const rand = Math.random().toString(36).substring(2, 8);
+  const email = `demo_${rand}@vouestudarmais.demo`;
+  const senha = 'Demo@' + rand + '123';
 
-  const authMsg = document.getElementById('authMsg');
-  if (authMsg) {
-    authMsg.className = 'msg-box hidden';
-    authMsg.innerHTML = '';
-    authMsg.style.display = 'none';
-  }
+  const { error: signUpErr } = await db.auth.signUp({
+    email, password: senha,
+    options: { data: { nome, telefone: whats, is_demo: true } }
+  });
 
-  if (!nome || !whatsapp) {
-    showAuthMsg('Digite seu nome e WhatsApp para continuar.', 'error');
-    if (!nome && nomeInput) nomeInput.focus();
-    else if (whatsappInput) whatsappInput.focus();
+  if (signUpErr) {
+    if (btn) { btn.disabled = false; btn.innerHTML = '🎯 Experimentar grátis'; }
+    showAuthMsg('Erro ao criar demonstração. Tente novamente.', 'error');
     return;
   }
 
-  const whatsappNumeros = whatsapp.replace(/\D/g, '');
-  if (whatsappNumeros.length < 10) {
-    showAuthMsg('Digite um WhatsApp válido para continuar.', 'error');
-    if (whatsappInput) whatsappInput.focus();
+  const { error: loginErr } = await db.auth.signInWithPassword({ email, password: senha });
+  if (loginErr) {
+    if (btn) { btn.disabled = false; btn.innerHTML = '🎯 Experimentar grátis'; }
+    showAuthMsg('Erro ao entrar na demonstração.', 'error');
     return;
   }
 
-  try {
-    if (btn) {
-      btn.disabled = true;
-      btn.innerHTML = '<span class="spinner"></span> Abrindo demonstração...';
-    }
-
-    localStorage.setItem('vs_demo_mode', '1');
-    localStorage.setItem('vs_demo_nome_digitado', nome);
-    localStorage.setItem('vs_demo_whatsapp_digitado', whatsapp);
-    localStorage.setItem('vs_is_demo', '1');
-
-    currentUser = {
-      id: 'demo-local-user',
-      email: 'demo@local.test',
-      user_metadata: {
-        nome: nome,
-        telefone: whatsapp,
-        is_demo: true
-      }
-    };
-
-    materias = [
-      { id: 'demo-m1', nome: 'Direito Constitucional', cor: '#2563eb', progresso: 35, professor: 'Professor Demo', tempo_total: 5400 },
-      { id: 'demo-m2', nome: 'Direito Penal', cor: '#dc2626', progresso: 52, professor: 'Professor Demo', tempo_total: 7200 },
-      { id: 'demo-m3', nome: 'Português', cor: '#059669', progresso: 70, professor: 'Professor Demo', tempo_total: 3600 }
-    ];
-
-    notas = [
-      { id: 'demo-n1', titulo: 'Resumo de Constitucional', conteudo: 'Princípios fundamentais, direitos e garantias.', materia_id: 'demo-m1' },
-      { id: 'demo-n2', titulo: 'Resumo de Penal', conteudo: 'Tipicidade, ilicitude e culpabilidade.', materia_id: 'demo-m2' }
-    ];
-
-    planos = [
-      { id: 'demo-p1', titulo: 'Plano da Semana', descricao: '2h por dia com revisão e questões.' }
-    ];
-
-    prioridades = [
-      { id: 'demo-pr1', titulo: 'Revisar Constitucional', nivel: 'alta' },
-      { id: 'demo-pr2', titulo: 'Fazer questões de Penal', nivel: 'media' }
-    ];
-
-    if (typeof renderMaterias === 'function') renderMaterias();
-    if (typeof renderNotas === 'function') renderNotas();
-    if (typeof renderPlanos === 'function') renderPlanos();
-    if (typeof renderPrioridades === 'function') renderPrioridades();
-    if (typeof atualizarDashboard === 'function') atualizarDashboard();
-    if (typeof updateUserHeader === 'function') updateUserHeader();
-
-    const hello = document.getElementById('helloName');
-    if (hello) hello.textContent = nome;
-
-    if (typeof mostrarApp === 'function') {
-      mostrarApp();
-    } else {
-      document.getElementById('landingWrap')?.classList.add('hidden');
-      document.getElementById('authScreen')?.classList.add('hidden');
-      document.getElementById('paywallScreen')?.classList.add('hidden');
-      document.getElementById('appScreen')?.classList.remove('hidden');
-    }
-
-    if (typeof toast === 'function') toast('🚀 Demonstração aberta com sucesso!');
-  } catch (e) {
-    console.error(e);
-    showAuthMsg('Erro ao abrir demonstração.', 'error');
-  } finally {
-    if (btn) {
-      btn.disabled = false;
-      btn.innerHTML = '🚀 Experimentar grátis';
-    }
-  }
+  // Salva credenciais demo para exibir na tela de cadastro depois
+  localStorage.setItem('vs_is_demo', '1');
+  localStorage.setItem('vs_demo_nome', nome);
+  localStorage.setItem('vs_demo_whats', whats);
 }
 
+function abrirCadastroDaDemo() {
+  // Faz logout da conta demo
+  db.auth.signOut().then(() => {
+    currentUser = null;
+    // Mostra tela de cadastro
+    document.getElementById('appScreen').classList.add('hidden');
+    document.getElementById('authScreen').classList.remove('hidden');
+    switchAuthTab('register');
+
+    // Preenche nome e whats salvos
+    const nome = localStorage.getItem('vs_demo_nome') || '';
+    const whats = localStorage.getItem('vs_demo_whats') || '';
+    setTimeout(() => {
+      const nomeEl = document.getElementById('regName');
+      const whatsEl = document.getElementById('regTelefone');
+      if (nomeEl && nome) nomeEl.value = nome;
+      if (whatsEl && whats) whatsEl.value = whats;
+    }, 100);
+
+    // Limpa flags de demo
+    localStorage.removeItem('vs_is_demo');
+    localStorage.removeItem('vs_demo_nome');
+    localStorage.removeItem('vs_demo_whats');
+  });
+}
 
 async function preencherDadosDemo() {
   if (!currentUser) return;
-  const seededKey = 'vs_demo_seeded_' + currentUser.id;
-  if (localStorage.getItem(seededKey) === '1') return;
 
-  try {
-    const materiasDemoData = [
-      { nome: 'Direito Constitucional', cor: '#2563eb', progresso: 35 },
-      { nome: 'Direito Civil', cor: '#059669', progresso: 52 },
-      { nome: 'Direito Penal', cor: '#dc2626', progresso: 18 },
-      { nome: 'Português', cor: '#7c3aed', progresso: 70 },
-      { nome: 'Raciocínio Lógico', cor: '#d97706', progresso: 45 },
-    ];
+  // Matérias de exemplo
+  const materiasDemoData = [
+    { nome: 'Direito Constitucional', cor: '#2563eb', progresso: 35 },
+    { nome: 'Direito Civil', cor: '#059669', progresso: 52 },
+    { nome: 'Direito Penal', cor: '#dc2626', progresso: 18 },
+    { nome: 'Português', cor: '#7c3aed', progresso: 70 },
+    { nome: 'Raciocínio Lógico', cor: '#d97706', progresso: 45 },
+  ];
 
-    const matsCriadas = [];
-    for (const m of materiasDemoData) {
-      const { data } = await db.from('materias').insert([{
-        user_id: currentUser.id, nome: m.nome, cor: m.cor, progresso: m.progresso,
-        professor: 'Professor Demo', tempo_total: Math.floor(Math.random() * 18000 + 3600)
-      }]).select().single();
-      if (data) matsCriadas.push(data);
-    }
-
-    await db.from('notas').insert([
-      { user_id: currentUser.id, titulo: 'Princípios constitucionais', conteudo: 'Legalidade, impessoalidade, moralidade, publicidade e eficiência são os princípios da Administração Pública.' },
-      { user_id: currentUser.id, titulo: 'Vícios do ato jurídico', conteudo: 'Erro, dolo, coação, estado de perigo, lesão e fraude contra credores.' },
-      { user_id: currentUser.id, titulo: 'Crimes hediondos', conteudo: 'Rol taxativo previsto na Lei 8.072/90. Insuscetíveis de anistia, graça ou indulto.' },
-    ]);
-
-    const amanha = new Date(); amanha.setDate(amanha.getDate() + 1);
-    const semana = new Date(); semana.setDate(semana.getDate() + 5);
-    await db.from('lembretes').insert([
-      { user_id: currentUser.id, texto: '📝 Prova de Direito Constitucional', data_hora: amanha.toISOString() },
-      { user_id: currentUser.id, texto: '📚 Revisar Direito Civil — capítulo 3', data_hora: semana.toISOString() },
-    ]);
-
-    if (matsCriadas.length) {
-      await db.from('prioridades').insert([
-        { user_id: currentUser.id, titulo: 'Estudar poderes da República', nivel: 'high', materia: 'Direito Constitucional' },
-        { user_id: currentUser.id, titulo: 'Revisar contratos', nivel: 'medium', materia: 'Direito Civil' },
-        { user_id: currentUser.id, titulo: 'Exercícios de lógica', nivel: 'low', materia: 'Raciocínio Lógico' },
-      ]);
-    }
-
-    for (const m of matsCriadas) {
-      const dias = [1, 3, 5, 7];
-      for (const d of dias) {
-        const data = new Date(); data.setDate(data.getDate() - d);
-        await db.from('sessoes_estudo').insert([{
-          user_id: currentUser.id, materia_id: m.id, materia_nome: m.nome,
-          segundos: Math.floor(Math.random() * 3600 + 600), data: data.toISOString()
-        }]);
-      }
-    }
-
-    localStorage.setItem(seededKey, '1');
-    localStorage.removeItem('vs_demo_seed_pending');
-    localStorage.removeItem('vs_demo_mode');
-    localStorage.removeItem('vs_demo_nome_digitado');
-    localStorage.removeItem('vs_demo_whatsapp_digitado');
-    toast('🎉 Demonstração carregada! Explore e depois clique em CADASTRE-SE.');
-  } catch(e) {
-    console.error('Erro ao preencher demo:', e);
+  const matsCriadas = [];
+  for (const m of materiasDemoData) {
+    const { data } = await db.from('materias').insert([{
+      user_id: currentUser.id, nome: m.nome, cor: m.cor, progresso: m.progresso,
+      professor: 'Professor Demo', tempo_total: Math.floor(Math.random() * 18000 + 3600)
+    }]).select().single();
+    if (data) matsCriadas.push(data);
   }
-}
 
-async function handleLogin() {
+  // Notas de exemplo
+  await db.from('notas').insert([
+    { user_id: currentUser.id, titulo: 'Princípios constitucionais', conteudo: 'Legalidade, impessoalidade, moralidade, publicidade e eficiência são os princípios da Administração Pública.' },
+    { user_id: currentUser.id, titulo: 'Vícios do ato jurídico', conteudo: 'Erro, dolo, coação, estado de perigo, lesão e fraude contra credores.' },
+    { user_id: currentUser.id, titulo: 'Crimes hediondos', conteudo: 'Rol taxativo previsto na Lei 8.072/90. Insuscetíveis de anistia, graça ou indulto.' },
+  ]);
+
+  // Lembretes de exemplo
+  const amanha = new Date(); amanha.setDate(amanha.getDate() + 1);
+  const semana = new Date(); semana.setDate(semana.getDate() + 5);
+  await db.from('lembretes').insert([
+    { user_id: currentUser.id, texto: '📝 Prova de Direito Constitucional', data_hora: amanha.toISOString() },
+    { user_id: currentUser.id, texto: '📚 Revisar Direito Civil — capítulo 3', data_hora: semana.toISOString() },
+  ]);
+
+  // Prioridades de exemplo
+  if (matsCriadas.length) {
+    await db.from('prioridades').insert([
+      { user_id: currentUser.id, titulo: 'Estudar poderes da República', nivel: 'high', materia: 'Direito Constitucional' },
+      { user_id: currentUser.id, titulo: 'Revisar contratos', nivel: 'medium', materia: 'Direito Civil' },
+      { user_id: currentUser.id, titulo: 'Exercícios de lógica', nivel: 'low', materia: 'Raciocínio Lógico' },
+    ]);
+  }
+
+  // Sessões de estudo simuladas
+  for (const m of matsCriadas) {
+    const dias = [1, 3, 5, 7];
+    for (const d of dias) {
+      const data = new Date(); data.setDate(data.getDate() - d);
+      await db.from('sessoes_estudo').insert([{
+        user_id: currentUser.id, materia_id: m.id, materia_nome: m.nome,
+        segundos: Math.floor(Math.random() * 3600 + 600), data: data.toISOString()
+      }]);
+    }
+  }
+
+  toast('🎉 Bem-vindo à demonstração! Explore tudo à vontade.');
+  localStorage.removeItem('vs_is_demo'); // remove flag após preencher
+}
   const email = document.getElementById('loginEmail').value.trim();
   const password = document.getElementById('loginPassword').value;
   if (!email || !password) return showAuthMsg('Preencha e-mail e senha.', 'error');
@@ -2475,57 +2343,32 @@ async function handleRegister() {
   const nome = document.getElementById('regName').value.trim();
   const email = document.getElementById('regEmail').value.trim();
   const password = document.getElementById('regPassword').value;
-  const telefone = document.getElementById('regTelefone')?.value.trim();
 
+  const telefone = document.getElementById('regTelefone')?.value.trim();
   if (!nome || !email || !password || !telefone) return showAuthMsg('Preencha todos os campos, incluindo o WhatsApp.', 'error');
   if (password.length < 6) return showAuthMsg('Senha deve ter pelo menos 6 caracteres.', 'error');
 
+  // Rastreia tentativa de cadastro com email
   registrarVisitanteCadastro('tentativa', email);
 
   const btn = document.getElementById('registerBtn');
   btn.innerHTML = '<span class="spinner"></span>';
   btn.disabled = true;
 
-  try {
-    if (currentUser?.user_metadata?.is_demo) {
-      await db.auth.signOut();
-      currentUser = null;
-    }
+  const { error } = await db.auth.signUp({
+    email, password,
+    options: { data: { nome, telefone } }
+  });
 
-    const { error } = await db.auth.signUp({
-      email, password,
-      options: { data: { nome, telefone } }
-    });
+  btn.innerHTML = 'Criar conta';
+  btn.disabled = false;
 
-    if (error) throw error;
-
-    // tenta entrar automaticamente para levar ao sistema normal
-    const { error: loginError } = await db.auth.signInWithPassword({ email, password });
-
-    if (loginError) {
-      showAuthMsg('✅ Cadastro realizado! Agora confirme seu e-mail e entre para usar sua conta normal.', 'success');
-      registrarVisitanteCadastro('sucesso', email);
-      switchAuthTab('login');
-      document.getElementById('loginEmail').value = email;
-      return;
-    }
-
-    localStorage.removeItem('vs_is_demo');
-    localStorage.removeItem('vs_demo_email');
-    localStorage.removeItem('vs_demo_senha');
-    localStorage.removeItem('vs_demo_seed_pending');
-    localStorage.removeItem('vs_demo_mode');
-    localStorage.removeItem('vs_demo_nome_digitado');
-    localStorage.removeItem('vs_demo_whatsapp_digitado');
-    showAuthMsg('✅ Cadastro concluído! Entrando no sistema normal...', 'success');
-    registrarVisitanteCadastro('sucesso', email);
-    setTimeout(() => carregarApp(), 400);
-  } catch (error) {
+  if (error) {
     showAuthMsg(traduzirErro(error.message), 'error');
     registrarVisitanteCadastro('erro', email);
-  } finally {
-    btn.innerHTML = 'Criar conta';
-    btn.disabled = false;
+  } else {
+    showAuthMsg('✅ Conta criada! Verifique seu e-mail para confirmar.', 'success');
+    registrarVisitanteCadastro('sucesso', email);
   }
 }
 
@@ -2553,25 +2396,6 @@ async function handleForgotPassword() {
 }
 
 async function handleLogout() {
-  if (currentUser?.user_metadata?.is_demo || isModoDemoLocal()) {
-    localStorage.removeItem('vs_is_demo');
-    localStorage.removeItem('vs_demo_mode');
-    localStorage.removeItem('vs_demo_nome_digitado');
-    localStorage.removeItem('vs_demo_whatsapp_digitado');
-    localStorage.removeItem('vs_demo_seed_pending');
-    localStorage.removeItem('vs_demo_mode');
-    localStorage.removeItem('vs_demo_nome_digitado');
-    localStorage.removeItem('vs_demo_whatsapp_digitado');
-    currentUser = null;
-    materias = [];
-    notas = [];
-    planos = [];
-    prioridades = [];
-    toast('Demonstração encerrada.');
-    mostrarAuth();
-    return;
-  }
-
   await db.auth.signOut();
   currentUser = null;
   toast('Até logo! 👋');
