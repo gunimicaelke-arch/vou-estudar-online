@@ -909,11 +909,21 @@ body{font-family:'Plus Jakarta Sans',sans-serif;-webkit-font-smoothing:antialias
         <div class="auth-tab" onclick="switchAuthTab('register')">Cadastrar</div>
       </div>
 
+      <div style="margin-bottom:18px;padding:18px;background:linear-gradient(135deg,#f0fdf4,#ecfdf5);border:1px solid #bbf7d0;border-radius:14px;text-align:center">
+        <div style="font-size:16px;font-weight:800;color:#065f46;margin-bottom:6px">🚀 Experimentar grátis</div>
+        <div style="font-size:12px;color:#047857;margin-bottom:12px">Digite seu e-mail e entre na demonstração com simulações prontas.</div>
+        <div class="row" style="margin-bottom:10px">
+          <input type="email" id="demoEmailInput" placeholder="Seu e-mail" style="margin-bottom:0;background:#fff" />
+          <button onclick="iniciarModoDemo()" id="btnDemo" style="background:linear-gradient(135deg,#059669,#10b981);min-width:170px">Experimentar grátis</button>
+        </div>
+        <div style="font-size:11px;color:#065f46">Depois, clique em <strong>Cadastrar</strong> para criar sua conta real.</div>
+      </div>
+
       <div id="authMsg" class="msg-box"></div>
 
       <!-- Login -->
-      <div id="loginForm">
-        <h2>Bem-vindo! 👋</h2>
+      <div id="loginForm" class="hidden">
+        <h2>Entrar</h2>
         <p class="muted">Acesse sua conta para continuar</p>
         <label class="field-label">E-mail</label>
         <input type="email" id="loginEmail" placeholder="seu@email.com" />
@@ -968,14 +978,6 @@ body{font-family:'Plus Jakarta Sans',sans-serif;-webkit-font-smoothing:antialias
         </a>
       </div>
 
-      <!-- Botão Demo -->
-      <div style="margin-top:16px;padding:16px;background:linear-gradient(135deg,#f0fdf4,#ecfdf5);border:1px solid #bbf7d0;border-radius:12px;text-align:center">
-        <div style="font-size:13px;font-weight:700;color:#065f46;margin-bottom:4px">🎯 Quer testar antes de cadastrar?</div>
-        <div style="font-size:12px;color:#047857;margin-bottom:10px">Entre direto no sistema com simulações prontas. Depois, clique em Cadastre-se para criar sua conta real.</div>
-        <button onclick="iniciarModoDemo()" id="btnDemo" style="background:linear-gradient(135deg,#059669,#10b981);color:#fff;border:none;width:100%;padding:12px;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer">
-          🚀 Experimentar grátis por 2 dias
-        </button>
-      </div>
     </div>
 
   </div>
@@ -1978,6 +1980,11 @@ function mostrarAuth() {
   document.getElementById('authScreen').classList.remove('hidden');
   document.getElementById('appScreen').classList.add('hidden');
   document.getElementById('paywallScreen').classList.add('hidden');
+  document.getElementById('loginForm').classList.add('hidden');
+  document.getElementById('registerForm').classList.add('hidden');
+  const ff = document.getElementById('forgotForm');
+  if (ff) ff.classList.add('hidden');
+  document.querySelectorAll('.auth-tab').forEach(t => t.classList.remove('active'));
   // Abre aba correta se vier da landing page via ?tab=
   const tab = new URLSearchParams(window.location.search).get('tab');
   if (tab) {
@@ -2226,35 +2233,71 @@ function toggleSenha(inputId, btnId) {
 }
 
 async function iniciarModoDemo() {
-  document.getElementById('landingWrap').classList.add('hidden');
-  document.getElementById('authScreen').classList.remove('hidden');
-  switchAuthTab('login');
+  const emailDigitado = (document.getElementById('demoEmailInput')?.value || '').trim();
+  if (!emailDigitado || !/^\S+@\S+\.\S+$/.test(emailDigitado)) {
+    showAuthMsg('Digite um e-mail válido para continuar.', 'error');
+    const input = document.getElementById('demoEmailInput');
+    if (input) input.focus();
+    return;
+  }
+
+  localStorage.setItem('vs_demo_lead_email', emailDigitado);
+  clearAuthMsg();
 
   const btn = document.getElementById('btnDemo');
+  const original = btn ? btn.innerHTML : 'Experimentar grátis';
   if (btn) { btn.disabled = true; btn.innerHTML = '<span class="spinner"></span> Abrindo demonstração...'; }
 
+  const contasDemo = [
+    { email: 'demo1@vouestudarmais.demo', senha: 'Demo@123456' },
+    { email: 'demo2@vouestudarmais.demo', senha: 'Demo@123456' },
+    { email: 'demo3@vouestudarmais.demo', senha: 'Demo@123456' }
+  ];
+
   try {
-    const rand = Math.random().toString(36).substring(2, 8);
-    const email = `demo_${rand}@vouestudarmais.demo`;
-    const senha = 'demo' + rand + '123';
+    let entrou = false;
+    let ultimaMensagem = '';
 
-    const { error: signUpErr } = await db.auth.signUp({
-      email, password: senha,
-      options: { data: { nome: 'Usuário Demo', telefone: '(11) 99999-9999', is_demo: true } }
-    });
+    for (const conta of contasDemo) {
+      let login = await db.auth.signInWithPassword({ email: conta.email, password: conta.senha });
+      if (!login.error) {
+        localStorage.setItem('vs_is_demo', '1');
+        localStorage.setItem('vs_demo_email', conta.email);
+        localStorage.setItem('vs_demo_senha', conta.senha);
+        localStorage.setItem('vs_demo_seed_pending', '1');
+        entrou = true;
+        break;
+      }
 
-    if (signUpErr) throw signUpErr;
+      ultimaMensagem = login.error?.message || '';
 
-    const { error: loginErr } = await db.auth.signInWithPassword({ email, password: senha });
-    if (loginErr) throw loginErr;
+      const cadastro = await db.auth.signUp({
+        email: conta.email,
+        password: conta.senha,
+        options: { data: { nome: 'Usuário Demo', telefone: '(11) 99999-9999', is_demo: true } }
+      });
 
-    localStorage.setItem('vs_is_demo', '1');
-    localStorage.setItem('vs_demo_email', email);
-    localStorage.setItem('vs_demo_senha', senha);
-    localStorage.setItem('vs_demo_seed_pending', '1');
+      if (!cadastro.error || String(cadastro.error?.message || '').toLowerCase().includes('already registered')) {
+        login = await db.auth.signInWithPassword({ email: conta.email, password: conta.senha });
+        if (!login.error) {
+          localStorage.setItem('vs_is_demo', '1');
+          localStorage.setItem('vs_demo_email', conta.email);
+          localStorage.setItem('vs_demo_senha', conta.senha);
+          localStorage.setItem('vs_demo_seed_pending', '1');
+          entrou = true;
+          break;
+        }
+        ultimaMensagem = login.error?.message || ultimaMensagem;
+      } else {
+        ultimaMensagem = cadastro.error?.message || ultimaMensagem;
+      }
+    }
+
+    if (!entrou) throw new Error(ultimaMensagem || 'Não foi possível abrir a demonstração agora.');
   } catch (err) {
-    if (btn) { btn.disabled = false; btn.innerHTML = '🚀 Experimentar grátis por 2 dias'; }
     showAuthMsg('Erro ao abrir demonstração: ' + traduzirErro(err.message || ''), 'error');
+  } finally {
+    if (btn) { btn.disabled = false; btn.innerHTML = original; }
   }
 }
 
