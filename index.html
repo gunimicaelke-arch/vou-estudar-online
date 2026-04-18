@@ -715,6 +715,19 @@ body{font-family:'Plus Jakarta Sans',sans-serif;-webkit-font-smoothing:antialias
 /* landing wrapper oculto quando app ativo */
 #landingWrap { display: block }
 #landingWrap.hidden { display: none !important }
+
+  .demo-cta-wrap{margin-top:14px;display:flex;justify-content:center}
+  .demo-cadastre-btn{
+    width:auto!important;padding:12px 20px!important;border-radius:12px!important;
+    background:linear-gradient(135deg,#f59e0b,#ef4444)!important;color:#fff!important;
+    font-size:13px!important;font-weight:800!important;letter-spacing:.3px;
+    box-shadow:0 0 0 rgba(245,158,11,.0);animation:demoBlink 1.15s infinite;
+  }
+  .demo-cadastre-btn:hover{transform:translateY(-1px) scale(1.01)!important}
+  .auth-box.demo-focus{animation:demoFocus 1.2s ease 2}
+  @keyframes demoBlink{0%,100%{opacity:1;box-shadow:0 0 0 0 rgba(245,158,11,.55)}50%{opacity:.86;box-shadow:0 0 0 10px rgba(245,158,11,0)}}
+  @keyframes demoFocus{0%,100%{box-shadow:var(--shadow-lg)}50%{box-shadow:0 0 0 4px rgba(37,99,235,.16), var(--shadow-lg)}}
+
 </style>
 </head>
 <body>
@@ -740,7 +753,7 @@ body{font-family:'Plus Jakarta Sans',sans-serif;-webkit-font-smoothing:antialias
     <div class="lp-nav-right">
       <button class="lp-nav-link" onclick="irParaLogin()">Entrar na minha conta</button>
       <button class="lp-nav-link" onclick="irParaEsqueci()">Esqueci minha senha</button>
-      <button class="lp-nav-cta" onclick="irParaCadastro()">Começar grátis</button>
+      <button class="lp-nav-cta" onclick="irParaCadastro()">Testar grátis</button>
     </div>
   </nav>
 
@@ -824,7 +837,7 @@ body{font-family:'Plus Jakarta Sans',sans-serif;-webkit-font-smoothing:antialias
     </div>
 
     <div class="lp-cta-wrap">
-      <button class="lp-cta" onclick="irParaCadastro()">Começar grátis →</button>
+      <button class="lp-cta" onclick="iniciarModoDemo()">Testar grátis →</button>
       <span class="lp-cta-hint">Crie sua conta em menos de 1 minuto</span>
       <div class="lp-cta-links">
         <button class="lp-cta-link" onclick="irParaLogin()">Entrar na minha conta</button>
@@ -953,6 +966,15 @@ body{font-family:'Plus Jakarta Sans',sans-serif;-webkit-font-smoothing:antialias
           style="font-size:13px;color:#2563eb;text-decoration:none;font-weight:500;display:inline-flex;align-items:center;gap:5px">
           💬 Precisa de ajuda? Fale com o suporte
         </a>
+      </div>
+
+      <!-- Botão Demo -->
+      <div style="margin-top:16px;padding:16px;background:linear-gradient(135deg,#f0fdf4,#ecfdf5);border:1px solid #bbf7d0;border-radius:12px;text-align:center">
+        <div style="font-size:13px;font-weight:700;color:#065f46;margin-bottom:4px">🎯 Quer testar antes de cadastrar?</div>
+        <div style="font-size:12px;color:#047857;margin-bottom:10px">Entre direto no sistema com simulações prontas. Depois, clique em Cadastre-se para criar sua conta real.</div>
+        <button onclick="iniciarModoDemo()" id="btnDemo" style="background:linear-gradient(135deg,#059669,#10b981);color:#fff;border:none;width:100%;padding:12px;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer">
+          🚀 Experimentar grátis por 2 dias
+        </button>
       </div>
     </div>
 
@@ -2072,6 +2094,26 @@ async function carregarApp() {
   mostrarMenuAdmin();
   registrarPresenca();
 
+  // Se for conta demo, preenche dados de exemplo
+  if (localStorage.getItem('vs_is_demo') === '1' || localStorage.getItem('vs_demo_seed_pending') === '1') {
+    setTimeout(() => preencherDadosDemo(), 1200);
+  }
+
+  // Banner de demo se for usuário demo
+  if (currentUser?.user_metadata?.is_demo) {
+    const antigo = document.getElementById('demoBannerTopo');
+    if (antigo) antigo.remove();
+    const banner = document.createElement('div');
+    banner.id = 'demoBannerTopo';
+    banner.style.cssText = 'background:linear-gradient(90deg,#059669,#10b981);color:#fff;text-align:center;padding:12px 14px;font-size:12px;font-weight:700;position:sticky;top:0;z-index:100;border-radius:14px;margin-bottom:14px';
+    banner.innerHTML = `🎯 Você está no modo demonstração <span style="font-weight:400">com dados simulados para explorar o sistema.</span>
+      <div class="demo-cta-wrap">
+        <button class="demo-cadastre-btn" onclick="abrirCadastroPosDemo()">✨ CADASTRE-SE PARA USAR DE VERDADE</button>
+      </div>`;
+    const content = document.querySelector('.content');
+    if (content) content.insertBefore(banner, content.firstChild);
+  }
+
   // Auto-refresh do dashboard a cada 60 segundos
   if (window._dashInterval) clearInterval(window._dashInterval);
   window._dashInterval = setInterval(async () => {
@@ -2145,6 +2187,31 @@ function clearAuthMsg() {
   el.className = 'msg-box';
 }
 
+async function abrirCadastroPosDemo() {
+  try {
+    if (currentUser?.user_metadata?.is_demo) {
+      await db.auth.signOut();
+      currentUser = null;
+    }
+  } catch(e) {}
+
+  document.getElementById('landingWrap').classList.add('hidden');
+  document.getElementById('appScreen').classList.add('hidden');
+  document.getElementById('paywallScreen').classList.add('hidden');
+  document.getElementById('authScreen').classList.remove('hidden');
+  switchAuthTab('register');
+
+  const box = document.querySelector('.auth-box');
+  if (box) {
+    box.classList.add('demo-focus');
+    setTimeout(() => box.classList.remove('demo-focus'), 2600);
+  }
+
+  const nome = document.getElementById('regName');
+  if (nome) nome.focus();
+}
+
+
 function toggleSenha(inputId, btnId) {
   const input = document.getElementById(inputId);
   const btn = document.getElementById(btnId);
@@ -2155,6 +2222,103 @@ function toggleSenha(inputId, btnId) {
   } else {
     input.type = 'password';
     if (btn) btn.textContent = '👁️';
+  }
+}
+
+async function iniciarModoDemo() {
+  document.getElementById('landingWrap').classList.add('hidden');
+  document.getElementById('authScreen').classList.remove('hidden');
+  switchAuthTab('login');
+
+  const btn = document.getElementById('btnDemo');
+  if (btn) { btn.disabled = true; btn.innerHTML = '<span class="spinner"></span> Abrindo demonstração...'; }
+
+  try {
+    const rand = Math.random().toString(36).substring(2, 8);
+    const email = `demo_${rand}@vouestudarmais.demo`;
+    const senha = 'demo' + rand + '123';
+
+    const { error: signUpErr } = await db.auth.signUp({
+      email, password: senha,
+      options: { data: { nome: 'Usuário Demo', telefone: '(11) 99999-9999', is_demo: true } }
+    });
+
+    if (signUpErr) throw signUpErr;
+
+    const { error: loginErr } = await db.auth.signInWithPassword({ email, password: senha });
+    if (loginErr) throw loginErr;
+
+    localStorage.setItem('vs_is_demo', '1');
+    localStorage.setItem('vs_demo_email', email);
+    localStorage.setItem('vs_demo_senha', senha);
+    localStorage.setItem('vs_demo_seed_pending', '1');
+  } catch (err) {
+    if (btn) { btn.disabled = false; btn.innerHTML = '🚀 Experimentar grátis por 2 dias'; }
+    showAuthMsg('Erro ao abrir demonstração: ' + traduzirErro(err.message || ''), 'error');
+  }
+}
+
+
+async function preencherDadosDemo() {
+  if (!currentUser) return;
+  const seededKey = 'vs_demo_seeded_' + currentUser.id;
+  if (localStorage.getItem(seededKey) === '1') return;
+
+  try {
+    const materiasDemoData = [
+      { nome: 'Direito Constitucional', cor: '#2563eb', progresso: 35 },
+      { nome: 'Direito Civil', cor: '#059669', progresso: 52 },
+      { nome: 'Direito Penal', cor: '#dc2626', progresso: 18 },
+      { nome: 'Português', cor: '#7c3aed', progresso: 70 },
+      { nome: 'Raciocínio Lógico', cor: '#d97706', progresso: 45 },
+    ];
+
+    const matsCriadas = [];
+    for (const m of materiasDemoData) {
+      const { data } = await db.from('materias').insert([{
+        user_id: currentUser.id, nome: m.nome, cor: m.cor, progresso: m.progresso,
+        professor: 'Professor Demo', tempo_total: Math.floor(Math.random() * 18000 + 3600)
+      }]).select().single();
+      if (data) matsCriadas.push(data);
+    }
+
+    await db.from('notas').insert([
+      { user_id: currentUser.id, titulo: 'Princípios constitucionais', conteudo: 'Legalidade, impessoalidade, moralidade, publicidade e eficiência são os princípios da Administração Pública.' },
+      { user_id: currentUser.id, titulo: 'Vícios do ato jurídico', conteudo: 'Erro, dolo, coação, estado de perigo, lesão e fraude contra credores.' },
+      { user_id: currentUser.id, titulo: 'Crimes hediondos', conteudo: 'Rol taxativo previsto na Lei 8.072/90. Insuscetíveis de anistia, graça ou indulto.' },
+    ]);
+
+    const amanha = new Date(); amanha.setDate(amanha.getDate() + 1);
+    const semana = new Date(); semana.setDate(semana.getDate() + 5);
+    await db.from('lembretes').insert([
+      { user_id: currentUser.id, texto: '📝 Prova de Direito Constitucional', data_hora: amanha.toISOString() },
+      { user_id: currentUser.id, texto: '📚 Revisar Direito Civil — capítulo 3', data_hora: semana.toISOString() },
+    ]);
+
+    if (matsCriadas.length) {
+      await db.from('prioridades').insert([
+        { user_id: currentUser.id, titulo: 'Estudar poderes da República', nivel: 'high', materia: 'Direito Constitucional' },
+        { user_id: currentUser.id, titulo: 'Revisar contratos', nivel: 'medium', materia: 'Direito Civil' },
+        { user_id: currentUser.id, titulo: 'Exercícios de lógica', nivel: 'low', materia: 'Raciocínio Lógico' },
+      ]);
+    }
+
+    for (const m of matsCriadas) {
+      const dias = [1, 3, 5, 7];
+      for (const d of dias) {
+        const data = new Date(); data.setDate(data.getDate() - d);
+        await db.from('sessoes_estudo').insert([{
+          user_id: currentUser.id, materia_id: m.id, materia_nome: m.nome,
+          segundos: Math.floor(Math.random() * 3600 + 600), data: data.toISOString()
+        }]);
+      }
+    }
+
+    localStorage.setItem(seededKey, '1');
+    localStorage.removeItem('vs_demo_seed_pending');
+    toast('🎉 Demonstração carregada! Explore e depois clique em CADASTRE-SE.');
+  } catch(e) {
+    console.error('Erro ao preencher demo:', e);
   }
 }
 
@@ -2179,32 +2343,54 @@ async function handleRegister() {
   const nome = document.getElementById('regName').value.trim();
   const email = document.getElementById('regEmail').value.trim();
   const password = document.getElementById('regPassword').value;
-
   const telefone = document.getElementById('regTelefone')?.value.trim();
+
   if (!nome || !email || !password || !telefone) return showAuthMsg('Preencha todos os campos, incluindo o WhatsApp.', 'error');
   if (password.length < 6) return showAuthMsg('Senha deve ter pelo menos 6 caracteres.', 'error');
 
-  // Rastreia tentativa de cadastro com email
   registrarVisitanteCadastro('tentativa', email);
 
   const btn = document.getElementById('registerBtn');
   btn.innerHTML = '<span class="spinner"></span>';
   btn.disabled = true;
 
-  const { error } = await db.auth.signUp({
-    email, password,
-    options: { data: { nome, telefone } }
-  });
+  try {
+    if (currentUser?.user_metadata?.is_demo) {
+      await db.auth.signOut();
+      currentUser = null;
+    }
 
-  btn.innerHTML = 'Criar conta';
-  btn.disabled = false;
+    const { error } = await db.auth.signUp({
+      email, password,
+      options: { data: { nome, telefone } }
+    });
 
-  if (error) {
+    if (error) throw error;
+
+    // tenta entrar automaticamente para levar ao sistema normal
+    const { error: loginError } = await db.auth.signInWithPassword({ email, password });
+
+    if (loginError) {
+      showAuthMsg('✅ Cadastro realizado! Agora confirme seu e-mail e entre para usar sua conta normal.', 'success');
+      registrarVisitanteCadastro('sucesso', email);
+      switchAuthTab('login');
+      document.getElementById('loginEmail').value = email;
+      return;
+    }
+
+    localStorage.removeItem('vs_is_demo');
+    localStorage.removeItem('vs_demo_email');
+    localStorage.removeItem('vs_demo_senha');
+    localStorage.removeItem('vs_demo_seed_pending');
+    showAuthMsg('✅ Cadastro concluído! Entrando no sistema normal...', 'success');
+    registrarVisitanteCadastro('sucesso', email);
+    setTimeout(() => carregarApp(), 400);
+  } catch (error) {
     showAuthMsg(traduzirErro(error.message), 'error');
     registrarVisitanteCadastro('erro', email);
-  } else {
-    showAuthMsg('✅ Conta criada! Verifique seu e-mail para confirmar.', 'success');
-    registrarVisitanteCadastro('sucesso', email);
+  } finally {
+    btn.innerHTML = 'Criar conta';
+    btn.disabled = false;
   }
 }
 
