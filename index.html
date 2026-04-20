@@ -5645,7 +5645,7 @@ function _renderVisitantesFiltrado(data, periodo) {
     const primeiro = ordenados[0], ultimo = ordenados[ordenados.length-1];
     const duracaoSeg = Math.max(0, Math.floor((new Date(ultimo.created_at)-new Date(primeiro.created_at))/1000));
     const status = ordenados.some(i=>i.acao==='sucesso') ? '✅ Cadastrou' : ordenados.some(i=>i.acao==='erro') ? '⚠️ Com erro' : ordenados.some(i=>i.acao==='tentativa') ? '🟡 Em triagem' : '👀 Visitou';
-    return { chave, email: primeiro.email||'', origem: primeiro.user_agent||'', acoes: ordenados.length, primeira_acao: new Date(primeiro.created_at).toLocaleString('pt-BR'), ultima_acao: new Date(ultimo.created_at).toLocaleString('pt-BR'), tempo_triagem: formatarDuracaoAdmin(duracaoSeg), status, ids: ordenados.map(i=>i.id).filter(Boolean) };
+    return { chave, email: primeiro.email||'', origem: primeiro.user_agent||'', acoes: ordenados.length, acoes_raw: ordenados, primeiraAcao: primeiro.created_at, ultimaAcao: ultimo.created_at, primeira_acao: new Date(primeiro.created_at).toLocaleString('pt-BR'), ultima_acao: new Date(ultimo.created_at).toLocaleString('pt-BR'), tempo_triagem: formatarDuracaoAdmin(duracaoSeg), status, ids: ordenados.map(i=>i.id).filter(Boolean) };
   }).sort((a,b) => new Date(b.ids[b.ids.length-1]||0) - new Date(a.ids[a.ids.length-1]||0));
 
   window.adminVisitantesCache = agrupados;
@@ -5655,27 +5655,160 @@ function _renderVisitantesFiltrado(data, periodo) {
   if (wrap) _renderListaVisitantes(agrupados.slice(0,5), agrupados.length, wrap);
 }
 
+function _scoreVisitante(v) {
+  let score = 0;
+  // Tempo de triagem
+  const mins = (new Date(v.ultimaAcao) - new Date(v.primeiraAcao)) / 60000;
+  if (mins > 10) score += 30;
+  else if (mins > 5) score += 20;
+  else if (mins > 1) score += 10;
+  // Qtd ações
+  if (v.acoes >= 5) score += 25;
+  else if (v.acoes >= 3) score += 15;
+  else if (v.acoes >= 2) score += 8;
+  // Chegou a tentar cadastrar
+  if (v.status.includes('Cadastrou')) score += 40;
+  else if (v.status.includes('Tentou')) score += 20;
+  // Tem email
+  if (v.email && !v.email.includes('demo_')) score += 15;
+  return Math.min(score, 100);
+}
+
 function _renderListaVisitantes(lista, total, wrap) {
-  wrap.innerHTML = lista.map(v => `
-    <div style="border:1px solid var(--border);border-radius:12px;padding:12px;background:#fff;margin-bottom:8px">
-      <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:10px;flex-wrap:wrap">
-        <div style="min-width:0;flex:1">
-          <div style="font-size:13px;font-weight:700;color:var(--text);overflow:hidden;text-overflow:ellipsis">${v.email || 'Visitante sem e-mail'}</div>
-          <div style="font-size:11px;color:var(--muted);margin-top:3px">Primeira ação: ${v.primeira_acao}</div>
-          <div style="font-size:11px;color:var(--muted)">Última ação: ${v.ultima_acao}</div>
-          <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:6px">
-            <span style="font-size:11px;color:#2563eb;font-weight:700">⏱️ Tempo de triagem: ${v.tempo_triagem}</span>
+  // Ordena por score
+  const comScore = lista.map(v => ({ ...v, _score: _scoreVisitante(v) }))
+    .sort((a, b) => b._score - a._score);
+
+  wrap.innerHTML = comScore.map(v => {
+    const score = v._score;
+    const bolCor = score >= 70 ? '#22c55e' : score >= 40 ? '#f59e0b' : '#ef4444';
+    const bolShadow = score >= 70 ? 'rgba(34,197,94,0.7)' : score >= 40 ? 'rgba(245,158,11,0.7)' : 'rgba(239,68,68,0.5)';
+    const statusCor = v.status.includes('Cadastrou') ? '#059669' : v.status.includes('Tentou') ? '#d97706' : '#94a3b8';
+    const statusBg = v.status.includes('Cadastrou') ? '#f0fdf4' : v.status.includes('Tentou') ? '#fffbeb' : '#f8fafc';
+
+    // Email limpo (sem demo_)
+    const emailReal = v.email && !v.email.includes('demo_') ? v.email : '';
+    // WhatsApp do user_agent se for demo
+    const telDemo = v.acoes_raw?.find(a => a.acao === 'demo')?.email || '';
+    const telLimpo = telDemo.replace(/\D/g,'');
+
+    const keyBase = 'vconv_' + encodeURIComponent(v.chave||v.email||'');
+    const ultimoEnvio = localStorage.getItem(keyBase);
+    const jaEnviou = ultimoEnvio && (new Date() - new Date(ultimoEnvio)) < 7*24*60*60*1000;
+    const badgeEnvio = jaEnviou ? `<span style="font-size:10px;color:#059669;font-weight:600">✅ Enviado ${new Date(ultimoEnvio).toLocaleDateString('pt-BR')}</span>` : '';
+
+    const btnWhats = telLimpo.length >= 10 ? `<button onclick="visitanteEnviarWhats('${telLimpo}','${keyBase}',this)" style="font-size:10px;padding:3px 9px;border-radius:7px;background:#f0fdf4;color:#16a34a;border:1px solid #bbf7d0;cursor:pointer;width:auto;font-weight:700;position:relative">📱 WhatsApp</button>` : '';
+    const btnEmail = emailReal ? `<button onclick="visitanteEnviarEmail('${emailReal}','${keyBase}',this)" style="font-size:10px;padding:3px 9px;border-radius:7px;background:#eff6ff;color:#2563eb;border:1px solid #dbeafe;cursor:pointer;width:auto;font-weight:700;position:relative">📧 E-mail</button>` : '';
+
+    return `<div style="border:1px solid var(--border);border-radius:12px;padding:12px;background:#fff;margin-bottom:8px">
+      <div style="display:flex;align-items:flex-start;gap:10px;flex-wrap:wrap">
+        <div style="display:flex;flex-direction:column;align-items:center;gap:4px;padding-top:2px">
+          <span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:${bolCor};box-shadow:0 0 6px ${bolShadow};flex-shrink:0"></span>
+          <span style="font-size:9px;color:var(--muted);font-weight:700">${score}%</span>
+        </div>
+        <div style="flex:1;min-width:0">
+          <div style="font-size:13px;font-weight:700;color:var(--text)">${emailReal || telDemo || 'Visitante sem contato'}</div>
+          <div style="font-size:11px;color:var(--muted);margin-top:2px">Primeira: ${new Date(v.primeiraAcao).toLocaleString('pt-BR',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'})} · Última: ${new Date(v.ultimaAcao).toLocaleString('pt-BR',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'})}</div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:4px;align-items:center">
+            <span style="font-size:11px;color:#2563eb;font-weight:700">⏱️ ${v.tempo_triagem}</span>
             <span style="font-size:11px;color:#475569">🧩 ${v.acoes} ação(ões)</span>
+            <span style="font-size:10px;padding:2px 8px;border-radius:20px;background:${statusBg};color:${statusCor};font-weight:700">${v.status}</span>
+            ${badgeEnvio}
+          </div>
+          <div style="height:4px;background:#e5e7eb;border-radius:4px;margin-top:6px;max-width:120px">
+            <div style="height:4px;border-radius:4px;width:${score}%;background:${bolCor}"></div>
           </div>
         </div>
-        <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">
-          <span style="font-size:10px;padding:4px 10px;border-radius:999px;background:#eff6ff;color:#2563eb;font-weight:700">${v.status}</span>
-          <button onclick="adminExcluirVisitante(encodeURIComponent('${v.chave||''}'))" style="font-size:10px;padding:4px 8px;border-radius:8px;background:#fef2f2;color:#dc2626;border:1px solid #fecaca;cursor:pointer;width:auto">🗑️ Excluir</button>
+        <div style="display:flex;flex-direction:column;gap:4px;align-items:flex-end">
+          ${btnWhats}
+          ${btnEmail}
+          <button onclick="adminExcluirVisitante(encodeURIComponent('${v.chave||''}'))" style="font-size:10px;padding:3px 8px;border-radius:7px;background:#fef2f2;color:#dc2626;border:1px solid #fecaca;cursor:pointer;width:auto">🗑️</button>
         </div>
       </div>
-      ${v.origem ? `<div style="font-size:10px;color:#94a3b8;margin-top:6px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${v.origem}</div>` : ''}
-    </div>`).join('') +
-    (total > 5 ? `<button onclick="adminVerTodosVisitantes()" style="width:100%;padding:10px;background:#f8faff;border:1px dashed #dbeafe;border-radius:10px;color:#2563eb;font-size:12px;font-weight:600;cursor:pointer;margin-top:4px">Ver todos os ${total} visitantes →</button>` : '');
+    </div>`;
+  }).join('') +
+  (total > 5 ? `<button onclick="adminVerTodosVisitantes()" style="width:100%;padding:10px;background:#f8faff;border:1px dashed #dbeafe;border-radius:10px;color:#2563eb;font-size:12px;font-weight:600;cursor:pointer;margin-top:4px">Ver todos os ${total} visitantes →</button>` : '');
+
+  // Aviso de envio automático
+  _verificarEnviosVisitantes(comScore, wrap);
+}
+
+function visitanteEnviarWhats(tel, keyBase, btn) {
+  const msg = encodeURIComponent('Olá! 👋\n\nVi que você explorou o Vou Estudar+ e queria te convidar para criar sua conta.\n\n🎯 Por apenas R$15/mês você tem acesso completo:\n✅ Plano de estudos com IA\n✅ Flashcards e simulados\n✅ Progresso por matéria\n\nCrie sua conta agora: https://vouestudarmais.com.br 🚀');
+  window.open('https://wa.me/55' + tel + '?text=' + msg, '_blank');
+  localStorage.setItem(keyBase, new Date().toISOString());
+  if (btn) {
+    btn.style.background='#f0fdf4'; btn.style.borderColor='#22c55e'; btn.style.color='#15803d';
+    btn.innerHTML='✅ Enviado';
+    const b = document.createElement('span');
+    b.style.cssText='position:absolute;top:-6px;right:-6px;background:#22c55e;color:#fff;border-radius:50%;width:14px;height:14px;font-size:9px;display:grid;place-items:center;font-weight:700';
+    b.textContent='✓'; btn.appendChild(b);
+  }
+  toast('✅ Convite enviado via WhatsApp!');
+}
+
+function visitanteEnviarEmail(email, keyBase, btn) {
+  const assunto = encodeURIComponent('🎯 Crie sua conta no Vou Estudar+');
+  const corpo = encodeURIComponent('Olá!\n\nVi que você explorou o Vou Estudar+ e queria te convidar para criar sua conta.\n\nPor apenas R$15/mês você tem acesso completo ao sistema.\n\nAcesse: https://vouestudarmais.com.br 🚀');
+  window.open('mailto:' + email + '?subject=' + assunto + '&body=' + corpo, '_blank');
+  localStorage.setItem(keyBase, new Date().toISOString());
+  if (btn) {
+    btn.style.background='#eff6ff'; btn.style.borderColor='#93c5fd'; btn.style.color='#1d4ed8';
+    btn.innerHTML='✅ Enviado';
+    const b = document.createElement('span');
+    b.style.cssText='position:absolute;top:-6px;right:-6px;background:#2563eb;color:#fff;border-radius:50%;width:14px;height:14px;font-size:9px;display:grid;place-items:center;font-weight:700';
+    b.textContent='✓'; btn.appendChild(b);
+  }
+  toast('✅ Convite enviado por e-mail!');
+}
+
+function _verificarEnviosVisitantes(lista, wrap) {
+  const umaSemana = 7*24*60*60*1000;
+  const pendentes = lista.filter(v => {
+    if (v.status.includes('Cadastrou')) return false;
+    const emailReal = v.email && !v.email.includes('demo_') ? v.email : '';
+    const telDemo = v.acoes_raw?.find(a=>a.acao==='demo')?.email||'';
+    if (!emailReal && !telDemo) return false;
+    const key = 'vconv_' + encodeURIComponent(v.chave||v.email||'');
+    const ultimo = localStorage.getItem(key);
+    return !ultimo || (new Date() - new Date(ultimo)) > umaSemana;
+  });
+
+  if (!pendentes.length) return;
+
+  const aviso = document.createElement('div');
+  aviso.style.cssText = 'background:linear-gradient(135deg,#f0fdf4,#eff6ff);border:1px solid #bbf7d0;border-radius:12px;padding:12px;margin-bottom:12px;display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap';
+  aviso.innerHTML = `
+    <div>
+      <div style="font-size:13px;font-weight:700;color:#065f46">🤖 Envio automático semanal</div>
+      <div style="font-size:12px;color:#374151;margin-top:2px">${pendentes.length} visitante(s) sem contato nos últimos 7 dias.</div>
+    </div>
+    <button onclick="_enviarAutomaticoVisitantes()" style="background:#059669;color:#fff;border:none;padding:7px 14px;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;width:auto">
+      🚀 Enviar para todos (${pendentes.length})
+    </button>`;
+  wrap.insertBefore(aviso, wrap.firstChild);
+  window._pendentesVisitantes = pendentes;
+}
+
+async function _enviarAutomaticoVisitantes() {
+  const pendentes = window._pendentesVisitantes || [];
+  let enviados = 0;
+  for (const v of pendentes) {
+    const emailReal = v.email && !v.email.includes('demo_') ? v.email : '';
+    const telDemo = (v.acoes_raw?.find(a=>a.acao==='demo')?.email||'').replace(/\D/g,'');
+    const key = 'vconv_' + encodeURIComponent(v.chave||v.email||'');
+    await new Promise(r => setTimeout(r, 600));
+    if (telDemo.length >= 10) {
+      const msg = encodeURIComponent('Olá! 👋\n\nVi que você explorou o Vou Estudar+ e queria te convidar para criar sua conta.\n\n🎯 R$15/mês — acesso completo!\nhttps://vouestudarmais.com.br 🚀');
+      window.open('https://wa.me/55' + telDemo + '?text=' + msg, '_blank');
+      localStorage.setItem(key, new Date().toISOString()); enviados++;
+    } else if (emailReal) {
+      window.open('mailto:' + emailReal + '?subject=' + encodeURIComponent('🎯 Seu acesso ao Vou Estudar+') + '&body=' + encodeURIComponent('Olá! Acesse https://vouestudarmais.com.br'), '_blank');
+      localStorage.setItem(key, new Date().toISOString()); enviados++;
+    }
+  }
+  toast('✅ ' + enviados + ' convite(s) enviado(s)!');
+  adminFiltrarVisitantes(_visitantesFiltro);
 }
 
 function adminVerTodosVisitantes() {
