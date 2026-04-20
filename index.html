@@ -4805,37 +4805,141 @@ function adminFiltrarClientes(busca) {
   _renderClientesLista(filtrado, el);
 }
 
+function _calcularPotencial(u) {
+  let score = 0;
+  // Tempo de estudo no sistema
+  const secs = u.estudo_segundos || 0;
+  if (secs > 7200) score += 40;
+  else if (secs > 3600) score += 30;
+  else if (secs > 1800) score += 20;
+  else if (secs > 600) score += 10;
+  // Status
+  if (u.assinatura_ativa) score += 100;
+  else {
+    const trialFim = u.trial_fim ? new Date(u.trial_fim) : null;
+    const agora = new Date();
+    if (trialFim && trialFim > agora) {
+      const dias = Math.ceil((trialFim - agora) / 86400000);
+      score += dias <= 1 ? 50 : dias <= 2 ? 40 : 30;
+    } else if (trialFim && trialFim < agora) {
+      score += 25; // expirou — quer mas não pagou ainda
+    }
+  }
+  // Último acesso recente
+  if (u.ultimo_acesso) {
+    const dias = (new Date() - new Date(u.ultimo_acesso)) / 86400000;
+    if (dias < 1) score += 20;
+    else if (dias < 3) score += 15;
+    else if (dias < 7) score += 10;
+  }
+  // Tem telefone
+  if (u.telefone) score += 10;
+  return Math.min(score, 100);
+}
+
+function _bolinhaPotencial(score) {
+  if (score >= 70) return '<span title="Alto potencial" style="display:inline-block;width:10px;height:10px;border-radius:50%;background:#22c55e;box-shadow:0 0 6px rgba(34,197,94,0.7);flex-shrink:0"></span>';
+  if (score >= 40) return '<span title="Médio potencial" style="display:inline-block;width:10px;height:10px;border-radius:50%;background:#f59e0b;box-shadow:0 0 6px rgba(245,158,11,0.7);flex-shrink:0"></span>';
+  return '<span title="Baixo potencial" style="display:inline-block;width:10px;height:10px;border-radius:50%;background:#ef4444;box-shadow:0 0 6px rgba(239,68,68,0.5);flex-shrink:0"></span>';
+}
+
 function _renderClientesLista(lista, el) {
   if (!lista.length) { el.innerHTML = '<div class="empty-state">Nenhum cliente encontrado.</div>'; return; }
-  el.innerHTML = lista.map(u => {
+
+  // Ordena por potencial (maior primeiro)
+  const comScore = lista.map(u => ({ ...u, _score: _calcularPotencial(u) }))
+    .sort((a, b) => b._score - a._score);
+
+  el.innerHTML = comScore.map(u => {
     const trialFim = u.trial_fim ? new Date(u.trial_fim) : null;
     const trialExpirou = trialFim && trialFim < new Date();
     const diasTrial = trialFim ? Math.ceil((trialFim - new Date()) / 86400000) : null;
+
     let status = '⏳ Novo', statusColor = '#d97706', statusBg = '#fffbeb';
     if (u.assinatura_ativa) { status = '✅ Ativo'; statusColor = '#059669'; statusBg = '#f0fdf4'; }
     else if (trialExpirou) { status = '❌ Expirado'; statusColor = '#dc2626'; statusBg = '#fef2f2'; }
     else if (diasTrial !== null && diasTrial >= 0) { status = '⏳ Trial (' + diasTrial + 'd)'; statusColor = '#d97706'; statusBg = '#fffbeb'; }
+
     const dataPag = u.data_pagamento ? new Date(u.data_pagamento).toLocaleDateString('pt-BR') : '';
     const avatar = ((u.nome || u.email || '?').charAt(0) || '?').toUpperCase();
-    return `<div style="display:flex;align-items:center;gap:10px;padding:11px 0;border-bottom:1px solid var(--border);flex-wrap:wrap">
-      <div style="width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#2563eb,#3b82f6);display:grid;place-items:center;font-size:14px;font-weight:700;color:#fff;flex-shrink:0">${avatar}</div>
-      <div style="flex:1;min-width:0">
-        <div style="font-size:13px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">
-          ${u.nome ? '<span style="color:#2563eb">' + u.nome + '</span> — ' : ''}${u.email || u.id?.substring(0,16)+'…'}
-        </div>
-        ${u.telefone ? `<div style="font-size:11px;color:#059669;font-weight:600">📱 ${u.telefone}</div>` : ''}
-        <div style="font-size:11px;color:var(--muted)">${dataPag ? '💳 Pagou: ' + dataPag : trialFim ? 'Trial até: ' + trialFim.toLocaleDateString('pt-BR') : 'Sem assinatura'}</div>
+    const bolinha = _bolinhaPotencial(u._score);
+    const scoreBar = `<div style="display:flex;align-items:center;gap:5px;margin-top:3px">
+      <div style="flex:1;height:4px;background:#e5e7eb;border-radius:4px;max-width:80px">
+        <div style="height:4px;border-radius:4px;width:${u._score}%;background:${u._score>=70?'#22c55e':u._score>=40?'#f59e0b':'#ef4444'}"></div>
       </div>
-      <div style="display:flex;align-items:center;gap:5px;flex-shrink:0;flex-wrap:wrap">
+      <span style="font-size:10px;color:var(--muted)">${u._score}%</span>
+    </div>`;
+
+    // Mensagem pré-formatada
+    const msgWhats = encodeURIComponent('Olá' + (u.nome ? ', ' + u.nome.split(' ')[0] : '') + '! 👋\n\nVi que você explorou o Vou Estudar+ e queria te convidar para continuar com acesso completo.\n\n🎯 Por apenas R$15/mês você tem:\n✅ Plano de estudos com IA\n✅ Flashcards e simulados\n✅ Cronômetro e progresso por matéria\n\nQuer garantir seu acesso agora? 🚀');
+    const telLimpo = (u.telefone || '').replace(/\D/g, '');
+    const btnWhats = telLimpo ? `<button onclick="adminEnviarConviteWhats('${u.id}','${telLimpo}','${(u.nome||'').replace(/'/g,"\\'")}',this)" style="font-size:10px;padding:3px 9px;border-radius:7px;background:#f0fdf4;color:#16a34a;border:1px solid #bbf7d0;cursor:pointer;width:auto;font-weight:700;position:relative" id="wbtn_${u.id}">
+      📱 WhatsApp
+    </button>` : '';
+    const btnEmail = u.email ? `<button onclick="adminEnviarConviteEmail('${u.id}','${u.email}','${(u.nome||'').replace(/'/g,"\\'")}',this)" style="font-size:10px;padding:3px 9px;border-radius:7px;background:#eff6ff;color:#2563eb;border:1px solid #dbeafe;cursor:pointer;width:auto;font-weight:700;position:relative" id="ebtn_${u.id}">
+      📧 E-mail
+    </button>` : '';
+
+    return `<div style="display:flex;align-items:center;gap:10px;padding:12px 0;border-bottom:1px solid var(--border);flex-wrap:wrap">
+      <div style="display:flex;flex-direction:column;align-items:center;gap:4px;flex-shrink:0">
+        <div style="width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#2563eb,#3b82f6);display:grid;place-items:center;font-size:14px;font-weight:700;color:#fff">${avatar}</div>
+        ${bolinha}
+      </div>
+      <div style="flex:1;min-width:0">
+        <div style="font-size:13px;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">
+          ${u.nome ? u.nome : (u.email || u.id?.substring(0,16)+'…')}
+        </div>
+        ${u.email ? `<div style="font-size:11px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${u.email}</div>` : ''}
+        ${u.telefone ? `<div style="font-size:11px;color:#059669;font-weight:600">📱 ${u.telefone}</div>` : ''}
+        <div style="font-size:11px;color:var(--muted)">${dataPag ? '💳 Pagou: '+dataPag : trialFim ? (trialExpirou?'Expirou: ':'Trial até: ')+trialFim.toLocaleDateString('pt-BR') : 'Sem assinatura'}</div>
+        ${scoreBar}
+      </div>
+      <div style="display:flex;flex-direction:column;align-items:flex-end;gap:5px;flex-shrink:0">
         <span style="font-size:10px;font-weight:700;padding:3px 9px;border-radius:20px;background:${statusBg};color:${statusColor}">${status}</span>
-        ${!u.assinatura_ativa
-          ? `<button onclick="adminAtivarPorId('${u.id}')" style="font-size:10px;padding:3px 9px;border-radius:7px;background:#f0fdf4;color:#059669;border:1px solid #bbf7d0;cursor:pointer;width:auto;font-weight:700">✅ Ativar</button>`
-          : `<button onclick="adminDesativarPorId('${u.id}')" style="font-size:10px;padding:3px 9px;border-radius:7px;background:#fef2f2;color:#dc2626;border:1px solid #fecaca;cursor:pointer;width:auto;font-weight:700">🚫 Desativar</button>`}
-        ${u.email ? `<button onclick="preencherAdminEmail('${u.email}');adminSelecionarTransferencia('${u.id}')" style="font-size:10px;padding:3px 9px;border-radius:7px;background:#eff6ff;color:#2563eb;border:1px solid #dbeafe;cursor:pointer;width:auto;font-weight:700">⚙️</button>` : ''}
-        <button onclick="adminExcluirCliente('${u.id}','${(u.email||'').replace(/'/g,"\\'")}',this)" style="font-size:10px;padding:3px 9px;border-radius:7px;background:#fef2f2;color:#dc2626;border:1px solid #fecaca;cursor:pointer;width:auto;font-weight:700">🗑️</button>
+        <div style="display:flex;gap:4px;flex-wrap:wrap;justify-content:flex-end">
+          ${btnWhats}
+          ${btnEmail}
+          ${!u.assinatura_ativa
+            ? `<button onclick="adminAtivarPorId('${u.id}')" style="font-size:10px;padding:3px 9px;border-radius:7px;background:#f0fdf4;color:#059669;border:1px solid #bbf7d0;cursor:pointer;width:auto;font-weight:700">✅ Ativar</button>`
+            : `<button onclick="adminDesativarPorId('${u.id}')" style="font-size:10px;padding:3px 9px;border-radius:7px;background:#fffbeb;color:#d97706;border:1px solid #fde68a;cursor:pointer;width:auto;font-weight:700">🚫 Desativar</button>`}
+          <button onclick="adminExcluirCliente('${u.id}','${(u.email||'').replace(/'/g,"\\'")}',this)" style="font-size:10px;padding:3px 8px;border-radius:7px;background:#fef2f2;color:#dc2626;border:1px solid #fecaca;cursor:pointer;width:auto">🗑️</button>
+        </div>
       </div>
     </div>`;
   }).join('');
+}
+
+function adminEnviarConviteWhats(userId, tel, nome, btn) {
+  const msg = encodeURIComponent('Olá' + (nome ? ', ' + nome.split(' ')[0] : '') + '! 👋\n\nVi que você explorou o Vou Estudar+ e queria te convidar para continuar com acesso completo.\n\n🎯 Por apenas R$15/mês você tem:\n✅ Plano de estudos com IA\n✅ Flashcards e simulados\n✅ Cronômetro e progresso por matéria\n\nQuer garantir seu acesso agora? 🚀\nhttps://vouestudarmais.com.br');
+  window.open('https://wa.me/55' + tel + '?text=' + msg, '_blank');
+  _marcarConviteEnviado(btn, userId, 'whats');
+}
+
+function adminEnviarConviteEmail(userId, email, nome, btn) {
+  const assunto = encodeURIComponent('🎯 Seu acesso ao Vou Estudar+ está esperando por você!');
+  const corpo = encodeURIComponent('Olá' + (nome ? ', ' + nome.split(' ')[0] : '') + '!\n\nVi que você explorou o Vou Estudar+ e queria te convidar para continuar.\n\nPor apenas R$15/mês você tem acesso completo:\n✅ Plano de estudos com IA\n✅ Flashcards e simulados\n✅ Cronômetro por matéria\n✅ Dashboard de progresso\n\nGaranta seu acesso: https://vouestudarmais.com.br\n\nQualquer dúvida é só responder este e-mail!\n\nAbração 🚀');
+  window.open('mailto:' + email + '?subject=' + assunto + '&body=' + corpo, '_blank');
+  _marcarConviteEnviado(btn, userId, 'email');
+}
+
+function _marcarConviteEnviado(btn, userId, tipo) {
+  // Salva no localStorage para mostrar notificação
+  const key = 'convite_' + userId + '_' + tipo;
+  localStorage.setItem(key, new Date().toISOString());
+  // Muda visual do botão
+  if (btn) {
+    btn.style.background = '#f0fdf4';
+    btn.style.borderColor = '#22c55e';
+    btn.style.color = '#15803d';
+    btn.innerHTML = tipo === 'whats' ? '✅ Enviado' : '✅ Enviado';
+    // Badge de notificação
+    const badge = document.createElement('span');
+    badge.style.cssText = 'position:absolute;top:-6px;right:-6px;background:#22c55e;color:#fff;border-radius:50%;width:14px;height:14px;font-size:9px;display:grid;place-items:center;font-weight:700';
+    badge.textContent = '✓';
+    btn.style.position = 'relative';
+    btn.appendChild(badge);
+    toast('✅ Convite enviado para ' + (tipo === 'whats' ? 'WhatsApp' : 'e-mail') + '!');
+  }
 }
 
 async function adminExcluirCliente(userId, email, btn) {
@@ -5310,9 +5414,13 @@ async function adminCarregarNovosCadastros() {
       email: u.email || '',
       telefone: telefoneDisplay,
       status,
+      assinatura_ativa: !!assin?.ativa,
+      trial_fim: assin?.trial_fim || null,
+      data_pagamento: dataPagTxt,
+      estudo_segundos: estudoSeg,
+      ultimo_acesso: ultimoAcessoMap[u.id] || null,
       desde: dataEntradaTxt,
       tempo_estudo: estudoFmt,
-      ultimo_acesso: ultimoAcesso,
       pagamento: dataPagTxt
     });
 
@@ -5341,7 +5449,93 @@ async function adminCarregarNovosCadastros() {
     </div>`;
   }).join('');
   // Salva também no _clientesCache para busca
-  _clientesCache = window.adminClientesCache.map(c => ({...c, assinatura_ativa: c.status === '✅ Ativo', trial_fim: null, data_pagamento: c.pagamento}));
+  _clientesCache = window.adminClientesCache.slice();
+
+  // Verifica e dispara envios automáticos semanais
+  _verificarEnviosAutomaticos();
+}
+
+function _verificarEnviosAutomaticos() {
+  const cache = window.adminClientesCache || [];
+  if (!cache.length) return;
+
+  const agora = new Date();
+  const umaSemanaAtras = new Date(agora - 7 * 24 * 60 * 60 * 1000);
+  const pendentes = [];
+
+  cache.forEach(u => {
+    if (u.assinatura_ativa) return; // já assinou, não precisa
+    if (!u.telefone && !u.email) return; // sem contato
+
+    // Verifica último envio salvo
+    const keyW = 'convite_' + u.id + '_whats';
+    const keyE = 'convite_' + u.id + '_email';
+    const ultimoW = localStorage.getItem(keyW);
+    const ultimoE = localStorage.getItem(keyE);
+    const ultimo = ultimoW || ultimoE;
+
+    // Se nunca enviou OU faz mais de 7 dias
+    if (!ultimo || new Date(ultimo) < umaSemanaAtras) {
+      pendentes.push(u);
+    }
+  });
+
+  if (!pendentes.length) return;
+
+  // Mostra aviso no painel
+  const el = document.getElementById('adminListaUsuarios');
+  const aviso = document.createElement('div');
+  aviso.id = 'avisoEnvioAuto';
+  aviso.style.cssText = 'background:linear-gradient(135deg,#eff6ff,#f0fdf4);border:1px solid #bfdbfe;border-radius:12px;padding:14px;margin-bottom:14px;display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap';
+  aviso.innerHTML = `
+    <div>
+      <div style="font-size:13px;font-weight:700;color:#1e40af">🤖 Envio automático semanal</div>
+      <div style="font-size:12px;color:#374151;margin-top:2px">${pendentes.length} cliente(s) não receberam convite nos últimos 7 dias.</div>
+    </div>
+    <div style="display:flex;gap:6px;flex-wrap:wrap">
+      <button onclick="_enviarAutomaticoTodos()" style="background:#2563eb;color:#fff;border:none;padding:7px 14px;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;width:auto">
+        🚀 Enviar para todos (${pendentes.length})
+      </button>
+      <button onclick="this.closest('#avisoEnvioAuto').remove()" style="background:#f1f5f9;color:#64748b;border:none;padding:7px 14px;border-radius:8px;font-size:12px;cursor:pointer;width:auto">
+        Ignorar
+      </button>
+    </div>`;
+  if (el) el.insertBefore(aviso, el.firstChild);
+
+  window._pendentesEnvio = pendentes;
+}
+
+async function _enviarAutomaticoTodos() {
+  const pendentes = window._pendentesEnvio || [];
+  if (!pendentes.length) return;
+
+  document.getElementById('avisoEnvioAuto')?.remove();
+  let enviados = 0;
+
+  for (const u of pendentes) {
+    const tel = (u.telefone || '').replace(/\D/g,'');
+    const nome = u.nome || '';
+
+    if (tel.length >= 10) {
+      // Abre WhatsApp para cada um com pequeno delay
+      await new Promise(r => setTimeout(r, 800));
+      const msg = encodeURIComponent('Olá' + (nome ? ', ' + nome.split(' ')[0] : '') + '! 👋\n\nVi que você explorou o Vou Estudar+ e queria te convidar para continuar com acesso completo.\n\n🎯 Por apenas R$15/mês:\n✅ Plano de estudos com IA\n✅ Flashcards e simulados\n✅ Progresso por matéria\n\nGarante agora: https://vouestudarmais.com.br 🚀');
+      window.open('https://wa.me/55' + tel + '?text=' + msg, '_blank');
+      localStorage.setItem('convite_' + u.id + '_whats', new Date().toISOString());
+      enviados++;
+    } else if (u.email) {
+      const assunto = encodeURIComponent('🎯 Seu acesso ao Vou Estudar+ está esperando!');
+      const corpo = encodeURIComponent('Olá' + (nome ? ', ' + nome.split(' ')[0] : '') + '!\n\nPor apenas R$15/mês você tem acesso completo ao Vou Estudar+.\n\nAcesse: https://vouestudarmais.com.br');
+      window.open('mailto:' + u.email + '?subject=' + assunto + '&body=' + corpo, '_blank');
+      localStorage.setItem('convite_' + u.id + '_email', new Date().toISOString());
+      enviados++;
+    }
+  }
+
+  toast('✅ ' + enviados + ' convite(s) enviado(s)! Próximo envio em 7 dias.');
+
+  // Atualiza visual dos botões na lista
+  setTimeout(() => adminCarregarUsuarios(), 1000);
 }
 
 async function adminEnviarEmail(email) {
