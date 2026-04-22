@@ -1180,193 +1180,177 @@ body{font-family:'Plus Jakarta Sans',sans-serif;-webkit-font-smoothing:antialias
 
       <!-- ─── DASHBOARD ─── -->
       <div class="tab-page active" id="tab-dashboard">
-        <div class="hero">
+
+        <!-- HERO -->
+        <div style="background:linear-gradient(135deg,#0f172a 0%,#1e1b4b 100%);border-radius:20px;padding:20px 22px;margin-bottom:14px;display:flex;justify-content:space-between;align-items:center;gap:12px;position:relative;overflow:hidden">
+          <div style="position:absolute;top:-20px;right:-20px;width:120px;height:120px;background:radial-gradient(circle,rgba(99,102,241,0.2),transparent);border-radius:50%"></div>
           <div>
-            <h1>Olá, <span id="helloName" style="color:#3b82f6">Estudante</span> 👋</h1>
-            <p style="color:rgba(255,255,255,0.45)">Aqui está seu resumo de hoje.</p>
+            <div style="font-size:13px;color:rgba(255,255,255,0.45);margin-bottom:4px">Bora estudar e garantir sua aprovação! 🚀</div>
+            <h1 style="font-size:22px;font-weight:800;color:#fff;margin:0">Olá, <span id="helloName" style="color:#818cf8">Estudante</span>! 👋</h1>
           </div>
-          <div class="goal-card">
-            <div class="goal-icon">🏆</div>
-            <div style="flex:1">
-              <strong style="font-size:14px">Meta do mês</strong>
-              <div id="metaText" style="color:var(--muted);font-size:13px;margin-top:2px">Sem meta definida</div>
-              <div class="progress-bar"><div id="metaBar" style="width:0%"></div></div>
-              <div style="font-size:12px;color:var(--muted)" id="metaPct">0%</div>
-            </div>
+          <div style="text-align:right;flex-shrink:0">
+            <div style="font-size:10px;color:rgba(255,255,255,0.35);text-transform:uppercase;letter-spacing:1px">Meta do mês</div>
+            <div style="font-size:20px;font-weight:800;color:#818cf8" id="metaPct">0%</div>
+            <div id="metaText" style="font-size:11px;color:rgba(255,255,255,0.35)">Sem meta</div>
           </div>
         </div>
+        <div style="display:none"><div class="progress-bar"><div id="metaBar" style="width:0%"></div></div></div>
 
-        <!-- ═══ GAUGE + BANNER PERFORMANCE ═══ -->
-        <div style="background:#1a1a2e;border-radius:18px;padding:18px;margin-bottom:16px;display:grid;grid-template-columns:auto 1fr;gap:16px;align-items:center">
-          <!-- Gauge circular -->
-          <div style="position:relative;width:110px;height:110px;flex-shrink:0">
-            <canvas id="gaugePreparacao" width="110" height="110"></canvas>
+        <!-- GAUGE + STATUS -->
+        <div style="background:linear-gradient(135deg,#0f172a,#1e1b4b);border-radius:20px;padding:20px;margin-bottom:14px;display:flex;align-items:center;gap:20px;border:1px solid rgba(99,102,241,0.15)">
+          <div style="position:relative;width:100px;height:100px;flex-shrink:0">
+            <canvas id="gaugePreparacao" width="100" height="100"></canvas>
             <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center">
-              <div style="font-size:22px;font-weight:800;color:#fff" id="gaugePct">0%</div>
-              <div style="font-size:9px;color:rgba(255,255,255,0.4);font-weight:700;letter-spacing:1px">PREPARADO</div>
+              <div style="font-size:20px;font-weight:800;color:#fff;line-height:1" id="gaugePct">0%</div>
+              <div style="font-size:8px;color:rgba(255,255,255,0.35);font-weight:700;letter-spacing:.8px;margin-top:2px">PREPARADO</div>
             </div>
           </div>
-          <!-- Info direita -->
-          <div>
-            <div style="font-size:11px;color:rgba(255,255,255,0.4);margin-bottom:4px">Se continuar assim:</div>
-            <div style="font-size:15px;font-weight:800;color:#ef4444" id="gaugeStatus">Chance de reprovação ALTA</div>
-            <div style="font-size:12px;color:rgba(255,255,255,0.5);margin-top:6px" id="gaugeVariacao">⬇️ Carregando...</div>
-            <div style="margin-top:10px;background:rgba(255,255,255,0.07);border-radius:8px;padding:8px 12px;font-size:12px;color:rgba(255,255,255,0.6)">
-              🏆 Você está melhor que <span style="color:#22c55e;font-weight:700" id="gaugeRanking">—</span> dos usuários
+          <div style="flex:1">
+            <div style="font-size:10px;color:rgba(255,255,255,0.35);text-transform:uppercase;letter-spacing:.8px;margin-bottom:4px">Se continuar assim:</div>
+            <div style="font-size:16px;font-weight:800;margin-bottom:6px" id="gaugeStatus">—</div>
+            <div style="font-size:11px;color:rgba(255,255,255,0.4);margin-bottom:10px" id="gaugeVariacao">Carregando...</div>
+            <div style="display:inline-flex;align-items:center;gap:6px;background:rgba(34,197,94,0.1);border:1px solid rgba(34,197,94,0.2);border-radius:8px;padding:5px 10px;font-size:11px;color:rgba(255,255,255,0.5)">
+              🏆 Melhor que <strong style="color:#22c55e;margin:0 3px" id="gaugeRanking">—</strong> dos usuários
             </div>
           </div>
         </div>
 
-        <!-- ═══ HOJE VOCÊ PRECISA ═══ -->
-        <div style="background:#1a1a2e;border-radius:18px;padding:16px;margin-bottom:16px">
-          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
-            <div style="font-size:13px;font-weight:800;color:#fff;display:flex;align-items:center;gap:8px">
-              📅 HOJE VOCÊ PRECISA
+        <!-- HOJE VOCÊ PRECISA -->
+        <div style="background:linear-gradient(135deg,#0f172a,#0c1a3a);border-radius:20px;padding:20px;margin-bottom:14px;border:1px solid rgba(59,130,246,0.15)">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
+            <div style="font-size:12px;font-weight:800;color:#fff;letter-spacing:.5px;display:flex;align-items:center;gap:8px">
+              <span style="background:rgba(59,130,246,0.2);width:28px;height:28px;border-radius:8px;display:grid;place-items:center">📅</span>
+              HOJE VOCÊ PRECISA
             </div>
-            <div style="font-size:12px;color:#3b82f6;font-weight:600">Tempo total: <span id="planoDiaTempo">0 min</span></div>
+            <div style="font-size:11px;color:#60a5fa;font-weight:600;background:rgba(59,130,246,0.1);padding:4px 10px;border-radius:20px">⏱ <span id="planoDiaTempo">0 min</span></div>
           </div>
           <div id="planoDiaLista"></div>
-          <button onclick="goTab('planointeligente')" style="width:100%;margin-top:12px;padding:14px;background:linear-gradient(135deg,#22c55e,#16a34a);color:#fff;border:none;border-radius:12px;font-size:15px;font-weight:800;cursor:pointer;letter-spacing:.5px">
+          <button onclick="goTab('planointeligente')" style="width:100%;margin-top:14px;padding:15px;background:linear-gradient(135deg,#22c55e,#16a34a);color:#fff;border:none;border-radius:14px;font-size:14px;font-weight:800;cursor:pointer;letter-spacing:1px;box-shadow:0 4px 20px rgba(34,197,94,0.25)">
             COMEÇAR AGORA ▶
           </button>
         </div>
 
-        <!-- ═══ DESEMPENHO ═══ -->
-        <div style="background:#1a1a2e;border-radius:18px;padding:16px;margin-bottom:16px">
-          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
-            <div style="font-size:13px;font-weight:800;color:#fff">📊 SEU DESEMPENHO</div>
-            <span onclick="goTab('materias')" style="font-size:12px;color:#3b82f6;cursor:pointer;font-weight:600">Ver todas</span>
+        <!-- DESEMPENHO -->
+        <div style="background:linear-gradient(135deg,#0f172a,#1a1a2e);border-radius:20px;padding:20px;margin-bottom:14px;border:1px solid rgba(139,92,246,0.12)">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+            <div style="font-size:12px;font-weight:800;color:#fff;letter-spacing:.5px;display:flex;align-items:center;gap:8px">
+              <span style="background:rgba(139,92,246,0.2);width:28px;height:28px;border-radius:8px;display:grid;place-items:center">📊</span>
+              SEU DESEMPENHO
+            </div>
+            <span onclick="goTab('materias')" style="font-size:11px;color:#818cf8;cursor:pointer;font-weight:600;background:rgba(99,102,241,0.1);padding:4px 10px;border-radius:20px">Ver todas →</span>
           </div>
           <div id="desempenhoDash"></div>
-          <div id="desempenhoFraco" style="margin-top:10px;background:rgba(59,130,246,0.1);border:1px solid rgba(59,130,246,0.2);border-radius:10px;padding:10px 12px;font-size:12px;color:#93c5fd;display:none">
-            🎯 Você está fraco em <span style="color:#f59e0b;font-weight:700" id="desempenhoFracoNome"></span> &nbsp;→
+          <div id="desempenhoFraco" style="margin-top:12px;background:rgba(245,158,11,0.08);border:1px solid rgba(245,158,11,0.2);border-radius:10px;padding:10px 14px;font-size:12px;color:rgba(255,255,255,0.5);display:none;cursor:pointer" onclick="goTab('materias')">
+            🎯 Você está fraco em <strong style="color:#f59e0b" id="desempenhoFracoNome"></strong> — clique para estudar →
           </div>
         </div>
 
-        <!-- ═══ SEQUÊNCIA + PREVISÃO ═══ -->
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px">
-          <div style="background:#1a1a2e;border-radius:18px;padding:16px">
-            <div style="font-size:12px;font-weight:800;color:#fff;margin-bottom:8px">SEQUÊNCIA 🔥</div>
-            <div style="font-size:36px;font-weight:800;color:#22c55e" id="sequenciaDias">0</div>
-            <div style="font-size:12px;color:rgba(255,255,255,0.5)">dias seguidos estudando</div>
-            <div style="margin-top:8px;font-size:11px;color:#f59e0b;font-weight:600" id="sequenciaAviso">⚠️ Não perca hoje!</div>
+        <!-- SEQUÊNCIA + PREVISÃO -->
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px">
+          <div style="background:linear-gradient(135deg,#0a1f0a,#0f2a0f);border-radius:20px;padding:18px;border:1px solid rgba(34,197,94,0.15)">
+            <div style="font-size:10px;font-weight:800;color:rgba(255,255,255,0.4);letter-spacing:1px;margin-bottom:8px">SEQUÊNCIA 🔥</div>
+            <div style="font-size:44px;font-weight:900;color:#22c55e;line-height:1" id="sequenciaDias">0</div>
+            <div style="font-size:11px;color:rgba(255,255,255,0.35);margin-top:4px">dias seguidos</div>
+            <div style="margin-top:10px;font-size:11px;font-weight:700;padding:5px 10px;border-radius:8px;display:inline-block;background:rgba(245,158,11,0.15);color:#f59e0b" id="sequenciaAviso">⚠️ Não perca hoje!</div>
           </div>
-          <div style="background:#1a1a2e;border-radius:18px;padding:16px">
-            <div style="font-size:12px;font-weight:800;color:#fff;margin-bottom:10px">PREVISÃO DE APROVAÇÃO</div>
-            <div id="previsaoAprovacao">
-              <div style="display:flex;align-items:center;gap:6px;margin-bottom:6px;font-size:12px">
-                <span style="color:#ef4444;font-size:14px">✗</span>
-                <span style="color:rgba(255,255,255,0.5)">Se continuar assim:</span>
-                <span style="color:#ef4444;font-weight:700" id="previsaoNegativa">Não passa</span>
+          <div style="background:linear-gradient(135deg,#0f172a,#1a1a2e);border-radius:20px;padding:18px;border:1px solid rgba(255,255,255,0.05)">
+            <div style="font-size:10px;font-weight:800;color:rgba(255,255,255,0.4);letter-spacing:1px;margin-bottom:12px">PREVISÃO 📈</div>
+            <div style="display:flex;flex-direction:column;gap:8px">
+              <div style="display:flex;align-items:center;gap:8px;background:rgba(239,68,68,0.08);border-radius:8px;padding:7px 10px">
+                <span style="color:#ef4444;font-size:16px">✗</span>
+                <div><div style="font-size:9px;color:rgba(255,255,255,0.3)">Se continuar assim</div><div style="font-size:12px;font-weight:700;color:#ef4444" id="previsaoNegativa">Não passa</div></div>
               </div>
-              <div style="display:flex;align-items:center;gap:6px;font-size:12px">
-                <span style="color:#22c55e;font-size:14px">✓</span>
-                <span style="color:rgba(255,255,255,0.5)">Se estudar hoje:</span>
-                <span style="color:#fff;font-weight:700">Pode chegar a <span style="color:#22c55e" id="previsaoPositiva">—</span></span>
+              <div style="display:flex;align-items:center;gap:8px;background:rgba(34,197,94,0.08);border-radius:8px;padding:7px 10px">
+                <span style="color:#22c55e;font-size:16px">✓</span>
+                <div><div style="font-size:9px;color:rgba(255,255,255,0.3)">Se estudar hoje</div><div style="font-size:12px;font-weight:700;color:#22c55e">Chega a <span id="previsaoPositiva">—</span></div></div>
               </div>
             </div>
           </div>
         </div>
 
-        <!-- ═══ FAZER SIMULADO ═══ -->
-        <div onclick="goTab('planointeligente')" style="background:#1a1a2e;border-radius:18px;padding:16px;margin-bottom:16px;display:flex;align-items:center;gap:14px;cursor:pointer">
-          <div style="width:44px;height:44px;border-radius:12px;background:rgba(59,130,246,0.2);display:grid;place-items:center;font-size:22px;flex-shrink:0">📋</div>
+        <!-- LEMBRETES -->
+        <div style="background:linear-gradient(135deg,#0f172a,#1a1a2e);border-radius:20px;padding:20px;margin-bottom:14px;border:1px solid rgba(251,146,60,0.1)">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
+            <div style="font-size:12px;font-weight:800;color:#fff;letter-spacing:.5px;display:flex;align-items:center;gap:8px">
+              <span style="background:rgba(251,146,60,0.2);width:28px;height:28px;border-radius:8px;display:grid;place-items:center">🔔</span>
+              LEMBRETES
+            </div>
+            <button onclick="abrirModalLembrete()" style="font-size:11px;background:rgba(99,102,241,0.15);color:#818cf8;border:1px solid rgba(99,102,241,0.25);padding:5px 12px;border-radius:20px;cursor:pointer;font-weight:600;width:auto">+ Novo</button>
+          </div>
+          <div id="listaLembretes"><div style="text-align:center;padding:16px;color:rgba(255,255,255,0.2);font-size:13px">🔔 Nenhum lembrete ainda</div></div>
+        </div>
+
+        <!-- FAZER SIMULADO -->
+        <div onclick="goTab('planointeligente')" style="background:linear-gradient(135deg,#1e1b4b,#0f2a4a);border-radius:20px;padding:18px;margin-bottom:14px;display:flex;align-items:center;gap:14px;cursor:pointer;border:1px solid rgba(99,102,241,0.2)">
+          <div style="width:48px;height:48px;border-radius:14px;background:linear-gradient(135deg,rgba(99,102,241,0.3),rgba(59,130,246,0.2));display:grid;place-items:center;font-size:24px;flex-shrink:0">📋</div>
           <div style="flex:1">
-            <div style="font-size:14px;font-weight:700;color:#fff">FAZER SIMULADO</div>
-            <div style="font-size:12px;color:rgba(255,255,255,0.4)">Teste seus conhecimentos</div>
+            <div style="font-size:14px;font-weight:800;color:#fff">FAZER SIMULADO</div>
+            <div style="font-size:12px;color:rgba(255,255,255,0.35);margin-top:2px">Teste seus conhecimentos agora</div>
           </div>
-          <div style="color:rgba(255,255,255,0.3);font-size:18px">›</div>
+          <div style="width:32px;height:32px;border-radius:50%;background:rgba(99,102,241,0.15);display:grid;place-items:center;color:#818cf8;font-size:20px">›</div>
         </div>
 
-
-          <div class="card stat-card">
-            <div class="stat-icon blue-soft">📖</div>
-            <div>
-              <div class="stat-label">Matérias</div>
-              <div class="stat-value" id="statMaterias">0</div>
-              <div class="stat-sub">cadastradas</div>
-            </div>
+        <!-- STATS MINI -->
+        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:14px">
+          <div style="background:#0f172a;border-radius:16px;padding:14px 10px;text-align:center;border:1px solid rgba(59,130,246,0.12)">
+            <div style="font-size:18px;margin-bottom:6px">📖</div>
+            <div style="font-size:20px;font-weight:800;color:#60a5fa" id="statMaterias">0</div>
+            <div style="font-size:10px;color:rgba(255,255,255,0.25);margin-top:3px">Matérias</div>
           </div>
-          <div class="card stat-card">
-            <div class="stat-icon green-soft">📝</div>
-            <div>
-              <div class="stat-label">Notas</div>
-              <div class="stat-value" id="statNotas">0</div>
-              <div class="stat-sub">criadas</div>
-            </div>
+          <div style="background:#0f172a;border-radius:16px;padding:14px 10px;text-align:center;border:1px solid rgba(34,197,94,0.12)">
+            <div style="font-size:18px;margin-bottom:6px">📝</div>
+            <div style="font-size:20px;font-weight:800;color:#4ade80" id="statNotas">0</div>
+            <div style="font-size:10px;color:rgba(255,255,255,0.25);margin-top:3px">Notas</div>
           </div>
-          <div class="card stat-card">
-            <div class="stat-icon orange-soft">🗓️</div>
-            <div>
-              <div class="stat-label">Planos</div>
-              <div class="stat-value" id="statPlanos">0</div>
-              <div class="stat-sub">salvos</div>
-            </div>
+          <div style="background:#0f172a;border-radius:16px;padding:14px 10px;text-align:center;border:1px solid rgba(251,146,60,0.12)">
+            <div style="font-size:18px;margin-bottom:6px">🗓️</div>
+            <div style="font-size:20px;font-weight:800;color:#fb923c" id="statPlanos">0</div>
+            <div style="font-size:10px;color:rgba(255,255,255,0.25);margin-top:3px">Planos</div>
           </div>
-          <div class="card stat-card">
-            <div class="stat-icon red-soft">🎯</div>
-            <div>
-              <div class="stat-label">Progresso</div>
-              <div class="stat-value" id="statProgresso">0%</div>
-              <div class="stat-sub">médio</div>
-            </div>
+          <div style="background:#0f172a;border-radius:16px;padding:14px 10px;text-align:center;border:1px solid rgba(167,139,250,0.12)">
+            <div style="font-size:18px;margin-bottom:6px">🎯</div>
+            <div style="font-size:20px;font-weight:800;color:#a78bfa" id="statProgresso">0%</div>
+            <div style="font-size:10px;color:rgba(255,255,255,0.25);margin-top:3px">Progresso</div>
           </div>
         </div>
 
-        <!-- ─── LEMBRETES ─── -->
-        <div class="card card-pad" style="margin-bottom:18px">
-          <div class="card-head">
-            <h3>🔔 Lembretes</h3>
-            <button class="mini-btn" style="width:auto" onclick="abrirModalLembrete()">➕ Novo</button>
+        <!-- GRÁFICO + NOTAS -->
+        <div class="grid-2" style="margin-bottom:14px">
+          <div style="background:#0f172a;border-radius:20px;padding:18px;border:1px solid rgba(255,255,255,0.05)">
+            <div style="font-size:12px;font-weight:700;color:rgba(255,255,255,0.5);margin-bottom:14px">📊 Progresso por Matéria</div>
+            <div id="chartWrap" style="position:relative;width:100%"><canvas id="chartMaterias"></canvas></div>
           </div>
-          <div id="listaLembretes">
-            <div class="empty-state"><div class="empty-icon">🔔</div>Nenhum lembrete ainda.</div>
-          </div>
-        </div>
-
-        <div class="grid-2">
-          <div class="card card-pad">
-            <div class="card-head">
-              <h3>📊 Progresso por Matéria</h3>
-            </div>
-            <div id="chartWrap" style="position:relative;width:100%">
-              <canvas id="chartMaterias" role="img" aria-label="Gráfico de progresso por matéria"></canvas>
-            </div>
-          </div>
-          <div class="card card-pad">
-            <div class="card-head">
-              <h3>📝 Últimas Notas</h3>
-              <span class="link-action" onclick="goTab('notas')">Ver todas →</span>
+          <div style="background:#0f172a;border-radius:20px;padding:18px;border:1px solid rgba(255,255,255,0.05)">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
+              <div style="font-size:12px;font-weight:700;color:rgba(255,255,255,0.5)">📝 Últimas Notas</div>
+              <span onclick="goTab('notas')" style="font-size:11px;color:#818cf8;cursor:pointer">Ver todas →</span>
             </div>
             <div id="dashNotas"></div>
           </div>
         </div>
 
-        <!-- Histórico de Estudo no Dashboard -->
-        <div class="card card-pad" style="margin-top:18px">
-          <div class="card-head">
-            <h3>📈 Histórico de Estudo</h3>
-            <span class="link-action" onclick="goTab('materias')">Ir para matérias →</span>
+        <!-- HISTÓRICO -->
+        <div style="background:#0f172a;border-radius:20px;padding:18px;margin-bottom:14px;border:1px solid rgba(255,255,255,0.05)">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
+            <div style="font-size:12px;font-weight:700;color:rgba(255,255,255,0.5)">📈 Histórico de Estudo</div>
+            <span onclick="goTab('materias')" style="font-size:11px;color:#818cf8;cursor:pointer">Ir para matérias →</span>
           </div>
-          <div id="historicoEstudo">
-            <div class="empty-state"><div class="empty-icon">⏱️</div>Clique em uma matéria para iniciar o cronômetro!</div>
-          </div>
+          <div id="historicoEstudo"><div style="text-align:center;padding:16px;color:rgba(255,255,255,0.2);font-size:13px">⏱️ Clique em uma matéria para iniciar!</div></div>
         </div>
 
-        <!-- ══ FEEDBACK IA POR MATÉRIA ══ -->
-        <div class="card card-pad" style="margin-top:18px" id="cardFeedbackIA">
-          <div class="card-head">
-            <h3>🤖 Análise por Matéria</h3>
-            <button class="mini-btn" style="width:auto;background:linear-gradient(135deg,#2563eb,#7c3aed);color:#fff;border:none" onclick="gerarFeedbackIA()" id="btnFeedbackIA">✨ Gerar análise</button>
+        <!-- FEEDBACK IA -->
+        <div style="background:#0f172a;border-radius:20px;padding:18px;margin-bottom:14px;border:1px solid rgba(99,102,241,0.1)" id="cardFeedbackIA">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
+            <div style="font-size:12px;font-weight:700;color:rgba(255,255,255,0.5)">🤖 Análise por Matéria</div>
+            <button onclick="gerarFeedbackIA()" id="btnFeedbackIA" style="font-size:11px;background:linear-gradient(135deg,#2563eb,#7c3aed);color:#fff;border:none;padding:6px 14px;border-radius:20px;cursor:pointer;font-weight:600;width:auto">✨ Gerar análise</button>
           </div>
-          <div id="feedbackIAConteudo">
-            <div class="empty-state"><div class="empty-icon">🤖</div>Clique em "Gerar análise" para receber um diagnóstico personalizado de cada matéria.</div>
-          </div>
+          <div id="feedbackIAConteudo"><div style="text-align:center;padding:16px;color:rgba(255,255,255,0.2);font-size:13px">🤖 Clique em "Gerar análise" para diagnóstico personalizado.</div></div>
         </div>
+
       </div>
 
       <!-- ─── MODAL ESCOLHER MATÉRIA ─── -->
-      <div id="modalEscolherMateria" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:9999;align-items:center;justify-content:center">
+      <div id="modalEscolherMateria" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:9999;align-items:center;justify-content:center">
         <div class="card card-pad" style="width:100%;max-width:420px;margin:20px">
           <div class="card-head"><h3>⏱️ Iniciar Cronômetro</h3></div>
           <p style="font-size:13px;color:var(--muted);margin-bottom:12px">Plano: <strong id="tituloPlanoEscolha"></strong></p>
@@ -1380,7 +1364,7 @@ body{font-family:'Plus Jakarta Sans',sans-serif;-webkit-font-smoothing:antialias
       </div>
 
       <!-- ─── MODAL LEMBRETE ─── -->
-      <div id="modalLembrete" class="hidden" style="position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:9999;align-items:center;justify-content:center">
+      <div id="modalLembrete" class="hidden" style="position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:9999;align-items:center;justify-content:center">
         <div class="card card-pad" style="width:100%;max-width:420px;margin:20px">
           <div class="card-head"><h3>🔔 Novo Lembrete</h3><button class="btn-secondary mini-btn" style="width:auto" onclick="fecharModalLembrete()">✕</button></div>
           <input type="text" id="lembreteTexto" placeholder="Ex: Revisar Direito Penal" style="margin-bottom:10px" />
