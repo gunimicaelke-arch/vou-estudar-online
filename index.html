@@ -1196,7 +1196,89 @@ body{font-family:'Plus Jakarta Sans',sans-serif;-webkit-font-smoothing:antialias
           </div>
         </div>
 
-        <div class="stats-grid">
+        <!-- ═══ GAUGE + BANNER PERFORMANCE ═══ -->
+        <div style="background:#1a1a2e;border-radius:18px;padding:18px;margin-bottom:16px;display:grid;grid-template-columns:auto 1fr;gap:16px;align-items:center">
+          <!-- Gauge circular -->
+          <div style="position:relative;width:110px;height:110px;flex-shrink:0">
+            <canvas id="gaugePreparacao" width="110" height="110"></canvas>
+            <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center">
+              <div style="font-size:22px;font-weight:800;color:#fff" id="gaugePct">0%</div>
+              <div style="font-size:9px;color:rgba(255,255,255,0.4);font-weight:700;letter-spacing:1px">PREPARADO</div>
+            </div>
+          </div>
+          <!-- Info direita -->
+          <div>
+            <div style="font-size:11px;color:rgba(255,255,255,0.4);margin-bottom:4px">Se continuar assim:</div>
+            <div style="font-size:15px;font-weight:800;color:#ef4444" id="gaugeStatus">Chance de reprovação ALTA</div>
+            <div style="font-size:12px;color:rgba(255,255,255,0.5);margin-top:6px" id="gaugeVariacao">⬇️ Carregando...</div>
+            <div style="margin-top:10px;background:rgba(255,255,255,0.07);border-radius:8px;padding:8px 12px;font-size:12px;color:rgba(255,255,255,0.6)">
+              🏆 Você está melhor que <span style="color:#22c55e;font-weight:700" id="gaugeRanking">—</span> dos usuários
+            </div>
+          </div>
+        </div>
+
+        <!-- ═══ HOJE VOCÊ PRECISA ═══ -->
+        <div style="background:#1a1a2e;border-radius:18px;padding:16px;margin-bottom:16px">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+            <div style="font-size:13px;font-weight:800;color:#fff;display:flex;align-items:center;gap:8px">
+              📅 HOJE VOCÊ PRECISA
+            </div>
+            <div style="font-size:12px;color:#3b82f6;font-weight:600">Tempo total: <span id="planoDiaTempo">0 min</span></div>
+          </div>
+          <div id="planoDiaLista"></div>
+          <button onclick="goTab('planointeligente')" style="width:100%;margin-top:12px;padding:14px;background:linear-gradient(135deg,#22c55e,#16a34a);color:#fff;border:none;border-radius:12px;font-size:15px;font-weight:800;cursor:pointer;letter-spacing:.5px">
+            COMEÇAR AGORA ▶
+          </button>
+        </div>
+
+        <!-- ═══ DESEMPENHO ═══ -->
+        <div style="background:#1a1a2e;border-radius:18px;padding:16px;margin-bottom:16px">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
+            <div style="font-size:13px;font-weight:800;color:#fff">📊 SEU DESEMPENHO</div>
+            <span onclick="goTab('materias')" style="font-size:12px;color:#3b82f6;cursor:pointer;font-weight:600">Ver todas</span>
+          </div>
+          <div id="desempenhoDash"></div>
+          <div id="desempenhoFraco" style="margin-top:10px;background:rgba(59,130,246,0.1);border:1px solid rgba(59,130,246,0.2);border-radius:10px;padding:10px 12px;font-size:12px;color:#93c5fd;display:none">
+            🎯 Você está fraco em <span style="color:#f59e0b;font-weight:700" id="desempenhoFracoNome"></span> &nbsp;→
+          </div>
+        </div>
+
+        <!-- ═══ SEQUÊNCIA + PREVISÃO ═══ -->
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px">
+          <div style="background:#1a1a2e;border-radius:18px;padding:16px">
+            <div style="font-size:12px;font-weight:800;color:#fff;margin-bottom:8px">SEQUÊNCIA 🔥</div>
+            <div style="font-size:36px;font-weight:800;color:#22c55e" id="sequenciaDias">0</div>
+            <div style="font-size:12px;color:rgba(255,255,255,0.5)">dias seguidos estudando</div>
+            <div style="margin-top:8px;font-size:11px;color:#f59e0b;font-weight:600" id="sequenciaAviso">⚠️ Não perca hoje!</div>
+          </div>
+          <div style="background:#1a1a2e;border-radius:18px;padding:16px">
+            <div style="font-size:12px;font-weight:800;color:#fff;margin-bottom:10px">PREVISÃO DE APROVAÇÃO</div>
+            <div id="previsaoAprovacao">
+              <div style="display:flex;align-items:center;gap:6px;margin-bottom:6px;font-size:12px">
+                <span style="color:#ef4444;font-size:14px">✗</span>
+                <span style="color:rgba(255,255,255,0.5)">Se continuar assim:</span>
+                <span style="color:#ef4444;font-weight:700" id="previsaoNegativa">Não passa</span>
+              </div>
+              <div style="display:flex;align-items:center;gap:6px;font-size:12px">
+                <span style="color:#22c55e;font-size:14px">✓</span>
+                <span style="color:rgba(255,255,255,0.5)">Se estudar hoje:</span>
+                <span style="color:#fff;font-weight:700">Pode chegar a <span style="color:#22c55e" id="previsaoPositiva">—</span></span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ═══ FAZER SIMULADO ═══ -->
+        <div onclick="goTab('planointeligente')" style="background:#1a1a2e;border-radius:18px;padding:16px;margin-bottom:16px;display:flex;align-items:center;gap:14px;cursor:pointer">
+          <div style="width:44px;height:44px;border-radius:12px;background:rgba(59,130,246,0.2);display:grid;place-items:center;font-size:22px;flex-shrink:0">📋</div>
+          <div style="flex:1">
+            <div style="font-size:14px;font-weight:700;color:#fff">FAZER SIMULADO</div>
+            <div style="font-size:12px;color:rgba(255,255,255,0.4)">Teste seus conhecimentos</div>
+          </div>
+          <div style="color:rgba(255,255,255,0.3);font-size:18px">›</div>
+        </div>
+
+
           <div class="card stat-card">
             <div class="stat-icon blue-soft">📖</div>
             <div>
@@ -3088,6 +3170,128 @@ function atualizarDashboard() {
 
   // Gráfico
   renderChart();
+
+  // Novos blocos visuais
+  atualizarDashboardExtra(progMedio);
+}
+
+function atualizarDashboardExtra(progMedio) {
+  if (!document.getElementById('gaugePreparacao')) return;
+
+  // ── GAUGE circular ──
+  const canvas = document.getElementById('gaugePreparacao');
+  if (canvas) {
+    const ctx = canvas.getContext('2d');
+    const W = canvas.width, H = canvas.height, cx = W/2, cy = H/2, r = 44;
+    ctx.clearRect(0,0,W,H);
+    // Fundo
+    ctx.beginPath(); ctx.arc(cx,cy,r,Math.PI*0.75,Math.PI*2.25);
+    ctx.strokeStyle='rgba(255,255,255,0.08)'; ctx.lineWidth=10; ctx.lineCap='round'; ctx.stroke();
+    // Progresso
+    const cor = progMedio>=70?'#22c55e':progMedio>=40?'#f59e0b':'#ef4444';
+    const angFim = Math.PI*0.75 + (Math.PI*1.5)*(progMedio/100);
+    ctx.beginPath(); ctx.arc(cx,cy,r,Math.PI*0.75,angFim);
+    ctx.strokeStyle=cor; ctx.lineWidth=10; ctx.lineCap='round'; ctx.stroke();
+    document.getElementById('gaugePct').textContent = progMedio+'%';
+    document.getElementById('gaugePct').style.color = cor;
+  }
+
+  // Status preparação
+  const statusEl = document.getElementById('gaugeStatus');
+  const varEl = document.getElementById('gaugeVariacao');
+  if (statusEl) {
+    if (progMedio>=70) { statusEl.textContent='✅ Boa chance de aprovação!'; statusEl.style.color='#22c55e'; }
+    else if (progMedio>=40) { statusEl.textContent='⚠️ Chance de aprovação MÉDIA'; statusEl.style.color='#f59e0b'; }
+    else { statusEl.textContent='Chance de reprovação ALTA'; statusEl.style.color='#ef4444'; }
+  }
+  if (varEl) {
+    const anterior = parseInt(localStorage.getItem('vs_prog_anterior')||'0');
+    const diff = progMedio - anterior;
+    if (diff > 0) varEl.textContent = '⬆️ Você subiu '+diff+'% desde ontem';
+    else if (diff < 0) varEl.textContent = '⬇️ Você caiu '+Math.abs(diff)+'% desde ontem';
+    else varEl.textContent = '➡️ Mesmo progresso de ontem';
+    // Salva para próxima comparação
+    const hoje = new Date().toDateString();
+    if (localStorage.getItem('vs_prog_data') !== hoje) {
+      localStorage.setItem('vs_prog_anterior', progMedio);
+      localStorage.setItem('vs_prog_data', hoje);
+    }
+  }
+  // Ranking fictício baseado no progresso
+  const ranking = document.getElementById('gaugeRanking');
+  if (ranking) ranking.textContent = Math.min(99, Math.round(progMedio * 0.9 + 10)) + '%';
+
+  // ── DESEMPENHO por matéria ──
+  const desEl = document.getElementById('desempenhoDash');
+  if (desEl && materias.length) {
+    desEl.innerHTML = materias.slice(0,5).map(m => {
+      const p = m.progresso||0;
+      const cor = m.cor||'#2563eb';
+      return `<div style="margin-bottom:10px">
+        <div style="display:flex;justify-content:space-between;margin-bottom:4px">
+          <span style="font-size:13px;color:#fff;font-weight:500">${m.nome}</span>
+          <span style="font-size:13px;font-weight:700;color:${cor}">${p}%</span>
+        </div>
+        <div style="height:6px;background:rgba(255,255,255,0.08);border-radius:4px">
+          <div style="height:6px;border-radius:4px;width:${p}%;background:${cor};transition:width .5s"></div>
+        </div>
+      </div>`;
+    }).join('');
+    // Matéria mais fraca
+    const fraca = [...materias].sort((a,b)=>(a.progresso||0)-(b.progresso||0))[0];
+    const fracoEl = document.getElementById('desempenhoFraco');
+    const fracoNome = document.getElementById('desempenhoFracoNome');
+    if (fraca && fracoEl && fracoNome) {
+      fracoEl.style.display='block';
+      fracoNome.textContent = fraca.nome;
+    }
+  } else if (desEl) {
+    desEl.innerHTML = '<div style="font-size:13px;color:rgba(255,255,255,0.4);text-align:center;padding:12px">Cadastre matérias para ver seu desempenho</div>';
+  }
+
+  // ── PLANO DO DIA ──
+  const planoDia = document.getElementById('planoDiaLista');
+  const planoDiaTempo = document.getElementById('planoDiaTempo');
+  if (planoDia && materias.length) {
+    const top3 = [...materias].sort((a,b)=>(a.progresso||0)-(b.progresso||0)).slice(0,3);
+    const minutos = [20,15,10];
+    let totalMin = 0;
+    planoDia.innerHTML = top3.map((m,i) => {
+      totalMin += minutos[i];
+      const feito = (m.progresso||0) > 50;
+      return `<div style="display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid rgba(255,255,255,0.06)">
+        <div style="width:24px;height:24px;border-radius:50%;border:2px solid ${feito?'#22c55e':'rgba(255,255,255,0.2)'};background:${feito?'#22c55e':'transparent'};display:grid;place-items:center;flex-shrink:0">
+          ${feito?'<span style="color:#fff;font-size:12px">✓</span>':''}
+        </div>
+        <div style="flex:1;font-size:14px;color:${feito?'rgba(255,255,255,0.4)':'#fff'};font-weight:${feito?'400':'600'}">${m.nome}</div>
+        <div style="font-size:13px;color:rgba(255,255,255,0.4)">${minutos[i]} min ›</div>
+      </div>`;
+    }).join('');
+    if (planoDiaTempo) planoDiaTempo.textContent = totalMin+' min';
+  } else if (planoDia) {
+    planoDia.innerHTML = '<div style="font-size:13px;color:rgba(255,255,255,0.4);padding:8px 0">Cadastre matérias para ver seu plano do dia</div>';
+  }
+
+  // ── SEQUÊNCIA ──
+  const hoje = new Date().toDateString();
+  const ultimoEstudo = localStorage.getItem('vs_ultimo_estudo');
+  const sequencia = parseInt(localStorage.getItem('vs_sequencia')||'0');
+  const seqEl = document.getElementById('sequenciaDias');
+  const seqAviso = document.getElementById('sequenciaAviso');
+  if (seqEl) seqEl.textContent = sequencia;
+  if (seqAviso) {
+    if (ultimoEstudo === hoje) { seqAviso.textContent='✅ Você já estudou hoje!'; seqAviso.style.color='#22c55e'; }
+    else { seqAviso.textContent='⚠️ Não perca hoje!'; seqAviso.style.color='#f59e0b'; }
+  }
+
+  // ── PREVISÃO DE APROVAÇÃO ──
+  const prevPos = document.getElementById('previsaoPositiva');
+  const prevNeg = document.getElementById('previsaoNegativa');
+  if (prevPos) prevPos.textContent = Math.min(99, progMedio+8)+'%';
+  if (prevNeg) {
+    if (progMedio >= 60) { prevNeg.textContent='Boa chance'; prevNeg.style.color='#22c55e'; }
+    else { prevNeg.textContent='Não passa'; prevNeg.style.color='#ef4444'; }
+  }
 }
 
 function renderChart() {
@@ -4435,6 +4639,17 @@ async function pararEstudo(id) {
   if (display) display.textContent = '--';
 
   if (seg < 5) return;
+
+  // Atualiza sequência de dias
+  const hoje = new Date().toDateString();
+  const ontem = new Date(Date.now()-86400000).toDateString();
+  const ultimoEstudo = localStorage.getItem('vs_ultimo_estudo');
+  let seq = parseInt(localStorage.getItem('vs_sequencia')||'0');
+  if (ultimoEstudo !== hoje) {
+    seq = ultimoEstudo === ontem ? seq+1 : 1;
+    localStorage.setItem('vs_sequencia', seq);
+    localStorage.setItem('vs_ultimo_estudo', hoje);
+  }
 
   // Salva sessão
   await db.from('sessoes_estudo').insert([{
