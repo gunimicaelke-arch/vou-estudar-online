@@ -50,7 +50,7 @@ body{font-family:'Plus Jakarta Sans',sans-serif;-webkit-font-smoothing:antialias
   position:absolute;top:-3px;right:-3px;
   width:11px;height:11px;
   background:linear-gradient(135deg,#fbbf24,#f59e0b);
-  border-radius:50%;border:2px solid #05070f;
+  border-radius:50%;border:2px solid #0d1b4e;
 }
 .lp-logo-name{
   font-size:18px;font-weight:800;color:#fff;letter-spacing:-0.4px;
@@ -63,16 +63,15 @@ body{font-family:'Plus Jakarta Sans',sans-serif;-webkit-font-smoothing:antialias
   background:none;border:none;padding:9px 16px;border-radius:8px;
   cursor:pointer;font-family:inherit;transition:all .15s;
 }
-.lp-nav-link:hover{color:#00C9A7;background:rgba(0,201,167,0.08)}
+.lp-nav-link:hover{color:#fff;background:rgba(255,255,255,0.07)}
 .lp-nav-cta{
   font-size:14px;font-weight:700;color:#fff;
   background:linear-gradient(135deg,#00C9A7,#0070FF);
   border:none;padding:10px 24px;border-radius:10px;
   cursor:pointer;font-family:inherit;margin-left:8px;
-  transition:all .15s;
-  box-shadow:0 0 16px rgba(0,201,167,0.3);
+  transition:all .15s;box-shadow:0 0 14px rgba(0,201,167,0.3);
 }
-.lp-nav-cta:hover{opacity:0.9;transform:translateY(-1px);box-shadow:0 0 24px rgba(0,201,167,0.45)}
+.lp-nav-cta:hover{opacity:.9;transform:translateY(-1px)}
 
 /* HERO */
 .lp-hero{
@@ -92,7 +91,7 @@ body{font-family:'Plus Jakarta Sans',sans-serif;-webkit-font-smoothing:antialias
   letter-spacing:1.5px;text-transform:uppercase;
   margin-bottom:36px;
 }
-.lp-badge-dot{width:7px;height:7px;border-radius:50%;background:#00C9A7;box-shadow:0 0 8px rgba(0,201,167,0.6);flex-shrink:0}
+.lp-badge-dot{width:7px;height:7px;border-radius:50%;background:#00C9A7;flex-shrink:0}
 
 .lp-title{
   font-size:72px;font-weight:800;
@@ -122,7 +121,7 @@ body{font-family:'Plus Jakarta Sans',sans-serif;-webkit-font-smoothing:antialias
   font-size:14px;font-weight:600;color:rgba(255,255,255,0.8);
   cursor:default;transition:all .2s;
 }
-.lp-area:hover{background:rgba(0,201,167,0.1);border-color:rgba(0,201,167,0.3);color:#fff}
+.lp-area:hover{background:rgba(255,255,255,0.11);border-color:rgba(255,255,255,0.25);color:#fff}
 .lp-area-icon{font-size:17px;line-height:1}
 
 /* FEATS */
@@ -141,10 +140,9 @@ body{font-family:'Plus Jakarta Sans',sans-serif;-webkit-font-smoothing:antialias
   color:#fff;font-size:17px;font-weight:700;
   padding:17px 52px;border-radius:14px;
   border:none;cursor:pointer;font-family:inherit;
-  transition:all .15s;
-  box-shadow:0 0 24px rgba(0,201,167,0.35);
+  transition:background .15s,transform .15s;
 }
-.lp-cta:hover{opacity:0.9;transform:translateY(-2px);box-shadow:0 0 36px rgba(0,201,167,0.5)}
+.lp-cta:hover{opacity:.9;transform:translateY(-2px)}
 .lp-cta-hint{font-size:12px;color:rgba(255,255,255,0.28);font-weight:500}
 .lp-cta-links{display:flex;gap:28px;margin-top:4px}
 .lp-cta-link{
@@ -165,7 +163,7 @@ body{font-family:'Plus Jakarta Sans',sans-serif;-webkit-font-smoothing:antialias
   text-decoration:none;font-weight:500;
   display:flex;align-items:center;gap:6px;transition:color .15s;
 }
-.lp-footer a:hover{color:#00C9A7}
+.lp-footer a:hover{color:rgba(255,255,255,0.6)}
 
 /* ══ MOBILE ══ */
 @media(max-width:767px){
@@ -215,7 +213,7 @@ body{font-family:'Plus Jakarta Sans',sans-serif;-webkit-font-smoothing:antialias
   }
 
   body {
-    font-family: 'Plus Jakarta Sans', 'Inter', sans-serif;
+    font-family: 'Plus Jakarta Sans','Inter',sans-serif;
     background: #f0f4f8;
     color: #0f172a;
     font-size: 14px;
@@ -255,7 +253,7 @@ body{font-family:'Plus Jakarta Sans',sans-serif;-webkit-font-smoothing:antialias
   }
 
   .brand { font-size: 38px; font-weight: 800; color: #fff; margin-bottom: 4px; letter-spacing: -1.5px; }
-  .brand span { background: linear-gradient(90deg, #00C9A7, #0070FF); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+  .brand span { background: linear-gradient(90deg,#00C9A7,#0070FF); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
   .sub { color: rgba(255,255,255,0.4); font-size: 15px; margin-bottom: 36px; }
 
   .feature { display: flex; gap: 16px; align-items: flex-start; margin-bottom: 20px; }
@@ -313,12 +311,11 @@ body{font-family:'Plus Jakarta Sans',sans-serif;-webkit-font-smoothing:antialias
 
   .auth-tabs { display: flex; gap: 6px; margin-bottom: 28px; background: #f0f4f8; border-radius: 10px; padding: 4px; }
   .auth-tab {
-    flex: 1 !important; width: auto !important; padding: 10px; border-radius: 8px;
+    flex: 1; padding: 10px; border-radius: 8px;
     text-align: center; cursor: pointer; font-weight: 600; font-size: 13px;
-    color: #64748b !important; background: transparent !important;
-    transition: all .2s; box-shadow: none !important; transform: none !important;
+    color: var(--muted); transition: all .2s;
   }
-  .auth-tab.active { background: #fff !important; color: #00C9A7 !important; box-shadow: 0 1px 4px rgba(0,0,0,0.08) !important; transform: none !important; }
+  .auth-tab.active { background: #fff !important; color: #00C9A7 !important; box-shadow: 0 1px 4px rgba(0,0,0,0.08) !important; }
 
   .auth-box h2 { font-size: 24px; font-weight: 700; text-align: center; margin-bottom: 4px; letter-spacing: -0.5px; color: var(--text); }
   .auth-box .muted { text-align: center; color: var(--muted); font-size: 13px; margin-bottom: 24px; }
@@ -348,52 +345,26 @@ body{font-family:'Plus Jakarta Sans',sans-serif;-webkit-font-smoothing:antialias
     background: linear-gradient(135deg,#00C9A7,#0070FF); color: #fff;
     transition: all .15s; letter-spacing: 0.1px;
   }
-  button:hover { opacity:0.9; transform: translateY(-1px); box-shadow: 0 4px 18px rgba(0,201,167,0.35); }
+  button:hover { opacity:.9; transform: translateY(-1px); box-shadow: 0 4px 14px rgba(0,201,167,0.35); }
   button:active { transform: translateY(0); box-shadow: none; }
-
-  /* Botões da landing NÃO recebem estilo global */
-  .lp button, .lp-nav button { all: unset; cursor: pointer; }
-  .lp-nav-link {
-    font-size:14px;font-weight:500;color:rgba(255,255,255,0.65);
-    background:none !important;border:none;padding:9px 16px;border-radius:8px;
-    cursor:pointer;font-family:inherit;transition:all .15s;width:auto !important;
-  }
-  .lp-nav-link:hover{color:#00C9A7 !important;background:rgba(0,201,167,0.08) !important;}
-  .lp-nav-cta{
-    font-size:14px;font-weight:700;color:#fff !important;
-    background:linear-gradient(135deg,#00C9A7,#0070FF) !important;
-    border:none;padding:10px 24px;border-radius:10px;
-    cursor:pointer;font-family:inherit;margin-left:8px;
-    transition:all .15s;box-shadow:0 0 14px rgba(0,201,167,0.3);width:auto !important;
-  }
-  .lp-nav-cta:hover{opacity:0.9 !important;transform:translateY(-1px);}
-  .lp-cta{
-    display:inline-flex !important;align-items:center;gap:8px;
-    background:linear-gradient(135deg,#00C9A7,#0070FF) !important;
-    color:#fff !important;font-size:17px;font-weight:700;
-    padding:17px 52px;border-radius:14px;
-    border:none;cursor:pointer;font-family:inherit;
-    transition:all .15s;box-shadow:0 0 24px rgba(0,201,167,0.35);width:auto !important;
-  }
-  /* Botão show/hide senha - sem gradiente */
-  button[onclick*='toggleSenha'] {
-    background: transparent !important;
-    width: auto !important; padding: 0 !important;
-    box-shadow: none !important; border: none !important;
-    color: #94a3b8 !important;
-  }
-  button[onclick*='toggleSenha']:hover { background: transparent !important; transform: none !important; box-shadow: none !important; }
+  .lp-nav-link { background: none !important; color: rgba(255,255,255,0.65) !important; width: auto !important; padding: 9px 16px !important; box-shadow: none !important; transform: none !important; }
+  .lp-nav-link:hover { color: #00C9A7 !important; background: rgba(0,201,167,0.08) !important; box-shadow: none !important; }
+  .auth-tab { background: transparent !important; color: #64748b !important; width: auto !important; box-shadow: none !important; transform: none !important; }
+  .auth-tab.active { background: #fff !important; color: #00C9A7 !important; box-shadow: 0 1px 4px rgba(0,0,0,0.08) !important; }
+  button[onclick*='toggleSenha'] { background: transparent !important; width: auto !important; padding: 0 !important; box-shadow: none !important; transform: none !important; color: #94a3b8 !important; }
+  .mini-btn { width: auto !important; }
+  .lp-area { width: auto !important; background: rgba(255,255,255,0.06) !important; color: rgba(255,255,255,0.8) !important; box-shadow: none !important; transform: none !important; }
 
   .btn-secondary {
-    background: #f0f4f8; color: #00C9A7;
-    border: 1.5px solid #e2e8f0;
+    background: #f0f4f8 !important; color: #00C9A7 !important;
+    border: 1.5px solid #e2e8f0 !important;
   }
-  .btn-secondary:hover { background: rgba(0,201,167,0.08); box-shadow: none; transform: none; }
+  .btn-secondary:hover { background: rgba(0,201,167,0.08) !important; box-shadow: none !important; transform: none !important; }
 
-  .btn-danger { background: #fef2f2; color: #ef4444; border: 1.5px solid #fecaca; }
-  .btn-danger:hover { background: #fee2e2; box-shadow: none; transform: none; }
+  .btn-danger { background: #fef2f2 !important; color: #ef4444 !important; border: 1.5px solid #fecaca !important; }
+  .btn-danger:hover { background: #fee2e2 !important; box-shadow: none !important; transform: none !important; }
 
-  .mini-btn { width: auto !important; padding: 6px 12px; border-radius: 8px; font-size: 12px; font-weight: 600; }
+  .mini-btn { width: auto; padding: 6px 12px; border-radius: 8px; font-size: 12px; font-weight: 600; }
 
   .msg-box {
     padding: 11px 14px; border-radius: 10px; font-size: 13px;
@@ -407,7 +378,7 @@ body{font-family:'Plus Jakarta Sans',sans-serif;-webkit-font-smoothing:antialias
   
   /* ── SIDEBAR ── */
   .sidebar {
-    background: linear-gradient(160deg, #05070f 0%, #0d1120 100%);
+    background: linear-gradient(160deg,#05070f 0%,#0d1120 100%);
     padding: 20px 12px;
     display: flex; flex-direction: column;
     position: sticky; top: 0; height: 100vh; overflow-y: auto;
@@ -423,7 +394,7 @@ body{font-family:'Plus Jakarta Sans',sans-serif;-webkit-font-smoothing:antialias
 
   .logo-box {
     width: 36px; height: 36px; border-radius: 10px;
-    background: linear-gradient(135deg, #00C9A7, #0070FF);
+    background: linear-gradient(135deg,#00C9A7,#0070FF);
     display: grid; place-items: center; font-size: 18px;
     flex-shrink: 0;
     box-shadow: 0 0 18px rgba(0,201,167,0.45);
@@ -461,7 +432,7 @@ body{font-family:'Plus Jakarta Sans',sans-serif;-webkit-font-smoothing:antialias
   .menu-badge {
     margin-left: auto; min-width: 20px; height: 20px;
     padding: 0 6px; border-radius: 999px;
-    background: linear-gradient(135deg, #00C9A7, #0070FF);
+    background: linear-gradient(135deg,#00C9A7,#0070FF);
     color: #05070f; display: inline-grid; place-items: center;
     font-size: 10px; font-weight: 700;
     box-shadow: 0 0 8px rgba(0,201,167,0.4);
@@ -482,7 +453,7 @@ body{font-family:'Plus Jakarta Sans',sans-serif;-webkit-font-smoothing:antialias
 
   .avatar {
     width: 34px; height: 34px; border-radius: 50%;
-    background: linear-gradient(135deg, #00C9A7, #0070FF);
+    background: linear-gradient(135deg,#00C9A7,#0070FF);
     color: #05070f; display: grid; place-items: center;
     font-weight: 700; font-size: 14px; flex-shrink: 0;
     box-shadow: 0 0 12px rgba(0,201,167,0.4);
@@ -551,7 +522,7 @@ body{font-family:'Plus Jakarta Sans',sans-serif;-webkit-font-smoothing:antialias
   }
   .progress-bar > div {
     height: 100%;
-    background: linear-gradient(90deg, #00C9A7, #0070FF);
+    background: linear-gradient(90deg,#00C9A7,#0070FF);
     border-radius: 999px; transition: width .5s ease;
     box-shadow: 0 0 8px rgba(0,201,167,0.5);
   }
@@ -1189,7 +1160,7 @@ body{font-family:'Plus Jakarta Sans',sans-serif;-webkit-font-smoothing:antialias
         </div>
       </div>
       <a href="https://www.mercadopago.com.br/subscriptions/checkout?preapproval_plan_id=c44dc3e2e0544c35a6f91f3323e69159" target="_blank"
-        style="display:block;width:100%;padding:10px;border-radius:10px;background:linear-gradient(135deg,#00C9A7,#0070FF);color:#fff;font-size:13px;font-weight:700;text-decoration:none;text-align:center;margin-bottom:8px;box-shadow:0 0 18px rgba(0,201,167,0.3)">
+        style="display:block;width:100%;padding:10px;border-radius:10px;background:linear-gradient(135deg,#00C9A7,#0070FF);color:#fff;font-size:13px;font-weight:700;text-decoration:none;text-align:center;margin-bottom:8px;box-shadow:0 0 16px rgba(0,201,167,0.3)">
         💳 Assinar — R$ 15,00/mês
       </a>
       <a href="mailto:gunimicaelke@gmail.com?subject=Preciso%20de%20ajuda%20-%20Vou%20Estudar%2B&body=Olá%2C%20preciso%20de%20ajuda%20com%20o%20Vou%20Estudar%2B.%0A%0ADescreva%20seu%20problema%20aqui%3A%0A"
@@ -1204,7 +1175,7 @@ body{font-family:'Plus Jakarta Sans',sans-serif;-webkit-font-smoothing:antialias
 
   <!-- Main -->
   <div class="main-area">
-    <div class="topbar" style="border-top:3px solid #00C9A7;box-shadow:0 0 16px rgba(0,201,167,0.1)">
+    <div class="topbar" style="border-top:3px solid #00C9A7">
       <div>
         <h2 id="topbarTitle">Dashboard</h2>
         <div class="muted" id="topbarSub">Visão geral dos seus estudos</div>
@@ -1222,7 +1193,7 @@ body{font-family:'Plus Jakarta Sans',sans-serif;-webkit-font-smoothing:antialias
           <div style="position:absolute;top:-20px;right:-20px;width:120px;height:120px;background:radial-gradient(circle,rgba(99,102,241,0.2),transparent);border-radius:50%"></div>
           <div>
             <div style="font-size:13px;color:rgba(255,255,255,0.45);margin-bottom:4px">Bora estudar e garantir sua aprovação! 🚀</div>
-            <h1 style="font-size:22px;font-weight:800;color:#fff;margin:0">Olá, <span id="helloName" style="color:#00C9A7;text-shadow:0 0 12px rgba(0,201,167,0.5)">Estudante</span>! 👋</h1>
+            <h1 style="font-size:22px;font-weight:800;color:#fff;margin:0">Olá, <span id="helloName" style="color:#00C9A7">Estudante</span>! 👋</h1>
           </div>
           <div style="text-align:right;flex-shrink:0">
             <div style="font-size:10px;color:rgba(255,255,255,0.35);text-transform:uppercase;letter-spacing:1px">Meta do mês</div>
@@ -5299,40 +5270,29 @@ function baixarExcelHtml(nomeArquivo, linhas, titulo = 'Relatório') {
         <tr>${colunas.map(c => `<th>${escapeHtml(c)}</th>`).join('')}</tr>
         ${linhas.map(l => `<tr>${colunas.map(c => `<td>${escapeHtml(l[c])}</td>`).join('')}</tr>`).join('')}
       </table>
-    
-<script>
-// Fix inline white text on light background after each tab switch
+    <script>
 function fixTextColors() {
-  document.querySelectorAll('.main-area *').forEach(el => {
+  document.querySelectorAll('.main-area *').forEach(function(el) {
     if (!el.style) return;
-    const col = el.style.color || '';
-    const bg = el.style.background || el.style.backgroundColor || '';
-    const hasDarkBg = /(#0f172a|#1e1b4b|#0c1a|#312e81|#0c3a|gradient.*#0f1|gradient.*#1e1|gradient.*#0c1)/.test(bg);
-    if (!hasDarkBg) {
-      if (col === '#fff' || col === 'white' || col === 'rgb(255, 255, 255)') {
-        el.style.color = '#0f172a';
-      } else if (/rgba\(255,\s*255,\s*255,\s*(0\.[0-4])/.test(col)) {
-        el.style.color = '#64748b';
-      } else if (/rgba\(255,\s*255,\s*255,\s*(0\.[5-9]|1)/.test(col)) {
-        el.style.color = '#0f172a';
-      }
+    var col = el.style.color || '';
+    var bg = (el.style.background || '') + (el.style.backgroundColor || '');
+    var dark = /#0f172a|#1e1b4b|#0c1a|#312e81|gradient.*#0f|gradient.*#1e/.test(bg);
+    if (!dark) {
+      if (col==='#fff'||col==='white'||col==='rgb(255, 255, 255)') el.style.color='#0f172a';
+      else if (/rgba\(255,\s*255,\s*255,\s*0\.[0-4]/.test(col)) el.style.color='#64748b';
+      else if (/rgba\(255,\s*255,\s*255,\s*0\.[5-9]/.test(col)) el.style.color='#0f172a';
     }
   });
 }
-
-document.addEventListener('DOMContentLoaded', () => {
-  setTimeout(fixTextColors, 600);
-  // Intercept goTab
-  const orig = window.goTab;
-  if (typeof orig === 'function') {
-    window.goTab = function(...a) { orig.apply(this,a); setTimeout(fixTextColors,400); };
-  }
-  document.addEventListener('click', e => {
-    if (e.target.closest('.menu-item,.bn-item')) setTimeout(fixTextColors, 400);
+document.addEventListener('DOMContentLoaded', function() {
+  setTimeout(fixTextColors, 800);
+  var orig = window.goTab;
+  if (typeof orig==='function') window.goTab=function(){orig.apply(this,arguments);setTimeout(fixTextColors,400);};
+  document.addEventListener('click', function(e) {
+    if (e.target.closest&&(e.target.closest('.menu-item')||e.target.closest('.bn-item'))) setTimeout(fixTextColors,400);
   });
 });
 </script>
-
 </body></html>`;
   const blob = new Blob([tabela], { type: 'application/vnd.ms-excel;charset=utf-8;' });
   const url = URL.createObjectURL(blob);
@@ -6370,40 +6330,29 @@ function _gerarPDFPlano(titulo, r, dataProva) {
     <div class="section-title">📅 Cronograma Semanal</div>
     ${cronoHTML || '<p style="color:#888">Sem cronograma.</p>'}
   </div>
-
 <script>
-// Fix inline white text on light background after each tab switch
 function fixTextColors() {
-  document.querySelectorAll('.main-area *').forEach(el => {
+  document.querySelectorAll('.main-area *').forEach(function(el) {
     if (!el.style) return;
-    const col = el.style.color || '';
-    const bg = el.style.background || el.style.backgroundColor || '';
-    const hasDarkBg = /(#0f172a|#1e1b4b|#0c1a|#312e81|#0c3a|gradient.*#0f1|gradient.*#1e1|gradient.*#0c1)/.test(bg);
-    if (!hasDarkBg) {
-      if (col === '#fff' || col === 'white' || col === 'rgb(255, 255, 255)') {
-        el.style.color = '#0f172a';
-      } else if (/rgba\(255,\s*255,\s*255,\s*(0\.[0-4])/.test(col)) {
-        el.style.color = '#64748b';
-      } else if (/rgba\(255,\s*255,\s*255,\s*(0\.[5-9]|1)/.test(col)) {
-        el.style.color = '#0f172a';
-      }
+    var col = el.style.color || '';
+    var bg = (el.style.background || '') + (el.style.backgroundColor || '');
+    var dark = /#0f172a|#1e1b4b|#0c1a|#312e81|gradient.*#0f|gradient.*#1e/.test(bg);
+    if (!dark) {
+      if (col==='#fff'||col==='white'||col==='rgb(255, 255, 255)') el.style.color='#0f172a';
+      else if (/rgba\(255,\s*255,\s*255,\s*0\.[0-4]/.test(col)) el.style.color='#64748b';
+      else if (/rgba\(255,\s*255,\s*255,\s*0\.[5-9]/.test(col)) el.style.color='#0f172a';
     }
   });
 }
-
-document.addEventListener('DOMContentLoaded', () => {
-  setTimeout(fixTextColors, 600);
-  // Intercept goTab
-  const orig = window.goTab;
-  if (typeof orig === 'function') {
-    window.goTab = function(...a) { orig.apply(this,a); setTimeout(fixTextColors,400); };
-  }
-  document.addEventListener('click', e => {
-    if (e.target.closest('.menu-item,.bn-item')) setTimeout(fixTextColors, 400);
+document.addEventListener('DOMContentLoaded', function() {
+  setTimeout(fixTextColors, 800);
+  var orig = window.goTab;
+  if (typeof orig==='function') window.goTab=function(){orig.apply(this,arguments);setTimeout(fixTextColors,400);};
+  document.addEventListener('click', function(e) {
+    if (e.target.closest&&(e.target.closest('.menu-item')||e.target.closest('.bn-item'))) setTimeout(fixTextColors,400);
   });
 });
 </script>
-
 </body>
 </html>`;
 
@@ -7035,39 +6984,28 @@ async function confirmarCompartilharRegistro() {
 }
 
 </script>
-
 <script>
-// Fix inline white text on light background after each tab switch
 function fixTextColors() {
-  document.querySelectorAll('.main-area *').forEach(el => {
+  document.querySelectorAll('.main-area *').forEach(function(el) {
     if (!el.style) return;
-    const col = el.style.color || '';
-    const bg = el.style.background || el.style.backgroundColor || '';
-    const hasDarkBg = /(#0f172a|#1e1b4b|#0c1a|#312e81|#0c3a|gradient.*#0f1|gradient.*#1e1|gradient.*#0c1)/.test(bg);
-    if (!hasDarkBg) {
-      if (col === '#fff' || col === 'white' || col === 'rgb(255, 255, 255)') {
-        el.style.color = '#0f172a';
-      } else if (/rgba\(255,\s*255,\s*255,\s*(0\.[0-4])/.test(col)) {
-        el.style.color = '#64748b';
-      } else if (/rgba\(255,\s*255,\s*255,\s*(0\.[5-9]|1)/.test(col)) {
-        el.style.color = '#0f172a';
-      }
+    var col = el.style.color || '';
+    var bg = (el.style.background || '') + (el.style.backgroundColor || '');
+    var dark = /#0f172a|#1e1b4b|#0c1a|#312e81|gradient.*#0f|gradient.*#1e/.test(bg);
+    if (!dark) {
+      if (col==='#fff'||col==='white'||col==='rgb(255, 255, 255)') el.style.color='#0f172a';
+      else if (/rgba\(255,\s*255,\s*255,\s*0\.[0-4]/.test(col)) el.style.color='#64748b';
+      else if (/rgba\(255,\s*255,\s*255,\s*0\.[5-9]/.test(col)) el.style.color='#0f172a';
     }
   });
 }
-
-document.addEventListener('DOMContentLoaded', () => {
-  setTimeout(fixTextColors, 600);
-  // Intercept goTab
-  const orig = window.goTab;
-  if (typeof orig === 'function') {
-    window.goTab = function(...a) { orig.apply(this,a); setTimeout(fixTextColors,400); };
-  }
-  document.addEventListener('click', e => {
-    if (e.target.closest('.menu-item,.bn-item')) setTimeout(fixTextColors, 400);
+document.addEventListener('DOMContentLoaded', function() {
+  setTimeout(fixTextColors, 800);
+  var orig = window.goTab;
+  if (typeof orig==='function') window.goTab=function(){orig.apply(this,arguments);setTimeout(fixTextColors,400);};
+  document.addEventListener('click', function(e) {
+    if (e.target.closest&&(e.target.closest('.menu-item')||e.target.closest('.bn-item'))) setTimeout(fixTextColors,400);
   });
 });
 </script>
-
 </body>
 </html>
