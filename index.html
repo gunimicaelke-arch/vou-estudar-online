@@ -874,6 +874,87 @@ input:focus, textarea:focus, select:focus {
 
 /* Modal */
 .modal { background: #fff !important; border-color: #e2e8f0 !important; }
+
+/* ══ FIX LEGIBILIDADE TEMA CLARO ══ */
+
+/* Todo texto dentro da área principal deve ser escuro */
+.main-area, .content, .tab-page {
+  color: #0f172a !important;
+}
+.main-area *, .content *, .tab-page * {
+  color: #0f172a;
+}
+
+/* Exceções: textos que devem ficar claros (sidebar, hero, badges, botões) */
+.sidebar, .sidebar * { color: rgba(255,255,255,0.5) !important; }
+.sidebar .menu-item.active { color: #00C9A7 !important; }
+.sidebar .menu-item:hover { color: rgba(255,255,255,0.85) !important; }
+.sidebar .logo { color: #fff !important; }
+.sidebar strong, .sidebar .user-info strong { color: #fff !important; }
+.sidebar .menu-badge { color: #05070f !important; }
+
+/* Hero escuro preservar branco */
+.hero, .hero * { color: #fff !important; }
+.hero .muted { color: rgba(255,255,255,0.45) !important; }
+
+/* Botões padrão = texto branco */
+button:not(.btn-secondary):not(.btn-danger) { color: #fff !important; }
+.btn-secondary { color: #00C9A7 !important; }
+.btn-danger { color: #ef4444 !important; }
+
+/* Títulos e labels escuros */
+h1, h2, h3, h4 { color: #0f172a !important; }
+.section-title { color: #0f172a !important; }
+.card-head h3 { color: #0f172a !important; }
+.stat-value { color: #0f172a !important; }
+.stat-label { color: #64748b !important; }
+.stat-sub { color: #64748b !important; }
+.item-card h4 { color: #0f172a !important; }
+.item-card p { color: #64748b !important; }
+.topbar h2 { color: #0f172a !important; }
+.topbar .muted { color: #64748b !important; }
+
+/* Tags claras */
+.tag-blue { color: #0070FF !important; }
+.tag-green { color: #00a389 !important; }
+.tag-orange { color: #d97706 !important; }
+.tag-red { color: #ef4444 !important; }
+
+/* Link action */
+.link-action { color: #00C9A7 !important; }
+
+/* Textos inline com cor branca hardcoded fora do hero/sidebar */
+.tab-page [style*="color:#fff"],
+.tab-page [style*="color: #fff"],
+.tab-page [style*="color:white"] {
+  color: #0f172a !important;
+}
+.tab-page [style*="color:rgba(255,255,255,0.4)"],
+.tab-page [style*="color:rgba(255,255,255,0.45)"],
+.tab-page [style*="color:rgba(255,255,255,0.5)"],
+.tab-page [style*="color:rgba(255,255,255,0.35)"],
+.tab-page [style*="color:rgba(255,255,255,0.3)"] {
+  color: #64748b !important;
+}
+
+/* Exceção: seções com fundo escuro dentro do dashboard (hero, gauge) */
+[style*="background:linear-gradient(135deg,#0f172a"],
+[style*="background:linear-gradient(135deg, #0f172a"],
+[style*="background:linear-gradient(135deg,#1e1b4b"],
+[style*="background:linear-gradient(135deg,#0c1a2e"] {
+  color: #fff !important;
+}
+[style*="background:linear-gradient(135deg,#0f172a"] *,
+[style*="background:linear-gradient(135deg,#1e1b4b"] *,
+[style*="background:linear-gradient(135deg,#0c1a2e"] * {
+  color: #fff !important;
+}
+
+/* Priority cards */
+.priority-high .priority-label { color: #ef4444 !important; }
+.priority-medium .priority-label { color: #d97706 !important; }
+.priority-low .priority-label { color: #00a389 !important; }
+
 </style>
 </head>
 <body>
@@ -5558,6 +5639,87 @@ input:focus, textarea:focus, select:focus {
 
 /* Modal */
 .modal { background: #fff !important; border-color: #e2e8f0 !important; }
+
+/* ══ FIX LEGIBILIDADE TEMA CLARO ══ */
+
+/* Todo texto dentro da área principal deve ser escuro */
+.main-area, .content, .tab-page {
+  color: #0f172a !important;
+}
+.main-area *, .content *, .tab-page * {
+  color: #0f172a;
+}
+
+/* Exceções: textos que devem ficar claros (sidebar, hero, badges, botões) */
+.sidebar, .sidebar * { color: rgba(255,255,255,0.5) !important; }
+.sidebar .menu-item.active { color: #00C9A7 !important; }
+.sidebar .menu-item:hover { color: rgba(255,255,255,0.85) !important; }
+.sidebar .logo { color: #fff !important; }
+.sidebar strong, .sidebar .user-info strong { color: #fff !important; }
+.sidebar .menu-badge { color: #05070f !important; }
+
+/* Hero escuro preservar branco */
+.hero, .hero * { color: #fff !important; }
+.hero .muted { color: rgba(255,255,255,0.45) !important; }
+
+/* Botões padrão = texto branco */
+button:not(.btn-secondary):not(.btn-danger) { color: #fff !important; }
+.btn-secondary { color: #00C9A7 !important; }
+.btn-danger { color: #ef4444 !important; }
+
+/* Títulos e labels escuros */
+h1, h2, h3, h4 { color: #0f172a !important; }
+.section-title { color: #0f172a !important; }
+.card-head h3 { color: #0f172a !important; }
+.stat-value { color: #0f172a !important; }
+.stat-label { color: #64748b !important; }
+.stat-sub { color: #64748b !important; }
+.item-card h4 { color: #0f172a !important; }
+.item-card p { color: #64748b !important; }
+.topbar h2 { color: #0f172a !important; }
+.topbar .muted { color: #64748b !important; }
+
+/* Tags claras */
+.tag-blue { color: #0070FF !important; }
+.tag-green { color: #00a389 !important; }
+.tag-orange { color: #d97706 !important; }
+.tag-red { color: #ef4444 !important; }
+
+/* Link action */
+.link-action { color: #00C9A7 !important; }
+
+/* Textos inline com cor branca hardcoded fora do hero/sidebar */
+.tab-page [style*="color:#fff"],
+.tab-page [style*="color: #fff"],
+.tab-page [style*="color:white"] {
+  color: #0f172a !important;
+}
+.tab-page [style*="color:rgba(255,255,255,0.4)"],
+.tab-page [style*="color:rgba(255,255,255,0.45)"],
+.tab-page [style*="color:rgba(255,255,255,0.5)"],
+.tab-page [style*="color:rgba(255,255,255,0.35)"],
+.tab-page [style*="color:rgba(255,255,255,0.3)"] {
+  color: #64748b !important;
+}
+
+/* Exceção: seções com fundo escuro dentro do dashboard (hero, gauge) */
+[style*="background:linear-gradient(135deg,#0f172a"],
+[style*="background:linear-gradient(135deg, #0f172a"],
+[style*="background:linear-gradient(135deg,#1e1b4b"],
+[style*="background:linear-gradient(135deg,#0c1a2e"] {
+  color: #fff !important;
+}
+[style*="background:linear-gradient(135deg,#0f172a"] *,
+[style*="background:linear-gradient(135deg,#1e1b4b"] *,
+[style*="background:linear-gradient(135deg,#0c1a2e"] * {
+  color: #fff !important;
+}
+
+/* Priority cards */
+.priority-high .priority-label { color: #ef4444 !important; }
+.priority-medium .priority-label { color: #d97706 !important; }
+.priority-low .priority-label { color: #00a389 !important; }
+
 </style>
 </head>
     <body>
@@ -6696,6 +6858,87 @@ input:focus, textarea:focus, select:focus {
 
 /* Modal */
 .modal { background: #fff !important; border-color: #e2e8f0 !important; }
+
+/* ══ FIX LEGIBILIDADE TEMA CLARO ══ */
+
+/* Todo texto dentro da área principal deve ser escuro */
+.main-area, .content, .tab-page {
+  color: #0f172a !important;
+}
+.main-area *, .content *, .tab-page * {
+  color: #0f172a;
+}
+
+/* Exceções: textos que devem ficar claros (sidebar, hero, badges, botões) */
+.sidebar, .sidebar * { color: rgba(255,255,255,0.5) !important; }
+.sidebar .menu-item.active { color: #00C9A7 !important; }
+.sidebar .menu-item:hover { color: rgba(255,255,255,0.85) !important; }
+.sidebar .logo { color: #fff !important; }
+.sidebar strong, .sidebar .user-info strong { color: #fff !important; }
+.sidebar .menu-badge { color: #05070f !important; }
+
+/* Hero escuro preservar branco */
+.hero, .hero * { color: #fff !important; }
+.hero .muted { color: rgba(255,255,255,0.45) !important; }
+
+/* Botões padrão = texto branco */
+button:not(.btn-secondary):not(.btn-danger) { color: #fff !important; }
+.btn-secondary { color: #00C9A7 !important; }
+.btn-danger { color: #ef4444 !important; }
+
+/* Títulos e labels escuros */
+h1, h2, h3, h4 { color: #0f172a !important; }
+.section-title { color: #0f172a !important; }
+.card-head h3 { color: #0f172a !important; }
+.stat-value { color: #0f172a !important; }
+.stat-label { color: #64748b !important; }
+.stat-sub { color: #64748b !important; }
+.item-card h4 { color: #0f172a !important; }
+.item-card p { color: #64748b !important; }
+.topbar h2 { color: #0f172a !important; }
+.topbar .muted { color: #64748b !important; }
+
+/* Tags claras */
+.tag-blue { color: #0070FF !important; }
+.tag-green { color: #00a389 !important; }
+.tag-orange { color: #d97706 !important; }
+.tag-red { color: #ef4444 !important; }
+
+/* Link action */
+.link-action { color: #00C9A7 !important; }
+
+/* Textos inline com cor branca hardcoded fora do hero/sidebar */
+.tab-page [style*="color:#fff"],
+.tab-page [style*="color: #fff"],
+.tab-page [style*="color:white"] {
+  color: #0f172a !important;
+}
+.tab-page [style*="color:rgba(255,255,255,0.4)"],
+.tab-page [style*="color:rgba(255,255,255,0.45)"],
+.tab-page [style*="color:rgba(255,255,255,0.5)"],
+.tab-page [style*="color:rgba(255,255,255,0.35)"],
+.tab-page [style*="color:rgba(255,255,255,0.3)"] {
+  color: #64748b !important;
+}
+
+/* Exceção: seções com fundo escuro dentro do dashboard (hero, gauge) */
+[style*="background:linear-gradient(135deg,#0f172a"],
+[style*="background:linear-gradient(135deg, #0f172a"],
+[style*="background:linear-gradient(135deg,#1e1b4b"],
+[style*="background:linear-gradient(135deg,#0c1a2e"] {
+  color: #fff !important;
+}
+[style*="background:linear-gradient(135deg,#0f172a"] *,
+[style*="background:linear-gradient(135deg,#1e1b4b"] *,
+[style*="background:linear-gradient(135deg,#0c1a2e"] * {
+  color: #fff !important;
+}
+
+/* Priority cards */
+.priority-high .priority-label { color: #ef4444 !important; }
+.priority-medium .priority-label { color: #d97706 !important; }
+.priority-low .priority-label { color: #00a389 !important; }
+
 </style>
 </head>
 <body>
