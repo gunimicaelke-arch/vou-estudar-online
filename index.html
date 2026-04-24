@@ -122,7 +122,7 @@ body{font-family:'Plus Jakarta Sans',sans-serif;-webkit-font-smoothing:antialias
   font-size:14px;font-weight:600;color:rgba(255,255,255,0.8);
   cursor:default;transition:all .2s;
 }
-.lp-area:hover{background:rgba(255,255,255,0.11);border-color:rgba(255,255,255,0.25);color:#fff}
+.lp-area:hover{background:rgba(0,201,167,0.1);border-color:rgba(0,201,167,0.3);color:#fff}
 .lp-area-icon{font-size:17px;line-height:1}
 
 /* FEATS */
@@ -313,11 +313,12 @@ body{font-family:'Plus Jakarta Sans',sans-serif;-webkit-font-smoothing:antialias
 
   .auth-tabs { display: flex; gap: 6px; margin-bottom: 28px; background: #f0f4f8; border-radius: 10px; padding: 4px; }
   .auth-tab {
-    flex: 1; padding: 10px; border-radius: 8px;
+    flex: 1 !important; width: auto !important; padding: 10px; border-radius: 8px;
     text-align: center; cursor: pointer; font-weight: 600; font-size: 13px;
-    color: var(--muted); transition: all .2s;
+    color: #64748b !important; background: transparent !important;
+    transition: all .2s; box-shadow: none !important; transform: none !important;
   }
-  .auth-tab.active { background: #fff; color: #00C9A7; box-shadow: 0 1px 4px rgba(0,0,0,0.08); }
+  .auth-tab.active { background: #fff !important; color: #00C9A7 !important; box-shadow: 0 1px 4px rgba(0,0,0,0.08) !important; transform: none !important; }
 
   .auth-box h2 { font-size: 24px; font-weight: 700; text-align: center; margin-bottom: 4px; letter-spacing: -0.5px; color: var(--text); }
   .auth-box .muted { text-align: center; color: var(--muted); font-size: 13px; margin-bottom: 24px; }
@@ -350,6 +351,39 @@ body{font-family:'Plus Jakarta Sans',sans-serif;-webkit-font-smoothing:antialias
   button:hover { opacity:0.9; transform: translateY(-1px); box-shadow: 0 4px 18px rgba(0,201,167,0.35); }
   button:active { transform: translateY(0); box-shadow: none; }
 
+  /* Botões da landing NÃO recebem estilo global */
+  .lp button, .lp-nav button { all: unset; cursor: pointer; }
+  .lp-nav-link {
+    font-size:14px;font-weight:500;color:rgba(255,255,255,0.65);
+    background:none !important;border:none;padding:9px 16px;border-radius:8px;
+    cursor:pointer;font-family:inherit;transition:all .15s;width:auto !important;
+  }
+  .lp-nav-link:hover{color:#00C9A7 !important;background:rgba(0,201,167,0.08) !important;}
+  .lp-nav-cta{
+    font-size:14px;font-weight:700;color:#fff !important;
+    background:linear-gradient(135deg,#00C9A7,#0070FF) !important;
+    border:none;padding:10px 24px;border-radius:10px;
+    cursor:pointer;font-family:inherit;margin-left:8px;
+    transition:all .15s;box-shadow:0 0 14px rgba(0,201,167,0.3);width:auto !important;
+  }
+  .lp-nav-cta:hover{opacity:0.9 !important;transform:translateY(-1px);}
+  .lp-cta{
+    display:inline-flex !important;align-items:center;gap:8px;
+    background:linear-gradient(135deg,#00C9A7,#0070FF) !important;
+    color:#fff !important;font-size:17px;font-weight:700;
+    padding:17px 52px;border-radius:14px;
+    border:none;cursor:pointer;font-family:inherit;
+    transition:all .15s;box-shadow:0 0 24px rgba(0,201,167,0.35);width:auto !important;
+  }
+  /* Botão show/hide senha - sem gradiente */
+  button[onclick*='toggleSenha'] {
+    background: transparent !important;
+    width: auto !important; padding: 0 !important;
+    box-shadow: none !important; border: none !important;
+    color: #94a3b8 !important;
+  }
+  button[onclick*='toggleSenha']:hover { background: transparent !important; transform: none !important; box-shadow: none !important; }
+
   .btn-secondary {
     background: #f0f4f8; color: #00C9A7;
     border: 1.5px solid #e2e8f0;
@@ -359,7 +393,7 @@ body{font-family:'Plus Jakarta Sans',sans-serif;-webkit-font-smoothing:antialias
   .btn-danger { background: #fef2f2; color: #ef4444; border: 1.5px solid #fecaca; }
   .btn-danger:hover { background: #fee2e2; box-shadow: none; transform: none; }
 
-  .mini-btn { width: auto; padding: 6px 12px; border-radius: 8px; font-size: 12px; font-weight: 600; }
+  .mini-btn { width: auto !important; padding: 6px 12px; border-radius: 8px; font-size: 12px; font-weight: 600; }
 
   .msg-box {
     padding: 11px 14px; border-radius: 10px; font-size: 13px;
@@ -924,7 +958,7 @@ body{font-family:'Plus Jakarta Sans',sans-serif;-webkit-font-smoothing:antialias
         </div>
         <button onclick="handleLogin()" id="loginBtn">Entrar</button>
         <div style="text-align:center;margin-top:12px">
-          <span onclick="switchAuthTab('forgot')" style="font-size:13px;color:#2563eb;cursor:pointer;font-weight:500;text-decoration:underline">Esqueci minha senha</span>
+          <span onclick="switchAuthTab('forgot')" style="font-size:13px;color:#00C9A7;cursor:pointer;font-weight:500;text-decoration:underline">Esqueci minha senha</span>
         </div>
       </div>
 
