@@ -5380,14 +5380,7 @@ function _marcarConviteEnviado(btn, userId, tipo) {
   }
 }
 
-async function adminExcluirCliente(userId, email, btn) {
-  if (!confirm('Excluir cliente ' + (email || userId) + '?\n\nIsso removerá a assinatura. O usuário no Auth não será deletado.')) return;
-  btn.disabled = true; btn.textContent = '...';
-  const { error } = await db.from('assinaturas').delete().eq('user_id', userId);
-  if (error) { toast('❌ Erro: ' + error.message); btn.disabled = false; btn.textContent = '🗑️'; return; }
-  toast('🗑️ Cliente removido.');
-  await adminCarregarUsuarios();
-}
+// adminExcluirCliente — substituída pela versão completa abaixo (remove dados + login)
 
 function adminSelecionarTransferencia(userId) {
   const sel = document.getElementById('compartilharUsuario');
@@ -5583,10 +5576,11 @@ async function adminCompartilharModulos() {
   marcar(relatorio.join(' | '), houveErro ? 'error' : 'success');
 }
 
-async function adminExcluirCliente(userId, email = '') {
+async function adminExcluirCliente(userId, email = '', btn = null) {
+  if (btn) { btn.disabled = true; btn.textContent = '...'; }
   const alvo = email || userId;
-  const ok = confirm(`Excluir este cadastro do sistema?\n\n${alvo}\n\nIsso vai remover os dados do app. Se a função admin_delete_user existir no Supabase, o login também será apagado.`);
-  if (!ok) return;
+  const ok = confirm(`Excluir este cliente completamente?\n\n${alvo}\n\nIsso vai remover TODOS os dados e o login do usuário. Esta ação não pode ser desfeita.`);
+  if (!ok) { if (btn) { btn.disabled = false; btn.textContent = '🗑️'; } return; }
 
   const tabelasPorUser = [
     'materias','notas','planos','planos_ia','prioridades',
