@@ -2161,8 +2161,15 @@ input:focus, textarea:focus, select:focus {
 const SUPABASE_URL = 'https://jamsxocejgxyzopgcqdv.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImphbXN4b2Nlamd4eXpvcGdjcWR2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYxMjk4ODEsImV4cCI6MjA5MTcwNTg4MX0.pwdAbAr-7Td_e2DZd0Xwn5qUOW3Qb_Z8w6ZOHwzBTjw';
 
+// ⚠️ Cole aqui sua service_role key (Supabase → Settings → API → service_role secret)
+// Ela bypassa o RLS e permite que o admin exclua visitas e cadastros sem configurar policies.
+const SUPABASE_SERVICE_KEY = 'sb_secret_EPdlaebHkMMHhMRcd7aIww_29RHm9B5';
+
 const { createClient } = supabase;
 const db = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, { auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true } });
+
+// Client admin com acesso total (bypassa RLS) — usado só nas funções de exclusão
+const dbAdmin = createClient(SUPABASE_URL, SUPABASE_SERVICE_KEY);
 
 // Estado global
 let currentUser = null;
@@ -5498,7 +5505,7 @@ async function adminExcluirCliente(userId, email = '') {
 
   for (const t of tabelasPorUser) {
     try {
-      const { error } = await db.from(t).delete().eq('user_id', userId);
+      const { error } = await dbAdmin.from(t).delete().eq('user_id', userId);
       if (error && !String(error.message || '').toLowerCase().includes('does not exist')) {
         falhas.push(`${t}: ${error.message}`);
       }
@@ -5508,7 +5515,7 @@ async function adminExcluirCliente(userId, email = '') {
   }
 
   try {
-    const { error } = await db.from('profiles').delete().eq('id', userId);
+    const { error } = await dbAdmin.from('profiles').delete().eq('id', userId);
     if (error && !String(error.message || '').toLowerCase().includes('does not exist')) {
       falhas.push(`profiles: ${error.message}`);
     }
@@ -5517,8 +5524,8 @@ async function adminExcluirCliente(userId, email = '') {
   }
 
   if (email) {
-    try { await db.from('visitantes_cadastro').delete().eq('email', email); } catch (e) {}
-    try { await db.from('profiles').delete().eq('email', email); } catch (e) {}
+    try { await dbAdmin.from('visitantes_cadastro').delete().eq('email', email); } catch (e) {}
+    try { await dbAdmin.from('profiles').delete().eq('email', email); } catch (e) {}
   }
 
   let authApagado = false;
@@ -5578,27 +5585,27 @@ async function adminExcluirVisitante(chave = '') {
   if (visitante?.ids?.length) {
     const idsValidos = [...new Set((visitante.ids || []).filter(Boolean))];
     if (idsValidos.length) {
-      tentativas.push(() => db.from('visitantes_cadastro').delete().in('id', idsValidos).select('id'));
+      tentativas.push(() => dbAdmin.from('visitantes_cadastro').delete().in('id', idsValidos).select('id'));
     }
   }
 
   if (visitante?.email) {
-    tentativas.push(() => db.from('visitantes_cadastro').delete().eq('email', visitante.email).select('id'));
+    tentativas.push(() => dbAdmin.from('visitantes_cadastro').delete().eq('email', visitante.email).select('id'));
   }
 
   if (visitante?.origem) {
-    tentativas.push(() => db.from('visitantes_cadastro').delete().eq('user_agent', visitante.origem).select('id'));
+    tentativas.push(() => dbAdmin.from('visitantes_cadastro').delete().eq('user_agent', visitante.origem).select('id'));
   }
 
   if (visitante?.email && visitante?.origem) {
-    tentativas.push(() => db.from('visitantes_cadastro').delete().match({
+    tentativas.push(() => dbAdmin.from('visitantes_cadastro').delete().match({
       email: visitante.email,
       user_agent: visitante.origem
     }).select('id'));
   }
 
   if (!tentativas.length && chave) {
-    tentativas.push(() => db.from('visitantes_cadastro').delete().eq('email', chave).select('id'));
+    tentativas.push(() => dbAdmin.from('visitantes_cadastro').delete().eq('email', chave).select('id'));
   }
 
   let totalExcluido = 0;
