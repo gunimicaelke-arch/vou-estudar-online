@@ -852,7 +852,7 @@ body{font-family:'Plus Jakarta Sans',sans-serif;-webkit-font-smoothing:antialias
   </div>
 
   <footer class="lp-footer">
-    <a href="mailto:gunimicaelke@gmail.com?subject=Preciso%20de%20ajuda%20-%20Vou%20Estudar%2B">💬 Precisa de ajuda? Fale com o suporte</a>
+    <a href="https://wa.me/5565996940287?text=Ol%C3%A1%2C%20preciso%20de%20ajuda%20com%20o%20Vou%20Estudar%2B" target="_blank">💬 Suporte via WhatsApp</a>
   </footer>
 
 </div>
@@ -967,9 +967,9 @@ body{font-family:'Plus Jakarta Sans',sans-serif;-webkit-font-smoothing:antialias
 
       <!-- Suporte -->
       <div style="text-align:center;margin-top:20px;padding-top:16px;border-top:1px solid #dbeafe">
-        <a href="mailto:gunimicaelke@gmail.com?subject=Preciso%20de%20ajuda%20-%20Vou%20Estudar%2B&body=Olá%2C%20preciso%20de%20ajuda%20com%20o%20Vou%20Estudar%2B.%0A%0ADescreva%20seu%20problema%20aqui%3A%0A"
+        <a href="https://wa.me/5565996940287?text=Ol%C3%A1%2C%20preciso%20de%20ajuda%20com%20o%20Vou%20Estudar%2B" target="_blank"
           style="font-size:13px;color:#2563eb;text-decoration:none;font-weight:500;display:inline-flex;align-items:center;gap:5px">
-          💬 Precisa de ajuda? Fale com o suporte
+          💬 Suporte via WhatsApp
         </a>
       </div>
 
@@ -1163,11 +1163,11 @@ body{font-family:'Plus Jakarta Sans',sans-serif;-webkit-font-smoothing:antialias
         style="display:block;width:100%;padding:10px;border-radius:10px;background:linear-gradient(135deg,#00C9A7,#0070FF);color:#fff;font-size:13px;font-weight:700;text-decoration:none;text-align:center;margin-bottom:8px;box-shadow:0 0 16px rgba(0,201,167,0.3)">
         💳 Assinar — R$ 15,00/mês
       </a>
-      <a href="mailto:gunimicaelke@gmail.com?subject=Preciso%20de%20ajuda%20-%20Vou%20Estudar%2B&body=Olá%2C%20preciso%20de%20ajuda%20com%20o%20Vou%20Estudar%2B.%0A%0ADescreva%20seu%20problema%20aqui%3A%0A"
+      <a href="https://wa.me/5565996940287?text=Ol%C3%A1%2C%20preciso%20de%20ajuda%20com%20o%20Vou%20Estudar%2B" target="_blank"
         style="display:flex;align-items:center;justify-content:center;gap:6px;width:100%;padding:9px;border-radius:10px;background:rgba(255,255,255,0.05);color:rgba(255,255,255,0.45);font-size:12px;font-weight:500;text-decoration:none;text-align:center;margin-bottom:6px;border:1px solid rgba(255,255,255,0.08);transition:all .15s"
         onmouseover="this.style.background='rgba(255,255,255,0.09)';this.style.color='rgba(255,255,255,0.7)'"
         onmouseout="this.style.background='rgba(255,255,255,0.05)';this.style.color='rgba(255,255,255,0.45)'">
-        💬 Falar com Suporte
+        💬 Suporte WhatsApp
       </a>
       <button class="btn-secondary" onclick="handleLogout()">🚪 Sair</button>
     </div>
@@ -2014,7 +2014,7 @@ body{font-family:'Plus Jakarta Sans',sans-serif;-webkit-font-smoothing:antialias
         style="flex:1;display:flex;align-items:center;justify-content:center;gap:6px;padding:12px;border-radius:12px;background:linear-gradient(135deg,#2563eb,#3b82f6);color:#fff;font-size:12px;font-weight:700;text-decoration:none">
         💳 Assinar R$15
       </a>
-      <a href="mailto:gunimicaelke@gmail.com?subject=Preciso%20de%20ajuda&body=Ol%C3%A1%2C%20preciso%20de%20ajuda."
+      <a href="https://wa.me/5565996940287?text=Ol%C3%A1%2C%20preciso%20de%20ajuda%20com%20o%20Vou%20Estudar%2B" target="_blank"
         style="display:flex;align-items:center;justify-content:center;gap:6px;padding:12px;border-radius:12px;background:rgba(255,255,255,0.05);color:rgba(255,255,255,0.6);font-size:12px;font-weight:600;text-decoration:none">
         💬 Suporte
       </a>
@@ -5270,30 +5270,7 @@ function baixarExcelHtml(nomeArquivo, linhas, titulo = 'Relatório') {
         <tr>${colunas.map(c => `<th>${escapeHtml(c)}</th>`).join('')}</tr>
         ${linhas.map(l => `<tr>${colunas.map(c => `<td>${escapeHtml(l[c])}</td>`).join('')}</tr>`).join('')}
       </table>
-    <script>
-function fixTextColors() {
-  document.querySelectorAll('.main-area *').forEach(function(el) {
-    if (!el.style) return;
-    var col = el.style.color || '';
-    var bg = (el.style.background || '') + (el.style.backgroundColor || '');
-    var dark = /#0f172a|#1e1b4b|#0c1a|#312e81|gradient.*#0f|gradient.*#1e/.test(bg);
-    if (!dark) {
-      if (col==='#fff'||col==='white'||col==='rgb(255, 255, 255)') el.style.color='#0f172a';
-      else if (/rgba\(255,\s*255,\s*255,\s*0\.[0-4]/.test(col)) el.style.color='#64748b';
-      else if (/rgba\(255,\s*255,\s*255,\s*0\.[5-9]/.test(col)) el.style.color='#0f172a';
-    }
-  });
-}
-document.addEventListener('DOMContentLoaded', function() {
-  setTimeout(fixTextColors, 800);
-  var orig = window.goTab;
-  if (typeof orig==='function') window.goTab=function(){orig.apply(this,arguments);setTimeout(fixTextColors,400);};
-  document.addEventListener('click', function(e) {
-    if (e.target.closest&&(e.target.closest('.menu-item')||e.target.closest('.bn-item'))) setTimeout(fixTextColors,400);
-  });
-});
-</script>
-</body></html>`;
+    </body></html>`;
   const blob = new Blob([tabela], { type: 'application/vnd.ms-excel;charset=utf-8;' });
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
@@ -6330,29 +6307,6 @@ function _gerarPDFPlano(titulo, r, dataProva) {
     <div class="section-title">📅 Cronograma Semanal</div>
     ${cronoHTML || '<p style="color:#888">Sem cronograma.</p>'}
   </div>
-<script>
-function fixTextColors() {
-  document.querySelectorAll('.main-area *').forEach(function(el) {
-    if (!el.style) return;
-    var col = el.style.color || '';
-    var bg = (el.style.background || '') + (el.style.backgroundColor || '');
-    var dark = /#0f172a|#1e1b4b|#0c1a|#312e81|gradient.*#0f|gradient.*#1e/.test(bg);
-    if (!dark) {
-      if (col==='#fff'||col==='white'||col==='rgb(255, 255, 255)') el.style.color='#0f172a';
-      else if (/rgba\(255,\s*255,\s*255,\s*0\.[0-4]/.test(col)) el.style.color='#64748b';
-      else if (/rgba\(255,\s*255,\s*255,\s*0\.[5-9]/.test(col)) el.style.color='#0f172a';
-    }
-  });
-}
-document.addEventListener('DOMContentLoaded', function() {
-  setTimeout(fixTextColors, 800);
-  var orig = window.goTab;
-  if (typeof orig==='function') window.goTab=function(){orig.apply(this,arguments);setTimeout(fixTextColors,400);};
-  document.addEventListener('click', function(e) {
-    if (e.target.closest&&(e.target.closest('.menu-item')||e.target.closest('.bn-item'))) setTimeout(fixTextColors,400);
-  });
-});
-</script>
 </body>
 </html>`;
 
