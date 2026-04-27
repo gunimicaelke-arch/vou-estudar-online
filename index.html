@@ -2161,15 +2161,108 @@ input:focus, textarea:focus, select:focus {
 const SUPABASE_URL = 'https://jamsxocejgxyzopgcqdv.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImphbXN4b2Nlamd4eXpvcGdjcWR2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYxMjk4ODEsImV4cCI6MjA5MTcwNTg4MX0.pwdAbAr-7Td_e2DZd0Xwn5qUOW3Qb_Z8w6ZOHwzBTjw';
 
-// ⚠️ Cole aqui sua service_role key (Supabase → Settings → API → service_role secret)
-// Ela bypassa o RLS e permite que o admin exclua visitas e cadastros sem configurar policies.
 const SUPABASE_SERVICE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImphbXN4b2Nlamd4eXpvcGdjcWR2Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3NjEyOTg4MSwiZXhwIjoyMDkxNzA1ODgxfQ.Bz1ZaM0iu0vmdJ1SWNa-7AD5kl0lXxXtInb9hLnKS6E';
 
 const { createClient } = supabase;
 const db = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, { auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true } });
 
-// Client admin com acesso total (bypassa RLS) — usado só nas funções de exclusão
-const dbAdmin = createClient(SUPABASE_URL, SUPABASE_SERVICE_KEY);
+// Função auxiliar admin — faz requests REST direto com service_role, sem criar segundo client
+async function dbAdminFrom(tabela) {
+  return {
+    delete: () => {
+      const filters = [];
+      const chain = {
+        eq: (col, val) => { filters.push(`${col}=eq.${encodeURIComponent(val)}`); return chain; },
+        in: (col, vals) => { filters.push(`${col}=in.(${vals.map(v => encodeURIComponent(v)).join(',')})`); return chain; },
+        match: (obj) => { Object.entries(obj).forEach(([k,v]) => filters.push(`${k}=eq.${encodeURIComponent(v)}`)); return chain; },
+        select: (s) => chain,
+        then: async (resolve, reject) => {
+          try {
+            const url = `${SUPABASE_URL}/rest/v1/${tabela}?${filters.join('&')}`;
+            const resp = await fetch(url, {
+              method: 'DELETE',
+              headers: {
+                'apikey': SUPABASE_SERVICE_KEY,
+                'Authorization': `Bearer ${SUPABASE_SERVICE_KEY}`,
+                'Content-Type': 'application/json',
+                'Prefer': 'return=representation'
+              }
+            });
+            if (!resp.ok) {
+              const err = await resp.json().catch(() => ({ message: resp.statusText }));
+              resolve({ data: null, error: err });
+            } else {
+              const data = await resp.json().catch(() => []);
+              resolve({ data, error: null });
+            }
+          } catch(e) {
+            resolve({ data: null, error: { message: e.message } });
+          }
+        }
+      };
+      chain[Symbol.toStringTag] = 'Promise';
+      return chain;
+    }
+  };
+}
+
+// Wrapper para dbAdmin que usa fetch direto com service_role
+const dbAdmin = {
+  from: (tabela) => ({
+    delete: () => {
+      const filters = [];
+      const chain = {
+        eq: (col, val) => { filters.push(`${col}=eq.${encodeURIComponent(val)}`); return chain; },
+        in: (col, vals) => { filters.push(`${col}=in.(${vals.map(v => encodeURIComponent(v)).join(',')})`); return chain; },
+        match: (obj) => { Object.entries(obj).forEach(([k,v]) => filters.push(`${k}=eq.${encodeURIComponent(v)}`)); return chain; },
+        select: () => chain,
+        then: (resolve, reject) => {
+          const url = `${SUPABASE_URL}/rest/v1/${tabela}?${filters.join('&')}`;
+          fetch(url, {
+            method: 'DELETE',
+            headers: {
+              'apikey': SUPABASE_SERVICE_KEY,
+              'Authorization': `Bearer ${SUPABASE_SERVICE_KEY}`,
+              'Content-Type': 'application/json',
+              'Prefer': 'return=representation'
+            }
+          }).then(async resp => {
+            if (!resp.ok) {
+              const err = await resp.json().catch(() => ({ message: resp.statusText }));
+              resolve({ data: null, error: err });
+            } else {
+              const data = await resp.json().catch(() => []);
+              resolve({ data, error: null });
+            }
+          }).catch(e => resolve({ data: null, error: { message: e.message } }));
+        }
+      };
+      return chain;
+    }
+  }),
+  auth: {
+    admin: {
+      deleteUser: async (userId) => {
+        try {
+          const resp = await fetch(`${SUPABASE_URL}/auth/v1/admin/users/${userId}`, {
+            method: 'DELETE',
+            headers: {
+              'apikey': SUPABASE_SERVICE_KEY,
+              'Authorization': `Bearer ${SUPABASE_SERVICE_KEY}`
+            }
+          });
+          if (!resp.ok) {
+            const err = await resp.json().catch(() => ({ message: resp.statusText }));
+            return { error: err };
+          }
+          return { error: null };
+        } catch(e) {
+          return { error: { message: e.message } };
+        }
+      }
+    }
+  }
+};
 
 // Estado global
 let currentUser = null;
