@@ -1181,176 +1181,173 @@ body{font-family:'Plus Jakarta Sans',sans-serif;-webkit-font-smoothing:antialias
       <!-- ─── DASHBOARD ─── -->
       <div class="tab-page active" id="tab-dashboard">
 
+        <!-- BOTÃO ASSINAR DESTAQUE -->
+        <a href="https://www.mercadopago.com.br/subscriptions/checkout?preapproval_plan_id=c44dc3e2e0544c35a6f91f3323e69159" target="_blank"
+          style="display:flex;align-items:center;justify-content:center;gap:10px;width:100%;padding:14px;background:linear-gradient(135deg,#2563eb,#7c3aed);color:#fff;border-radius:14px;font-size:14px;font-weight:800;text-decoration:none;margin-bottom:14px;box-shadow:0 4px 24px rgba(99,102,241,0.35);letter-spacing:.3px">
+          💳 Assinar agora — R$15/mês &nbsp;·&nbsp; <span style="font-size:12px;opacity:.85;font-weight:500">Acesso completo imediato</span>
+        </a>
+
         <!-- HERO -->
-        <div style="background:linear-gradient(135deg,#0f172a 0%,#1e1b4b 100%);border-radius:20px;padding:20px 22px;margin-bottom:14px;display:flex;justify-content:space-between;align-items:center;gap:12px;position:relative;overflow:hidden">
-          <div style="position:absolute;top:-20px;right:-20px;width:120px;height:120px;background:radial-gradient(circle,rgba(99,102,241,0.2),transparent);border-radius:50%"></div>
-          <div>
-            <div style="font-size:13px;color:rgba(255,255,255,0.45);margin-bottom:4px">Bora estudar e garantir sua aprovação! 🚀</div>
-            <h1 style="font-size:22px;font-weight:800;color:#fff;margin:0">Olá, <span id="helloName" style="color:#818cf8">Estudante</span>! 👋</h1>
+        <div style="background:#f8faff;border:1px solid #e0e7ff;border-radius:16px;padding:16px 18px;margin-bottom:12px;display:flex;align-items:center;gap:14px">
+          <div style="width:46px;height:46px;border-radius:50%;background:linear-gradient(135deg,#2563eb,#7c3aed);display:grid;place-items:center;font-size:20px;flex-shrink:0;color:#fff;font-weight:800" id="heroAvatar">?</div>
+          <div style="flex:1;min-width:0">
+            <div style="font-size:16px;font-weight:800;color:#1e293b">Olá, <span id="helloName">Estudante</span>! 👋</div>
+            <div style="font-size:12px;color:#64748b;margin-top:2px">Bora garantir sua aprovação 🚀</div>
           </div>
           <div style="text-align:right;flex-shrink:0">
-            <div style="font-size:10px;color:rgba(255,255,255,0.35);text-transform:uppercase;letter-spacing:1px">Meta do mês</div>
-            <div style="font-size:20px;font-weight:800;color:#818cf8" id="metaPct">0%</div>
-            <div id="metaText" style="font-size:11px;color:rgba(255,255,255,0.35)">Sem meta</div>
+            <div style="font-size:22px;font-weight:900;color:#2563eb" id="metaPct">0%</div>
+            <div style="font-size:10px;color:#94a3b8" id="metaText">progresso</div>
           </div>
         </div>
         <div style="display:none"><div class="progress-bar"><div id="metaBar" style="width:0%"></div></div></div>
 
-        <!-- GAUGE + STATUS -->
-        <div style="background:linear-gradient(135deg,#0f172a,#1e1b4b);border-radius:20px;padding:20px;margin-bottom:14px;display:flex;align-items:center;gap:20px;border:1px solid rgba(99,102,241,0.15)">
-          <div style="position:relative;width:100px;height:100px;flex-shrink:0">
-            <canvas id="gaugePreparacao" width="100" height="100"></canvas>
-            <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center">
-              <div style="font-size:20px;font-weight:800;color:#fff;line-height:1" id="gaugePct">0%</div>
-              <div style="font-size:8px;color:rgba(255,255,255,0.35);font-weight:700;letter-spacing:.8px;margin-top:2px">PREPARADO</div>
+        <!-- GAUGE + SEQUÊNCIA (linha 1) -->
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px">
+
+          <!-- Gauge preparação -->
+          <div style="background:#fff;border:1px solid #e2e8f0;border-radius:14px;padding:16px;display:flex;align-items:center;gap:12px">
+            <div style="position:relative;width:64px;height:64px;flex-shrink:0">
+              <canvas id="gaugePreparacao" width="64" height="64"></canvas>
+              <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center">
+                <div style="font-size:13px;font-weight:800;color:#1e293b;line-height:1" id="gaugePct">0%</div>
+              </div>
+            </div>
+            <div style="flex:1;min-width:0">
+              <div style="font-size:10px;color:#94a3b8;font-weight:600;text-transform:uppercase;letter-spacing:.5px;margin-bottom:3px">Preparado</div>
+              <div style="font-size:12px;font-weight:700;margin-bottom:4px" id="gaugeStatus">—</div>
+              <div style="font-size:10px;color:#94a3b8" id="gaugeVariacao">—</div>
             </div>
           </div>
-          <div style="flex:1">
-            <div style="font-size:10px;color:rgba(255,255,255,0.35);text-transform:uppercase;letter-spacing:.8px;margin-bottom:4px">Se continuar assim:</div>
-            <div style="font-size:16px;font-weight:800;margin-bottom:6px" id="gaugeStatus">—</div>
-            <div style="font-size:11px;color:rgba(255,255,255,0.4);margin-bottom:10px" id="gaugeVariacao">Carregando...</div>
-            <div style="display:inline-flex;align-items:center;gap:6px;background:rgba(34,197,94,0.1);border:1px solid rgba(34,197,94,0.2);border-radius:8px;padding:5px 10px;font-size:11px;color:rgba(255,255,255,0.5)">
-              🏆 Melhor que <strong style="color:#22c55e;margin:0 3px" id="gaugeRanking">—</strong> dos usuários
-            </div>
+
+          <!-- Sequência -->
+          <div style="background:#fff;border:1px solid #e2e8f0;border-radius:14px;padding:16px;display:flex;flex-direction:column;justify-content:center">
+            <div style="font-size:10px;color:#94a3b8;font-weight:600;text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px">Sequência 🔥</div>
+            <div style="font-size:32px;font-weight:900;color:#16a34a;line-height:1" id="sequenciaDias">0</div>
+            <div style="font-size:11px;color:#94a3b8;margin-top:4px">dias seguidos</div>
+            <div style="font-size:11px;font-weight:700;margin-top:6px;color:#f59e0b" id="sequenciaAviso">⚠️ Não perca hoje!</div>
           </div>
         </div>
 
         <!-- HOJE VOCÊ PRECISA -->
-        <div style="background:linear-gradient(135deg,#0f172a,#0c1a3a);border-radius:20px;padding:20px;margin-bottom:14px;border:1px solid rgba(59,130,246,0.15)">
-          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
-            <div style="font-size:12px;font-weight:800;color:#fff;letter-spacing:.5px;display:flex;align-items:center;gap:8px">
-              <span style="background:rgba(59,130,246,0.2);width:28px;height:28px;border-radius:8px;display:grid;place-items:center">📅</span>
-              HOJE VOCÊ PRECISA
-            </div>
-            <div style="font-size:11px;color:#60a5fa;font-weight:600;background:rgba(59,130,246,0.1);padding:4px 10px;border-radius:20px">⏱ <span id="planoDiaTempo">0 min</span></div>
+        <div style="background:#fff;border:1px solid #e2e8f0;border-radius:14px;padding:16px;margin-bottom:10px">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+            <div style="font-size:12px;font-weight:700;color:#1e293b">📅 Hoje você precisa</div>
+            <div style="font-size:11px;color:#2563eb;font-weight:600;background:#eff6ff;padding:3px 10px;border-radius:20px">⏱ <span id="planoDiaTempo">0 min</span></div>
           </div>
           <div id="planoDiaLista"></div>
-          <button onclick="goTab('planointeligente')" style="width:100%;margin-top:14px;padding:15px;background:linear-gradient(135deg,#22c55e,#16a34a);color:#fff;border:none;border-radius:14px;font-size:14px;font-weight:800;cursor:pointer;letter-spacing:1px;box-shadow:0 4px 20px rgba(34,197,94,0.25)">
+          <button onclick="goTab('planointeligente')" style="width:100%;margin-top:12px;padding:13px;background:linear-gradient(135deg,#22c55e,#16a34a);color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:800;cursor:pointer;box-shadow:0 3px 12px rgba(34,197,94,0.3)">
             COMEÇAR AGORA ▶
           </button>
         </div>
 
         <!-- DESEMPENHO -->
-        <div style="background:linear-gradient(135deg,#0f172a,#1a1a2e);border-radius:20px;padding:20px;margin-bottom:14px;border:1px solid rgba(139,92,246,0.12)">
-          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
-            <div style="font-size:12px;font-weight:800;color:#fff;letter-spacing:.5px;display:flex;align-items:center;gap:8px">
-              <span style="background:rgba(139,92,246,0.2);width:28px;height:28px;border-radius:8px;display:grid;place-items:center">📊</span>
-              SEU DESEMPENHO
-            </div>
-            <span onclick="goTab('materias')" style="font-size:11px;color:#818cf8;cursor:pointer;font-weight:600;background:rgba(99,102,241,0.1);padding:4px 10px;border-radius:20px">Ver todas →</span>
+        <div style="background:#fff;border:1px solid #e2e8f0;border-radius:14px;padding:16px;margin-bottom:10px">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
+            <div style="font-size:12px;font-weight:700;color:#1e293b">📊 Seu desempenho</div>
+            <span onclick="goTab('materias')" style="font-size:11px;color:#2563eb;cursor:pointer;font-weight:600">Ver todas →</span>
           </div>
           <div id="desempenhoDash"></div>
-          <div id="desempenhoFraco" style="margin-top:12px;background:rgba(245,158,11,0.08);border:1px solid rgba(245,158,11,0.2);border-radius:10px;padding:10px 14px;font-size:12px;color:rgba(255,255,255,0.5);display:none;cursor:pointer" onclick="goTab('materias')">
-            🎯 Você está fraco em <strong style="color:#f59e0b" id="desempenhoFracoNome"></strong> — clique para estudar →
+          <div id="desempenhoFraco" style="margin-top:10px;background:#fffbeb;border:1px solid #fde68a;border-radius:8px;padding:9px 12px;font-size:12px;color:#92400e;display:none;cursor:pointer" onclick="goTab('materias')">
+            🎯 Foco em <strong id="desempenhoFracoNome"></strong> — clique para estudar →
           </div>
         </div>
 
-        <!-- SEQUÊNCIA + PREVISÃO -->
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px">
-          <div style="background:linear-gradient(135deg,#0a1f0a,#0f2a0f);border-radius:20px;padding:18px;border:1px solid rgba(34,197,94,0.15)">
-            <div style="font-size:10px;font-weight:800;color:rgba(255,255,255,0.4);letter-spacing:1px;margin-bottom:8px">SEQUÊNCIA 🔥</div>
-            <div style="font-size:44px;font-weight:900;color:#22c55e;line-height:1" id="sequenciaDias">0</div>
-            <div style="font-size:11px;color:rgba(255,255,255,0.35);margin-top:4px">dias seguidos</div>
-            <div style="margin-top:10px;font-size:11px;font-weight:700;padding:5px 10px;border-radius:8px;display:inline-block;background:rgba(245,158,11,0.15);color:#f59e0b" id="sequenciaAviso">⚠️ Não perca hoje!</div>
+        <!-- PREVISÃO -->
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px">
+          <div style="background:#fef2f2;border:1px solid #fecaca;border-radius:14px;padding:14px">
+            <div style="font-size:10px;color:#991b1b;font-weight:700;text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px">Se continuar assim</div>
+            <div style="font-size:13px;font-weight:800;color:#dc2626" id="previsaoNegativa">Não passa</div>
+            <div style="font-size:10px;color:#ef4444;margin-top:4px">Mantenha o ritmo!</div>
           </div>
-          <div style="background:linear-gradient(135deg,#0f172a,#1a1a2e);border-radius:20px;padding:18px;border:1px solid rgba(255,255,255,0.05)">
-            <div style="font-size:10px;font-weight:800;color:rgba(255,255,255,0.4);letter-spacing:1px;margin-bottom:12px">PREVISÃO 📈</div>
-            <div style="display:flex;flex-direction:column;gap:8px">
-              <div style="display:flex;align-items:center;gap:8px;background:rgba(239,68,68,0.08);border-radius:8px;padding:7px 10px">
-                <span style="color:#ef4444;font-size:16px">✗</span>
-                <div><div style="font-size:9px;color:rgba(255,255,255,0.3)">Se continuar assim</div><div style="font-size:12px;font-weight:700;color:#ef4444" id="previsaoNegativa">Não passa</div></div>
-              </div>
-              <div style="display:flex;align-items:center;gap:8px;background:rgba(34,197,94,0.08);border-radius:8px;padding:7px 10px">
-                <span style="color:#22c55e;font-size:16px">✓</span>
-                <div><div style="font-size:9px;color:rgba(255,255,255,0.3)">Se estudar hoje</div><div style="font-size:12px;font-weight:700;color:#22c55e">Chega a <span id="previsaoPositiva">—</span></div></div>
-              </div>
-            </div>
+          <div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:14px;padding:14px">
+            <div style="font-size:10px;color:#14532d;font-weight:700;text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px">Se estudar hoje</div>
+            <div style="font-size:13px;font-weight:800;color:#16a34a">Chega a <span id="previsaoPositiva">—</span></div>
+            <div style="font-size:10px;color:#22c55e;margin-top:4px">Você consegue! 💪</div>
           </div>
+        </div>
+
+        <!-- RANKING -->
+        <div style="background:#eff6ff;border:1px solid #bfdbfe;border-radius:14px;padding:12px 16px;margin-bottom:10px;display:flex;align-items:center;gap:10px">
+          <span style="font-size:20px">🏆</span>
+          <div style="flex:1;font-size:13px;color:#1e40af">Você está melhor que <strong id="gaugeRanking">—</strong> dos usuários</div>
         </div>
 
         <!-- LEMBRETES -->
-        <div style="background:linear-gradient(135deg,#0f172a,#1a1a2e);border-radius:20px;padding:20px;margin-bottom:14px;border:1px solid rgba(251,146,60,0.1)">
-          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
-            <div style="font-size:12px;font-weight:800;color:#fff;letter-spacing:.5px;display:flex;align-items:center;gap:8px">
-              <span style="background:rgba(251,146,60,0.2);width:28px;height:28px;border-radius:8px;display:grid;place-items:center">🔔</span>
-              LEMBRETES
-            </div>
-            <button onclick="abrirModalLembrete()" style="font-size:11px;background:rgba(99,102,241,0.15);color:#818cf8;border:1px solid rgba(99,102,241,0.25);padding:5px 12px;border-radius:20px;cursor:pointer;font-weight:600;width:auto">+ Novo</button>
+        <div style="background:#fff;border:1px solid #e2e8f0;border-radius:14px;padding:16px;margin-bottom:10px">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+            <div style="font-size:12px;font-weight:700;color:#1e293b">🔔 Lembretes</div>
+            <button onclick="abrirModalLembrete()" style="font-size:11px;background:#eff6ff;color:#2563eb;border:1px solid #bfdbfe;padding:4px 12px;border-radius:20px;cursor:pointer;font-weight:600;width:auto">+ Novo</button>
           </div>
-          <div id="listaLembretes"><div style="text-align:center;padding:16px;color:rgba(255,255,255,0.2);font-size:13px">🔔 Nenhum lembrete ainda</div></div>
+          <div id="listaLembretes"><div style="text-align:center;padding:12px;color:#94a3b8;font-size:13px">🔔 Nenhum lembrete ainda</div></div>
         </div>
 
         <!-- FAZER SIMULADO -->
-        <div onclick="goTab('planointeligente')" style="background:linear-gradient(135deg,#1e1b4b,#0f2a4a);border-radius:20px;padding:18px;margin-bottom:14px;display:flex;align-items:center;gap:14px;cursor:pointer;border:1px solid rgba(99,102,241,0.2)">
-          <div style="width:48px;height:48px;border-radius:14px;background:linear-gradient(135deg,rgba(99,102,241,0.3),rgba(59,130,246,0.2));display:grid;place-items:center;font-size:24px;flex-shrink:0">📋</div>
+        <div onclick="goTab('planointeligente')" style="background:#fff;border:1.5px solid #c7d2fe;border-radius:14px;padding:14px;margin-bottom:10px;display:flex;align-items:center;gap:12px;cursor:pointer">
+          <div style="width:40px;height:40px;border-radius:10px;background:#eff6ff;display:grid;place-items:center;font-size:20px;flex-shrink:0">📋</div>
           <div style="flex:1">
-            <div style="font-size:14px;font-weight:800;color:#fff">FAZER SIMULADO</div>
-            <div style="font-size:12px;color:rgba(255,255,255,0.35);margin-top:2px">Teste seus conhecimentos agora</div>
+            <div style="font-size:13px;font-weight:700;color:#1e293b">Fazer simulado</div>
+            <div style="font-size:11px;color:#64748b;margin-top:2px">Teste seus conhecimentos agora</div>
           </div>
-          <div style="width:32px;height:32px;border-radius:50%;background:rgba(99,102,241,0.15);display:grid;place-items:center;color:#818cf8;font-size:20px">›</div>
+          <div style="color:#2563eb;font-size:20px">›</div>
         </div>
 
         <!-- STATS MINI -->
-        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:14px">
-          <div style="background:#0f172a;border-radius:16px;padding:14px 10px;text-align:center;border:1px solid rgba(59,130,246,0.12)">
-            <div style="font-size:18px;margin-bottom:6px">📖</div>
-            <div style="font-size:20px;font-weight:800;color:#60a5fa" id="statMaterias">0</div>
-            <div style="font-size:10px;color:rgba(255,255,255,0.25);margin-top:3px">Matérias</div>
+        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:10px">
+          <div style="background:#fff;border:1px solid #e2e8f0;border-radius:12px;padding:12px 8px;text-align:center">
+            <div style="font-size:18px;font-weight:800;color:#2563eb" id="statMaterias">0</div>
+            <div style="font-size:9px;color:#94a3b8;margin-top:3px">Matérias</div>
           </div>
-          <div style="background:#0f172a;border-radius:16px;padding:14px 10px;text-align:center;border:1px solid rgba(34,197,94,0.12)">
-            <div style="font-size:18px;margin-bottom:6px">📝</div>
-            <div style="font-size:20px;font-weight:800;color:#4ade80" id="statNotas">0</div>
-            <div style="font-size:10px;color:rgba(255,255,255,0.25);margin-top:3px">Notas</div>
+          <div style="background:#fff;border:1px solid #e2e8f0;border-radius:12px;padding:12px 8px;text-align:center">
+            <div style="font-size:18px;font-weight:800;color:#16a34a" id="statNotas">0</div>
+            <div style="font-size:9px;color:#94a3b8;margin-top:3px">Notas</div>
           </div>
-          <div style="background:#0f172a;border-radius:16px;padding:14px 10px;text-align:center;border:1px solid rgba(251,146,60,0.12)">
-            <div style="font-size:18px;margin-bottom:6px">🗓️</div>
-            <div style="font-size:20px;font-weight:800;color:#fb923c" id="statPlanos">0</div>
-            <div style="font-size:10px;color:rgba(255,255,255,0.25);margin-top:3px">Planos</div>
+          <div style="background:#fff;border:1px solid #e2e8f0;border-radius:12px;padding:12px 8px;text-align:center">
+            <div style="font-size:18px;font-weight:800;color:#d97706" id="statPlanos">0</div>
+            <div style="font-size:9px;color:#94a3b8;margin-top:3px">Planos</div>
           </div>
-          <div style="background:#0f172a;border-radius:16px;padding:14px 10px;text-align:center;border:1px solid rgba(167,139,250,0.12)">
-            <div style="font-size:18px;margin-bottom:6px">🎯</div>
-            <div style="font-size:20px;font-weight:800;color:#a78bfa" id="statProgresso">0%</div>
-            <div style="font-size:10px;color:rgba(255,255,255,0.25);margin-top:3px">Progresso</div>
+          <div style="background:#fff;border:1px solid #e2e8f0;border-radius:12px;padding:12px 8px;text-align:center">
+            <div style="font-size:18px;font-weight:800;color:#7c3aed" id="statProgresso">0%</div>
+            <div style="font-size:9px;color:#94a3b8;margin-top:3px">Progresso</div>
           </div>
         </div>
 
         <!-- GRÁFICO + NOTAS -->
-        <div class="grid-2" style="margin-bottom:14px">
-          <div style="background:#0f172a;border-radius:20px;padding:18px;border:1px solid rgba(255,255,255,0.05)">
-            <div style="font-size:12px;font-weight:700;color:rgba(255,255,255,0.5);margin-bottom:14px">📊 Progresso por Matéria</div>
+        <div class="grid-2" style="margin-bottom:10px">
+          <div style="background:#fff;border:1px solid #e2e8f0;border-radius:14px;padding:16px">
+            <div style="font-size:12px;font-weight:700;color:#1e293b;margin-bottom:12px">📊 Progresso por matéria</div>
             <div id="chartWrap" style="position:relative;width:100%"><canvas id="chartMaterias"></canvas></div>
           </div>
-          <div style="background:#0f172a;border-radius:20px;padding:18px;border:1px solid rgba(255,255,255,0.05)">
-            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
-              <div style="font-size:12px;font-weight:700;color:rgba(255,255,255,0.5)">📝 Últimas Notas</div>
-              <span onclick="goTab('notas')" style="font-size:11px;color:#818cf8;cursor:pointer">Ver todas →</span>
+          <div style="background:#fff;border:1px solid #e2e8f0;border-radius:14px;padding:16px">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+              <div style="font-size:12px;font-weight:700;color:#1e293b">📝 Últimas notas</div>
+              <span onclick="goTab('notas')" style="font-size:11px;color:#2563eb;cursor:pointer">Ver todas →</span>
             </div>
             <div id="dashNotas"></div>
           </div>
         </div>
 
         <!-- HISTÓRICO -->
-        <div style="background:#0f172a;border-radius:20px;padding:18px;margin-bottom:14px;border:1px solid rgba(255,255,255,0.05)">
-          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
-            <div style="font-size:12px;font-weight:700;color:rgba(255,255,255,0.5)">📈 Histórico de Estudo</div>
-            <span onclick="goTab('materias')" style="font-size:11px;color:#818cf8;cursor:pointer">Ir para matérias →</span>
+        <div style="background:#fff;border:1px solid #e2e8f0;border-radius:14px;padding:16px;margin-bottom:10px">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+            <div style="font-size:12px;font-weight:700;color:#1e293b">📈 Histórico de estudo</div>
+            <span onclick="goTab('materias')" style="font-size:11px;color:#2563eb;cursor:pointer">Ir para matérias →</span>
           </div>
-          <div id="historicoEstudo"><div style="text-align:center;padding:16px;color:rgba(255,255,255,0.2);font-size:13px">⏱️ Clique em uma matéria para iniciar!</div></div>
+          <div id="historicoEstudo"><div style="text-align:center;padding:12px;color:#94a3b8;font-size:13px">⏱️ Clique em uma matéria para iniciar!</div></div>
         </div>
 
         <!-- FEEDBACK IA -->
-        <div style="background:#0f172a;border-radius:20px;padding:18px;margin-bottom:14px;border:1px solid rgba(99,102,241,0.1)" id="cardFeedbackIA">
-          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
-            <div style="font-size:12px;font-weight:700;color:rgba(255,255,255,0.5)">🤖 Análise por Matéria</div>
-            <button onclick="gerarFeedbackIA()" id="btnFeedbackIA" style="font-size:11px;background:linear-gradient(135deg,#2563eb,#7c3aed);color:#fff;border:none;padding:6px 14px;border-radius:20px;cursor:pointer;font-weight:600;width:auto">✨ Gerar análise</button>
+        <div style="background:#fff;border:1px solid #e2e8f0;border-radius:14px;padding:16px;margin-bottom:14px" id="cardFeedbackIA">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+            <div style="font-size:12px;font-weight:700;color:#1e293b">🤖 Análise por matéria</div>
+            <button onclick="gerarFeedbackIA()" id="btnFeedbackIA" style="font-size:11px;background:linear-gradient(135deg,#2563eb,#7c3aed);color:#fff;border:none;padding:6px 14px;border-radius:20px;cursor:pointer;font-weight:600;width:auto">✨ Gerar</button>
           </div>
-          <div id="feedbackIAConteudo"><div style="text-align:center;padding:16px;color:rgba(255,255,255,0.2);font-size:13px">🤖 Clique em "Gerar análise" para diagnóstico personalizado.</div></div>
+          <div id="feedbackIAConteudo"><div style="text-align:center;padding:12px;color:#94a3b8;font-size:13px">🤖 Clique em "Gerar" para diagnóstico personalizado.</div></div>
         </div>
 
       </div>
 
       <!-- ─── MODAL ESCOLHER MATÉRIA ─── -->
-      <div id="modalEscolherMateria" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:9999;align-items:center;justify-content:center">
+      <div id="modalEscolherMateria" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:9999;align-items:center;justify-content:center">
         <div class="card card-pad" style="width:100%;max-width:420px;margin:20px">
           <div class="card-head"><h3>⏱️ Iniciar Cronômetro</h3></div>
           <p style="font-size:13px;color:var(--muted);margin-bottom:12px">Plano: <strong id="tituloPlanoEscolha"></strong></p>
@@ -1364,7 +1361,7 @@ body{font-family:'Plus Jakarta Sans',sans-serif;-webkit-font-smoothing:antialias
       </div>
 
       <!-- ─── MODAL LEMBRETE ─── -->
-      <div id="modalLembrete" class="hidden" style="position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:9999;align-items:center;justify-content:center">
+      <div id="modalLembrete" class="hidden" style="position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:9999;align-items:center;justify-content:center">
         <div class="card card-pad" style="width:100%;max-width:420px;margin:20px">
           <div class="card-head"><h3>🔔 Novo Lembrete</h3><button class="btn-secondary mini-btn" style="width:auto" onclick="fecharModalLembrete()">✕</button></div>
           <input type="text" id="lembreteTexto" placeholder="Ex: Revisar Direito Penal" style="margin-bottom:10px" />
@@ -1373,7 +1370,6 @@ body{font-family:'Plus Jakarta Sans',sans-serif;-webkit-font-smoothing:antialias
         </div>
       </div>
 
-      <!-- ─── MATÉRIAS ─── -->
       <div class="tab-page" id="tab-materias">
         <div class="section-title">📖 Matérias</div>
 
@@ -2219,18 +2215,24 @@ async function carregarApp() {
     const nomeDemo = currentUser.user_metadata.nome || 'Visitante';
     const banner = document.createElement('div');
     banner.id = 'demoBanner';
-    banner.style.cssText = 'background:linear-gradient(90deg,#059669,#047857);color:#fff;padding:10px 20px;display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;font-size:13px;position:sticky;top:0;z-index:50';
+    banner.style.cssText = 'background:linear-gradient(90deg,#059669,#047857);color:#fff;padding:10px 16px;display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;font-size:13px;position:sticky;top:0;z-index:50;border-radius:0 0 12px 12px;margin-bottom:4px';
     banner.innerHTML = `
       <div style="display:flex;align-items:center;gap:8px">
-        <span style="font-size:16px">🎯</span>
+        <span style="font-size:15px">🎯</span>
         <div>
-          <div style="font-weight:700">Olá, ${nomeDemo}! Você está explorando a demonstração.</div>
-          <div style="font-size:11px;opacity:.8">Todos os dados são simulados. Crie sua conta para começar de verdade.</div>
+          <div style="font-weight:700;font-size:13px">Modo demonstração — dados simulados</div>
+          <div style="font-size:11px;opacity:.8">Crie sua conta para salvar seu progresso de verdade</div>
         </div>
       </div>
-      <button onclick="abrirCadastroDaDemo()" style="background:#fff;color:#059669;border:none;padding:8px 16px;border-radius:8px;font-weight:700;font-size:12px;cursor:pointer;white-space:nowrap;width:auto">
-        ✅ Criar minha conta →
-      </button>`;
+      <div style="display:flex;gap:8px;flex-shrink:0">
+        <a href="https://www.mercadopago.com.br/subscriptions/checkout?preapproval_plan_id=c44dc3e2e0544c35a6f91f3323e69159" target="_blank"
+          style="background:#fbbf24;color:#92400e;border:none;padding:8px 16px;border-radius:8px;font-weight:800;font-size:12px;cursor:pointer;white-space:nowrap;text-decoration:none;display:inline-flex;align-items:center;gap:5px">
+          💳 Assinar R$15/mês
+        </a>
+        <button onclick="abrirCadastroDaDemo()" style="background:#fff;color:#059669;border:none;padding:8px 14px;border-radius:8px;font-weight:700;font-size:12px;cursor:pointer;white-space:nowrap;width:auto">
+          Criar conta →
+        </button>
+      </div>`;
     const mainArea = document.querySelector('.main-area');
     if (mainArea) mainArea.insertBefore(banner, mainArea.firstChild);
   }
@@ -3166,44 +3168,40 @@ function atualizarDashboardExtra(progMedio) {
   const canvas = document.getElementById('gaugePreparacao');
   if (canvas) {
     const ctx = canvas.getContext('2d');
-    const W = canvas.width, H = canvas.height, cx = W/2, cy = H/2, r = 44;
+    const W = canvas.width, H = canvas.height, cx = W/2, cy = H/2, r = W/2 - 6;
     ctx.clearRect(0,0,W,H);
-    // Fundo
     ctx.beginPath(); ctx.arc(cx,cy,r,Math.PI*0.75,Math.PI*2.25);
-    ctx.strokeStyle='rgba(255,255,255,0.08)'; ctx.lineWidth=10; ctx.lineCap='round'; ctx.stroke();
-    // Progresso
-    const cor = progMedio>=70?'#22c55e':progMedio>=40?'#f59e0b':'#ef4444';
+    ctx.strokeStyle='#e2e8f0'; ctx.lineWidth=7; ctx.lineCap='round'; ctx.stroke();
+    const cor = progMedio>=70?'#16a34a':progMedio>=40?'#f59e0b':'#dc2626';
     const angFim = Math.PI*0.75 + (Math.PI*1.5)*(progMedio/100);
     ctx.beginPath(); ctx.arc(cx,cy,r,Math.PI*0.75,angFim);
-    ctx.strokeStyle=cor; ctx.lineWidth=10; ctx.lineCap='round'; ctx.stroke();
-    document.getElementById('gaugePct').textContent = progMedio+'%';
-    document.getElementById('gaugePct').style.color = cor;
+    ctx.strokeStyle=cor; ctx.lineWidth=7; ctx.lineCap='round'; ctx.stroke();
+    const pctEl = document.getElementById('gaugePct');
+    if (pctEl) { pctEl.textContent=progMedio+'%'; pctEl.style.color=cor; }
   }
 
   // Status preparação
   const statusEl = document.getElementById('gaugeStatus');
   const varEl = document.getElementById('gaugeVariacao');
   if (statusEl) {
-    if (progMedio>=70) { statusEl.textContent='✅ Boa chance de aprovação!'; statusEl.style.color='#22c55e'; }
-    else if (progMedio>=40) { statusEl.textContent='⚠️ Chance de aprovação MÉDIA'; statusEl.style.color='#f59e0b'; }
-    else { statusEl.textContent='Chance de reprovação ALTA'; statusEl.style.color='#ef4444'; }
+    if (progMedio>=70) { statusEl.textContent='✅ Boa chance de aprovação!'; statusEl.style.color='#16a34a'; }
+    else if (progMedio>=40) { statusEl.textContent='⚠️ Risco médio'; statusEl.style.color='#d97706'; }
+    else { statusEl.textContent='🚨 Alto risco de reprovação'; statusEl.style.color='#dc2626'; }
   }
   if (varEl) {
     const anterior = parseInt(localStorage.getItem('vs_prog_anterior')||'0');
     const diff = progMedio - anterior;
-    if (diff > 0) varEl.textContent = '⬆️ Você subiu '+diff+'% desde ontem';
-    else if (diff < 0) varEl.textContent = '⬇️ Você caiu '+Math.abs(diff)+'% desde ontem';
-    else varEl.textContent = '➡️ Mesmo progresso de ontem';
-    // Salva para próxima comparação
+    if (diff > 0) { varEl.textContent='⬆️ +'+diff+'% desde ontem'; varEl.style.color='#16a34a'; }
+    else if (diff < 0) { varEl.textContent='⬇️ '+diff+'% desde ontem'; varEl.style.color='#dc2626'; }
+    else { varEl.textContent='➡️ Mesmo de ontem'; varEl.style.color='#94a3b8'; }
     const hoje = new Date().toDateString();
     if (localStorage.getItem('vs_prog_data') !== hoje) {
       localStorage.setItem('vs_prog_anterior', progMedio);
       localStorage.setItem('vs_prog_data', hoje);
     }
   }
-  // Ranking fictício baseado no progresso
   const ranking = document.getElementById('gaugeRanking');
-  if (ranking) ranking.textContent = Math.min(99, Math.round(progMedio * 0.9 + 10)) + '%';
+  if (ranking) ranking.textContent = Math.min(99, Math.round(progMedio*0.9+10))+'%';
 
   // ── DESEMPENHO por matéria ──
   const desEl = document.getElementById('desempenhoDash');
@@ -3212,25 +3210,21 @@ function atualizarDashboardExtra(progMedio) {
       const p = m.progresso||0;
       const cor = m.cor||'#2563eb';
       return `<div style="margin-bottom:10px">
-        <div style="display:flex;justify-content:space-between;margin-bottom:4px">
-          <span style="font-size:13px;color:#fff;font-weight:500">${m.nome}</span>
+        <div style="display:flex;justify-content:space-between;margin-bottom:5px">
+          <span style="font-size:13px;color:#374151;font-weight:500">${m.nome}</span>
           <span style="font-size:13px;font-weight:700;color:${cor}">${p}%</span>
         </div>
-        <div style="height:6px;background:rgba(255,255,255,0.08);border-radius:4px">
+        <div style="height:6px;background:#f1f5f9;border-radius:4px">
           <div style="height:6px;border-radius:4px;width:${p}%;background:${cor};transition:width .5s"></div>
         </div>
       </div>`;
     }).join('');
-    // Matéria mais fraca
     const fraca = [...materias].sort((a,b)=>(a.progresso||0)-(b.progresso||0))[0];
     const fracoEl = document.getElementById('desempenhoFraco');
     const fracoNome = document.getElementById('desempenhoFracoNome');
-    if (fraca && fracoEl && fracoNome) {
-      fracoEl.style.display='block';
-      fracoNome.textContent = fraca.nome;
-    }
+    if (fraca && fracoEl && fracoNome) { fracoEl.style.display='block'; fracoNome.textContent=fraca.nome; }
   } else if (desEl) {
-    desEl.innerHTML = '<div style="font-size:13px;color:rgba(255,255,255,0.4);text-align:center;padding:12px">Cadastre matérias para ver seu desempenho</div>';
+    desEl.innerHTML = '<div style="text-align:center;padding:12px;color:#94a3b8;font-size:13px">Cadastre matérias para ver seu desempenho</div>';
   }
 
   // ── PLANO DO DIA ──
@@ -3242,18 +3236,18 @@ function atualizarDashboardExtra(progMedio) {
     let totalMin = 0;
     planoDia.innerHTML = top3.map((m,i) => {
       totalMin += minutos[i];
-      const feito = (m.progresso||0) > 50;
-      return `<div style="display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid rgba(255,255,255,0.06)">
-        <div style="width:24px;height:24px;border-radius:50%;border:2px solid ${feito?'#22c55e':'rgba(255,255,255,0.2)'};background:${feito?'#22c55e':'transparent'};display:grid;place-items:center;flex-shrink:0">
-          ${feito?'<span style="color:#fff;font-size:12px">✓</span>':''}
+      const feito = (m.progresso||0) > 60;
+      return `<div style="display:flex;align-items:center;gap:12px;padding:9px 0;border-bottom:1px solid #f1f5f9">
+        <div style="width:22px;height:22px;border-radius:50%;border:2px solid ${feito?'#16a34a':'#d1d5db'};background:${feito?'#16a34a':'transparent'};display:grid;place-items:center;flex-shrink:0">
+          ${feito?'<span style="color:#fff;font-size:11px">✓</span>':''}
         </div>
-        <div style="flex:1;font-size:14px;color:${feito?'rgba(255,255,255,0.4)':'#fff'};font-weight:${feito?'400':'600'}">${m.nome}</div>
-        <div style="font-size:13px;color:rgba(255,255,255,0.4)">${minutos[i]} min ›</div>
+        <div style="flex:1;font-size:13px;color:${feito?'#94a3b8':'#374151'};font-weight:${feito?'400':'600'}">${m.nome}</div>
+        <div style="font-size:12px;color:#94a3b8">${minutos[i]} min ›</div>
       </div>`;
     }).join('');
     if (planoDiaTempo) planoDiaTempo.textContent = totalMin+' min';
   } else if (planoDia) {
-    planoDia.innerHTML = '<div style="font-size:13px;color:rgba(255,255,255,0.4);padding:8px 0">Cadastre matérias para ver seu plano do dia</div>';
+    planoDia.innerHTML = '<div style="font-size:13px;color:#94a3b8;padding:8px 0">Cadastre matérias para ver seu plano do dia</div>';
   }
 
   // ── SEQUÊNCIA ──
@@ -5053,68 +5047,10 @@ function _bolinhaPotencial(score) {
 function _renderClientesLista(lista, el) {
   if (!lista.length) { el.innerHTML = '<div class="empty-state">Nenhum cliente encontrado.</div>'; return; }
 
-  // Ordena por potencial (maior primeiro)
   const comScore = lista.map(u => ({ ...u, _score: _calcularPotencial(u) }))
     .sort((a, b) => b._score - a._score);
 
-  el.innerHTML = comScore.map(u => {
-    const trialFim = u.trial_fim ? new Date(u.trial_fim) : null;
-    const trialExpirou = trialFim && trialFim < new Date();
-    const diasTrial = trialFim ? Math.ceil((trialFim - new Date()) / 86400000) : null;
 
-    let status = '⏳ Novo', statusColor = '#d97706', statusBg = '#fffbeb';
-    if (u.assinatura_ativa) { status = '✅ Ativo'; statusColor = '#059669'; statusBg = '#f0fdf4'; }
-    else if (trialExpirou) { status = '❌ Expirado'; statusColor = '#dc2626'; statusBg = '#fef2f2'; }
-    else if (diasTrial !== null && diasTrial >= 0) { status = '⏳ Trial (' + diasTrial + 'd)'; statusColor = '#d97706'; statusBg = '#fffbeb'; }
-
-    const dataPag = u.data_pagamento ? new Date(u.data_pagamento).toLocaleDateString('pt-BR') : '';
-    const avatar = ((u.nome || u.email || '?').charAt(0) || '?').toUpperCase();
-    const bolinha = _bolinhaPotencial(u._score);
-    const scoreBar = `<div style="display:flex;align-items:center;gap:5px;margin-top:3px">
-      <div style="flex:1;height:4px;background:#e5e7eb;border-radius:4px;max-width:80px">
-        <div style="height:4px;border-radius:4px;width:${u._score}%;background:${u._score>=70?'#22c55e':u._score>=40?'#f59e0b':'#ef4444'}"></div>
-      </div>
-      <span style="font-size:10px;color:var(--muted)">${u._score}%</span>
-    </div>`;
-
-    // Mensagem pré-formatada
-    const msgWhats = encodeURIComponent('Olá' + (u.nome ? ', ' + u.nome.split(' ')[0] : '') + '! 👋\n\nVi que você explorou o Vou Estudar+ e queria te convidar para continuar com acesso completo.\n\n🎯 Por apenas R$15/mês você tem:\n✅ Plano de estudos com IA\n✅ Flashcards e simulados\n✅ Cronômetro e progresso por matéria\n\nQuer garantir seu acesso agora? 🚀');
-    const telLimpo = (u.telefone || '').replace(/\D/g, '');
-    const btnWhats = telLimpo ? `<button onclick="adminEnviarConviteWhats('${u.id}','${telLimpo}','${(u.nome||'').replace(/'/g,"\\'")}',this)" style="font-size:10px;padding:3px 9px;border-radius:7px;background:#f0fdf4;color:#16a34a;border:1px solid #bbf7d0;cursor:pointer;width:auto;font-weight:700;position:relative" id="wbtn_${u.id}">
-      📱 WhatsApp
-    </button>` : '';
-    const btnEmail = u.email ? `<button onclick="adminEnviarConviteEmail('${u.id}','${u.email}','${(u.nome||'').replace(/'/g,"\\'")}',this)" style="font-size:10px;padding:3px 9px;border-radius:7px;background:#eff6ff;color:#2563eb;border:1px solid #dbeafe;cursor:pointer;width:auto;font-weight:700;position:relative" id="ebtn_${u.id}">
-      📧 E-mail
-    </button>` : '';
-
-    return `<div style="display:flex;align-items:center;gap:10px;padding:12px 0;border-bottom:1px solid var(--border);flex-wrap:wrap">
-      <div style="display:flex;flex-direction:column;align-items:center;gap:4px;flex-shrink:0">
-        <div style="width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#2563eb,#3b82f6);display:grid;place-items:center;font-size:14px;font-weight:700;color:#fff">${avatar}</div>
-        ${bolinha}
-      </div>
-      <div style="flex:1;min-width:0">
-        <div style="font-size:13px;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">
-          ${u.nome ? u.nome : (u.email || u.id?.substring(0,16)+'…')}
-        </div>
-        ${u.email ? `<div style="font-size:11px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${u.email}</div>` : ''}
-        ${u.telefone ? `<div style="font-size:11px;color:#059669;font-weight:600">📱 ${u.telefone}</div>` : ''}
-        <div style="font-size:11px;color:var(--muted)">${dataPag ? '💳 Pagou: '+dataPag : trialFim ? (trialExpirou?'Expirou: ':'Trial até: ')+trialFim.toLocaleDateString('pt-BR') : 'Sem assinatura'}</div>
-        ${scoreBar}
-      </div>
-      <div style="display:flex;flex-direction:column;align-items:flex-end;gap:5px;flex-shrink:0">
-        <span style="font-size:10px;font-weight:700;padding:3px 9px;border-radius:20px;background:${statusBg};color:${statusColor}">${status}</span>
-        <div style="display:flex;gap:4px;flex-wrap:wrap;justify-content:flex-end">
-          ${btnWhats}
-          ${btnEmail}
-          ${!u.assinatura_ativa
-            ? `<button onclick="adminAtivarPorId('${u.id}')" style="font-size:10px;padding:3px 9px;border-radius:7px;background:#f0fdf4;color:#059669;border:1px solid #bbf7d0;cursor:pointer;width:auto;font-weight:700">✅ Ativar</button>`
-            : `<button onclick="adminDesativarPorId('${u.id}')" style="font-size:10px;padding:3px 9px;border-radius:7px;background:#fffbeb;color:#d97706;border:1px solid #fde68a;cursor:pointer;width:auto;font-weight:700">🚫 Desativar</button>`}
-          <button onclick="adminExcluirCliente('${u.id}','${(u.email||'').replace(/'/g,"\\'")}',this)" style="font-size:10px;padding:3px 8px;border-radius:7px;background:#fef2f2;color:#dc2626;border:1px solid #fecaca;cursor:pointer;width:auto">🗑️</button>
-        </div>
-      </div>
-    </div>`;
-  }).join('');
-}
 
 function adminEnviarConviteWhats(userId, tel, nome, btn) {
   const msg = encodeURIComponent('Olá' + (nome ? ', ' + nome.split(' ')[0] : '') + '! 👋\n\nVi que você explorou o Vou Estudar+ e queria te convidar para continuar com acesso completo.\n\n🎯 Por apenas R$15/mês você tem:\n✅ Plano de estudos com IA\n✅ Flashcards e simulados\n✅ Cronômetro e progresso por matéria\n\nQuer garantir seu acesso agora? 🚀\nhttps://vouestudarmais.com.br');
