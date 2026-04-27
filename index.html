@@ -53,7 +53,7 @@ body{font-family:'Plus Jakarta Sans',sans-serif;-webkit-font-smoothing:antialias
   border-radius:50%;border:2px solid #0d1b4e;
 }
 .lp-logo-name{
-  font-size:18px;font-weight:800;color:#fff;letter-spacing:-0.4px;
+  font-size:18px;font-weight:800;color:#0f172a;letter-spacing:-0.4px;
 }
 .lp-logo-name .plus{color:#2563eb}
 
@@ -65,7 +65,7 @@ body{font-family:'Plus Jakarta Sans',sans-serif;-webkit-font-smoothing:antialias
 }
 .lp-nav-link:hover{color:#fff;background:rgba(255,255,255,0.07)}
 .lp-nav-cta{
-  font-size:14px;font-weight:700;color:#fff;
+  font-size:14px;font-weight:700;color:#0f172a;
   background:linear-gradient(135deg,#2563eb,#1d4ed8);
   border:none;padding:10px 24px;border-radius:10px;
   cursor:pointer;font-family:inherit;margin-left:8px;
@@ -96,7 +96,7 @@ body{font-family:'Plus Jakarta Sans',sans-serif;-webkit-font-smoothing:antialias
 .lp-title{
   font-size:72px;font-weight:800;
   line-height:1.05;letter-spacing:-2.5px;
-  margin-bottom:24px;color:#fff;
+  margin-bottom:24px;color:#0f172a;
 }
 .lp-title .highlight{
   background:linear-gradient(90deg,#2563eb,#1d4ed8);
@@ -104,7 +104,7 @@ body{font-family:'Plus Jakarta Sans',sans-serif;-webkit-font-smoothing:antialias
 }
 
 .lp-desc{
-  font-size:18px;color:rgba(255,255,255,0.5);
+  font-size:18px;color:#64748b;
   line-height:1.7;margin-bottom:44px;max-width:520px;
 }
 
@@ -121,7 +121,7 @@ body{font-family:'Plus Jakarta Sans',sans-serif;-webkit-font-smoothing:antialias
   font-size:14px;font-weight:600;color:rgba(255,255,255,0.8);
   cursor:default;transition:all .2s;
 }
-.lp-area:hover{background:rgba(255,255,255,0.11);border-color:rgba(255,255,255,0.25);color:#fff}
+.lp-area:hover{background:rgba(255,255,255,0.11);border-color:#cbd5e1;color:#fff}
 .lp-area-icon{font-size:17px;line-height:1}
 
 /* FEATS */
@@ -129,7 +129,7 @@ body{font-family:'Plus Jakarta Sans',sans-serif;-webkit-font-smoothing:antialias
   display:flex;align-items:center;gap:40px;
   margin-bottom:48px;flex-wrap:wrap;justify-content:center;
 }
-.lp-feat{display:flex;align-items:center;gap:10px;font-size:15px;font-weight:600;color:rgba(255,255,255,0.7)}
+.lp-feat{display:flex;align-items:center;gap:10px;font-size:15px;font-weight:600;color:#334155}
 .lp-feat-icon{font-size:22px;line-height:1}
 
 /* CTA */
@@ -159,11 +159,11 @@ body{font-family:'Plus Jakarta Sans',sans-serif;-webkit-font-smoothing:antialias
   display:flex;justify-content:center;
 }
 .lp-footer a{
-  font-size:13px;color:rgba(255,255,255,0.25);
+  font-size:13px;color:#cbd5e1;
   text-decoration:none;font-weight:500;
   display:flex;align-items:center;gap:6px;transition:color .15s;
 }
-.lp-footer a:hover{color:rgba(255,255,255,0.6)}
+.lp-footer a:hover{color:#475569}
 
 /* ══ MOBILE ══ */
 @media(max-width:767px){
@@ -752,7 +752,7 @@ body{font-family:'Plus Jakarta Sans',sans-serif;-webkit-font-smoothing:antialias
     </div>
     <div class="lp-nav-right">
       <button class="lp-nav-link" onclick="irParaLogin()">Entrar na minha conta</button>
-      <button onclick="irParaDemo()" style="background:linear-gradient(135deg,#059669,#10b981);color:#fff;border:none;padding:9px 18px;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer">🎯 Demonstração</button>
+      <button onclick="irParaDemo()" style="background:linear-gradient(135deg,#059669,#10b981);color:#0f172a;border:none;padding:9px 18px;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer">🎯 Demonstração</button>
       <button class="lp-nav-cta" onclick="irParaCadastro()">Começar grátis</button>
     </div>
   </nav>
@@ -795,10 +795,10 @@ body{font-family:'Plus Jakarta Sans',sans-serif;-webkit-font-smoothing:antialias
     ">
       <div style="font-size:28px;flex-shrink:0;line-height:1">🔥</div>
       <div style="flex:1;text-align:left">
-        <div style="font-size:13px;font-weight:800;color:#fff;letter-spacing:-0.2px" id="lpClickbaitText">
+        <div style="font-size:13px;font-weight:800;color:#0f172a;letter-spacing:-0.2px" id="lpClickbaitText">
           97% dos aprovados tinham um plano de estudos organizado
         </div>
-        <div style="font-size:11px;color:rgba(255,255,255,0.45);margin-top:3px">Você está preparado para ser um deles?</div>
+        <div style="font-size:11px;color:#64748b;margin-top:3px">Você está preparado para ser um deles?</div>
       </div>
     </div>
     <script>
@@ -861,6 +861,16 @@ body{font-family:'Plus Jakarta Sans',sans-serif;-webkit-font-smoothing:antialias
 
 <!-- ═══ TOAST ═══ -->
 <div id="toast"></div>
+
+<!-- Botão flutuante WhatsApp suporte -->
+<a href="https://wa.me/5565996940287?text=Ol%C3%A1%2C%20preciso%20de%20ajuda%20com%20o%20Vou%20Estudar%2B" target="_blank"
+  id="btnSuporteWA"
+  style="position:fixed;bottom:24px;right:24px;z-index:9999;background:#25D366;color:#fff;border-radius:50px;padding:12px 18px;font-size:13px;font-weight:700;text-decoration:none;display:flex;align-items:center;gap:8px;box-shadow:0 4px 20px rgba(37,211,102,0.4);transition:all .2s"
+  onmouseover="this.style.transform='scale(1.05)';this.style.boxShadow='0 6px 24px rgba(37,211,102,0.5)'"
+  onmouseout="this.style.transform='scale(1)';this.style.boxShadow='0 4px 20px rgba(37,211,102,0.4)'">
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+  Suporte
+</a>
 
 <!-- ═══════════════════════════════════════
      TELA DE AUTH
@@ -985,8 +995,8 @@ body{font-family:'Plus Jakarta Sans',sans-serif;-webkit-font-smoothing:antialias
     <!-- Logo -->
     <div style="text-align:center;margin-bottom:28px">
       <div style="width:56px;height:56px;border-radius:14px;background:linear-gradient(135deg,#059669,#10b981);display:grid;place-items:center;font-size:26px;margin:0 auto 12px">✦</div>
-      <div style="font-size:22px;font-weight:800;color:#fff;letter-spacing:-0.5px">Vou Estudar<span style="color:#10b981">+</span></div>
-      <div style="font-size:13px;color:rgba(255,255,255,0.45);margin-top:4px">Sua demonstração gratuita</div>
+      <div style="font-size:22px;font-weight:800;color:#0f172a;letter-spacing:-0.5px">Vou Estudar<span style="color:#10b981">+</span></div>
+      <div style="font-size:13px;color:#64748b;margin-top:4px">Sua demonstração gratuita</div>
     </div>
 
     <!-- Card do formulário -->
@@ -1002,7 +1012,7 @@ body{font-family:'Plus Jakarta Sans',sans-serif;-webkit-font-smoothing:antialias
       <label style="font-size:11px;font-weight:700;color:#374151;text-transform:uppercase;letter-spacing:.5px;display:block;margin-bottom:4px">Seu WhatsApp</label>
       <input type="tel" id="demoWhats" placeholder="(11) 99999-9999" style="margin-bottom:16px;font-size:16px" oninput="this.value=this.value.replace(/[^0-9()+\s-]/g,'')" onkeydown="if(event.key==='Enter')iniciarModoDemo()" />
 
-      <button onclick="iniciarModoDemo()" id="btnDemo" style="background:linear-gradient(135deg,#059669,#10b981);color:#fff;border:none;width:100%;padding:14px;border-radius:10px;font-size:15px;font-weight:700;cursor:pointer">
+      <button onclick="iniciarModoDemo()" id="btnDemo" style="background:linear-gradient(135deg,#059669,#10b981);color:#0f172a;border:none;width:100%;padding:14px;border-radius:10px;font-size:15px;font-weight:700;cursor:pointer">
         🚀 Entrar na demonstração
       </button>
 
@@ -1016,19 +1026,19 @@ body{font-family:'Plus Jakarta Sans',sans-serif;-webkit-font-smoothing:antialias
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:16px">
       <div style="background:rgba(255,255,255,0.07);border-radius:10px;padding:12px;text-align:center">
         <div style="font-size:20px;margin-bottom:4px">📊</div>
-        <div style="font-size:11px;color:rgba(255,255,255,0.7);font-weight:600">Progresso por matéria</div>
+        <div style="font-size:11px;color:#334155;font-weight:600">Progresso por matéria</div>
       </div>
       <div style="background:rgba(255,255,255,0.07);border-radius:10px;padding:12px;text-align:center">
         <div style="font-size:20px;margin-bottom:4px">🎯</div>
-        <div style="font-size:11px;color:rgba(255,255,255,0.7);font-weight:600">Plano de estudos</div>
+        <div style="font-size:11px;color:#334155;font-weight:600">Plano de estudos</div>
       </div>
       <div style="background:rgba(255,255,255,0.07);border-radius:10px;padding:12px;text-align:center">
         <div style="font-size:20px;margin-bottom:4px">🧠</div>
-        <div style="font-size:11px;color:rgba(255,255,255,0.7);font-weight:600">Flashcards e simulado</div>
+        <div style="font-size:11px;color:#334155;font-weight:600">Flashcards e simulado</div>
       </div>
       <div style="background:rgba(255,255,255,0.07);border-radius:10px;padding:12px;text-align:center">
         <div style="font-size:20px;margin-bottom:4px">⏱️</div>
-        <div style="font-size:11px;color:rgba(255,255,255,0.7);font-weight:600">Cronômetro de estudo</div>
+        <div style="font-size:11px;color:#334155;font-weight:600">Cronômetro de estudo</div>
       </div>
     </div>
 
@@ -1041,34 +1051,34 @@ body{font-family:'Plus Jakarta Sans',sans-serif;-webkit-font-smoothing:antialias
 <div id="paywallScreen" class="auth-screen hidden" style="background:linear-gradient(160deg,#0c1a2e 0%,#0a1f3d 100%)">
   <div style="width:100%;max-width:480px;text-align:center;padding:20px">
     <div style="width:60px;height:60px;border-radius:16px;background:linear-gradient(135deg,#2563eb,#3b82f6);display:grid;place-items:center;font-size:28px;margin:0 auto 24px;box-shadow:0 0 24px rgba(59,130,246,0.4)">✦</div>
-    <h1 style="font-size:26px;font-weight:700;color:#fff;letter-spacing:-0.5px;margin-bottom:6px">Seu período de teste encerrou</h1>
-    <p style="font-size:14px;color:rgba(255,255,255,0.4);margin-bottom:18px;line-height:1.6">Assine por <strong style="color:#3b82f6">R$ 15,00/mês</strong> e continue seus estudos inteligentes.</p>
+    <h1 style="font-size:26px;font-weight:700;color:#0f172a;letter-spacing:-0.5px;margin-bottom:6px">Seu período de teste encerrou</h1>
+    <p style="font-size:14px;color:#94a3b8;margin-bottom:18px;line-height:1.6">Assine por <strong style="color:#3b82f6">R$ 15,00/mês</strong> e continue seus estudos inteligentes.</p>
 
     <!-- Countdown -->
     <div style="background:rgba(220,38,38,0.1);border:1px solid rgba(248,113,113,0.2);border-radius:14px;padding:14px 18px;margin-bottom:18px">
-      <div style="font-size:10px;font-weight:700;color:rgba(255,255,255,0.3);text-transform:uppercase;letter-spacing:1px;margin-bottom:10px">⚠️ Oferta especial expira em</div>
+      <div style="font-size:10px;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:1px;margin-bottom:10px">⚠️ Oferta especial expira em</div>
       <div style="display:flex;justify-content:center;gap:10px;align-items:flex-start">
         <div style="text-align:center">
           <div style="font-size:34px;font-weight:700;color:#f87171;letter-spacing:2px;line-height:1;font-variant-numeric:tabular-nums" id="cdHoras">23</div>
-          <div style="font-size:10px;color:rgba(255,255,255,0.25);text-transform:uppercase;margin-top:4px">horas</div>
+          <div style="font-size:10px;color:#cbd5e1;text-transform:uppercase;margin-top:4px">horas</div>
         </div>
         <div style="font-size:28px;font-weight:700;color:rgba(248,113,113,0.35);margin-top:2px">:</div>
         <div style="text-align:center">
           <div style="font-size:34px;font-weight:700;color:#f87171;letter-spacing:2px;line-height:1;font-variant-numeric:tabular-nums" id="cdMinutos">59</div>
-          <div style="font-size:10px;color:rgba(255,255,255,0.25);text-transform:uppercase;margin-top:4px">min</div>
+          <div style="font-size:10px;color:#cbd5e1;text-transform:uppercase;margin-top:4px">min</div>
         </div>
         <div style="font-size:28px;font-weight:700;color:rgba(248,113,113,0.35);margin-top:2px">:</div>
         <div style="text-align:center">
           <div style="font-size:34px;font-weight:700;color:#f87171;letter-spacing:2px;line-height:1;font-variant-numeric:tabular-nums" id="cdSegundos">59</div>
-          <div style="font-size:10px;color:rgba(255,255,255,0.25);text-transform:uppercase;margin-top:4px">seg</div>
+          <div style="font-size:10px;color:#cbd5e1;text-transform:uppercase;margin-top:4px">seg</div>
         </div>
       </div>
-      <div style="font-size:11px;color:rgba(255,255,255,0.2);margin-top:10px">Ao zerar você será desconectado automaticamente</div>
+      <div style="font-size:11px;color:#cbd5e1;margin-top:10px">Ao zerar você será desconectado automaticamente</div>
     </div>
 
     <!-- Benefits -->
     <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(59,130,246,0.12);border-radius:14px;padding:18px;margin-bottom:18px;text-align:left">
-      <div style="font-size:11px;font-weight:700;color:rgba(255,255,255,0.25);text-transform:uppercase;letter-spacing:1px;margin-bottom:12px">O que você terá acesso</div>
+      <div style="font-size:11px;font-weight:700;color:#cbd5e1;text-transform:uppercase;letter-spacing:1px;margin-bottom:12px">O que você terá acesso</div>
       <div style="display:flex;flex-direction:column;gap:9px">
         <div style="display:flex;align-items:center;gap:10px;font-size:13px;color:rgba(255,255,255,0.75)"><span style="color:#3b82f6">✓</span> Matérias, Notas e Planos ilimitados</div>
         <div style="display:flex;align-items:center;gap:10px;font-size:13px;color:rgba(255,255,255,0.75)"><span style="color:#3b82f6">✓</span> Plano de Estudo Personalizado</div>
@@ -1079,10 +1089,10 @@ body{font-family:'Plus Jakarta Sans',sans-serif;-webkit-font-smoothing:antialias
     </div>
 
     <a href="https://www.mercadopago.com.br/subscriptions/checkout?preapproval_plan_id=c44dc3e2e0544c35a6f91f3323e69159" target="_blank"
-      style="display:block;width:100%;padding:15px;border-radius:12px;background:linear-gradient(135deg,#2563eb,#3b82f6);color:#fff;font-size:15px;font-weight:700;text-decoration:none;box-shadow:0 4px 20px rgba(59,130,246,0.35);margin-bottom:10px">
+      style="display:block;width:100%;padding:15px;border-radius:12px;background:linear-gradient(135deg,#2563eb,#3b82f6);color:#0f172a;font-size:15px;font-weight:700;text-decoration:none;box-shadow:0 4px 20px rgba(59,130,246,0.35);margin-bottom:10px">
       Assinar por R$ 15,00/mês →
     </a>
-    <button onclick="handleLogout()" style="background:transparent;color:rgba(255,255,255,0.25);font-size:12px;border:none;cursor:pointer;padding:8px;width:auto">Sair da conta</button>
+    <button onclick="handleLogout()" style="background:transparent;color:#cbd5e1;font-size:12px;border:none;cursor:pointer;padding:8px;width:auto">Sair da conta</button>
   </div>
 </div>
 
@@ -1158,13 +1168,11 @@ body{font-family:'Plus Jakarta Sans',sans-serif;-webkit-font-smoothing:antialias
         </div>
       </div>
       <a href="https://www.mercadopago.com.br/subscriptions/checkout?preapproval_plan_id=c44dc3e2e0544c35a6f91f3323e69159" target="_blank"
-        style="display:block;width:100%;padding:10px;border-radius:10px;background:linear-gradient(135deg,#00C9A7,#0070FF);color:#fff;font-size:13px;font-weight:700;text-decoration:none;text-align:center;margin-bottom:8px;box-shadow:0 0 16px rgba(0,201,167,0.3)">
+        style="display:block;width:100%;padding:10px;border-radius:10px;background:linear-gradient(135deg,#2563eb,#1d4ed8);color:#fff;font-size:13px;font-weight:700;text-decoration:none;text-align:center;margin-bottom:8px;box-shadow:0 2px 8px rgba(37,99,235,0.3)">
         💳 Assinar — R$ 15,00/mês
       </a>
       <a href="https://wa.me/5565996940287?text=Ol%C3%A1%2C%20preciso%20de%20ajuda%20com%20o%20Vou%20Estudar%2B" target="_blank"
-        style="display:flex;align-items:center;justify-content:center;gap:6px;width:100%;padding:9px;border-radius:10px;background:rgba(255,255,255,0.05);color:rgba(255,255,255,0.45);font-size:12px;font-weight:500;text-decoration:none;text-align:center;margin-bottom:6px;border:1px solid rgba(255,255,255,0.08);transition:all .15s"
-        onmouseover="this.style.background='rgba(255,255,255,0.09)';this.style.color='rgba(255,255,255,0.7)'"
-        onmouseout="this.style.background='rgba(255,255,255,0.05)';this.style.color='rgba(255,255,255,0.45)'">
+        style="display:flex;align-items:center;justify-content:center;gap:6px;width:100%;padding:9px;border-radius:10px;background:#f0fdf4;color:#16a34a;font-size:12px;font-weight:700;text-decoration:none;text-align:center;margin-bottom:6px;border:1px solid #bbf7d0">
         💬 Suporte WhatsApp
       </a>
       <button class="btn-secondary" onclick="handleLogout()">🚪 Sair</button>
@@ -1173,7 +1181,7 @@ body{font-family:'Plus Jakarta Sans',sans-serif;-webkit-font-smoothing:antialias
 
   <!-- Main -->
   <div class="main-area">
-    <div class="topbar" style="border-top:3px solid #00C9A7">
+    <div class="topbar" style="border-top:3px solid #2563eb">
       <div>
         <h2 id="topbarTitle">Dashboard</h2>
         <div class="muted" id="topbarSub">Visão geral dos seus estudos</div>
@@ -1187,147 +1195,147 @@ body{font-family:'Plus Jakarta Sans',sans-serif;-webkit-font-smoothing:antialias
       <div class="tab-page active" id="tab-dashboard">
 
         <!-- HERO -->
-        <div style="background:linear-gradient(135deg,#0f172a 0%,#1e1b4b 100%);border-radius:20px;padding:20px 22px;margin-bottom:14px;display:flex;justify-content:space-between;align-items:center;gap:12px;position:relative;overflow:hidden">
+        <div style="background:#ffffff;border-radius:20px;padding:20px 22px;margin-bottom:14px;display:flex;justify-content:space-between;align-items:center;gap:12px;position:relative;overflow:hidden">
           <div style="position:absolute;top:-20px;right:-20px;width:120px;height:120px;background:radial-gradient(circle,rgba(99,102,241,0.2),transparent);border-radius:50%"></div>
           <div>
-            <div style="font-size:13px;color:rgba(255,255,255,0.45);margin-bottom:4px">Bora estudar e garantir sua aprovação! 🚀</div>
-            <h1 style="font-size:22px;font-weight:800;color:#fff;margin:0">Olá, <span id="helloName" style="color:#00C9A7">Estudante</span>! 👋</h1>
+            <div style="font-size:13px;color:#64748b;margin-bottom:4px">Bora estudar e garantir sua aprovação! 🚀</div>
+            <h1 style="font-size:22px;font-weight:800;color:#0f172a;margin:0">Olá, <span id="helloName" style="color:#00C9A7">Estudante</span>! 👋</h1>
           </div>
           <div style="text-align:right;flex-shrink:0">
-            <div style="font-size:10px;color:rgba(255,255,255,0.35);text-transform:uppercase;letter-spacing:1px">Meta do mês</div>
+            <div style="font-size:10px;color:#94a3b8;text-transform:uppercase;letter-spacing:1px">Meta do mês</div>
             <div style="font-size:20px;font-weight:800;color:#00C9A7" id="metaPct">0%</div>
-            <div id="metaText" style="font-size:11px;color:rgba(255,255,255,0.35)">Sem meta</div>
+            <div id="metaText" style="font-size:11px;color:#94a3b8">Sem meta</div>
           </div>
         </div>
         <div style="display:none"><div class="progress-bar"><div id="metaBar" style="width:0%"></div></div></div>
 
         <!-- GAUGE + STATUS -->
-        <div style="background:linear-gradient(135deg,#0f172a,#1e1b4b);border-radius:20px;padding:20px;margin-bottom:14px;display:flex;align-items:center;gap:20px;border:1px solid rgba(99,102,241,0.15)">
+        <div style="background:#ffffff;border-radius:20px;padding:20px;margin-bottom:14px;display:flex;align-items:center;gap:20px;border:1px solid #e2e8f0">
           <div style="position:relative;width:100px;height:100px;flex-shrink:0">
             <canvas id="gaugePreparacao" width="100" height="100"></canvas>
             <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center">
-              <div style="font-size:20px;font-weight:800;color:#fff;line-height:1" id="gaugePct">0%</div>
-              <div style="font-size:8px;color:rgba(255,255,255,0.35);font-weight:700;letter-spacing:.8px;margin-top:2px">PREPARADO</div>
+              <div style="font-size:20px;font-weight:800;color:#2563eb;line-height:1" id="gaugePct">0%</div>
+              <div style="font-size:8px;color:#94a3b8;font-weight:700;letter-spacing:.8px;margin-top:2px">PREPARADO</div>
             </div>
           </div>
           <div style="flex:1">
-            <div style="font-size:10px;color:rgba(255,255,255,0.35);text-transform:uppercase;letter-spacing:.8px;margin-bottom:4px">Se continuar assim:</div>
+            <div style="font-size:10px;color:#94a3b8;text-transform:uppercase;letter-spacing:.8px;margin-bottom:4px">Se continuar assim:</div>
             <div style="font-size:16px;font-weight:800;margin-bottom:6px" id="gaugeStatus">—</div>
-            <div style="font-size:11px;color:rgba(255,255,255,0.4);margin-bottom:10px" id="gaugeVariacao">Carregando...</div>
-            <div style="display:inline-flex;align-items:center;gap:6px;background:rgba(34,197,94,0.1);border:1px solid rgba(34,197,94,0.2);border-radius:8px;padding:5px 10px;font-size:11px;color:rgba(255,255,255,0.5)">
+            <div style="font-size:11px;color:#94a3b8;margin-bottom:10px" id="gaugeVariacao">Carregando...</div>
+            <div style="display:inline-flex;align-items:center;gap:6px;background:rgba(34,197,94,0.1);border:1px solid rgba(34,197,94,0.2);border-radius:8px;padding:5px 10px;font-size:11px;color:#64748b">
               🏆 Melhor que <strong style="color:#22c55e;margin:0 3px" id="gaugeRanking">—</strong> dos usuários
             </div>
           </div>
         </div>
 
         <!-- HOJE VOCÊ PRECISA -->
-        <div style="background:linear-gradient(135deg,#0f172a,#0c1a3a);border-radius:20px;padding:20px;margin-bottom:14px;border:1px solid rgba(59,130,246,0.15)">
+        <div style="background:#ffffff;border-radius:20px;padding:20px;margin-bottom:14px;border:1px solid #dbeafe">
           <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
-            <div style="font-size:12px;font-weight:800;color:#fff;letter-spacing:.5px;display:flex;align-items:center;gap:8px">
+            <div style="font-size:12px;font-weight:800;color:#0f172a;letter-spacing:.5px;display:flex;align-items:center;gap:8px">
               <span style="background:rgba(59,130,246,0.2);width:28px;height:28px;border-radius:8px;display:grid;place-items:center">📅</span>
               HOJE VOCÊ PRECISA
             </div>
             <div style="font-size:11px;color:#60a5fa;font-weight:600;background:rgba(59,130,246,0.1);padding:4px 10px;border-radius:20px">⏱ <span id="planoDiaTempo">0 min</span></div>
           </div>
           <div id="planoDiaLista"></div>
-          <button onclick="goTab('planointeligente')" style="width:100%;margin-top:14px;padding:15px;background:linear-gradient(135deg,#22c55e,#16a34a);color:#fff;border:none;border-radius:14px;font-size:14px;font-weight:800;cursor:pointer;letter-spacing:1px;box-shadow:0 4px 20px rgba(34,197,94,0.25)">
+          <button onclick="goTab('planointeligente')" style="width:100%;margin-top:14px;padding:15px;background:linear-gradient(135deg,#22c55e,#16a34a);color:#0f172a;border:none;border-radius:14px;font-size:14px;font-weight:800;cursor:pointer;letter-spacing:1px;box-shadow:0 4px 20px rgba(34,197,94,0.25)">
             COMEÇAR AGORA ▶
           </button>
         </div>
 
         <!-- DESEMPENHO -->
-        <div style="background:linear-gradient(135deg,#0f172a,#1a1a2e);border-radius:20px;padding:20px;margin-bottom:14px;border:1px solid rgba(139,92,246,0.12)">
+        <div style="background:#ffffff;border-radius:20px;padding:20px;margin-bottom:14px;border:1px solid #e2e8f0">
           <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
-            <div style="font-size:12px;font-weight:800;color:#fff;letter-spacing:.5px;display:flex;align-items:center;gap:8px">
+            <div style="font-size:12px;font-weight:800;color:#0f172a;letter-spacing:.5px;display:flex;align-items:center;gap:8px">
               <span style="background:rgba(139,92,246,0.2);width:28px;height:28px;border-radius:8px;display:grid;place-items:center">📊</span>
               SEU DESEMPENHO
             </div>
             <span onclick="goTab('materias')" style="font-size:11px;color:#818cf8;cursor:pointer;font-weight:600;background:rgba(99,102,241,0.1);padding:4px 10px;border-radius:20px">Ver todas →</span>
           </div>
           <div id="desempenhoDash"></div>
-          <div id="desempenhoFraco" style="margin-top:12px;background:rgba(245,158,11,0.08);border:1px solid rgba(245,158,11,0.2);border-radius:10px;padding:10px 14px;font-size:12px;color:rgba(255,255,255,0.5);display:none;cursor:pointer" onclick="goTab('materias')">
+          <div id="desempenhoFraco" style="margin-top:12px;background:rgba(245,158,11,0.08);border:1px solid rgba(245,158,11,0.2);border-radius:10px;padding:10px 14px;font-size:12px;color:#64748b;display:none;cursor:pointer" onclick="goTab('materias')">
             🎯 Você está fraco em <strong style="color:#f59e0b" id="desempenhoFracoNome"></strong> — clique para estudar →
           </div>
         </div>
 
         <!-- SEQUÊNCIA + PREVISÃO -->
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px">
-          <div style="background:linear-gradient(135deg,#0a1f0a,#0f2a0f);border-radius:20px;padding:18px;border:1px solid rgba(34,197,94,0.15)">
-            <div style="font-size:10px;font-weight:800;color:rgba(255,255,255,0.4);letter-spacing:1px;margin-bottom:8px">SEQUÊNCIA 🔥</div>
-            <div style="font-size:44px;font-weight:900;color:#22c55e;line-height:1" id="sequenciaDias">0</div>
-            <div style="font-size:11px;color:rgba(255,255,255,0.35);margin-top:4px">dias seguidos</div>
+          <div style="background:#f0fdf4;border-radius:20px;padding:18px;border:1px solid #bbf7d0">
+            <div style="font-size:10px;font-weight:800;color:#94a3b8;letter-spacing:1px;margin-bottom:8px">SEQUÊNCIA 🔥</div>
+            <div style="font-size:40px;font-weight:900;color:#16a34a;line-height:1" id="sequenciaDias">0</div>
+            <div style="font-size:11px;color:#94a3b8;margin-top:4px">dias seguidos</div>
             <div style="margin-top:10px;font-size:11px;font-weight:700;padding:5px 10px;border-radius:8px;display:inline-block;background:rgba(245,158,11,0.15);color:#f59e0b" id="sequenciaAviso">⚠️ Não perca hoje!</div>
           </div>
-          <div style="background:linear-gradient(135deg,#0f172a,#1a1a2e);border-radius:20px;padding:18px;border:1px solid rgba(255,255,255,0.05)">
-            <div style="font-size:10px;font-weight:800;color:rgba(255,255,255,0.4);letter-spacing:1px;margin-bottom:12px">PREVISÃO 📈</div>
+          <div style="background:#ffffff;border-radius:20px;padding:18px;border:1px solid #e2e8f0">
+            <div style="font-size:10px;font-weight:800;color:#94a3b8;letter-spacing:1px;margin-bottom:12px">PREVISÃO 📈</div>
             <div style="display:flex;flex-direction:column;gap:8px">
               <div style="display:flex;align-items:center;gap:8px;background:rgba(239,68,68,0.08);border-radius:8px;padding:7px 10px">
                 <span style="color:#ef4444;font-size:16px">✗</span>
-                <div><div style="font-size:9px;color:rgba(255,255,255,0.3)">Se continuar assim</div><div style="font-size:12px;font-weight:700;color:#ef4444" id="previsaoNegativa">Não passa</div></div>
+                <div><div style="font-size:9px;color:#94a3b8">Se continuar assim</div><div style="font-size:12px;font-weight:700;color:#ef4444" id="previsaoNegativa">Não passa</div></div>
               </div>
               <div style="display:flex;align-items:center;gap:8px;background:rgba(34,197,94,0.08);border-radius:8px;padding:7px 10px">
                 <span style="color:#22c55e;font-size:16px">✓</span>
-                <div><div style="font-size:9px;color:rgba(255,255,255,0.3)">Se estudar hoje</div><div style="font-size:12px;font-weight:700;color:#22c55e">Chega a <span id="previsaoPositiva">—</span></div></div>
+                <div><div style="font-size:9px;color:#94a3b8">Se estudar hoje</div><div style="font-size:12px;font-weight:700;color:#22c55e">Chega a <span id="previsaoPositiva">—</span></div></div>
               </div>
             </div>
           </div>
         </div>
 
         <!-- LEMBRETES -->
-        <div style="background:linear-gradient(135deg,#0f172a,#1a1a2e);border-radius:20px;padding:20px;margin-bottom:14px;border:1px solid rgba(251,146,60,0.1)">
+        <div style="background:#ffffff;border-radius:20px;padding:20px;margin-bottom:14px;border:1px solid #fed7aa">
           <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
-            <div style="font-size:12px;font-weight:800;color:#fff;letter-spacing:.5px;display:flex;align-items:center;gap:8px">
+            <div style="font-size:12px;font-weight:800;color:#0f172a;letter-spacing:.5px;display:flex;align-items:center;gap:8px">
               <span style="background:rgba(251,146,60,0.2);width:28px;height:28px;border-radius:8px;display:grid;place-items:center">🔔</span>
               LEMBRETES
             </div>
             <button onclick="abrirModalLembrete()" style="font-size:11px;background:rgba(99,102,241,0.15);color:#818cf8;border:1px solid rgba(99,102,241,0.25);padding:5px 12px;border-radius:20px;cursor:pointer;font-weight:600;width:auto">+ Novo</button>
           </div>
-          <div id="listaLembretes"><div style="text-align:center;padding:16px;color:rgba(255,255,255,0.2);font-size:13px">🔔 Nenhum lembrete ainda</div></div>
+          <div id="listaLembretes"><div style="text-align:center;padding:16px;color:#cbd5e1;font-size:13px">🔔 Nenhum lembrete ainda</div></div>
         </div>
 
         <!-- FAZER SIMULADO -->
-        <div onclick="goTab('planointeligente')" style="background:linear-gradient(135deg,#1e1b4b,#0f2a4a);border-radius:20px;padding:18px;margin-bottom:14px;display:flex;align-items:center;gap:14px;cursor:pointer;border:1px solid rgba(99,102,241,0.2)">
+        <div onclick="goTab('planointeligente')" style="background:#eff6ff;border-radius:20px;padding:18px;margin-bottom:14px;display:flex;align-items:center;gap:14px;cursor:pointer;border:1px solid #c7d2fe">
           <div style="width:48px;height:48px;border-radius:14px;background:linear-gradient(135deg,rgba(99,102,241,0.3),rgba(59,130,246,0.2));display:grid;place-items:center;font-size:24px;flex-shrink:0">📋</div>
           <div style="flex:1">
             <div style="font-size:14px;font-weight:800;color:#fff">FAZER SIMULADO</div>
-            <div style="font-size:12px;color:rgba(255,255,255,0.35);margin-top:2px">Teste seus conhecimentos agora</div>
+            <div style="font-size:12px;color:#94a3b8;margin-top:2px">Teste seus conhecimentos agora</div>
           </div>
           <div style="width:32px;height:32px;border-radius:50%;background:rgba(99,102,241,0.15);display:grid;place-items:center;color:#818cf8;font-size:20px">›</div>
         </div>
 
         <!-- STATS MINI -->
         <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:14px">
-          <div style="background:#0f172a;border-radius:16px;padding:14px 10px;text-align:center;border:1px solid rgba(59,130,246,0.12)">
+          <div style="background:#ffffff;border-radius:16px;padding:14px 10px;text-align:center;border:1px solid rgba(59,130,246,0.12)">
             <div style="font-size:18px;margin-bottom:6px">📖</div>
             <div style="font-size:20px;font-weight:800;color:#60a5fa" id="statMaterias">0</div>
-            <div style="font-size:10px;color:rgba(255,255,255,0.25);margin-top:3px">Matérias</div>
+            <div style="font-size:10px;color:#cbd5e1;margin-top:3px">Matérias</div>
           </div>
-          <div style="background:#0f172a;border-radius:16px;padding:14px 10px;text-align:center;border:1px solid rgba(34,197,94,0.12)">
+          <div style="background:#ffffff;border-radius:16px;padding:14px 10px;text-align:center;border:1px solid rgba(34,197,94,0.12)">
             <div style="font-size:18px;margin-bottom:6px">📝</div>
             <div style="font-size:20px;font-weight:800;color:#4ade80" id="statNotas">0</div>
-            <div style="font-size:10px;color:rgba(255,255,255,0.25);margin-top:3px">Notas</div>
+            <div style="font-size:10px;color:#cbd5e1;margin-top:3px">Notas</div>
           </div>
-          <div style="background:#0f172a;border-radius:16px;padding:14px 10px;text-align:center;border:1px solid rgba(251,146,60,0.12)">
+          <div style="background:#ffffff;border-radius:16px;padding:14px 10px;text-align:center;border:1px solid rgba(251,146,60,0.12)">
             <div style="font-size:18px;margin-bottom:6px">🗓️</div>
             <div style="font-size:20px;font-weight:800;color:#fb923c" id="statPlanos">0</div>
-            <div style="font-size:10px;color:rgba(255,255,255,0.25);margin-top:3px">Planos</div>
+            <div style="font-size:10px;color:#cbd5e1;margin-top:3px">Planos</div>
           </div>
-          <div style="background:#0f172a;border-radius:16px;padding:14px 10px;text-align:center;border:1px solid rgba(167,139,250,0.12)">
+          <div style="background:#ffffff;border-radius:16px;padding:14px 10px;text-align:center;border:1px solid rgba(167,139,250,0.12)">
             <div style="font-size:18px;margin-bottom:6px">🎯</div>
             <div style="font-size:20px;font-weight:800;color:#a78bfa" id="statProgresso">0%</div>
-            <div style="font-size:10px;color:rgba(255,255,255,0.25);margin-top:3px">Progresso</div>
+            <div style="font-size:10px;color:#cbd5e1;margin-top:3px">Progresso</div>
           </div>
         </div>
 
         <!-- GRÁFICO + NOTAS -->
         <div class="grid-2" style="margin-bottom:14px">
-          <div style="background:#0f172a;border-radius:20px;padding:18px;border:1px solid rgba(255,255,255,0.05)">
-            <div style="font-size:12px;font-weight:700;color:rgba(255,255,255,0.5);margin-bottom:14px">📊 Progresso por Matéria</div>
+          <div style="background:#ffffff;border-radius:20px;padding:18px;border:1px solid #e2e8f0">
+            <div style="font-size:12px;font-weight:700;color:#64748b;margin-bottom:14px">📊 Progresso por Matéria</div>
             <div id="chartWrap" style="position:relative;width:100%"><canvas id="chartMaterias"></canvas></div>
           </div>
-          <div style="background:#0f172a;border-radius:20px;padding:18px;border:1px solid rgba(255,255,255,0.05)">
+          <div style="background:#ffffff;border-radius:20px;padding:18px;border:1px solid #e2e8f0">
             <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
-              <div style="font-size:12px;font-weight:700;color:rgba(255,255,255,0.5)">📝 Últimas Notas</div>
+              <div style="font-size:12px;font-weight:700;color:#64748b">📝 Últimas Notas</div>
               <span onclick="goTab('notas')" style="font-size:11px;color:#818cf8;cursor:pointer">Ver todas →</span>
             </div>
             <div id="dashNotas"></div>
@@ -1335,21 +1343,21 @@ body{font-family:'Plus Jakarta Sans',sans-serif;-webkit-font-smoothing:antialias
         </div>
 
         <!-- HISTÓRICO -->
-        <div style="background:#0f172a;border-radius:20px;padding:18px;margin-bottom:14px;border:1px solid rgba(255,255,255,0.05)">
+        <div style="background:#ffffff;border-radius:20px;padding:18px;margin-bottom:14px;border:1px solid #e2e8f0">
           <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
-            <div style="font-size:12px;font-weight:700;color:rgba(255,255,255,0.5)">📈 Histórico de Estudo</div>
+            <div style="font-size:12px;font-weight:700;color:#64748b">📈 Histórico de Estudo</div>
             <span onclick="goTab('materias')" style="font-size:11px;color:#818cf8;cursor:pointer">Ir para matérias →</span>
           </div>
-          <div id="historicoEstudo"><div style="text-align:center;padding:16px;color:rgba(255,255,255,0.2);font-size:13px">⏱️ Clique em uma matéria para iniciar!</div></div>
+          <div id="historicoEstudo"><div style="text-align:center;padding:16px;color:#cbd5e1;font-size:13px">⏱️ Clique em uma matéria para iniciar!</div></div>
         </div>
 
         <!-- FEEDBACK IA -->
-        <div style="background:#0f172a;border-radius:20px;padding:18px;margin-bottom:14px;border:1px solid rgba(99,102,241,0.1)" id="cardFeedbackIA">
+        <div style="background:#ffffff;border-radius:20px;padding:18px;margin-bottom:14px;border:1px solid rgba(99,102,241,0.1)" id="cardFeedbackIA">
           <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
-            <div style="font-size:12px;font-weight:700;color:rgba(255,255,255,0.5)">🤖 Análise por Matéria</div>
-            <button onclick="gerarFeedbackIA()" id="btnFeedbackIA" style="font-size:11px;background:linear-gradient(135deg,#2563eb,#7c3aed);color:#fff;border:none;padding:6px 14px;border-radius:20px;cursor:pointer;font-weight:600;width:auto">✨ Gerar análise</button>
+            <div style="font-size:12px;font-weight:700;color:#64748b">🤖 Análise por Matéria</div>
+            <button onclick="gerarFeedbackIA()" id="btnFeedbackIA" style="font-size:11px;background:linear-gradient(135deg,#2563eb,#7c3aed);color:#0f172a;border:none;padding:6px 14px;border-radius:20px;cursor:pointer;font-weight:600;width:auto">✨ Gerar análise</button>
           </div>
-          <div id="feedbackIAConteudo"><div style="text-align:center;padding:16px;color:rgba(255,255,255,0.2);font-size:13px">🤖 Clique em "Gerar análise" para diagnóstico personalizado.</div></div>
+          <div id="feedbackIAConteudo"><div style="text-align:center;padding:16px;color:#cbd5e1;font-size:13px">🤖 Clique em "Gerar análise" para diagnóstico personalizado.</div></div>
         </div>
 
       </div>
@@ -1386,10 +1394,10 @@ body{font-family:'Plus Jakarta Sans',sans-serif;-webkit-font-smoothing:antialias
         <div class="card card-pad" style="margin-bottom:20px;background:linear-gradient(135deg,#0c1a2e,#1e3a5f);border:1px solid rgba(147,197,253,0.15)">
           <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px">
             <div>
-              <div style="font-size:14px;font-weight:700;color:#fff;margin-bottom:4px">⚡ Atualizar progresso pelo histórico</div>
-              <div style="font-size:12px;color:rgba(255,255,255,0.45)">Recalcula o % de cada matéria com base no tempo já estudado, planos e simulados realizados</div>
+              <div style="font-size:14px;font-weight:700;color:#0f172a;margin-bottom:4px">⚡ Atualizar progresso pelo histórico</div>
+              <div style="font-size:12px;color:#64748b">Recalcula o % de cada matéria com base no tempo já estudado, planos e simulados realizados</div>
             </div>
-            <button id="btnRecalcularProgresso" onclick="recalcularTudoDoHistorico()" style="width:auto;padding:10px 20px;background:#2563eb;color:#fff;border:none;border-radius:10px;font-weight:700;white-space:nowrap">🔄 Recalcular progresso</button>
+            <button id="btnRecalcularProgresso" onclick="recalcularTudoDoHistorico()" style="width:auto;padding:10px 20px;background:#2563eb;color:#0f172a;border:none;border-radius:10px;font-weight:700;white-space:nowrap">🔄 Recalcular progresso</button>
           </div>
           <div id="resumoRecalculo" style="display:none;margin-top:14px;border-top:1px solid rgba(255,255,255,0.08);padding-top:14px"></div>
         </div>
@@ -1497,22 +1505,22 @@ body{font-family:'Plus Jakarta Sans',sans-serif;-webkit-font-smoothing:antialias
         <div style="background:linear-gradient(135deg,#0c1a2e 0%,#1e3a5f 50%,#0c1a2e 100%);border-radius:18px;padding:28px 32px;margin-bottom:22px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:16px;border:1px solid rgba(147,197,253,0.1)">
           <div>
             <div style="font-size:11px;font-weight:700;color:#60a5fa;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:6px">✨ Planos personalizados</div>
-            <div style="font-size:24px;font-weight:800;color:#fff;letter-spacing:-0.5px;margin-bottom:4px">Plano de Estudos</div>
-            <div style="font-size:13px;color:rgba(255,255,255,0.4)">Envie seu material e receba: plano, flashcards, simulado e cronograma.</div>
+            <div style="font-size:24px;font-weight:800;color:#0f172a;letter-spacing:-0.5px;margin-bottom:4px">Plano de Estudos</div>
+            <div style="font-size:13px;color:#94a3b8">Envie seu material e receba: plano, flashcards, simulado e cronograma.</div>
           </div>
           <!-- Mini stats dinâmicos -->
           <div style="display:flex;gap:12px;flex-wrap:wrap">
             <div style="background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.1);border-radius:12px;padding:12px 18px;text-align:center;min-width:80px">
               <div id="statTopicos" style="font-size:26px;font-weight:800;color:#60a5fa">0</div>
-              <div style="font-size:10px;color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:.5px">tópicos</div>
+              <div style="font-size:10px;color:#94a3b8;text-transform:uppercase;letter-spacing:.5px">tópicos</div>
             </div>
             <div style="background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.1);border-radius:12px;padding:12px 18px;text-align:center;min-width:80px">
               <div id="statProgInt" style="font-size:26px;font-weight:800;color:#4ade80">0%</div>
-              <div style="font-size:10px;color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:.5px">progresso</div>
+              <div style="font-size:10px;color:#94a3b8;text-transform:uppercase;letter-spacing:.5px">progresso</div>
             </div>
             <div style="background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.1);border-radius:12px;padding:12px 18px;text-align:center;min-width:80px">
               <div id="statDiasProva" style="font-size:26px;font-weight:800;color:#fb923c">—</div>
-              <div style="font-size:10px;color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:.5px">dias prova</div>
+              <div style="font-size:10px;color:#94a3b8;text-transform:uppercase;letter-spacing:.5px">dias prova</div>
             </div>
           </div>
         </div>
@@ -1530,7 +1538,7 @@ body{font-family:'Plus Jakarta Sans',sans-serif;-webkit-font-smoothing:antialias
                 <div style="width:32px;height:32px;background:rgba(255,255,255,0.15);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:16px">📄</div>
                 <div>
                   <div style="font-size:14px;font-weight:700;color:#fff">Material de Estudo</div>
-                  <div style="font-size:11px;color:rgba(255,255,255,0.6)">PDF ou texto colado</div>
+                  <div style="font-size:11px;color:#475569">PDF ou texto colado</div>
                 </div>
               </div>
               <div style="padding:18px 20px">
@@ -1567,26 +1575,26 @@ body{font-family:'Plus Jakarta Sans',sans-serif;-webkit-font-smoothing:antialias
             </div>
 
             <!-- Pomodoro compacto -->
-            <div style="background:linear-gradient(135deg,#0f172a,#1e293b);border-radius:12px;padding:14px 16px;border:1px solid rgba(99,102,241,0.2);margin-top:12px">
+            <div style="background:linear-gradient(135deg,#0f172a,#1e293b);border-radius:12px;padding:14px 16px;border:1px solid #c7d2fe;margin-top:12px">
               <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
                 <div style="display:flex;align-items:center;gap:6px">
                   <div style="width:6px;height:6px;background:#ef4444;border-radius:50%" id="pomDot"></div>
                   <span style="font-size:12px;font-weight:700;color:#fff">Pomodoro</span>
-                  <span id="pomLabel" style="font-size:10px;color:rgba(255,255,255,0.35)">Foco</span>
+                  <span id="pomLabel" style="font-size:10px;color:#94a3b8">Foco</span>
                 </div>
-                <div style="font-size:11px;color:rgba(255,255,255,0.3)" id="pomSessoes">0 / 4</div>
+                <div style="font-size:11px;color:#94a3b8" id="pomSessoes">0 / 4</div>
               </div>
               <div style="display:flex;align-items:center;gap:12px">
-                <div id="pomTimer" style="font-size:36px;font-weight:900;color:#fff;letter-spacing:3px;font-variant-numeric:tabular-nums;line-height:1;flex-shrink:0">25:00</div>
+                <div id="pomTimer" style="font-size:36px;font-weight:900;color:#0f172a;letter-spacing:3px;font-variant-numeric:tabular-nums;line-height:1;flex-shrink:0">25:00</div>
                 <div style="flex:1">
                   <div style="display:flex;gap:4px;margin-bottom:6px">
-                    <button onclick="setPomTimer(25,'Foco')" class="btn-secondary mini-btn" style="flex:1;background:rgba(255,255,255,0.07);color:rgba(255,255,255,0.6);border-color:rgba(255,255,255,0.1);font-size:10px;padding:4px">25m</button>
-                    <button onclick="setPomTimer(5,'Pausa curta')" class="btn-secondary mini-btn" style="flex:1;background:rgba(255,255,255,0.07);color:rgba(255,255,255,0.6);border-color:rgba(255,255,255,0.1);font-size:10px;padding:4px">5m</button>
-                    <button onclick="setPomTimer(15,'Pausa longa')" class="btn-secondary mini-btn" style="flex:1;background:rgba(255,255,255,0.07);color:rgba(255,255,255,0.6);border-color:rgba(255,255,255,0.1);font-size:10px;padding:4px">15m</button>
+                    <button onclick="setPomTimer(25,'Foco')" class="btn-secondary mini-btn" style="flex:1;background:rgba(255,255,255,0.07);color:#475569;border-color:rgba(255,255,255,0.1);font-size:10px;padding:4px">25m</button>
+                    <button onclick="setPomTimer(5,'Pausa curta')" class="btn-secondary mini-btn" style="flex:1;background:rgba(255,255,255,0.07);color:#475569;border-color:rgba(255,255,255,0.1);font-size:10px;padding:4px">5m</button>
+                    <button onclick="setPomTimer(15,'Pausa longa')" class="btn-secondary mini-btn" style="flex:1;background:rgba(255,255,255,0.07);color:#475569;border-color:rgba(255,255,255,0.1);font-size:10px;padding:4px">15m</button>
                   </div>
                   <div style="display:grid;grid-template-columns:1fr 1fr;gap:5px">
                     <button id="btnPomStart" onclick="togglePomodoro()" style="background:linear-gradient(135deg,#6366f1,#8b5cf6);border:none;font-size:11px;font-weight:700;padding:7px">▶ Iniciar</button>
-                    <button onclick="resetPomodoro()" style="background:rgba(255,255,255,0.07);color:rgba(255,255,255,0.5);border:1px solid rgba(255,255,255,0.1);font-size:11px;padding:7px">↺</button>
+                    <button onclick="resetPomodoro()" style="background:rgba(255,255,255,0.07);color:#64748b;border:1px solid rgba(255,255,255,0.1);font-size:11px;padding:7px">↺</button>
                   </div>
                   <div style="margin-top:6px;height:2px;background:rgba(255,255,255,0.07);border-radius:99px">
                     <div id="pomBar" style="width:0%;height:100%;background:linear-gradient(90deg,#6366f1,#8b5cf6);border-radius:99px;transition:width .5s"></div>
@@ -1603,7 +1611,7 @@ body{font-family:'Plus Jakarta Sans',sans-serif;-webkit-font-smoothing:antialias
                 <div style="width:32px;height:32px;background:rgba(255,255,255,0.15);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:16px">🎯</div>
                 <div>
                   <div style="font-size:14px;font-weight:700;color:#fff">Tópicos mais prováveis</div>
-                  <div style="font-size:11px;color:rgba(255,255,255,0.6)">Baseado na análise do material</div>
+                  <div style="font-size:11px;color:#475569">Baseado na análise do material</div>
                 </div>
               </div>
               <div style="padding:16px 20px" id="topicosProvaveis">
@@ -1626,15 +1634,15 @@ body{font-family:'Plus Jakarta Sans',sans-serif;-webkit-font-smoothing:antialias
                 <div style="width:36px;height:36px;background:rgba(255,255,255,0.12);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px">✨</div>
                 <div>
                   <div id="planoIATituloResult" style="font-size:16px;font-weight:800;color:#fff">Plano Gerado</div>
-                  <div style="font-size:11px;color:rgba(255,255,255,0.4)">Todos os módulos disponíveis abaixo</div>
+                  <div style="font-size:11px;color:#94a3b8">Todos os módulos disponíveis abaixo</div>
                 </div>
               </div>
               <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
                 <select id="planoSalvarMateria" style="flex:1;margin-bottom:0;font-size:12px;min-width:140px">
                   <option value="">📚 Vincular a uma matéria...</option>
                 </select>
-                <button onclick="exportarPlanoAtualPDF()" style="width:auto;padding:8px 16px;background:rgba(255,255,255,0.1);color:#fff;border:1px solid rgba(255,255,255,0.2);border-radius:8px;font-size:12px;font-weight:600">📄 PDF</button>
-                <button onclick="salvarPlanoInteligente()" style="width:auto;padding:8px 16px;background:linear-gradient(135deg,#2563eb,#7c3aed);color:#fff;border:none;border-radius:8px;font-size:12px;font-weight:700">💾 Salvar Plano</button>
+                <button onclick="exportarPlanoAtualPDF()" style="width:auto;padding:8px 16px;background:rgba(255,255,255,0.1);color:#0f172a;border:1px solid rgba(255,255,255,0.2);border-radius:8px;font-size:12px;font-weight:600">📄 PDF</button>
+                <button onclick="salvarPlanoInteligente()" style="width:auto;padding:8px 16px;background:linear-gradient(135deg,#2563eb,#7c3aed);color:#0f172a;border:none;border-radius:8px;font-size:12px;font-weight:700">💾 Salvar Plano</button>
               </div>
             </div>
 
@@ -1649,7 +1657,7 @@ body{font-family:'Plus Jakarta Sans',sans-serif;-webkit-font-smoothing:antialias
               <button class="mini-btn btn-secondary" id="tabBtnChat" onclick="switchPlanoTab('chat')" style="white-space:nowrap;width:auto;font-size:11px;padding:6px 12px;background:#f0fdf4;border-color:#bbf7d0;color:#14532d">💬 Chat</button>
               <button class="mini-btn btn-secondary" id="tabBtnTopicos" onclick="switchPlanoTab('topicos')" style="white-space:nowrap;width:auto;font-size:11px;padding:6px 12px;background:#fff7ed;border-color:#fed7aa;color:#7c2d12">📖 Explicações</button>
               <button class="mini-btn btn-secondary" id="tabBtnVespera" onclick="switchPlanoTab('vespera')" style="white-space:nowrap;width:auto;font-size:11px;padding:6px 12px;display:none">🌙 Véspera</button>
-              <button id="tabBtnJogo" onclick="switchPlanoTab('jogo')" style="white-space:nowrap;width:auto;font-size:11px;padding:6px 14px;background:linear-gradient(135deg,#7c3aed,#2563eb);color:#fff;border:none;border-radius:8px;font-weight:800;cursor:pointer;box-shadow:0 2px 8px rgba(124,58,237,0.4)">🕹️ Jogo da Trilha</button>
+              <button id="tabBtnJogo" onclick="switchPlanoTab('jogo')" style="white-space:nowrap;width:auto;font-size:11px;padding:6px 14px;background:linear-gradient(135deg,#7c3aed,#2563eb);color:#0f172a;border:none;border-radius:8px;font-weight:800;cursor:pointer;box-shadow:0 2px 8px rgba(124,58,237,0.4)">🕹️ Jogo da Trilha</button>
             </div>
 
             <div style="padding:20px 22px">
@@ -1740,7 +1748,7 @@ body{font-family:'Plus Jakarta Sans',sans-serif;-webkit-font-smoothing:antialias
 
             <!-- Aba: Véspera de Prova -->
             <div id="tabVespera" class="hidden">
-              <div id="vesperaBanner" style="background:linear-gradient(135deg,#1e1b4b,#3730a3);color:#fff;border-radius:14px;padding:20px;margin-bottom:18px;text-align:center">
+              <div id="vesperaBanner" style="background:linear-gradient(135deg,#1e1b4b,#3730a3);color:#0f172a;border-radius:14px;padding:20px;margin-bottom:18px;text-align:center">
                 <div style="font-size:32px;margin-bottom:8px">🌙</div>
                 <div style="font-size:20px;font-weight:800;margin-bottom:4px">Modo Véspera de Prova</div>
                 <div style="font-size:13px;opacity:0.85" id="vesperaSubtitulo">Revisão focada no essencial para amanhã</div>
@@ -1775,9 +1783,9 @@ body{font-family:'Plus Jakarta Sans',sans-serif;-webkit-font-smoothing:antialias
               <div id="jogoContainer">
                 <div style="background:linear-gradient(135deg,#1e1b4b,#312e81);border-radius:16px;padding:24px;text-align:center;margin-bottom:16px">
                   <div style="font-size:36px;margin-bottom:8px">🕹️</div>
-                  <div style="font-size:20px;font-weight:800;color:#fff;margin-bottom:6px">Trilha do Conhecimento</div>
-                  <div style="font-size:13px;color:rgba(255,255,255,0.5);margin-bottom:20px">Avance na trilha respondendo certo. Perca uma vida se errar!</div>
-                  <button onclick="iniciarJogoTrilha()" style="background:linear-gradient(135deg,#7c3aed,#2563eb);color:#fff;border:none;padding:14px 32px;border-radius:12px;font-size:15px;font-weight:700;cursor:pointer">🚀 Iniciar Jogo</button>
+                  <div style="font-size:20px;font-weight:800;color:#0f172a;margin-bottom:6px">Trilha do Conhecimento</div>
+                  <div style="font-size:13px;color:#64748b;margin-bottom:20px">Avance na trilha respondendo certo. Perca uma vida se errar!</div>
+                  <button onclick="iniciarJogoTrilha()" style="background:linear-gradient(135deg,#7c3aed,#2563eb);color:#0f172a;border:none;padding:14px 32px;border-radius:12px;font-size:15px;font-weight:700;cursor:pointer">🚀 Iniciar Jogo</button>
                 </div>
                 <div id="jogoVazio" style="text-align:center;padding:20px;color:var(--muted);font-size:13px">Gere um plano para desbloquear o jogo!</div>
               </div>
@@ -1806,7 +1814,7 @@ body{font-family:'Plus Jakarta Sans',sans-serif;-webkit-font-smoothing:antialias
                     <span id="jogoCategoria" style="font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px;background:rgba(255,255,255,0.15);color:rgba(255,255,255,0.8)">📚 Conceito</span>
                     <span id="jogoDificuldade" style="font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px"></span>
                   </div>
-                  <div id="jogoPerguntaTexto" style="font-size:15px;font-weight:700;color:#fff;line-height:1.6;margin-bottom:18px"></div>
+                  <div id="jogoPerguntaTexto" style="font-size:15px;font-weight:700;color:#0f172a;line-height:1.6;margin-bottom:18px"></div>
                   <div id="jogoAlternativas" style="display:flex;flex-direction:column;gap:8px"></div>
                 </div>
 
@@ -1815,19 +1823,19 @@ body{font-family:'Plus Jakarta Sans',sans-serif;-webkit-font-smoothing:antialias
                   <div style="font-size:32px;margin-bottom:6px" id="jogoFeedbackEmoji"></div>
                   <div style="font-size:15px;font-weight:800" id="jogoFeedbackTitulo"></div>
                   <div style="font-size:13px;margin-top:6px;line-height:1.6" id="jogoFeedbackExp"></div>
-                  <button onclick="proximaCasaJogo()" id="btnProximaCasa" style="margin-top:14px;background:linear-gradient(135deg,#7c3aed,#2563eb);color:#fff;border:none;padding:12px 28px;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer">Próxima casa →</button>
+                  <button onclick="proximaCasaJogo()" id="btnProximaCasa" style="margin-top:14px;background:linear-gradient(135deg,#7c3aed,#2563eb);color:#0f172a;border:none;padding:12px 28px;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer">Próxima casa →</button>
                 </div>
               </div>
 
               <!-- Tela de Game Over -->
               <div id="jogoGameOver" style="display:none;text-align:center;padding:32px;background:linear-gradient(135deg,#1e1b4b,#312e81);border-radius:16px">
                 <div style="font-size:48px;margin-bottom:12px" id="jogoFimEmoji">💀</div>
-                <div style="font-size:22px;font-weight:800;color:#fff;margin-bottom:8px" id="jogoFimTitulo">Game Over</div>
-                <div style="font-size:14px;color:rgba(255,255,255,0.5);margin-bottom:8px" id="jogoFimSub"></div>
+                <div style="font-size:22px;font-weight:800;color:#0f172a;margin-bottom:8px" id="jogoFimTitulo">Game Over</div>
+                <div style="font-size:14px;color:#64748b;margin-bottom:8px" id="jogoFimSub"></div>
                 <div style="font-size:28px;font-weight:800;color:#fbbf24;margin-bottom:20px">🏆 <span id="jogoFimPontos">0</span> pts</div>
                 <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap">
-                  <button onclick="iniciarJogoTrilha()" style="background:linear-gradient(135deg,#7c3aed,#2563eb);color:#fff;border:none;padding:12px 24px;border-radius:10px;font-weight:700;cursor:pointer">🔄 Jogar novamente</button>
-                  <button onclick="switchPlanoTab('simulado')" style="background:rgba(255,255,255,0.1);color:#fff;border:1px solid rgba(255,255,255,0.2);padding:12px 24px;border-radius:10px;font-weight:700;cursor:pointer">📝 Ver simulado</button>
+                  <button onclick="iniciarJogoTrilha()" style="background:linear-gradient(135deg,#7c3aed,#2563eb);color:#0f172a;border:none;padding:12px 24px;border-radius:10px;font-weight:700;cursor:pointer">🔄 Jogar novamente</button>
+                  <button onclick="switchPlanoTab('simulado')" style="background:rgba(255,255,255,0.1);color:#0f172a;border:1px solid rgba(255,255,255,0.2);padding:12px 24px;border-radius:10px;font-weight:700;cursor:pointer">📝 Ver simulado</button>
                 </div>
               </div>
             </div>
@@ -1864,7 +1872,7 @@ body{font-family:'Plus Jakarta Sans',sans-serif;-webkit-font-smoothing:antialias
             <div class="section-title" style="margin-bottom:2px">🛡️ Painel Administrativo</div>
             <div style="font-size:12px;color:var(--muted)" id="adminUltimaAtualizacao">Clique em Atualizar para carregar</div>
           </div>
-          <button onclick="adminCarregarUsuarios()" style="width:auto;padding:10px 22px;background:linear-gradient(135deg,#2563eb,#7c3aed);color:#fff;border:none;border-radius:10px;font-weight:700;font-size:13px;cursor:pointer">🔄 Atualizar tudo</button>
+          <button onclick="adminCarregarUsuarios()" style="width:auto;padding:10px 22px;background:linear-gradient(135deg,#2563eb,#7c3aed);color:#0f172a;border:none;border-radius:10px;font-weight:700;font-size:13px;cursor:pointer">🔄 Atualizar tudo</button>
         </div>
 
         <!-- Stats -->
@@ -1908,7 +1916,7 @@ body{font-family:'Plus Jakarta Sans',sans-serif;-webkit-font-smoothing:antialias
             <h3>👀 Visitantes no Cadastro</h3>
             <div style="display:flex;gap:5px;flex-wrap:wrap;align-items:center">
               <span style="font-size:10px;color:var(--muted)" id="visitantesLabel">5 últimos</span>
-              <button onclick="adminFiltrarVisitantes('hoje')" id="filtroHoje" class="mini-btn" style="width:auto;padding:3px 10px;font-size:11px;background:#2563eb;color:#fff;border:none">Hoje</button>
+              <button onclick="adminFiltrarVisitantes('hoje')" id="filtroHoje" class="mini-btn" style="width:auto;padding:3px 10px;font-size:11px;background:#2563eb;color:#0f172a;border:none">Hoje</button>
               <button onclick="adminFiltrarVisitantes('ontem')" id="filtroOntem" class="mini-btn btn-secondary" style="width:auto;padding:3px 10px;font-size:11px">Ontem</button>
               <button onclick="adminFiltrarVisitantes('semana')" id="filtroSemana" class="mini-btn btn-secondary" style="width:auto;padding:3px 10px;font-size:11px">Semana</button>
               <button onclick="adminFiltrarVisitantes('mes')" id="filtroMes" class="mini-btn btn-secondary" style="width:auto;padding:3px 10px;font-size:11px">Mês</button>
@@ -1930,7 +1938,7 @@ body{font-family:'Plus Jakarta Sans',sans-serif;-webkit-font-smoothing:antialias
             <div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:12px;padding:16px">
               <div style="font-size:13px;font-weight:700;color:#065f46;margin-bottom:8px">✅ Ativar Assinatura</div>
               <input type="email" id="adminEmail" placeholder="email@exemplo.com" style="margin-bottom:8px;font-size:12px" />
-              <button onclick="adminAtivarAssinatura()" style="background:#059669;color:#fff;border:none;width:100%;padding:9px;border-radius:8px;font-weight:700;font-size:12px;cursor:pointer">✅ Ativar acesso</button>
+              <button onclick="adminAtivarAssinatura()" style="background:#059669;color:#0f172a;border:none;width:100%;padding:9px;border-radius:8px;font-weight:700;font-size:12px;cursor:pointer">✅ Ativar acesso</button>
               <div id="adminMsg" style="margin-top:8px;font-size:12px;display:none"></div>
             </div>
 
@@ -1947,7 +1955,7 @@ body{font-family:'Plus Jakarta Sans',sans-serif;-webkit-font-smoothing:antialias
                 <label style="display:flex;align-items:center;gap:6px;font-size:12px;cursor:pointer"><input type="checkbox" id="compPrioridades" style="width:auto;margin:0" /> Prioridades</label>
                 <label style="display:flex;align-items:center;gap:6px;font-size:12px;cursor:pointer"><input type="checkbox" id="compPlanosInt" style="width:auto;margin:0" /> Planos IA</label>
               </div>
-              <button onclick="adminCompartilharModulos()" style="background:#2563eb;color:#fff;border:none;width:100%;padding:9px;border-radius:8px;font-weight:700;font-size:12px;cursor:pointer">📤 Transferir</button>
+              <button onclick="adminCompartilharModulos()" style="background:#2563eb;color:#0f172a;border:none;width:100%;padding:9px;border-radius:8px;font-weight:700;font-size:12px;cursor:pointer">📤 Transferir</button>
               <div id="compartilharMsg" style="margin-top:8px;font-size:12px;display:none"></div>
             </div>
 
@@ -1994,13 +2002,13 @@ body{font-family:'Plus Jakarta Sans',sans-serif;-webkit-font-smoothing:antialias
   <!-- Mobile Menu Drawer -->
   <div id="mobileDrawer" style="display:none;position:fixed;bottom:64px;left:0;right:0;background:#0c1a2e;border-top:1px solid rgba(59,130,246,0.15);padding:12px;z-index:998;border-radius:20px 20px 0 0">
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
-      <div onclick="goTab('planos');toggleMobileMenu()" style="display:flex;align-items:center;gap:10px;padding:12px;border-radius:12px;background:rgba(255,255,255,0.05);color:rgba(255,255,255,0.7);font-size:13px;cursor:pointer">
+      <div onclick="goTab('planos');toggleMobileMenu()" style="display:flex;align-items:center;gap:10px;padding:12px;border-radius:12px;background:rgba(255,255,255,0.05);color:#334155;font-size:13px;cursor:pointer">
         <span style="font-size:18px">🗓️</span> Planos
       </div>
-      <div onclick="goTab('prioridades');toggleMobileMenu()" style="display:flex;align-items:center;gap:10px;padding:12px;border-radius:12px;background:rgba(255,255,255,0.05);color:rgba(255,255,255,0.7);font-size:13px;cursor:pointer">
+      <div onclick="goTab('prioridades');toggleMobileMenu()" style="display:flex;align-items:center;gap:10px;padding:12px;border-radius:12px;background:rgba(255,255,255,0.05);color:#334155;font-size:13px;cursor:pointer">
         <span style="font-size:18px">🎯</span> Prioridades
       </div>
-      <div onclick="goTab('lembretes');toggleMobileMenu()" style="display:flex;align-items:center;gap:10px;padding:12px;border-radius:12px;background:rgba(255,255,255,0.05);color:rgba(255,255,255,0.7);font-size:13px;cursor:pointer">
+      <div onclick="goTab('lembretes');toggleMobileMenu()" style="display:flex;align-items:center;gap:10px;padding:12px;border-radius:12px;background:rgba(255,255,255,0.05);color:#334155;font-size:13px;cursor:pointer">
         <span style="font-size:18px">🔔</span> Lembretes
       </div>
       <div id="bnAdminItem" onclick="goTab('admin');toggleMobileMenu()" style="display:none;align-items:center;gap:10px;padding:12px;border-radius:12px;background:rgba(245,158,11,0.15);color:#fbbf24;font-size:13px;cursor:pointer">
@@ -2009,18 +2017,18 @@ body{font-family:'Plus Jakarta Sans',sans-serif;-webkit-font-smoothing:antialias
     </div>
     <div style="display:flex;gap:8px;margin-top:8px">
       <a href="https://www.mercadopago.com.br/subscriptions/checkout?preapproval_plan_id=c44dc3e2e0544c35a6f91f3323e69159" target="_blank"
-        style="flex:1;display:flex;align-items:center;justify-content:center;gap:6px;padding:12px;border-radius:12px;background:linear-gradient(135deg,#2563eb,#3b82f6);color:#fff;font-size:12px;font-weight:700;text-decoration:none">
+        style="flex:1;display:flex;align-items:center;justify-content:center;gap:6px;padding:12px;border-radius:12px;background:linear-gradient(135deg,#2563eb,#3b82f6);color:#0f172a;font-size:12px;font-weight:700;text-decoration:none">
         💳 Assinar R$15
       </a>
       <a href="https://wa.me/5565996940287?text=Ol%C3%A1%2C%20preciso%20de%20ajuda%20com%20o%20Vou%20Estudar%2B" target="_blank"
-        style="display:flex;align-items:center;justify-content:center;gap:6px;padding:12px;border-radius:12px;background:rgba(255,255,255,0.05);color:rgba(255,255,255,0.6);font-size:12px;font-weight:600;text-decoration:none">
+        style="display:flex;align-items:center;justify-content:center;gap:6px;padding:12px;border-radius:12px;background:rgba(255,255,255,0.05);color:#475569;font-size:12px;font-weight:600;text-decoration:none">
         💬 Suporte
       </a>
-      <button onclick="handleLogout();toggleMobileMenu()" style="padding:12px 14px;border-radius:12px;background:rgba(255,255,255,0.05);color:rgba(255,255,255,0.4);font-size:12px;width:auto">
+      <button onclick="handleLogout();toggleMobileMenu()" style="padding:12px 14px;border-radius:12px;background:rgba(255,255,255,0.05);color:#94a3b8;font-size:12px;width:auto">
         🚪 Sair
       </button>
     </div>
-    <div style="text-align:center;margin-top:10px;padding:8px 12px;background:rgba(255,255,255,0.03);border-radius:10px;font-size:11px;color:rgba(255,255,255,0.3)">
+    <div style="text-align:center;margin-top:10px;padding:8px 12px;background:rgba(255,255,255,0.03);border-radius:10px;font-size:11px;color:#94a3b8">
       <span id="mobileUserEmail"></span>
     </div>
   </div>
@@ -2224,7 +2232,7 @@ async function carregarApp() {
     const nomeDemo = currentUser.user_metadata.nome || 'Visitante';
     const banner = document.createElement('div');
     banner.id = 'demoBanner';
-    banner.style.cssText = 'background:linear-gradient(90deg,#059669,#047857);color:#fff;padding:10px 20px;display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;font-size:13px;position:sticky;top:0;z-index:50';
+    banner.style.cssText = 'background:linear-gradient(90deg,#059669,#047857);color:#0f172a;padding:10px 20px;display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;font-size:13px;position:sticky;top:0;z-index:50';
     banner.innerHTML = `
       <div style="display:flex;align-items:center;gap:8px">
         <span style="font-size:16px">🎯</span>
@@ -2473,7 +2481,7 @@ async function carregarAppDemo() {
 
   // Banner de demo
   const banner = document.createElement('div');
-  banner.style.cssText = 'background:linear-gradient(90deg,#059669,#047857);color:#fff;padding:10px 20px;display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;font-size:13px';
+  banner.style.cssText = 'background:linear-gradient(90deg,#059669,#047857);color:#0f172a;padding:10px 20px;display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;font-size:13px';
   banner.innerHTML = `
     <div style="display:flex;align-items:center;gap:8px">
       <span style="font-size:16px">🎯</span>
@@ -2808,9 +2816,9 @@ function renderMaterias() {
     else if (proximo) corBorda = '#f97316';
 
     let badgeDias = '';
-    if (passado) badgeDias = '<span style="font-size:11px;background:#6b7280;color:#fff;padding:2px 8px;border-radius:20px;font-weight:700">Prova encerrada</span>';
-    else if (urgente) badgeDias = '<span style="font-size:11px;background:#ef4444;color:#fff;padding:2px 8px;border-radius:20px;font-weight:700">🚨 ' + (dias === 0 ? 'HOJE!' : dias + (dias===1?' dia!':' dias!')) + '</span>';
-    else if (proximo) badgeDias = '<span style="font-size:11px;background:#f97316;color:#fff;padding:2px 8px;border-radius:20px;font-weight:700">⚠️ ' + dias + ' dias</span>';
+    if (passado) badgeDias = '<span style="font-size:11px;background:#6b7280;color:#0f172a;padding:2px 8px;border-radius:20px;font-weight:700">Prova encerrada</span>';
+    else if (urgente) badgeDias = '<span style="font-size:11px;background:#ef4444;color:#0f172a;padding:2px 8px;border-radius:20px;font-weight:700">🚨 ' + (dias === 0 ? 'HOJE!' : dias + (dias===1?' dia!':' dias!')) + '</span>';
+    else if (proximo) badgeDias = '<span style="font-size:11px;background:#f97316;color:#0f172a;padding:2px 8px;border-radius:20px;font-weight:700">⚠️ ' + dias + ' dias</span>';
     else if (dias !== null) badgeDias = '<span style="font-size:11px;background:var(--blue-soft);color:var(--primary);padding:2px 8px;border-radius:20px;font-weight:600">📅 ' + dias + ' dias</span>';
 
     let alertaBanner = '';
@@ -2826,7 +2834,7 @@ function renderMaterias() {
         <div style="flex:1">
           <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
             <h4 style="margin:0">${m.nome}</h4>
-            <span id="badge-estudando-${m.id}" class="hidden" style="font-size:11px;background:var(--green,#22c55e);color:#fff;padding:2px 8px;border-radius:20px;font-weight:700">● estudando</span>
+            <span id="badge-estudando-${m.id}" class="hidden" style="font-size:11px;background:var(--green,#22c55e);color:#0f172a;padding:2px 8px;border-radius:20px;font-weight:700">● estudando</span>
             ${badgeDias}
           </div>
           ${m.professor ? `<p style="margin:4px 0 0">👨‍🏫 ${m.professor}</p>` : ''}
@@ -3218,10 +3226,10 @@ function atualizarDashboardExtra(progMedio) {
       const cor = m.cor||'#2563eb';
       return `<div style="margin-bottom:10px">
         <div style="display:flex;justify-content:space-between;margin-bottom:4px">
-          <span style="font-size:13px;color:#fff;font-weight:500">${m.nome}</span>
+          <span style="font-size:13px;color:#0f172a;font-weight:500">${m.nome}</span>
           <span style="font-size:13px;font-weight:700;color:${cor}">${p}%</span>
         </div>
-        <div style="height:6px;background:rgba(255,255,255,0.08);border-radius:4px">
+        <div style="height:6px;background:#f1f5f9;border-radius:4px">
           <div style="height:6px;border-radius:4px;width:${p}%;background:${cor};transition:width .5s"></div>
         </div>
       </div>`;
@@ -3235,7 +3243,7 @@ function atualizarDashboardExtra(progMedio) {
       fracoNome.textContent = fraca.nome;
     }
   } else if (desEl) {
-    desEl.innerHTML = '<div style="font-size:13px;color:rgba(255,255,255,0.4);text-align:center;padding:12px">Cadastre matérias para ver seu desempenho</div>';
+    desEl.innerHTML = '<div style="font-size:13px;color:#94a3b8;text-align:center;padding:12px">Cadastre matérias para ver seu desempenho</div>';
   }
 
   // ── PLANO DO DIA ──
@@ -3252,13 +3260,13 @@ function atualizarDashboardExtra(progMedio) {
         <div style="width:24px;height:24px;border-radius:50%;border:2px solid ${feito?'#22c55e':'rgba(255,255,255,0.2)'};background:${feito?'#22c55e':'transparent'};display:grid;place-items:center;flex-shrink:0">
           ${feito?'<span style="color:#fff;font-size:12px">✓</span>':''}
         </div>
-        <div style="flex:1;font-size:14px;color:${feito?'rgba(255,255,255,0.4)':'#fff'};font-weight:${feito?'400':'600'}">${m.nome}</div>
-        <div style="font-size:13px;color:rgba(255,255,255,0.4)">${minutos[i]} min ›</div>
+        <div style="flex:1;font-size:14px;color:${feito?'#94a3b8':'#374151'};font-weight:${feito?'400':'600'}">${m.nome}</div>
+        <div style="font-size:13px;color:#94a3b8">${minutos[i]} min ›</div>
       </div>`;
     }).join('');
     if (planoDiaTempo) planoDiaTempo.textContent = totalMin+' min';
   } else if (planoDia) {
-    planoDia.innerHTML = '<div style="font-size:13px;color:rgba(255,255,255,0.4);padding:8px 0">Cadastre matérias para ver seu plano do dia</div>';
+    planoDia.innerHTML = '<div style="font-size:13px;color:#94a3b8;padding:8px 0">Cadastre matérias para ver seu plano do dia</div>';
   }
 
   // ── SEQUÊNCIA ──
@@ -3831,7 +3839,7 @@ function renderExplicacoesTopicos(topicos) {
       <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 18px;background:${t.probabilidade >= 90 ? '#f0fdf4' : t.probabilidade >= 75 ? '#fffbeb' : '#eff6ff'};cursor:pointer;user-select:none"
         onclick="toggleExplicacao(${i})">
         <div style="display:flex;align-items:center;gap:10px">
-          <div style="width:28px;height:28px;border-radius:50%;background:${t.probabilidade >= 90 ? '#059669' : t.probabilidade >= 75 ? '#d97706' : '#2563eb'};color:#fff;display:grid;place-items:center;font-size:11px;font-weight:700;flex-shrink:0">${i+1}</div>
+          <div style="width:28px;height:28px;border-radius:50%;background:${t.probabilidade >= 90 ? '#059669' : t.probabilidade >= 75 ? '#d97706' : '#2563eb'};color:#0f172a;display:grid;place-items:center;font-size:11px;font-weight:700;flex-shrink:0">${i+1}</div>
           <div>
             <div style="font-size:14px;font-weight:700;color:var(--text)">${t.tema}</div>
             <div style="font-size:11px;color:var(--muted);margin-top:2px">${t.justificativa}</div>
@@ -4016,7 +4024,7 @@ function abrirModalVincularMateria(planoId) {
       <option value="">Sem matéria</option>${opcoes}
     </select>
     <div style="display:flex;gap:8px">
-      <button onclick="confirmarVincularMateria('${planoId}',this.closest('div[style]'))" style="flex:1;background:#2563eb;color:#fff;border:none;padding:10px;border-radius:8px;font-weight:700;cursor:pointer">Salvar</button>
+      <button onclick="confirmarVincularMateria('${planoId}',this.closest('div[style]'))" style="flex:1;background:#2563eb;color:#0f172a;border:none;padding:10px;border-radius:8px;font-weight:700;cursor:pointer">Salvar</button>
       <button onclick="this.closest('div[style]').remove()" style="flex:1;background:#f1f5f9;color:#64748b;border:none;padding:10px;border-radius:8px;cursor:pointer">Cancelar</button>
     </div>
   </div>`;
@@ -4536,7 +4544,7 @@ async function recalcularTudoDoHistorico() {
       <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid rgba(255,255,255,0.08)">
         <div>
           <div style="font-size:13px;font-weight:600;color:#fff">${d.nome}</div>
-          <div style="font-size:11px;color:rgba(255,255,255,0.4);margin-top:2px">
+          <div style="font-size:11px;color:#94a3b8;margin-top:2px">
             ⏱️ ${formatarTempoTotal(d.tempoTotal)} (${d.pctTempo}%)
             ${d.pctAcertos ? ' · 🎯 Simulado: ' + d.pctAcertos + '%' : ' · 🎯 Sem simulado'}
             ${d.pctTopicos ? ' · 📖 Tópicos: ' + d.pctTopicos + '%' : ''}
@@ -4786,7 +4794,7 @@ function _mostrarNotificacaoLembrete(texto, diffDias, data) {
   const diffTxt = diffDias < 0.04 ? 'agora' : diffDias < 1 ? 'hoje' : diffDias < 2 ? 'amanhã' : Math.ceil(diffDias) + ' dias';
   notifEl.style.cssText = `
     position:fixed;top:20px;right:20px;z-index:99999;
-    background:#0c1a2e;color:#fff;border-radius:14px;
+    background:#0c1a2e;color:#0f172a;border-radius:14px;
     padding:14px 18px;max-width:320px;
     border-left:4px solid ${diffDias<=1?'#ef4444':'#f59e0b'};
     box-shadow:0 8px 32px rgba(0,0,0,0.3);
@@ -4799,9 +4807,9 @@ function _mostrarNotificacaoLembrete(texto, diffDias, data) {
       <div style="flex:1">
         <div style="font-size:11px;font-weight:700;color:${diffDias<=1?'#f87171':'#fbbf24'};text-transform:uppercase;letter-spacing:.5px;margin-bottom:3px">Lembrete — ${diffTxt}</div>
         <div style="font-size:13px;font-weight:600;line-height:1.4">${texto}</div>
-        <div style="font-size:11px;color:rgba(255,255,255,0.4);margin-top:4px">${data.toLocaleString('pt-BR',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'})}</div>
+        <div style="font-size:11px;color:#94a3b8;margin-top:4px">${data.toLocaleString('pt-BR',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'})}</div>
       </div>
-      <button onclick="this.closest('div[style]').remove()" style="background:none;border:none;color:rgba(255,255,255,0.4);cursor:pointer;font-size:16px;padding:0;width:auto;line-height:1">✕</button>
+      <button onclick="this.closest('div[style]').remove()" style="background:none;border:none;color:#94a3b8;cursor:pointer;font-size:16px;padding:0;width:auto;line-height:1">✕</button>
     </div>`;
   document.body.appendChild(notifEl);
   // Remove automaticamente depois de 8s
@@ -5146,7 +5154,7 @@ function _marcarConviteEnviado(btn, userId, tipo) {
     btn.innerHTML = tipo === 'whats' ? '✅ Enviado' : '✅ Enviado';
     // Badge de notificação
     const badge = document.createElement('span');
-    badge.style.cssText = 'position:absolute;top:-6px;right:-6px;background:#22c55e;color:#fff;border-radius:50%;width:14px;height:14px;font-size:9px;display:grid;place-items:center;font-weight:700';
+    badge.style.cssText = 'position:absolute;top:-6px;right:-6px;background:#22c55e;color:#0f172a;border-radius:50%;width:14px;height:14px;font-size:9px;display:grid;place-items:center;font-weight:700';
     badge.textContent = '✓';
     btn.style.position = 'relative';
     btn.appendChild(badge);
@@ -5637,7 +5645,7 @@ async function adminCarregarNovosCadastros() {
     });
 
     return `<div style="display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--border);flex-wrap:wrap">
-      <div style="width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,#2563eb,#3b82f6);display:grid;place-items:center;font-size:15px;font-weight:700;color:#fff;flex-shrink:0">${avatar}</div>
+      <div style="width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,#2563eb,#3b82f6);display:grid;place-items:center;font-size:15px;font-weight:700;color:#0f172a;flex-shrink:0">${avatar}</div>
       <div style="flex:1;min-width:0">
         <div style="font-size:13px;font-weight:600;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">
           ${nomeDisplay ? '<span style="color:#2563eb">' + nomeDisplay + '</span> — ' : ''}${emailDisplay}
@@ -5705,7 +5713,7 @@ function _verificarEnviosAutomaticos() {
       <div style="font-size:12px;color:#374151;margin-top:2px">${pendentes.length} cliente(s) não receberam convite nos últimos 7 dias.</div>
     </div>
     <div style="display:flex;gap:6px;flex-wrap:wrap">
-      <button onclick="_enviarAutomaticoTodos()" style="background:#2563eb;color:#fff;border:none;padding:7px 14px;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;width:auto">
+      <button onclick="_enviarAutomaticoTodos()" style="background:#2563eb;color:#0f172a;border:none;padding:7px 14px;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;width:auto">
         🚀 Enviar para todos (${pendentes.length})
       </button>
       <button onclick="this.closest('#avisoEnvioAuto').remove()" style="background:#f1f5f9;color:#64748b;border:none;padding:7px 14px;border-radius:8px;font-size:12px;cursor:pointer;width:auto">
@@ -5953,7 +5961,7 @@ function visitanteEnviarWhats(tel, keyBase, btn) {
     btn.style.background='#f0fdf4'; btn.style.borderColor='#22c55e'; btn.style.color='#15803d';
     btn.innerHTML='✅ Enviado';
     const b = document.createElement('span');
-    b.style.cssText='position:absolute;top:-6px;right:-6px;background:#22c55e;color:#fff;border-radius:50%;width:14px;height:14px;font-size:9px;display:grid;place-items:center;font-weight:700';
+    b.style.cssText='position:absolute;top:-6px;right:-6px;background:#22c55e;color:#0f172a;border-radius:50%;width:14px;height:14px;font-size:9px;display:grid;place-items:center;font-weight:700';
     b.textContent='✓'; btn.appendChild(b);
   }
   toast('✅ Convite enviado via WhatsApp!');
@@ -5968,7 +5976,7 @@ function visitanteEnviarEmail(email, keyBase, btn) {
     btn.style.background='#eff6ff'; btn.style.borderColor='#93c5fd'; btn.style.color='#1d4ed8';
     btn.innerHTML='✅ Enviado';
     const b = document.createElement('span');
-    b.style.cssText='position:absolute;top:-6px;right:-6px;background:#2563eb;color:#fff;border-radius:50%;width:14px;height:14px;font-size:9px;display:grid;place-items:center;font-weight:700';
+    b.style.cssText='position:absolute;top:-6px;right:-6px;background:#2563eb;color:#0f172a;border-radius:50%;width:14px;height:14px;font-size:9px;display:grid;place-items:center;font-weight:700';
     b.textContent='✓'; btn.appendChild(b);
   }
   toast('✅ Convite enviado por e-mail!');
@@ -5995,7 +6003,7 @@ function _verificarEnviosVisitantes(lista, wrap) {
       <div style="font-size:13px;font-weight:700;color:#065f46">🤖 Envio automático semanal</div>
       <div style="font-size:12px;color:#374151;margin-top:2px">${pendentes.length} visitante(s) sem contato nos últimos 7 dias.</div>
     </div>
-    <button onclick="_enviarAutomaticoVisitantes()" style="background:#059669;color:#fff;border:none;padding:7px 14px;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;width:auto">
+    <button onclick="_enviarAutomaticoVisitantes()" style="background:#059669;color:#0f172a;border:none;padding:7px 14px;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;width:auto">
       🚀 Enviar para todos (${pendentes.length})
     </button>`;
   wrap.insertBefore(aviso, wrap.firstChild);
@@ -6158,7 +6166,7 @@ async function adminCarregarTempoAcesso() {
       <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 14px;background:#f8faff;cursor:pointer;user-select:none"
         onclick="this.nextElementSibling.classList.toggle('hidden')">
         <div style="display:flex;align-items:center;gap:10px">
-          <div style="width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,#2563eb,#3b82f6);display:grid;place-items:center;font-size:13px;font-weight:700;color:#fff;flex-shrink:0">${(emailInfo?.email||'?').charAt(0).toUpperCase()}</div>
+          <div style="width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,#2563eb,#3b82f6);display:grid;place-items:center;font-size:13px;font-weight:700;color:#0f172a;flex-shrink:0">${(emailInfo?.email||'?').charAt(0).toUpperCase()}</div>
           <div>
             <div style="font-size:13px;font-weight:600;color:var(--text)">${email}</div>
             <div style="font-size:11px;color:var(--muted);margin-top:1px">Total no período: ${totalH}h ${totalM}min • ${u.dias.length} dia(s) com estudo</div>
@@ -6240,7 +6248,7 @@ function _gerarPDFPlano(titulo, r, dataProva) {
 <style>
   *{box-sizing:border-box;margin:0;padding:0}
   body{font-family:Arial,Helvetica,sans-serif;color:#1a1a2e;background:#fff;font-size:14px;line-height:1.6}
-  .cover{background:linear-gradient(135deg,#0c1a2e,#1e3a5f);color:#fff;padding:52px 48px;page-break-after:always}
+  .cover{background:linear-gradient(135deg,#0c1a2e,#1e3a5f);color:#0f172a;padding:52px 48px;page-break-after:always}
   .cover h1{font-size:30px;font-weight:800;letter-spacing:-0.5px;margin-bottom:8px}
   .cover p{font-size:15px;opacity:0.6;margin-bottom:4px}
   .section{padding:32px 48px;page-break-inside:avoid}
@@ -6476,7 +6484,7 @@ function _renderizarJogo() {
 
   document.getElementById('jogoAlternativas').innerHTML = alts.map((a,i)=>`
     <button onclick="responderJogo(${i},${novoCorreta},${carta.pontos})" id="jogoAlt${i}"
-      style="width:100%;text-align:left;padding:12px 16px;border-radius:10px;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);color:#fff;font-size:13px;cursor:pointer;transition:all .15s;font-family:inherit;margin-bottom:0"
+      style="width:100%;text-align:left;padding:12px 16px;border-radius:10px;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);color:#0f172a;font-size:13px;cursor:pointer;transition:all .15s;font-family:inherit;margin-bottom:0"
       onmouseover="this.style.background='rgba(255,255,255,0.15)'" onmouseout="this.style.background='rgba(255,255,255,0.08)'">
       <span style="display:inline-block;width:24px;height:24px;border-radius:50%;background:rgba(255,255,255,0.15);text-align:center;line-height:24px;font-size:11px;font-weight:700;margin-right:10px">${String.fromCharCode(65+i)}</span>${a.texto}
     </button>`).join('');
