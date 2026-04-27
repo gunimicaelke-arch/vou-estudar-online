@@ -2163,7 +2163,7 @@ const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBh
 
 // ⚠️ Cole aqui sua service_role key (Supabase → Settings → API → service_role secret)
 // Ela bypassa o RLS e permite que o admin exclua visitas e cadastros sem configurar policies.
-const SUPABASE_SERVICE_KEY = 'sb_secret_EPdlaebHkMMHhMRcd7aIww_29RHm9B5';
+const SUPABASE_SERVICE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImphbXN4b2Nlamd4eXpvcGdjcWR2Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3NjEyOTg4MSwiZXhwIjoyMDkxNzA1ODgxfQ.Bz1ZaM0iu0vmdJ1SWNa-7AD5kl0lXxXtInb9hLnKS6E';
 
 const { createClient } = supabase;
 const db = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, { auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true } });
@@ -5528,32 +5528,11 @@ async function adminExcluirCliente(userId, email = '') {
     try { await dbAdmin.from('profiles').delete().eq('email', email); } catch (e) {}
   }
 
-  let authApagado = false;
+  // Apaga o login do usuário direto via Admin API (service_role bypassa RLS)
   try {
-    const { data: sessaoData } = await db.auth.getSession();
-    const token = sessaoData?.session?.access_token;
-    if (token) {
-      const resp = await fetch(`${SUPABASE_URL}/functions/v1/admin_delete_user`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify({ user_id: userId, email })
-      });
-
-      if (resp.ok) {
-        authApagado = true;
-      } else if (resp.status !== 404) {
-        let detalhe = '';
-        try {
-          const json = await resp.json();
-          detalhe = json?.error || JSON.stringify(json);
-        } catch (e) {
-          detalhe = await resp.text();
-        }
-        if (detalhe) falhas.push(`auth: ${detalhe}`);
-      }
+    const { error: authError } = await dbAdmin.auth.admin.deleteUser(userId);
+    if (authError) {
+      falhas.push(`auth: ${authError.message}`);
     }
   } catch (e) {
     falhas.push(`auth: ${e.message || e}`);
@@ -5564,11 +5543,9 @@ async function adminExcluirCliente(userId, email = '') {
 
   if (falhas.length) {
     console.warn('Falhas ao excluir cliente:', falhas);
-    toast(authApagado
-      ? '⚠️ Cliente excluído, mas algumas tabelas falharam. Veja o console.'
-      : '⚠️ Dados do cliente removidos. Para apagar o login, publique a função admin_delete_user no Supabase.');
+    toast('⚠️ Cliente excluído parcialmente. Veja o console.');
   } else {
-    toast(authApagado ? '🗑️ Cliente excluído completamente.' : '🗑️ Cliente removido do sistema.');
+    toast('🗑️ Cliente excluído completamente (dados + login).');
   }
 
   await adminCarregarUsuarios();
