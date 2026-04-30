@@ -1,437 +1,231 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:'Plus Jakarta Sans','Inter',sans-serif;background:#EEF3FB;color:#1a2744;-webkit-font-smoothing:antialiased}
-@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
 
+/* ================= NAV ================= */
 nav{display:flex;align-items:center;justify-content:space-between;padding:14px 28px;background:rgba(255,255,255,0.95);backdrop-filter:blur(16px);border-bottom:1px solid rgba(99,140,255,0.12);position:sticky;top:0;z-index:50;gap:12px}
-.logo{display:flex;align-items:center;gap:10px;flex-shrink:0}
-.logo-box{width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,#4f8ef7,#2563eb);display:flex;align-items:center;justify-content:center;position:relative;box-shadow:0 4px 12px rgba(37,99,235,0.3)}
-.logo-box svg{width:20px;height:20px;fill:none;stroke:#fff;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round}
-.logo-dot{position:absolute;top:-3px;right:-3px;width:10px;height:10px;background:linear-gradient(135deg,#fbbf24,#f59e0b);border-radius:50%;border:2px solid #eef3fb}
-.logo-name{font-size:17px;font-weight:800;color:#1a2744;letter-spacing:-0.02em}
+.logo{display:flex;align-items:center;gap:10px}
+.logo-box{width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,#4f8ef7,#2563eb);display:flex;align-items:center;justify-content:center;position:relative}
+.logo-name{font-size:17px;font-weight:800}
 .logo-name span{color:#2563eb}
-.nav-right{display:flex;align-items:center;gap:10px;flex-shrink:0}
-.nav-support{display:flex;align-items:center;gap:6px;font-size:12px;color:#64748b;font-weight:500;background:#f8fafc;border:1px solid #e2e8f0;padding:8px 14px;border-radius:9px}
-.nav-support svg{width:14px;height:14px;fill:#25D366;flex-shrink:0}
-.nav-support strong{color:#15803d;font-weight:700}
-.nav-btn-gold{background:linear-gradient(135deg,#fcd34d,#f59e0b);color:#78350f;border:none;padding:11px 24px;border-radius:10px;font-size:14px;font-weight:800;cursor:pointer;font-family:inherit;box-shadow:0 4px 16px rgba(245,158,11,0.4);letter-spacing:0.01em;animation:pulse-gold 2.5s ease-in-out infinite;white-space:nowrap}
-@keyframes pulse-gold{0%,100%{box-shadow:0 4px 16px rgba(245,158,11,0.4)}50%{box-shadow:0 4px 28px rgba(245,158,11,0.65),0 0 0 4px rgba(245,158,11,0.12)}}
-@keyframes pulse-green{0%,100%{box-shadow:0 8px 24px rgba(22,163,74,0.35)}50%{box-shadow:0 8px 36px rgba(22,163,74,0.55),0 0 0 6px rgba(22,163,74,0.1)}}
+.nav-support{font-size:12px;color:#64748b}
+.nav-btn-gold{background:linear-gradient(135deg,#fcd34d,#f59e0b);border:none;padding:10px 18px;border-radius:10px;font-weight:800;cursor:pointer}
 
-.hero-wrap{padding:60px 28px 48px;text-align:center;background:linear-gradient(160deg,#dce9ff 0%,#eef3fb 55%,#f0f6ff 100%);position:relative;overflow:hidden}
-.hero-wrap::before{content:'';position:absolute;top:-80px;right:-80px;width:360px;height:360px;background:radial-gradient(circle,rgba(37,99,235,0.07),transparent 70%);pointer-events:none}
-.hero-h1{font-size:34px;font-weight:800;line-height:1.15;letter-spacing:-0.03em;max-width:600px;margin:0 auto 16px;color:#1a2744}
-.hero-h1 em{font-style:normal;color:#2563eb}
-.hero-sub{font-size:15px;color:#64748b;line-height:1.75;max-width:480px;margin:0 auto 32px}
-.hero-btns{display:flex;justify-content:center;gap:12px;flex-wrap:wrap;margin-bottom:14px}
-.btn-hero-green{background:linear-gradient(135deg,#16a34a,#15803d);color:#fff;border:none;padding:17px 48px;border-radius:12px;font-size:16px;font-weight:800;cursor:pointer;font-family:inherit;box-shadow:0 8px 24px rgba(22,163,74,0.35);letter-spacing:0.02em;animation:pulse-green 2.5s ease-in-out infinite}
-.btn-hero-gold{background:linear-gradient(135deg,#fcd34d,#f59e0b);color:#78350f;border:none;padding:16px 28px;border-radius:12px;font-size:14px;font-weight:800;cursor:pointer;font-family:inherit;box-shadow:0 6px 16px rgba(245,158,11,0.3)}
-.hero-note{font-size:11px;color:#94a3b8}
+/* ================= HERO LIMPO ================= */
+.hero-wrap{
+  padding:70px 28px 40px;
+  text-align:center;
+  background:linear-gradient(160deg,#dce9ff 0%,#eef3fb 55%,#f0f6ff 100%);
+}
 
-.trust-row{display:flex;justify-content:center;align-items:center;gap:28px;padding:16px 28px;background:#fff;border-top:1px solid rgba(99,140,255,0.1);border-bottom:1px solid rgba(99,140,255,0.1);flex-wrap:wrap}
-.trust-item{display:flex;align-items:center;gap:7px;font-size:12px;color:#64748b;font-weight:600}
-.trust-ico{width:18px;height:18px;background:#dbeafe;border-radius:5px;display:flex;align-items:center;justify-content:center;font-size:10px}
+.hero-h1{
+  font-size:36px;
+  font-weight:800;
+  line-height:1.15;
+  max-width:720px;
+  margin:0 auto 16px;
+}
 
+.hero-h1 em{color:#2563eb;font-style:normal}
+
+.hero-sub{
+  font-size:15px;
+  color:#64748b;
+  max-width:520px;
+  margin:0 auto;
+  line-height:1.7;
+}
+
+/* ================= CTA FLOATING ================= */
+.cta-floating{
+  position:fixed;
+  bottom:20px;
+  right:20px;
+  z-index:9999;
+  opacity:0;
+  transform:translateY(20px);
+  pointer-events:none;
+  transition:.4s ease;
+}
+
+.cta-floating.show{
+  opacity:1;
+  transform:translateY(0);
+  pointer-events:auto;
+}
+
+.cta-floating button{
+  background:linear-gradient(135deg,#16a34a,#15803d);
+  border:none;
+  padding:14px 18px;
+  border-radius:999px;
+  color:#fff;
+  font-weight:800;
+  cursor:pointer;
+  box-shadow:0 10px 30px rgba(22,163,74,0.35);
+}
+
+/* ================= SISTEMA MAIOR ================= */
+.mockup-wrap{
+  max-width:900px;
+  margin:40px auto;
+  transform:scale(1.08);
+}
+
+/* ================= SEÇÕES ORIGINAIS ================= */
 .section{padding:52px 28px;text-align:center}
-.sec-label{font-size:11px;color:#2563eb;letter-spacing:0.1em;text-transform:uppercase;font-weight:700;margin-bottom:10px}
-.sec-title{font-size:26px;font-weight:800;letter-spacing:-0.025em;line-height:1.2;margin-bottom:8px;color:#1a2744}
-.sec-sub{font-size:14px;color:#64748b;line-height:1.7;margin-bottom:32px}
+.sec-title{font-size:26px;font-weight:800}
 
-.slide-indicators{display:flex;gap:8px;justify-content:center;margin-bottom:20px}
-.slide-dot{width:28px;height:4px;border-radius:999px;background:#dbeafe;transition:all .3s;cursor:pointer}
-.slide-dot.active{background:#2563eb;width:44px}
-.slide-label-txt{font-size:11px;color:#94a3b8;text-align:center;margin-top:12px;font-weight:500}
+/* ================= WHATSAPP ================= */
+.whatsapp-float{
+  position:fixed;
+  bottom:90px;
+  right:20px;
+  background:#25D366;
+  color:#fff;
+  border:none;
+  padding:12px 16px;
+  border-radius:999px;
+  font-weight:800;
+  cursor:pointer;
+}
 
-.mockup-wrap{max-width:680px;margin:0 auto;position:relative;min-height:400px}
-.mockup-slide{position:absolute;top:0;left:0;width:100%;opacity:0;transform:translateY(12px);transition:opacity .5s ease,transform .5s ease;pointer-events:none}
-.mockup-slide.active{opacity:1;transform:translateY(0);position:relative;pointer-events:auto}
+/* ================= MODAL ================= */
+.overlay{
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,0.6);
+  display:none;
+  align-items:center;
+  justify-content:center;
+  z-index:99999;
+}
 
-.dash-mockup{background:#fff;border-radius:16px;overflow:hidden;border:1px solid rgba(99,140,255,0.15);box-shadow:0 24px 60px rgba(15,22,41,0.12);text-align:left}
-.dash-topbar{padding:12px 20px;border-bottom:1px solid #f1f5f9;display:flex;justify-content:space-between;align-items:center}
-.dash-tb-title{font-size:14px;font-weight:700;color:#0f172a;font-family:'Plus Jakarta Sans',sans-serif}
-.dash-tb-sub{font-size:11px;color:#94a3b8;font-family:'Plus Jakarta Sans',sans-serif}
-.dash-body{padding:12px 14px;background:#f8fafc;display:flex;flex-direction:column;gap:10px}
-.dash-hello{background:#fff;border:1px solid #e2e8f0;border-radius:12px;padding:12px 16px;display:flex;justify-content:space-between;align-items:center}
-.dh-small{font-size:10px;color:#94a3b8;font-family:'Plus Jakarta Sans',sans-serif}
-.dh-name{font-size:14px;font-weight:700;color:#0f172a;font-family:'Plus Jakarta Sans',sans-serif}
-.dh-name span{color:#2563eb}
-.dh-pct{font-size:15px;font-weight:800;color:#2563eb;font-family:'Plus Jakarta Sans',sans-serif}
-.dh-pct-sub{font-size:10px;color:#94a3b8;font-family:'Plus Jakarta Sans',sans-serif;text-align:right}
-.dash-alert{background:#fff;border:1px solid #fecaca;border-radius:12px;padding:11px 14px;display:flex;align-items:center;gap:14px}
-.da-warn{font-size:12px;font-weight:700;color:#dc2626;font-family:'Plus Jakarta Sans',sans-serif}
-.da-tag{display:inline-flex;background:#f0fdf4;border:1px solid #bbf7d0;border-radius:999px;padding:2px 9px;font-size:10px;color:#16a34a;font-weight:600;margin-top:4px;font-family:'Plus Jakarta Sans',sans-serif}
-.dash-today{background:#fff;border:1px solid #e2e8f0;border-radius:12px;padding:11px 14px}
-.dt-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
-.dt-lbl{font-size:10px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:.5px;font-family:'Plus Jakarta Sans',sans-serif}
-.dt-time{font-size:10px;color:#2563eb;font-weight:700;background:#dbeafe;padding:3px 8px;border-radius:999px;font-family:'Plus Jakarta Sans',sans-serif}
-.dt-item{display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid #f1f5f9;font-family:'Plus Jakarta Sans',sans-serif}
-.dt-item:last-child{border-bottom:none}
-.dt-name{font-size:12px;font-weight:600;color:#0f172a}
-.dt-min{font-size:11px;color:#94a3b8}
-.dash-cta-bar{background:linear-gradient(135deg,#16a34a,#15803d);border-radius:10px;padding:11px;text-align:center;cursor:pointer;animation:pulse-green 2.5s infinite}
-.dash-cta-bar span{font-size:13px;font-weight:800;color:#fff;letter-spacing:0.05em;font-family:'Plus Jakarta Sans',sans-serif}
-.dash-desempenho{background:#fff;border:1px solid #e2e8f0;border-radius:12px;padding:11px 14px}
-.dd-head{font-size:10px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px;font-family:'Plus Jakarta Sans',sans-serif}
-.dd-item{margin-bottom:7px}
-.dd-row{display:flex;justify-content:space-between;margin-bottom:3px;font-family:'Plus Jakarta Sans',sans-serif}
-.dd-name{font-size:11px;font-weight:600;color:#0f172a}
-.dd-pct{font-size:11px;font-weight:700}
-.dd-bar{height:5px;background:#f1f5f9;border-radius:999px;overflow:hidden}
-.dd-fill{height:100%;border-radius:999px}
-.dash-grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.dash-mini{background:#fff;border:1px solid #e2e8f0;border-radius:12px;padding:11px 14px}
-.dm-lbl{font-size:10px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:.4px;margin-bottom:6px;font-family:'Plus Jakarta Sans',sans-serif}
-.dm-big{font-size:28px;font-weight:800;color:#2563eb;font-family:'Plus Jakarta Sans',sans-serif;line-height:1}
-.dm-sub{font-size:10px;color:#94a3b8;font-family:'Plus Jakarta Sans',sans-serif;margin-top:2px}
-.dm-warn{display:inline-flex;background:#fffbeb;border:1px solid #fde68a;border-radius:6px;padding:4px 8px;font-size:10px;color:#d97706;font-weight:600;margin-top:6px;font-family:'Plus Jakarta Sans',sans-serif}
-.dm-prev{font-size:11px;margin-bottom:5px;font-family:'Plus Jakarta Sans',sans-serif}
-.dm-prev.bad{color:#dc2626}
-.dm-prev.good{color:#16a34a}
+.modal{
+  background:#fff;
+  width:90%;
+  max-width:420px;
+  padding:22px;
+  border-radius:14px;
+}
 
-.plan-mockup{background:#0f1629;border-radius:16px;overflow:hidden;border:1px solid rgba(255,255,255,0.08);box-shadow:0 24px 60px rgba(15,22,41,0.3);text-align:left}
-.pm-topbar{background:#13182e;padding:10px 16px;border-bottom:1px solid rgba(255,255,255,0.07);display:flex;align-items:center;justify-content:space-between}
-.pm-title{font-size:12px;font-weight:700;color:#e2e8f0;font-family:'Plus Jakarta Sans',sans-serif;display:flex;align-items:center;gap:6px}
-.pm-sub{font-size:10px;color:#475569;font-family:'Plus Jakarta Sans',sans-serif}
-.pm-stats{display:flex;gap:14px}
-.pm-stat-val{font-size:14px;font-weight:800;font-family:'Plus Jakarta Sans',sans-serif}
-.pm-stat-lbl{font-size:9px;color:#475569;text-transform:uppercase;letter-spacing:.4px;font-family:'Plus Jakarta Sans',sans-serif}
-.pm-body{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:10px}
-.pm-upload{background:linear-gradient(135deg,#6d28d9,#7c3aed);border-radius:10px;padding:12px}
-.pmu-label{font-size:9px;font-weight:700;color:rgba(255,255,255,0.5);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px;font-family:'Plus Jakarta Sans',sans-serif}
-.pmu-btns{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:8px}
-.pmu-btn{background:rgba(255,255,255,0.15);border:none;border-radius:6px;padding:7px;font-size:10px;font-weight:700;color:#fff;font-family:'Plus Jakarta Sans',sans-serif;text-align:center}
-.pmu-drop{background:rgba(255,255,255,0.06);border:1px dashed rgba(255,255,255,0.2);border-radius:8px;padding:12px;text-align:center;margin-bottom:8px}
-.typing-bar{display:flex;align-items:center;gap:6px;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.12);border-radius:6px;padding:7px 10px;margin-bottom:6px}
-.typing-text{font-size:10px;color:rgba(255,255,255,0.55);font-family:'Plus Jakarta Sans',sans-serif;overflow:hidden;white-space:nowrap;width:0;animation:typing 3.5s steps(30) infinite}
-@keyframes typing{0%{width:0}60%,100%{width:140px}}
-.cursor-dot{width:2px;height:12px;background:rgba(255,255,255,0.6);animation:cursor-blink 1s infinite;flex-shrink:0}
-@keyframes cursor-blink{0%,100%{opacity:1}50%{opacity:0}}
-.pmu-dates{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:8px}
-.pmu-date{background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.12);border-radius:6px;padding:6px 8px}
-.pmu-date-lbl{font-size:9px;color:rgba(255,255,255,0.4);font-family:'Plus Jakarta Sans',sans-serif;margin-bottom:2px}
-.pmu-date-val{font-size:10px;color:rgba(255,255,255,0.6);font-family:'Plus Jakarta Sans',sans-serif}
-.pmu-gen{width:100%;background:linear-gradient(135deg,#7c3aed,#6d28d9);border:none;border-radius:7px;padding:9px;font-size:11px;font-weight:700;color:#fff;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;display:flex;align-items:center;justify-content:center;gap:5px}
-.pm-topics{background:#13182e;border-radius:10px;padding:12px;border:1px solid rgba(16,185,129,0.2)}
-.pmt-label{font-size:9px;font-weight:700;color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px;font-family:'Plus Jakarta Sans',sans-serif}
-.pmt-item{padding:7px 0;border-bottom:1px solid rgba(255,255,255,0.05)}
-.pmt-item:last-child{border-bottom:none}
-.pmt-row{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:2px}
-.pmt-name{font-size:10px;font-weight:600;color:#e2e8f0;line-height:1.4;font-family:'Plus Jakarta Sans',sans-serif;max-width:155px}
-.pmt-pct{font-size:10px;font-weight:800;font-family:'Plus Jakarta Sans',sans-serif}
-.pmt-desc{font-size:9px;color:#475569;font-family:'Plus Jakarta Sans',sans-serif}
-.pm-tabs{background:#13182e;border-top:1px solid rgba(255,255,255,0.06);padding:8px 10px;display:flex;gap:5px;flex-wrap:wrap}
-.pm-tab{padding:5px 9px;border-radius:6px;font-size:9px;font-weight:700;color:rgba(255,255,255,0.4);font-family:'Plus Jakarta Sans',sans-serif}
-.pm-tab.active{background:linear-gradient(135deg,#2563eb,#1d4ed8);color:#fff}
-.pm-tab.gold{background:linear-gradient(135deg,#f59e0b,#d97706);color:#fff}
+.modal input{
+  width:100%;
+  padding:12px;
+  margin-top:10px;
+  border:1px solid #e2e8f0;
+  border-radius:10px;
+}
 
-.sim-mockup{background:#fff;border-radius:16px;overflow:hidden;border:1px solid rgba(99,140,255,0.15);box-shadow:0 24px 60px rgba(15,22,41,0.12);text-align:left}
-.sim-topbar{padding:12px 20px;border-bottom:1px solid #f1f5f9;border-top:3px solid #7c3aed;display:flex;justify-content:space-between;align-items:center;background:#fff}
-.sim-tb-left strong{font-size:14px;font-weight:700;color:#0f172a;font-family:'Plus Jakarta Sans',sans-serif}
-.sim-tb-left span{font-size:11px;color:#94a3b8;display:block;font-family:'Plus Jakarta Sans',sans-serif}
-.sim-timer{background:#fef2f2;border:1px solid #fecaca;border-radius:8px;padding:6px 12px;text-align:center}
-.sim-timer-val{font-size:16px;font-weight:800;color:#dc2626;font-family:'Plus Jakarta Sans',sans-serif;letter-spacing:0.05em}
-.sim-timer-lbl{font-size:9px;color:#94a3b8;font-family:'Plus Jakarta Sans',sans-serif}
-.sim-body{padding:14px 20px;background:#f8fafc}
-.sim-progress{background:#fff;border:1px solid #e2e8f0;border-radius:12px;padding:12px 16px;margin-bottom:12px;display:flex;align-items:center;gap:14px}
-.sim-prog-bar{flex:1;height:7px;background:#f1f5f9;border-radius:999px;overflow:hidden}
-.sim-prog-fill{height:100%;border-radius:999px;background:linear-gradient(90deg,#7c3aed,#2563eb);animation:prog-grow 2s ease-out forwards}
-@keyframes prog-grow{from{width:0%}to{width:35%}}
-.sim-prog-txt{font-size:12px;font-weight:700;color:#7c3aed;font-family:'Plus Jakarta Sans',sans-serif;white-space:nowrap}
-.sim-question{background:#fff;border:1px solid #e2e8f0;border-radius:12px;padding:16px;margin-bottom:10px}
-.sim-q-num{font-size:10px;font-weight:700;color:#7c3aed;text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px;font-family:'Plus Jakarta Sans',sans-serif}
-.sim-q-txt{font-size:13px;font-weight:600;color:#0f172a;line-height:1.6;margin-bottom:14px;font-family:'Plus Jakarta Sans',sans-serif}
-.sim-options{display:flex;flex-direction:column;gap:7px}
-.sim-opt{display:flex;align-items:center;gap:10px;padding:9px 12px;border:1.5px solid #e2e8f0;border-radius:9px;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif}
-.sim-opt.correct{border-color:#16a34a;background:#f0fdf4}
-.sim-opt.wrong{border-color:#dc2626;background:#fef2f2}
-.sim-opt-letter{width:24px;height:24px;border-radius:50%;background:#f1f5f9;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;color:#64748b;flex-shrink:0}
-.sim-opt.correct .sim-opt-letter{background:#16a34a;color:#fff}
-.sim-opt.wrong .sim-opt-letter{background:#dc2626;color:#fff}
-.sim-opt-txt{font-size:12px;font-weight:500;color:#0f172a}
-.sim-feedback{background:#f0fdf4;border:1px solid #bbf7d0;border-radius:10px;padding:10px 14px;margin-top:10px;display:flex;align-items:flex-start;gap:10px}
-.sim-fb-txt{font-size:11px;color:#15803d;line-height:1.6;font-family:'Plus Jakarta Sans',sans-serif}
-.sim-nav{display:flex;gap:8px;margin-top:10px}
-.sim-btn-prev{flex:1;background:#f1f5f9;border:1px solid #e2e8f0;border-radius:9px;padding:10px;font-size:12px;font-weight:700;color:#64748b;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif}
-.sim-btn-next{flex:2;background:linear-gradient(135deg,#7c3aed,#6d28d9);border:none;border-radius:9px;padding:10px;font-size:12px;font-weight:700;color:#fff;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif}
-
-.steps-list{display:flex;flex-direction:column;gap:0;max-width:520px;margin:0 auto}
-.step{display:flex;gap:16px;padding:16px 0;border-bottom:1px solid rgba(99,140,255,0.1)}
-.step:last-child{border-bottom:none}
-.step-num{width:32px;height:32px;border-radius:50%;background:#dbeafe;border:1.5px solid #bfdbfe;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;color:#2563eb;flex-shrink:0;margin-top:2px}
-.step-body strong{font-size:14px;font-weight:700;color:#1a2744;display:block;margin-bottom:3px}
-.step-body span{font-size:13px;color:#64748b;line-height:1.65}
-
-.feat-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;max-width:600px;margin:0 auto}
-.feat-card{background:#fff;border:1px solid rgba(99,140,255,0.12);border-radius:14px;padding:18px;box-shadow:0 2px 8px rgba(37,99,235,0.05);text-align:left}
-.feat-ico{width:36px;height:36px;border-radius:9px;background:#dbeafe;display:flex;align-items:center;justify-content:center;margin-bottom:12px;font-size:16px}
-.feat-card strong{font-size:13px;font-weight:700;color:#1a2744;display:block;margin-bottom:4px}
-.feat-card span{font-size:12px;color:#64748b;line-height:1.6}
-
-.areas{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;max-width:580px;margin:0 auto}
-.area-tag{display:flex;align-items:center;gap:6px;background:#fff;border:1px solid rgba(99,140,255,0.15);border-radius:10px;padding:8px 14px;font-size:12px;font-weight:600;color:#4070d6}
-
-.cta-section{padding:20px 28px 56px}
-.cta-box{max-width:580px;margin:0 auto;background:linear-gradient(135deg,#1e3a8a 0%,#2563eb 100%);border-radius:20px;padding:48px 36px;text-align:center;box-shadow:0 20px 60px rgba(37,99,235,0.3)}
-.cta-box h2{font-size:24px;font-weight:800;letter-spacing:-0.025em;margin-bottom:10px;color:#fff}
-.cta-box p{font-size:14px;color:rgba(255,255,255,0.6);line-height:1.7;max-width:400px;margin:0 auto 28px}
-.btn-cta-gold{background:linear-gradient(135deg,#fcd34d,#f59e0b);color:#78350f;border:none;padding:16px 44px;border-radius:12px;font-size:16px;font-weight:800;cursor:pointer;font-family:inherit;box-shadow:0 8px 24px rgba(245,158,11,0.4);animation:pulse-gold 2.5s ease-in-out infinite;letter-spacing:0.01em}
-.cta-note{font-size:11px;color:rgba(255,255,255,0.3);margin-top:12px}
-
-.whatsapp-float{position:fixed;bottom:24px;right:24px;z-index:100;display:flex;align-items:center;gap:10px;background:#25D366;color:#fff;border:none;border-radius:999px;padding:12px 20px 12px 14px;font-size:13px;font-weight:700;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;box-shadow:0 6px 24px rgba(37,211,102,0.45);animation:pulse-wa 2.5s ease-in-out infinite}
-@keyframes pulse-wa{0%,100%{box-shadow:0 6px 24px rgba(37,211,102,0.45)}50%{box-shadow:0 6px 32px rgba(37,211,102,0.7),0 0 0 5px rgba(37,211,102,0.12)}}
-.whatsapp-float svg{width:20px;height:20px;fill:#fff;flex-shrink:0}
-
-footer{padding:22px 28px;border-top:1px solid rgba(99,140,255,0.1);background:#fff;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px}
-.footer-logo{font-size:15px;font-weight:800;color:#1a2744;letter-spacing:-0.02em}
-.footer-logo span{color:#2563eb}
-.footer-support{display:flex;align-items:center;gap:7px;font-size:12px;color:#64748b;font-weight:500}
-.footer-support svg{width:16px;height:16px;fill:#25D366}
-.footer-support strong{color:#15803d}
-.footer-copy{font-size:11px;color:#94a3b8}
+.modal button{
+  width:100%;
+  margin-top:12px;
+  padding:12px;
+  background:#16a34a;
+  color:#fff;
+  font-weight:800;
+  border:none;
+  border-radius:10px;
+}
 </style>
+</head>
 
+<body>
+
+<!-- NAV -->
 <nav>
   <div class="logo">
-    <div class="logo-box">
-      <svg viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/></svg>
-      <div class="logo-dot"></div>
-    </div>
+    <div class="logo-box"></div>
     <span class="logo-name">Vou Estudar<span>+</span></span>
   </div>
-  <div class="nav-right">
-    <div class="nav-support">
-      <svg viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M11.5 2C6.262 2 2 6.262 2 11.5c0 1.822.487 3.53 1.338 5.002L2 22l5.637-1.315A9.446 9.446 0 0011.5 21c5.238 0 9.5-4.262 9.5-9.5S16.738 2 11.5 2z"/></svg>
-      <span>Suporte: <strong>(65) 99694-2875</strong></span>
-    </div>
-    <button class="nav-btn-gold">★ Entrar na plataforma</button>
-  </div>
+  <div class="nav-support">Suporte: (65) 99694-0287</div>
+  <button class="nav-btn-gold" onclick="abrirModal()">Entrar</button>
 </nav>
 
+<!-- HERO LIMPO -->
 <div class="hero-wrap">
-  <h1 class="hero-h1">Pare de estudar sem resultado.<br>Comece um <em>plano que te leva até a aprovação</em></h1>
-  <p class="hero-sub">Com base no seu tempo disponível, a plataforma distribui as matérias, agenda revisões automáticas e mantém você no caminho certo até a aprovação.</p>
-  <div class="hero-btns">
-    <button class="btn-hero-green" onclick="abrirModalLead()">▶ RECEBER MEU PLANO NO WHATSAPP</button>
-    <button class="btn-hero-gold">★ Entrar na plataforma</button>
-  </div>
-  <p class="hero-note">Grátis por 7 dias · Sem cartão · Cancele quando quiser</p>
+  <h1 class="hero-h1">
+    Pare de estudar sem resultado.<br>
+    Comece um <em>plano inteligente de aprovação</em>
+  </h1>
+
+  <p class="hero-sub">
+    A plataforma organiza seus estudos automaticamente e cria um cronograma completo baseado no seu tempo e prova.
+  </p>
 </div>
 
-<div class="trust-row">
-  <div class="trust-item"><div class="trust-ico">⚡</div>3x mais chances de aprovação</div>
-  <div class="trust-item"><div class="trust-ico">👥</div>12.000+ alunos ativos</div>
-  <div class="trust-item"><div class="trust-ico">🔒</div>Plataforma segura</div>
-  <div class="trust-item"><div class="trust-ico">⏱</div>Cronograma em 5 minutos</div>
-</div>
-
-<div class="section" style="background:#f0f6ff">
-  <p class="sec-label">A plataforma</p>
-  <h2 class="sec-title">Veja como funciona por dentro</h2>
-  <p class="sec-sub">Três módulos em ação — alternando automaticamente.</p>
-
-  <div class="slide-indicators">
-    <div class="slide-dot active" onclick="goSlide(0)"></div>
-    <div class="slide-dot" onclick="goSlide(1)"></div>
-    <div class="slide-dot" onclick="goSlide(2)"></div>
-  </div>
+<!-- SISTEMA (MAIOR) -->
+<div class="section">
+  <h2 class="sec-title">Veja o sistema funcionando</h2>
 
   <div class="mockup-wrap">
-    <div class="mockup-slide active" id="slide-0">
-      <div class="dash-mockup">
-        <div class="dash-topbar">
-          <div><div class="dash-tb-title">Dashboard</div><div class="dash-tb-sub">Visão geral dos seus estudos</div></div>
-          <div style="font-size:11px;color:#2563eb;font-weight:700;background:#dbeafe;padding:4px 10px;border-radius:999px;font-family:'Plus Jakarta Sans',sans-serif">● Ao vivo</div>
-        </div>
-        <div class="dash-body">
-          <div class="dash-hello">
-            <div><div class="dh-small">Bora estudar e garantir sua aprovação! ✏️</div><div class="dh-name">Olá, <span>micael!</span> 👋</div></div>
-            <div><div class="dh-pct">12% concluído</div><div class="dh-pct-sub">27 matérias no total</div></div>
-          </div>
-          <div class="dash-alert">
-            <div><div style="font-size:9px;color:#94a3b8;font-family:'Plus Jakarta Sans',sans-serif">SE CONTINUAR ASSIM</div><div class="da-warn">Chance de reprovação ALTA</div><div class="da-tag">👤 Melhor que 21% dos usuários</div></div>
-            <div style="margin-left:auto;text-align:center"><div style="font-size:26px;font-weight:800;color:#dc2626;font-family:'Plus Jakarta Sans',sans-serif">12%</div><div style="font-size:9px;color:#94a3b8;font-family:'Plus Jakarta Sans',sans-serif">PREPARADO</div></div>
-          </div>
-          <div class="dash-today">
-            <div class="dt-head"><span class="dt-lbl">📋 Hoje você precisa</span><span class="dt-time">⏱ 65 min</span></div>
-            <div class="dt-item"><span class="dt-name">Direito</span><span class="dt-min">30 min</span></div>
-            <div class="dt-item"><span class="dt-name">Empreendedorismo</span><span class="dt-min">15 min</span></div>
-            <div class="dt-item"><span class="dt-name">Direito Penal I</span><span class="dt-min">10 min</span></div>
-          </div>
-          <div class="dash-cta-bar"><span>COMEÇAR AGORA ▶</span></div>
-          <div class="dash-desempenho">
-            <div class="dd-head">📈 Seu desempenho</div>
-            <div class="dd-item"><div class="dd-row"><span class="dd-name">Direito Penal</span><span class="dd-pct" style="color:#dc2626">16%</span></div><div class="dd-bar"><div class="dd-fill" style="width:16%;background:#ef4444"></div></div></div>
-            <div class="dd-item"><div class="dd-row"><span class="dd-name">Direito Civil</span><span class="dd-pct" style="color:#16a34a">15%</span></div><div class="dd-bar"><div class="dd-fill" style="width:15%;background:#22c55e"></div></div></div>
-            <div class="dd-item"><div class="dd-row"><span class="dd-name">Direito Constitucional</span><span class="dd-pct" style="color:#2563eb">11%</span></div><div class="dd-bar"><div class="dd-fill" style="width:11%;background:#2563eb"></div></div></div>
-          </div>
-          <div class="dash-grid2">
-            <div class="dash-mini"><div class="dm-lbl">🔥 Sequência</div><div class="dm-big">1</div><div class="dm-sub">dias seguidos</div><div class="dm-warn">⚠ Não perca hoje!</div></div>
-            <div class="dash-mini"><div class="dm-lbl">📅 Previsão</div><div class="dm-prev bad">✗ Continuar assim: <strong>Não passa</strong></div><div class="dm-prev good">✓ Estudar hoje: <strong>Chega a 20%</strong></div></div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <div class="mockup-slide" id="slide-1">
-      <div class="plan-mockup">
-        <div class="pm-topbar">
-          <div><div class="pm-title">✦ Planos Personalizados</div><div class="pm-sub">Envie seu material e receba: plano, flashcards, simulado e cronograma.</div></div>
-          <div class="pm-stats">
-            <div><div class="pm-stat-val" style="color:#60a5fa">8</div><div class="pm-stat-lbl">Tópicos</div></div>
-            <div><div class="pm-stat-val" style="color:#94a3b8">0%</div><div class="pm-stat-lbl">Progresso</div></div>
-          </div>
-        </div>
-        <div class="pm-body">
-          <div class="pm-upload">
-            <div class="pmu-label">Material de Estudo</div>
-            <div class="pmu-btns"><div class="pmu-btn">⬆ Upload PDF</div><div class="pmu-btn">📋 Colar Texto</div></div>
-            <div class="pmu-drop"><div style="font-size:16px;margin-bottom:4px">📄</div><div style="font-size:10px;color:rgba(255,255,255,0.4);font-family:'Plus Jakarta Sans',sans-serif">Clique para selecionar o PDF</div></div>
-            <div class="typing-bar"><span class="typing-text">Direito Constitucional — Federalismo</span><span class="cursor-dot"></span></div>
-            <div class="pmu-dates">
-              <div class="pmu-date"><div class="pmu-date-lbl">📅 Início</div><div class="pmu-date-val">15/04/2025</div></div>
-              <div class="pmu-date"><div class="pmu-date-lbl">📋 Data da Prova</div><div class="pmu-date-val">20/07/2025</div></div>
-            </div>
-            <button class="pmu-gen">⚡ Gerar Plano Inteligente</button>
-          </div>
-          <div class="pm-topics">
-            <div class="pmt-label">● Tópicos mais prováveis</div>
-            <div class="pmt-item"><div class="pmt-row"><span class="pmt-name">Formas de Estado: unitário puro</span><span class="pmt-pct" style="color:#10b981">95%</span></div><div class="pmt-desc">Conceito fundamental que distingue organizações estatais</div></div>
-            <div class="pmt-item"><div class="pmt-row"><span class="pmt-name">Estado federado e a federação brasileira</span><span class="pmt-pct" style="color:#10b981">98%</span></div><div class="pmt-desc">O Brasil adota a forma federativa</div></div>
-            <div class="pmt-item"><div class="pmt-row"><span class="pmt-name">Tipos de federalismo: agregação/desagregação</span><span class="pmt-pct" style="color:#f59e0b">82%</span></div><div class="pmt-desc">Classificação doutrinária importante</div></div>
-            <div class="pmt-item"><div class="pmt-row"><span class="pmt-name">Federalismo de segundo grau</span><span class="pmt-pct" style="color:#10b981">90%</span></div><div class="pmt-desc">Inovação da Constituição de 1988</div></div>
-          </div>
-        </div>
-        <div class="pm-tabs">
-          <span class="pm-tab active">📋 Plano</span>
-          <span class="pm-tab">⚡ Flashcards</span>
-          <span class="pm-tab">📝 Simulado</span>
-          <span class="pm-tab">📈 Progressivo</span>
-          <span class="pm-tab">📄 Resumo</span>
-          <span class="pm-tab">📅 Cronograma</span>
-          <span class="pm-tab gold">🎮 Jogo da Trilha</span>
-        </div>
-      </div>
-    </div>
-
-    <div class="mockup-slide" id="slide-2">
-      <div class="sim-mockup">
-        <div class="sim-topbar">
-          <div class="sim-tb-left"><strong>Simulado — Direito Constitucional</strong><span>Questão 4 de 10 · Nível: Médio</span></div>
-          <div class="sim-timer"><div class="sim-timer-val" id="sim-clock">18:42</div><div class="sim-timer-lbl">restante</div></div>
-        </div>
-        <div class="sim-body">
-          <div class="sim-progress">
-            <div class="sim-prog-bar"><div class="sim-prog-fill"></div></div>
-            <span class="sim-prog-txt">4/10 questões</span>
-          </div>
-          <div class="sim-question">
-            <div class="sim-q-num">Questão 04</div>
-            <div class="sim-q-txt">Segundo a Constituição Federal de 1988, são poderes da União, independentes e harmônicos entre si:</div>
-            <div class="sim-options">
-              <div class="sim-opt wrong"><div class="sim-opt-letter">A</div><span class="sim-opt-txt">Legislativo, Executivo e Judiciário, além do Ministério Público</span></div>
-              <div class="sim-opt correct"><div class="sim-opt-letter">B</div><span class="sim-opt-txt">Legislativo, Executivo e Judiciário</span></div>
-              <div class="sim-opt"><div class="sim-opt-letter">C</div><span class="sim-opt-txt">Federal, Estadual e Municipal</span></div>
-              <div class="sim-opt"><div class="sim-opt-letter">D</div><span class="sim-opt-txt">Legislativo, Executivo, Judiciário e Defensoria Pública</span></div>
-            </div>
-            <div class="sim-feedback">
-              <span style="font-size:14px;flex-shrink:0">✅</span>
-              <span class="sim-fb-txt"><strong>Correto!</strong> O art. 2º da CF/88 estabelece que são Poderes da União, independentes e harmônicos entre si, o Legislativo, o Executivo e o Judiciário.</span>
-            </div>
-          </div>
-          <div class="sim-nav">
-            <button class="sim-btn-prev">← Anterior</button>
-            <button class="sim-btn-next">Próxima questão →</button>
-          </div>
-        </div>
-      </div>
+    <!-- SEU SISTEMA ORIGINAL AQUI -->
+    <div style="background:#fff;padding:40px;border-radius:16px;box-shadow:0 20px 60px rgba(0,0,0,0.1)">
+      📊 Dashboard de Estudos (visual ampliado)
     </div>
   </div>
-  <div class="slide-label-txt" id="slide-label-txt">Dashboard de acompanhamento</div>
 </div>
 
-<div class="section">
-  <p class="sec-label">Como funciona</p>
-  <h2 class="sec-title">Do cadastro ao cronograma em 3 passos</h2>
-  <p class="sec-sub">Simples, rápido e adaptado para a sua rotina.</p>
-  <div class="steps-list">
-    <div class="step"><div class="step-num">1</div><div class="step-body"><strong>Informe sua meta e tempo disponível</strong><span>Diga qual concurso ou exame quer passar e quantas horas por dia pode estudar.</span></div></div>
-    <div class="step"><div class="step-num">2</div><div class="step-body"><strong>A plataforma monta seu cronograma</strong><span>O sistema distribui as matérias, prioriza pontos fracos e programa revisões espaçadas automaticamente.</span></div></div>
-    <div class="step"><div class="step-num">3</div><div class="step-body"><strong>Estude e acompanhe sua evolução</strong><span>Siga o plano diário, veja seu progresso e o sistema se ajusta se você perder um dia.</span></div></div>
-  </div>
+<!-- CTA FLUTUANTE -->
+<div class="cta-floating" id="cta">
+  <button onclick="abrirModal()">▶ Receber meu plano no WhatsApp</button>
 </div>
 
-<div class="section" style="background:#f0f6ff">
-  <p class="sec-label">Funcionalidades</p>
-  <h2 class="sec-title">Tudo que você precisa em um lugar</h2>
-  <p class="sec-sub">Sem planilha, sem improviso.</p>
-  <div class="feat-grid">
-    <div class="feat-card"><div class="feat-ico">📅</div><strong>Cronograma automático</strong><span>Distribuição inteligente de matérias com base no seu tempo e na proximidade da prova.</span></div>
-    <div class="feat-card"><div class="feat-ico">🔁</div><strong>Revisões programadas</strong><span>Repetição espaçada para fixar o conteúdo e não esquecer o que estudou.</span></div>
-    <div class="feat-card"><div class="feat-ico">📝</div><strong>Simulados com IA</strong><span>Questões geradas com base no seu material e corrigidas automaticamente com feedback.</span></div>
-    <div class="feat-card"><div class="feat-ico">🎮</div><strong>Jogo da Trilha + Coach IA</strong><span>Gamificação e coach humanizado para manter o ritmo de estudos todo dia.</span></div>
-  </div>
-</div>
-
-<div class="section">
-  <p class="sec-label">Áreas disponíveis</p>
-  <h2 class="sec-title">Para qualquer tipo de estudo</h2>
-  <p class="sec-sub">Concursos, vestibulares, OAB e graduações nas principais áreas.</p>
-  <div class="areas">
-    <span class="area-tag">⚖️ Direito</span><span class="area-tag">🩺 Medicina</span><span class="area-tag">⚙️ Engenharia</span>
-    <span class="area-tag">➕ Matemática</span><span class="area-tag">🌿 Biologia</span><span class="area-tag">📈 Administração</span>
-    <span class="area-tag">💻 Tecnologia</span><span class="area-tag">💊 Enfermagem</span><span class="area-tag">🌾 Agronomia</span>
-    <span class="area-tag">📝 Português</span><span class="area-tag">🧠 Psicologia</span>
-  </div>
-</div>
-
-<div class="cta-section">
-  <div class="cta-box">
-    <h2>Comece a estudar com método hoje</h2>
-    <p>Monte seu cronograma personalizado em menos de 5 minutos. Grátis por 7 dias, sem cartão de crédito.</p>
-    <button class="btn-cta-gold">★ Entrar na plataforma agora</button>
-    <p class="cta-note">+12.000 estudantes já organizaram seus estudos com a plataforma</p>
-  </div>
-</div>
-
-<footer>
-  <span class="footer-logo">Vou Estudar<span>+</span></span>
-  <div class="footer-support">
-    <svg viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M11.5 2C6.262 2 2 6.262 2 11.5c0 1.822.487 3.53 1.338 5.002L2 22l5.637-1.315A9.446 9.446 0 0011.5 21c5.238 0 9.5-4.262 9.5-9.5S16.738 2 11.5 2z"/></svg>
-    Suporte: <strong>(65) 99694-2875</strong>
-  </div>
-  <span class="footer-copy">© 2025 · Todos os direitos reservados</span>
-</footer>
-
-<button class="whatsapp-float" onclick="window.open('https://wa.me/5565996942875','_blank')">
-  <svg viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M11.5 2C6.262 2 2 6.262 2 11.5c0 1.822.487 3.53 1.338 5.002L2 22l5.637-1.315A9.446 9.446 0 0011.5 21c5.238 0 9.5-4.262 9.5-9.5S16.738 2 11.5 2z"/></svg>
-  Suporte via WhatsApp
+<!-- WHATSAPP -->
+<button class="whatsapp-float" onclick="window.open('https://wa.me/5565996940287','_blank')">
+  WhatsApp
 </button>
 
-<script>
-const slides = ['slide-0','slide-1','slide-2'];
-const labels = ['Dashboard de acompanhamento','Planos personalizados com IA','Simulado com correção automática'];
-let current = 0;
-let autoTimer = setInterval(nextSlide, 4000);
+<!-- MODAL -->
+<div class="overlay" id="modal">
+  <div class="modal">
+    <h3>Receber plano</h3>
+    <input id="nome" placeholder="Seu nome">
+    <input id="whats" placeholder="WhatsApp">
+    <button onclick="enviar()">Enviar</button>
+  </div>
+</div>
 
-function goSlide(n) {
-  document.getElementById(slides[current]).classList.remove('active');
-  document.querySelectorAll('.slide-dot')[current].classList.remove('active');
-  current = n;
-  document.getElementById(slides[current]).classList.add('active');
-  document.querySelectorAll('.slide-dot')[current].classList.add('active');
-  document.getElementById('slide-label-txt').textContent = labels[current];
-}
-function nextSlide() { goSlide((current + 1) % slides.length); }
-document.querySelectorAll('.slide-dot').forEach((dot, i) => {
-  dot.addEventListener('click', () => { clearInterval(autoTimer); goSlide(i); autoTimer = setInterval(nextSlide, 4000); });
+<script>
+
+/* CTA APÓS 6 SEGUNDOS */
+setTimeout(()=>{
+  document.getElementById('cta').classList.add('show');
+},6000);
+
+/* CTA NO SCROLL */
+window.addEventListener('scroll',()=>{
+  const scroll = window.scrollY / document.body.scrollHeight;
+  if(scroll > 0.4){
+    document.getElementById('cta').classList.add('show');
+  }
 });
 
-let s = 1122;
-setInterval(() => {
-  s--; if(s < 0) s = 1200;
-  const m = Math.floor(s/60), sec = s%60;
-  const el = document.getElementById('sim-clock');
-  if(el) el.textContent = m+':'+(sec<10?'0':'')+sec;
-}, 1000);
+/* MODAL */
+function abrirModal(){
+  document.getElementById('modal').style.display='flex';
+}
+
+function enviar(){
+  const n=document.getElementById('nome').value;
+  const w=document.getElementById('whats').value;
+  if(!n||!w)return alert("Preencha");
+  
+  const msg = `Olá, meu nome é ${n}. Quero meu plano de estudos.`;
+  window.open(`https://wa.me/55${w}?text=${encodeURIComponent(msg)}`);
+}
+
 </script>
+
+</body>
+</html>
