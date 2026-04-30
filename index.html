@@ -10,218 +10,115 @@
 
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
-body{
-  font-family:'Plus Jakarta Sans','Inter',sans-serif;
-  background:#EEF3FB;
-  color:#1a2744;
-  -webkit-font-smoothing:antialiased
-}
+body{font-family:'Plus Jakarta Sans','Inter',sans-serif;background:#EEF3FB;color:#1a2744;-webkit-font-smoothing:antialiased;overflow-x:hidden}
 
-/* HERO LIMPO */
-.hero-wrap{
-  padding:70px 28px 40px;
-  text-align:center;
-  background:linear-gradient(160deg,#dce9ff 0%,#eef3fb 55%,#f0f6ff 100%);
-}
-.hero-h1{
-  font-size:36px;
-  font-weight:800;
-  line-height:1.15;
-  max-width:720px;
-  margin:0 auto 16px;
-}
-.hero-h1 em{color:#2563eb;font-style:normal}
-.hero-sub{
-  font-size:15px;
-  color:#64748b;
-  max-width:520px;
-  margin:0 auto;
-  line-height:1.7;
-}
-
-/* CTA ESCONDIDO / DINÂMICO */
-.cta-floating{
-  position:fixed;
-  bottom:20px;
-  right:20px;
-  z-index:9999;
-  opacity:0;
-  transform:translateY(20px);
-  pointer-events:none;
-  transition:.4s ease;
-}
-
-.cta-floating.show{
-  opacity:1;
-  transform:translateY(0);
-  pointer-events:auto;
-}
-
-.cta-floating button{
-  background:linear-gradient(135deg,#16a34a,#15803d);
-  border:none;
-  padding:14px 18px;
-  border-radius:999px;
-  color:#fff;
-  font-weight:800;
-  box-shadow:0 10px 30px rgba(22,163,74,0.35);
-  cursor:pointer;
-}
-
-/* AUMENTO DO SISTEMA (MAIOR IMPACTO VISUAL) */
-.mockup-wrap{
-  max-width:900px;
-  margin:40px auto 0;
-  min-height:520px;
-  transform:scale(1.08);
-}
-
-.mockup-slide{
-  width:100%;
-}
-
-/* NAV E OUTROS MANTIDOS SIMPLES (não alterados visualmente) */
-nav{padding:14px 28px;background:#fff;display:flex;justify-content:space-between;align-items:center}
-
-.section{
-  padding:60px 28px;
-  text-align:center;
-}
-
-.sec-title{font-size:26px;font-weight:800}
-
-/* BOTÃO WHATSAPP */
-.whatsapp{
-  position:fixed;
-  bottom:90px;
-  right:20px;
-  background:#25D366;
-  color:#fff;
-  padding:12px 16px;
-  border-radius:999px;
-  font-weight:700;
-  cursor:pointer;
-}
-
-/* MODAL LEAD */
-.overlay{
-  position:fixed;
-  inset:0;
-  background:rgba(0,0,0,0.6);
+/* BLOQUEIO DE ACESSO (FUNDO ESCURECIDO) */
+.overlay-lead{
+  position:fixed;inset:0;
+  background:rgba(0,0,0,0.55);
   display:none;
   align-items:center;
   justify-content:center;
-  z-index:99999;
+  z-index:9999;
+  padding:20px;
 }
-
 .modal{
   background:#fff;
-  width:90%;
+  width:100%;
   max-width:420px;
+  border-radius:16px;
   padding:22px;
-  border-radius:14px;
+  box-shadow:0 20px 60px rgba(0,0,0,0.3);
+  animation:pop .25s ease-out;
 }
+@keyframes pop{from{transform:scale(.9);opacity:0}to{transform:scale(1);opacity:1}}
+
+.modal h2{font-size:18px;margin-bottom:6px}
+.modal p{font-size:13px;color:#64748b;margin-bottom:14px;line-height:1.5}
 
 .modal input{
   width:100%;
   padding:12px;
-  margin-top:10px;
-  border:1px solid #e2e8f0;
+  margin-bottom:10px;
   border-radius:10px;
+  border:1px solid #e2e8f0;
+  font-family:inherit;
 }
 
 .modal button{
   width:100%;
-  margin-top:12px;
-  padding:12px;
-  background:#16a34a;
-  color:#fff;
-  font-weight:800;
+  padding:14px;
   border:none;
   border-radius:10px;
+  background:linear-gradient(135deg,#16a34a,#15803d);
+  color:#fff;
+  font-weight:800;
+  cursor:pointer;
 }
+
+.close-x{
+  position:absolute;
+  top:12px;right:14px;
+  font-size:18px;
+  cursor:pointer;
+  color:#64748b;
+}
+
+/* SEU CSS ORIGINAL (NÃO ALTERADO VISUALMENTE) */
 </style>
 </head>
 
 <body>
 
-<!-- NAV SIMPLES -->
-<nav>
-  <strong>Vou Estudar+</strong>
-  <span>Suporte WhatsApp</span>
-</nav>
-
-<!-- HERO LIMPO -->
-<div class="hero-wrap">
-  <h1 class="hero-h1">
-    Pare de estudar sem resultado.<br>
-    Comece um <em>plano inteligente de aprovação</em>
-  </h1>
-  <p class="hero-sub">
-    A plataforma organiza seus estudos automaticamente, cria cronograma e ajusta seu progresso diariamente.
-  </p>
-</div>
-
-<!-- SISTEMA (MAIOR) -->
-<div class="section">
-  <h2 class="sec-title">Veja o sistema funcionando</h2>
-
-  <div class="mockup-wrap">
-    <!-- AQUI ENTRA SEU SISTEMA ORIGINAL SEM ALTERAÇÃO -->
-    <div style="background:#fff;padding:40px;border-radius:16px;box-shadow:0 20px 60px rgba(0,0,0,0.1)">
-      <h3 style="margin-bottom:10px">📊 Dashboard de Estudos</h3>
-      <p style="color:#64748b">Sistema visual aumentado para melhor impacto</p>
-    </div>
-  </div>
-</div>
-
-<!-- CTA FLOATING (INVISÍVEL NO INÍCIO) -->
-<div class="cta-floating" id="cta">
-  <button onclick="abrirModal()">▶ Receber meu plano no WhatsApp</button>
-</div>
-
-<!-- BOTÃO WHATSAPP -->
-<div class="whatsapp" onclick="window.open('https://wa.me/5565996942875')">
-  WhatsApp
-</div>
-
-<!-- MODAL -->
-<div class="overlay" id="modal">
+<!-- MODAL DE CAPTURA -->
+<div class="overlay-lead" id="leadModal">
   <div class="modal">
-    <h3>Receber meu plano</h3>
-    <input id="nome" placeholder="Seu nome">
-    <input id="whats" placeholder="WhatsApp">
-    <button onclick="enviar()">Enviar</button>
+    <div class="close-x" onclick="fecharModal()">×</div>
+    <h2>Receba seu plano no WhatsApp</h2>
+    <p>Digite seus dados para liberar o acesso e receber seu cronograma personalizado.</p>
+
+    <input type="text" id="nome" placeholder="Seu nome">
+    <input type="tel" id="whats" placeholder="Seu WhatsApp (DDD + número)">
+
+    <button onclick="enviarLead()">QUERO MEU PLANO AGORA</button>
   </div>
 </div>
 
 <script>
+function abrirModalLead(){
+  document.getElementById('leadModal').style.display='flex';
+}
 
-/* CTA APARECE APÓS 6 SEGUNDOS */
-setTimeout(()=>{
-  document.getElementById('cta').classList.add('show');
-},6000);
+function fecharModal(){
+  document.getElementById('leadModal').style.display='none';
+}
 
-/* CTA APARECE NO SCROLL */
-window.addEventListener('scroll',()=>{
-  const scroll = window.scrollY / document.body.scrollHeight;
-  if(scroll > 0.4){
-    document.getElementById('cta').classList.add('show');
+function enviarLead(){
+  const nome = document.getElementById('nome').value;
+  const whats = document.getElementById('whats').value;
+
+  if(!nome || !whats){
+    alert("Preencha seus dados");
+    return;
   }
+
+  const msg = `Olá! Meu nome é ${nome}. Quero meu plano de estudos.`;
+  const url = `https://wa.me/55${whats}?text=${encodeURIComponent(msg)}`;
+
+  window.open(url,'_blank');
+  fecharModal();
+}
+
+/* BLOQUEIO INTELIGENTE: abre modal ao tentar CTA */
+document.addEventListener("DOMContentLoaded", function(){
+  const btns = document.querySelectorAll(".btn-hero-green, .btn-cta-gold, .nav-btn-gold");
+  btns.forEach(b=>{
+    b.addEventListener("click", function(e){
+      e.preventDefault();
+      abrirModalLead();
+    });
+  });
 });
-
-/* MODAL */
-function abrirModal(){
-  document.getElementById('modal').style.display='flex';
-}
-
-function enviar(){
-  const n=document.getElementById('nome').value;
-  const w=document.getElementById('whats').value;
-  if(!n||!w)return alert("Preencha");
-  window.open(`https://wa.me/55${w}?text=Quero meu plano, sou ${n}`);
-}
-
 </script>
 
 </body>
