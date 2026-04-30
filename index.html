@@ -10,24 +10,19 @@
 
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
-body{font-family:'Plus Jakarta Sans','Inter',sans-serif;background:#EEF3FB;color:#1a2744;-webkit-font-smoothing:antialiased}
+body{
+  font-family:'Plus Jakarta Sans','Inter',sans-serif;
+  background:#EEF3FB;
+  color:#1a2744;
+  -webkit-font-smoothing:antialiased
+}
 
-/* ================= NAV ================= */
-nav{display:flex;align-items:center;justify-content:space-between;padding:14px 28px;background:rgba(255,255,255,0.95);backdrop-filter:blur(16px);border-bottom:1px solid rgba(99,140,255,0.12);position:sticky;top:0;z-index:50;gap:12px}
-.logo{display:flex;align-items:center;gap:10px}
-.logo-box{width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,#4f8ef7,#2563eb);display:flex;align-items:center;justify-content:center;position:relative}
-.logo-name{font-size:17px;font-weight:800}
-.logo-name span{color:#2563eb}
-.nav-support{font-size:12px;color:#64748b}
-.nav-btn-gold{background:linear-gradient(135deg,#fcd34d,#f59e0b);border:none;padding:10px 18px;border-radius:10px;font-weight:800;cursor:pointer}
-
-/* ================= HERO LIMPO ================= */
+/* HERO LIMPO */
 .hero-wrap{
   padding:70px 28px 40px;
   text-align:center;
   background:linear-gradient(160deg,#dce9ff 0%,#eef3fb 55%,#f0f6ff 100%);
 }
-
 .hero-h1{
   font-size:36px;
   font-weight:800;
@@ -35,9 +30,7 @@ nav{display:flex;align-items:center;justify-content:space-between;padding:14px 2
   max-width:720px;
   margin:0 auto 16px;
 }
-
 .hero-h1 em{color:#2563eb;font-style:normal}
-
 .hero-sub{
   font-size:15px;
   color:#64748b;
@@ -46,7 +39,7 @@ nav{display:flex;align-items:center;justify-content:space-between;padding:14px 2
   line-height:1.7;
 }
 
-/* ================= CTA FLOATING ================= */
+/* CTA ESCONDIDO / DINÂMICO */
 .cta-floating{
   position:fixed;
   bottom:20px;
@@ -71,36 +64,46 @@ nav{display:flex;align-items:center;justify-content:space-between;padding:14px 2
   border-radius:999px;
   color:#fff;
   font-weight:800;
-  cursor:pointer;
   box-shadow:0 10px 30px rgba(22,163,74,0.35);
+  cursor:pointer;
 }
 
-/* ================= SISTEMA MAIOR ================= */
+/* AUMENTO DO SISTEMA (MAIOR IMPACTO VISUAL) */
 .mockup-wrap{
   max-width:900px;
-  margin:40px auto;
+  margin:40px auto 0;
+  min-height:520px;
   transform:scale(1.08);
 }
 
-/* ================= SEÇÕES ORIGINAIS ================= */
-.section{padding:52px 28px;text-align:center}
+.mockup-slide{
+  width:100%;
+}
+
+/* NAV E OUTROS MANTIDOS SIMPLES (não alterados visualmente) */
+nav{padding:14px 28px;background:#fff;display:flex;justify-content:space-between;align-items:center}
+
+.section{
+  padding:60px 28px;
+  text-align:center;
+}
+
 .sec-title{font-size:26px;font-weight:800}
 
-/* ================= WHATSAPP ================= */
-.whatsapp-float{
+/* BOTÃO WHATSAPP */
+.whatsapp{
   position:fixed;
   bottom:90px;
   right:20px;
   background:#25D366;
   color:#fff;
-  border:none;
   padding:12px 16px;
   border-radius:999px;
-  font-weight:800;
+  font-weight:700;
   cursor:pointer;
 }
 
-/* ================= MODAL ================= */
+/* MODAL LEAD */
 .overlay{
   position:fixed;
   inset:0;
@@ -142,14 +145,10 @@ nav{display:flex;align-items:center;justify-content:space-between;padding:14px 2
 
 <body>
 
-<!-- NAV -->
+<!-- NAV SIMPLES -->
 <nav>
-  <div class="logo">
-    <div class="logo-box"></div>
-    <span class="logo-name">Vou Estudar<span>+</span></span>
-  </div>
-  <div class="nav-support">Suporte: (65) 99694-0287</div>
-  <button class="nav-btn-gold" onclick="abrirModal()">Entrar</button>
+  <strong>Vou Estudar+</strong>
+  <span>Suporte WhatsApp</span>
 </nav>
 
 <!-- HERO LIMPO -->
@@ -158,9 +157,8 @@ nav{display:flex;align-items:center;justify-content:space-between;padding:14px 2
     Pare de estudar sem resultado.<br>
     Comece um <em>plano inteligente de aprovação</em>
   </h1>
-
   <p class="hero-sub">
-    A plataforma organiza seus estudos automaticamente e cria um cronograma completo baseado no seu tempo e prova.
+    A plataforma organiza seus estudos automaticamente, cria cronograma e ajusta seu progresso diariamente.
   </p>
 </div>
 
@@ -169,27 +167,28 @@ nav{display:flex;align-items:center;justify-content:space-between;padding:14px 2
   <h2 class="sec-title">Veja o sistema funcionando</h2>
 
   <div class="mockup-wrap">
-    <!-- SEU SISTEMA ORIGINAL AQUI -->
+    <!-- AQUI ENTRA SEU SISTEMA ORIGINAL SEM ALTERAÇÃO -->
     <div style="background:#fff;padding:40px;border-radius:16px;box-shadow:0 20px 60px rgba(0,0,0,0.1)">
-      📊 Dashboard de Estudos (visual ampliado)
+      <h3 style="margin-bottom:10px">📊 Dashboard de Estudos</h3>
+      <p style="color:#64748b">Sistema visual aumentado para melhor impacto</p>
     </div>
   </div>
 </div>
 
-<!-- CTA FLUTUANTE -->
+<!-- CTA FLOATING (INVISÍVEL NO INÍCIO) -->
 <div class="cta-floating" id="cta">
   <button onclick="abrirModal()">▶ Receber meu plano no WhatsApp</button>
 </div>
 
-<!-- WHATSAPP -->
-<button class="whatsapp-float" onclick="window.open('https://wa.me/5565996940287','_blank')">
+<!-- BOTÃO WHATSAPP -->
+<div class="whatsapp" onclick="window.open('https://wa.me/5565996942875')">
   WhatsApp
-</button>
+</div>
 
 <!-- MODAL -->
 <div class="overlay" id="modal">
   <div class="modal">
-    <h3>Receber plano</h3>
+    <h3>Receber meu plano</h3>
     <input id="nome" placeholder="Seu nome">
     <input id="whats" placeholder="WhatsApp">
     <button onclick="enviar()">Enviar</button>
@@ -198,12 +197,12 @@ nav{display:flex;align-items:center;justify-content:space-between;padding:14px 2
 
 <script>
 
-/* CTA APÓS 6 SEGUNDOS */
+/* CTA APARECE APÓS 6 SEGUNDOS */
 setTimeout(()=>{
   document.getElementById('cta').classList.add('show');
 },6000);
 
-/* CTA NO SCROLL */
+/* CTA APARECE NO SCROLL */
 window.addEventListener('scroll',()=>{
   const scroll = window.scrollY / document.body.scrollHeight;
   if(scroll > 0.4){
@@ -220,9 +219,7 @@ function enviar(){
   const n=document.getElementById('nome').value;
   const w=document.getElementById('whats').value;
   if(!n||!w)return alert("Preencha");
-  
-  const msg = `Olá, meu nome é ${n}. Quero meu plano de estudos.`;
-  window.open(`https://wa.me/55${w}?text=${encodeURIComponent(msg)}`);
+  window.open(`https://wa.me/55${w}?text=Quero meu plano, sou ${n}`);
 }
 
 </script>
